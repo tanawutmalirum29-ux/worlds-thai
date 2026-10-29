@@ -109,11 +109,13 @@ async function assignRaritySnapshot(before:Match|null,state:Match,now:number):Pr
   if(before?.phase==='playing' && before.round===state.round)return;
   state.rarityBonuses={};
   // Failed analytics must NEVER stop a round or award unverified bonuses.
-  const results=await Promise.all(state.categories.map(async category=>{
-    try{return [category,await loadRaritySnapshot(state.letter,category,now)] as const;}
-    catch(e){console.warn('Rarity analytics unavailable for',state.letter,category,e);return [category,{}] as const;}
+  const results=await Promise.all(state.categories.map(async slot=>{
+    const category=state.topicCategory||slot;
+    const letter=state.topicCategory?slot:state.letter;
+    try{return [slot,await loadRaritySnapshot(letter,category,now)] as const;}
+    catch(e){console.warn('Rarity analytics unavailable for',letter,category,e);return [slot,{}] as const;}
   }));
-  for(const [category,bonuses] of results)state.rarityBonuses[category]=bonuses;
+  for(const [slot,bonuses] of results)state.rarityBonuses[slot]=bonuses;
 }
 
 const ROOM_ID=/^room-[a-f0-9]{20}$/;
