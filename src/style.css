@@ -217,3 +217,23 @@
 @media(prefers-reduced-motion:reduce){
   .time-box strong.countdown-pulse{animation:none;transform:none}
 }
+
+/* One-vote-per-Cognito-guest, fixed in the mobile safe area rather than the scrolling answer list. */
+.skip-time-floating{position:fixed;right:max(15px,env(safe-area-inset-right));bottom:max(15px,env(safe-area-inset-bottom));z-index:80;
+  display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;
+  min-height:54px;max-width:min(290px,calc(100vw - 28px));padding:10px 15px;
+  border:1px solid #f4d092;border-radius:16px;box-shadow:0 10px 30px #081322bc;
+  color:#16263a;background:linear-gradient(145deg,#f9dba5,#efbd72);font-size:14px;font-weight:800;cursor:pointer;
+  touch-action:manipulation}
+.skip-time-floating strong{background:#142c41;color:#fff3dc;border-radius:999px;padding:3px 8px;min-width:40px;font-size:13px}
+.skip-time-floating .skip-time-symbol{font-size:20px;line-height:1}
+.skip-time-floating:disabled{opacity:.78;cursor:default}
+.skip-time-floating.rush-active{animation:skip-vote-pulse .44s ease-in-out infinite alternate}
+.rush-time{display:inline-block;color:#ffb96c!important;animation:rush-numbers .20s ease-in-out infinite alternate}
+.rematch-vote{margin-top:16px;width:100%;min-height:52px}
+@keyframes rush-numbers{from{transform:scale(1)}to{transform:scale(1.10)}}
+@keyframes skip-vote-pulse{from{transform:scale(1)}to{transform:scale(1.045)}}
+@media (prefers-reduced-motion:reduce){.skip-time-floating.rush-active,.rush-time{animation:none}}
+@media (max-width:600px){.skip-time-floating{right:max(9px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));min-height:48px;padding:8px 12px;
+ font-size:12px;max-width:190px;gap:5px;border-radius:13px}.skip-time-floating .skip-time-symbol{font-size:15px}
+ .skip-time-floating strong{font-size:12px;padding:3px 6px}}

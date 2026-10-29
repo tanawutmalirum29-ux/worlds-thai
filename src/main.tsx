@@ -43,7 +43,10 @@ type Entry = { id:string; name:string; answers:Record<string,string>; points:num
 type Round = {round:number; letter:string; categories:string[]; entries:Entry[]};
 type Game = {roomId:string; phase:'lobby'|'playing'|'review'|'final'; round:number; letter:string;
   categories:string[]; deadline:number; countdown:number; players:Player[]; submitted:string[];
-  history:Round[]; revision:number; ownerId:string; settings:GameSettings; you?:string};
+  history:Round[]; revision:number; ownerId:string; settings:GameSettings; you?:string;
+  skipVotes?:string[]; rematchVotes?:string[];
+  timeRush?:{start:number;ends:number;from:number};
+};
 type Api = any;
 function unpack(value:unknown):any {
   if(typeof value === 'string') { try { return JSON.parse(value); } catch { return value; } }
@@ -197,6 +200,7 @@ function App(){
     if(next.phase!=='playing' && draftTimerRef.current){
       clearTimeout(draftTimerRef.current);draftTimerRef.current=null;
     }
+    if(next.phase==='lobby' && current.current?.phase!=='lobby')setDraftSettings(next.settings);
     current.current=next;setGame(next);
   },[]);
   const call=useCallback(async(action:string,roomId?:string, nickname?:string, values?:Record<string,string>, settings?:GameSettings)=>{
@@ -220,6 +224,7 @@ function App(){
       localStorage.setItem('khamwai-name',trimmed);
       meRef.current=next.snapshot.you||'';setMe(meRef.current);
       roomRef.current=next.roomId;roundRef.current=0;current.current=null;
+      localStorage.setItem('khamwai-active-room',next.roomId);
       accept(next.snapshot);
       setDraftSettings(next.snapshot.settings);
       audioRef.current?.cue('join');
@@ -232,11 +237,37 @@ function App(){
     audioRef.current?.cue('exit');
     const old=roomRef.current;
     roomRef.current=''; meRef.current='';setMe('');setGame(null);current.current=null;roundRef.current=0;setAnswers({});
+    if(localStorage.getItem('khamwai-active-room')===old)localStorage.removeItem('khamwai-active-room');
     if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
     draftTimerRef.current=null;answersRef.current={};draftVersionRef.current=0;savedVersionRef.current=0;setDraftStatus('idle');
     setMode('join');
     try {await call('leave',old);}catch {/* Guest expires automatically if offline. */}
   };
+  // The same Cognito guest credentials are reused across tabs in one browser
+  // profile. Restore the room by server re-join: the same guest ID cannot
+  // occupy two player slots in that room.
+  useEffect(()=>{
+    if(!client || roomRef.current)return;
+    const saved=localStorage.getItem('khamwai-active-room');
+    const nickname=localStorage.getItem('khamwai-name');
+    if(!saved || !/^room-[a-f0-9]{20}$/.test(saved)||!nickname)return;
+    let stopped=false;
+    (async()=>{
+      try{
+        const result=await call('join',saved,nickname);
+        if(stopped || roomRef.current)return;
+        roomRef.current=result.roomId;
+        meRef.current=result.snapshot.you||'';
+        setMe(meRef.current);roundRef.current=0;current.current=null;
+        accept(result.snapshot);setDraftSettings(result.snapshot.settings);
+      }catch{
+        // The saved room may have expired or this identity already left it.
+        if(!stopped && localStorage.getItem('khamwai-active-room')===saved)
+          localStorage.removeItem('khamwai-active-room');
+      }
+    })();
+    return()=>{stopped=true;};
+  },[client,call,accept]);
   useEffect(()=>{
     if(!client || game)return;
     const api=client as any;
@@ -335,7 +366,22 @@ function App(){
       draftTimerRef.current=setTimeout(()=>void flushDraft(),0);
     }
   },[game?.round,game?.phase,now]);
-  async function ownerAction(action:'settings'|'start'|'reset') {
+  async function vote(action:'skip'|'rematch') {
+    if(!roomRef.current||workingRef.current||!current.current)return;
+    const state=current.current;
+    if(action==='skip' && (state.phase!=='playing'||state.skipVotes?.includes(meRef.current)||state.timeRush))return;
+    if(action==='rematch' && (state.phase!=='final'||state.rematchVotes?.includes(meRef.current)))return;
+    workingRef.current=true;setWorking(true);setError('');
+    try{
+      // Flush the last edited answer before requesting a shortened timer.
+      if(action==='skip' && draftVersionRef.current>savedVersionRef.current)
+        await flushDraft();
+      const result=await call(action,state.roomId);
+      accept(result.snapshot);
+    }catch(e){setError(e instanceof Error?e.message:'โหวตไม่สำเร็จ');}
+    finally{workingRef.current=false;setWorking(false);}
+  }
+  async function ownerAction(action:'settings'|'start') {
     if(!game||workingRef.current||game.ownerId!==me)return;
     workingRef.current=true;setWorking(true);setError('');
     try {
@@ -365,6 +411,16 @@ function App(){
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
+  const rushing=Boolean(playing && game?.timeRush && now<game.timeRush.ends);
+  const displayedRemaining=rushing && game?.timeRush
+    ?Math.max(5,Math.ceil(game.timeRush.from-
+      (game.timeRush.from-5)*(now-game.timeRush.start)/
+      Math.max(1,game.timeRush.ends-game.timeRush.start)))
+    :remaining;
+  const skipCount=game?.skipVotes?.length||0;
+  const rematchCount=game?.rematchVotes?.length||0;
+  const hasSkipped=Boolean(game?.skipVotes?.includes(me));
+  const hasRematched=Boolean(game?.rematchVotes?.includes(me));
   useEffect(()=>{
     const scene:AudioScene=game?.phase??'home';
     const audio=audioRef.current;
@@ -456,7 +512,7 @@ function App(){
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.categories} หมวด · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
-          {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span className={remaining>0&&remaining<=5?'countdown-alert':''}>{remaining>0&&remaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={remaining} className={remaining<=5?'countdown-pulse':remaining<=15?'urgent':''} aria-label={remaining<=5?`เหลือ ${remaining} วินาที`:undefined}>{remaining<=5?remaining:timeLabel(remaining)}</strong><div className={remaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
+          {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p>
               {game.categories.includes('dessert')?<p className="dessert-prefix-help">หมวดขนม: เติม “ขนม” นำหน้าชื่อได้ แต่ไม่นับคำว่า “ขนม” เป็นอักษรต้น เช่น “ขนมจรวดสายรุ้ง” ให้นับ จ จาน (ตัวอย่างสมมติที่ไม่มีจริง ไม่ใช่คำตอบที่ใช้ได้) · ตรวจเฉพาะชื่อขนมจริงในคลัง · “ขนม” เดี่ยว ๆ ไม่รับ</p>:null}</div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
@@ -489,11 +545,23 @@ function App(){
             <div className="review-grid">{latest.categories.map(id=><div className="review-category" key={id}><h3>{SYMBOLS[id]} {LABELS[id]}</h3>{latest.entries.map(e=><div key={e.id}><span>{e.name}: {e.answers[id]||'—'}{e.rarityBonus?.[id]?<small className="rarity-bonus"> · คำหายาก +{e.rarityBonus[id]}</small>:null}</span><b>+{e.perCategory[id]}</b></div>)}</div>)}</div>
             <SynonymLearn letter={latest.letter} categories={latest.categories}/>
           </div>:null}
-          {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · เจ้าของห้องเป็นผู้เริ่มเกมใหม่</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{game.history.map(round=><div key={round.round} className="synonym-history">
+          {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · ทุกคนโหวตเล่นอีกครั้งเพื่อกลับล็อบบี้ห้องเดิม</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{game.history.map(round=><div key={round.round} className="synonym-history">
               <p>รอบ {round.round} · {letterCaption(round.letter)}</p>
               <SynonymLearn letter={round.letter} categories={round.categories}/>
-            </div>)}{isOwner?<button className="primary-btn" disabled={working} onClick={()=>void ownerAction('reset')}>ตั้งค่าห้องและเล่นใหม่ <span>↗</span></button>:null}<p className="small-center">เล่นใหม่ได้จากห้องเดิม เพื่อนที่ออกสามารถเลือกห้องที่เปิดอยู่ได้จากหน้าเกม</p></div>:null}
+            </div>)}<button className="primary-btn rematch-vote" type="button"
+              aria-pressed={hasRematched} disabled={hasRematched||working}
+              onClick={()=>void vote('rematch')}>{hasRematched?'ลงคะแนนแล้ว':'เล่นอีกครั้ง'} · {rematchCount}/{game.players.length}
+              <span>{hasRematched?'✓':'↻'}</span></button>
+            <p className="small-center">เมื่อทุกคนกดครบ จะกลับล็อบบี้ห้องเดิม พร้อมตั้งค่าเดิมโดยอัตโนมัติ</p></div>:null}
         </section>
+        {playing?<button type="button" className={rushing?'skip-time-floating rush-active':'skip-time-floating'}
+          disabled={working||hasSkipped||Boolean(game.timeRush)||remaining<=5}
+          aria-pressed={hasSkipped}
+          onClick={()=>void vote('skip')}>
+          <span className="skip-time-symbol" aria-hidden="true">⏩</span>
+          <span>{rushing?'กำลังเร่งเวลา':game.timeRush?'เร่งเวลาแล้ว':hasSkipped?'โหวตแล้ว':'ข้ามเวลา'}</span>
+          <strong>{skipCount}/{game.players.length}</strong>
+        </button>:null}
         <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตทุก 2 วินาที</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
           <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+2</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+1</strong></div><div><span>คำหายากที่ไม่ซ้ำ (เมื่อมีข้อมูลเพียงพอ)</span><strong>+1 ถึง +2</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>โบนัสคำหายากรวมสูงสุด +3 ต่อรอบ · หมวดและอักษรที่ข้อมูลไม่พอหรือไม่มีคำหายากยังเล่นตามคะแนนปกติ</p><p>แข่งครบจำนวนรอบที่ตั้งค่า ใครคะแนนรวมสูงสุดชนะ!</p></div>
           <div className="public-room-notice">เพื่อนเปิดเว็บไซต์คำไวเดียวกัน แล้วเลือกชื่อห้องที่รอผู้เล่นได้ทันที</div>

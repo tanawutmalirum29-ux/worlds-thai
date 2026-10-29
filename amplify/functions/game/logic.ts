@@ -78,6 +78,7 @@ export const MAX_PLAYERS = 8;
 export const DEFAULT_SETTINGS = { rounds: 3, categories: 5, seconds: 40 } as const;
 export type GameSettings = { rounds: number; categories: number; seconds: number };
 export const REVIEW_SECONDS = 10;
+export const RUSH_ANIMATION_MS = 1800;
 export const IDLE_SECONDS = 43;
 export const ROUND_SECONDS = DEFAULT_SETTINGS.seconds;
 export const ROUNDS = DEFAULT_SETTINGS.rounds;
@@ -93,11 +94,17 @@ export type Match = {
   previousLetters: string[]; previousCategories: string[]; ttl: number;
   /** Current round's SERVER-ONLY daily rarity snapshot; never returned during play. */
   rarityBonuses?: Record<string, Record<string, number>>;
+  /** Votes are keyed by server-issued Cognito guest identity, never tab-specific identifiers. */
+  skipVotes?: Record<string, true>;
+  rematchVotes?: Record<string, true>;
+  /** Server-owned acceleration: fast visual sweep followed by 5 real seconds. */
+  timeRush?: {start:number; ends:number; from:number};
 };
 export function newMatch(id: string, now: number): Match {
   return { id, version: 0, phase: 'lobby', players: [], ownerId: '', createdAt: now, settings: { ...DEFAULT_SETTINGS },
     round: 0, letter: '', categories: [], deadline: 0, countdown: 0,
     submissions: {}, history: [], previousLetters: [], previousCategories: [],
+    skipVotes:{}, rematchVotes:{},
     ttl: Math.floor(now / 1000) + 86400 };
 }
 export function validateSettings(raw: unknown): GameSettings {
@@ -195,8 +202,38 @@ export function scoreRound(match: Match): RoundEntry[] {
   });
 }
 
+function resetToLobby(match:Match) {
+  // Keep room, connected players, owner and last settings; only the run resets.
+  match.phase='lobby';match.round=0;match.letter='';match.categories=[];match.deadline=0;
+  match.submissions={};match.history=[];match.previousLetters=[];match.previousCategories=[];
+  match.rarityBonuses={};match.skipVotes={};match.rematchVotes={};match.timeRush=undefined;
+  for(const p of match.players)p.score=0;
+}
+function pruneVotes(match:Match) {
+  const active=new Set(match.players.map(p=>p.id));
+  for(const votes of [match.skipVotes,match.rematchVotes]) {
+    if(!votes)continue;
+    for(const id of Object.keys(votes))if(!active.has(id))delete votes[id];
+  }
+}
 export function advance(match: Match, now: number, random = Math.random): Match {
   match.players = match.players.filter(player => now-player.lastSeen <= IDLE_SECONDS*1000);
+  pruneVotes(match);
+  // Membership changes are reflected in quorum, without trusting client counts.
+  if(match.phase==='final' && match.players.length &&
+    match.players.every(p=>match.rematchVotes?.[p.id]))resetToLobby(match);
+  if(match.phase==='playing' && !match.timeRush && match.players.length &&
+    match.players.every(p=>match.skipVotes?.[p.id]) && now<match.deadline) {
+    const from=Math.ceil((match.deadline-now)/1000);
+    if(from>7) {
+      match.timeRush={start:now,ends:now+RUSH_ANIMATION_MS,from};
+      match.deadline=now+RUSH_ANIMATION_MS+5000;
+    } else if(from>5) {
+      // For an almost-finished round, never extend the original deadline.
+      match.deadline=Math.min(match.deadline,now+5000);
+    }
+    // Retain n/n on clients throughout the rush; cleared when round finishes.
+  }
   if (!match.players.some(player => player.id === match.ownerId)) {
     match.ownerId = match.players[0]?.id || '';
   }
@@ -208,10 +245,12 @@ export function advance(match: Match, now: number, random = Math.random): Match 
     }
     match.history.push({ round:match.round, letter:match.letter, categories:[...match.categories], entries });
     match.phase='review';
+    match.skipVotes={};match.timeRush=undefined;
     match.deadline=now+REVIEW_SECONDS*1000;
   } else if (match.phase === 'review' && now >= match.deadline) {
     if (match.round >= match.settings.rounds || match.players.length === 0) {
       match.phase='final';
+      match.rematchVotes={};
       match.deadline=0;
     } else {
       const round = chooseRound(match,random);
@@ -220,6 +259,7 @@ export function advance(match: Match, now: number, random = Math.random): Match 
       match.previousLetters.push(round.letter);
       match.previousCategories.push(...round.categories);
       match.phase='playing'; match.submissions={}; match.rarityBonuses={};
+      match.skipVotes={};match.timeRush=undefined;
       match.deadline=now+match.settings.seconds*1000;
     }
   }
@@ -233,6 +273,9 @@ export function snapshot(match: Match) {
     ownerId:match.ownerId, settings:match.settings,
     players:match.players.map(({id,name,score})=>({id,name,score})),
     submitted:match.phase==='playing' ? Object.keys(match.submissions) : [],
+    skipVotes:match.phase==='playing'?Object.keys(match.skipVotes||{}):[],
+    rematchVotes:match.phase==='final'?Object.keys(match.rematchVotes||{}):[],
+    timeRush:match.phase==='playing'?match.timeRush:undefined,
     history:match.phase==='review'||match.phase==='final' ? match.history : [],
     revision:match.version
   };
@@ -281,17 +324,27 @@ export function applyAction(
       if (rawSettings!==undefined) match.settings=validateSettings(rawSettings);
       match.round=1;
       match.history=[];match.submissions={};match.previousLetters=[];match.previousCategories=[];
+      match.skipVotes={};match.rematchVotes={};match.timeRush=undefined;
       const round=chooseRound(match);
       match.letter=round.letter;match.categories=round.categories;
       match.previousLetters.push(round.letter);match.previousCategories.push(...round.categories);
       match.phase='playing'; match.rarityBonuses={};
       match.deadline=now+match.settings.seconds*1000;
+    } else if (action==='rematch') {
+      if(match.phase!=='final')throw new Error('โหวตเล่นใหม่ได้เมื่อจบเกมเท่านั้น');
+      match.rematchVotes??={};
+      match.rematchVotes[userId]=true;
+    } else if (action==='skip') {
+      if(match.phase!=='playing')throw new Error('ข้ามเวลาได้ระหว่างตอบคำเท่านั้น');
+      if(match.timeRush||match.deadline-now<=5000)throw new Error('เหลือเวลาไม่เกิน 5 วินาทีแล้ว');
+      match.skipVotes??={};
+      match.skipVotes[userId]=true;
     } else if (action==='reset') {
-      if (match.ownerId!==userId) throw new Error('เฉพาะเจ้าของห้องเท่านั้นที่เริ่มเกมใหม่ได้');
+      // Legacy action is a vote too: the owner must NOT bypass other players.
+      if (match.ownerId!==userId) throw new Error('เฉพาะเจ้าของห้องเท่านั้นที่ใช้ปุ่มเดิมได้');
       if (match.phase!=='final') throw new Error('เกมยังไม่จบ');
-      match.phase='lobby';match.round=0;match.letter='';match.categories=[];match.deadline=0;
-      match.submissions={};match.history=[];match.previousLetters=[];match.previousCategories=[];match.rarityBonuses={};
-      for(const p of match.players)p.score=0;
+      match.rematchVotes??={};
+      match.rematchVotes[userId]=true;
     } else if (action==='draft' || action==='submit') {
       // The most recent server-saved input is scored at the deadline.
       // A previous draft is fully replaced so clearing text also removes it.

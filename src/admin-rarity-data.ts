@@ -12,9 +12,10 @@ export type RarityMetaRecord={
     candidates:Record<string,{tier:number;streak:number}>;
     recentWordUses?:Record<string,number>;
     evaluatedAt?:number;
+    suspicious?:boolean;
   }|null;
 };
-export type GroupState='not-playable'|'not-started'|'stale'|'learning'|'no-rare'|'active';
+export type GroupState='not-playable'|'not-started'|'stale'|'learning'|'suspicious'|'no-rare'|'active';
 export type RarityWordRow={
   word:string; canonical:string; lifetimeUses:number; lifetimePoints:number;
   recentUses:number|null; firstEligibleAt:number|null;
@@ -35,6 +36,7 @@ export function displayRarityState(state:GroupState):string{
     case 'not-started':return 'ยังไม่เริ่มสะสมสถิติ';
     case 'stale':return 'รอประเมินรอบใหม่';
     case 'learning':return 'กำลังเรียนรู้ / ข้อมูลไม่พอ';
+    case 'suspicious':return 'พักประเมิน: ข้อมูลกระจุกตัว';
     case 'no-rare':return 'ไม่มีคำหายาก';
     case 'active':return 'มีคำหายาก';
   }
@@ -61,7 +63,7 @@ export function buildRarityGroups(
       const rare=Object.values(snapshot?.bonuses||{}).filter(n=>n===1||n===2).length;
       const state:GroupState=!playable?'not-playable':!meta?'not-started':
         !snapshot||snapshot.day!==latestDay?'stale':
-        !snapshot.eligible?'learning':rare?'active':'no-rare';
+        snapshot.suspicious?'suspicious':!snapshot.eligible?'learning':rare?'active':'no-rare';
       group={
         key,category:entry.category,letter:entry.letter,state,totalWords:0,
         lifetimeUses:0,recentUses:snapshot?.recentWordUses?0:null,
@@ -118,7 +120,7 @@ export function rarityGroupSummary(groups:RarityGroupRow[]){
     groups:groups.length,playable:groups.filter(g=>g.state!=='not-playable').length,
     active:groups.filter(g=>g.state==='active').length,
     noRare:groups.filter(g=>g.state==='no-rare').length,
-    learning:groups.filter(g=>g.state==='learning'||g.state==='stale'||g.state==='not-started').length,
+    learning:groups.filter(g=>g.state==='learning'||g.state==='suspicious'||g.state==='stale'||g.state==='not-started').length,
     rare:groups.reduce((sum,g)=>sum+g.rareWords,0),
     veryRare:groups.reduce((sum,g)=>sum+g.veryRareWords,0)
   };

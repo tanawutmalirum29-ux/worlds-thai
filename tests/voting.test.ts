@@ -1,0 +1,101 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {applyAction,advance,newMatch,snapshot,RUSH_ANIMATION_MS} from '../amplify/functions/game/logic.ts';
+const now=1_700_000_000_000;
+function room(){
+  const game=newMatch('room-11223344556677889900',now);
+  applyAction(game,'create','same-cognito-id',now,'owner',{},{rounds:2,categories:5,seconds:40});
+  applyAction(game,'join','guest-2',now,'guest');
+  return game;
+}
+test('same Cognito identity across tabs is exactly one player and one vote',()=>{
+  const m=room();
+  applyAction(m,'join','same-cognito-id',now+100,'duplicate tab');
+  assert.equal(m.players.length,2);
+  applyAction(m,'start','same-cognito-id',now+1000);
+  applyAction(m,'skip','same-cognito-id',now+1200);
+  applyAction(m,'skip','same-cognito-id',now+1300);
+  assert.deepEqual(snapshot(m).skipVotes,['same-cognito-id']);
+  assert.equal(m.deadline,now+41000);
+  applyAction(m,'skip','guest-2',now+1500);
+  assert.equal(m.skipVotes&&Object.keys(m.skipVotes).length,2);
+  assert.ok(m.timeRush);
+});
+test('unanimous skip accelerates visible time then preserves five real seconds',()=>{
+  const m=room();
+  applyAction(m,'start','same-cognito-id',now+1000);
+  applyAction(m,'skip','same-cognito-id',now+2000);
+  assert.equal(m.deadline,now+41000);
+  applyAction(m,'skip','guest-2',now+3000);
+  const startRush=now+3000;
+  assert.equal(m.timeRush?.start,startRush);
+  assert.equal(m.timeRush?.ends,startRush+RUSH_ANIMATION_MS);
+  assert.equal(m.timeRush?.from,38);
+  assert.equal(m.deadline,startRush+RUSH_ANIMATION_MS+5000);
+  assert.throws(()=>applyAction(m,'skip','same-cognito-id',startRush+100),/5 วินาที/);
+  for(const p of m.players)p.lastSeen=startRush+RUSH_ANIMATION_MS+5000;
+  advance(m,startRush+RUSH_ANIMATION_MS+4900);
+  assert.equal(m.phase,'playing');
+  advance(m,startRush+RUSH_ANIMATION_MS+5001);
+  assert.equal(m.phase,'review');
+  assert.equal(m.timeRush,undefined);
+});
+test('a skip with just six seconds remaining never extends the timer',()=>{
+  const m=room();
+  applyAction(m,'start','same-cognito-id',now+1000);
+  const before=m.deadline;
+  applyAction(m,'skip','same-cognito-id',before-6000);
+  applyAction(m,'skip','guest-2',before-5700);
+  assert.equal(m.timeRush,undefined);
+  assert.ok(m.deadline<=before);
+  assert.ok(m.deadline<=before-700);
+});
+test('absent or timed-out voters are pruned and quorum follows active participants',()=>{
+  const m=room();
+  applyAction(m,'start','same-cognito-id',now+1000);
+  applyAction(m,'skip','same-cognito-id',now+3000);
+  applyAction(m,'leave','guest-2',now+4000);
+  assert.equal(m.players.length,1);
+  assert.ok(m.timeRush,'server detects unanimous vote among remaining active players');
+});
+test('rematch is unanimous, preserves room and last settings, and resets scores',()=>{
+  const m=room();
+  applyAction(m,'start','same-cognito-id',now+1000);
+  m.players[0].score=13;m.players[1].score=7;
+  m.phase='final';m.deadline=0;
+  m.history=[{round:1,letter:'ส',categories:['animal'],entries:[]}];
+  applyAction(m,'rematch','same-cognito-id',now+3000);
+  applyAction(m,'rematch','same-cognito-id',now+3500);
+  assert.equal(m.phase,'final');
+  assert.deepEqual(snapshot(m).rematchVotes,['same-cognito-id']);
+  applyAction(m,'rematch','guest-2',now+4000);
+  assert.equal(m.phase,'lobby');
+  assert.equal(m.round,0);
+  assert.equal(m.id,'room-11223344556677889900');
+  assert.equal(m.ownerId,'same-cognito-id');
+  assert.deepEqual(m.settings,{rounds:2,categories:5,seconds:40});
+  assert.deepEqual(m.players.map(p=>p.score),[0,0]);
+  assert.equal(m.history.length,0);
+  assert.equal(snapshot(m).rematchVotes.length,0);
+});
+test('new match clears all previous vote state',()=>{
+  const m=room();
+  applyAction(m,'start','same-cognito-id',now+1000);
+  m.phase='final';
+  applyAction(m,'rematch','same-cognito-id',now+3000);
+  applyAction(m,'rematch','guest-2',now+3001);
+  applyAction(m,'settings','same-cognito-id',now+3100,'',undefined,{rounds:1,categories:3,seconds:120});
+  applyAction(m,'start','same-cognito-id',now+3200);
+  assert.equal(m.settings.seconds,120);
+  assert.deepEqual(snapshot(m).skipVotes,[]);
+  assert.deepEqual(snapshot(m).rematchVotes,[]);
+  assert.equal(m.round,1);
+});
+test('votes outside their phases or by nonmembers cannot mutate state',()=>{
+  const m=room();
+  assert.throws(()=>applyAction(m,'skip','same-cognito-id',now+1000),/ข้ามเวลา/);
+  assert.throws(()=>applyAction(m,'rematch','same-cognito-id',now+1000),/จบเกม/);
+  applyAction(m,'start','same-cognito-id',now+1100);
+  assert.throws(()=>applyAction(m,'skip','impostor',now+1200),/NOT_JOINED/);
+  assert.throws(()=>applyAction(m,'rematch','guest-2',now+1300),/จบเกม/);
+});

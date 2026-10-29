@@ -133,9 +133,11 @@ test('all clickable controls and text fields have distinct audible pointer feedb
 });
 
 test('urgent countdown is red, replays its punch once per tick, and respects reduced motion', () => {
-  assert.match(main, /<strong key=\{remaining\} className=\{remaining<=5\?'countdown-pulse'/);
-  assert.match(main, /remaining<=5\?remaining:timeLabel\(remaining\)/);
-  assert.match(main, /remaining<=5\?'time-track critical-track'/);
+  assert.match(main, /<strong key=\{rushing\?'rush':displayedRemaining\} className=/);
+  assert.match(main, /displayedRemaining<=5\?'countdown-pulse'/);
+  assert.match(main, /displayedRemaining<=5\?displayedRemaining:timeLabel\(displayedRemaining\)/);
+  assert.match(main, /rushing\|\|displayedRemaining<=5\?'time-track critical-track'/);
+  assert.match(main, /remaining>=1 && remaining<=5/);
   assert.match(css, /\.time-box strong\.countdown-pulse\{/);
   assert.match(css, /animation:khamwai-last-seconds/);
   assert.match(css, /@keyframes khamwai-last-seconds/);
