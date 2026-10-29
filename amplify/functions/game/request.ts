@@ -5,7 +5,7 @@ export function resolveOperation(event: any):'getGame'|'listRooms'|'getWordStats
   if(field==='getGame'||field==='gameAction'||field==='listRooms'||field==='getWordStats')return field;
   const args=event?.arguments ?? event;
   if(args && typeof args==='object') {
-    if(args.request==='stats'||args.request==='dessert-suggestions')return 'getWordStats';
+    if(args.request==='stats'||args.request==='dessert-suggestions'||args.request==='rarity')return 'getWordStats';
     if(typeof args.action==='string')return 'gameAction';
     if(typeof args.roomId==='string')return 'getGame';
     if (event?.arguments && typeof event.arguments==='object') return 'listRooms';
