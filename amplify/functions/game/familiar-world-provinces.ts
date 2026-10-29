@@ -8,6 +8,8 @@
 export const FAMILIAR_WORLD_REGIONS = {
   unitedStates: [
     "แคลิฟอร์เนีย",
+    "โคโลราโด",
+    "เคนทักกี",
     "เท็กซัส",
     "ฟลอริดา",
     "นิวยอร์ก",
