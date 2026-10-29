@@ -113,7 +113,7 @@ export function scoreRound(match: Match): RoundEntry[] {
       const duplicateCount = all.filter(entry =>
         validAnswer(entry.answers[category],match.letter,category) &&
         entry.answers[category].toLocaleLowerCase('th') === answer.toLocaleLowerCase('th')).length;
-      perCategory[category] = duplicateCount > 1 ? 10 : 20;
+      perCategory[category] = duplicateCount > 1 ? 1 : 2;
     }
     return { id: player.id, name: player.name, answers, perCategory,
       points: Object.values(perCategory).reduce((a,b)=>a+b,0) };

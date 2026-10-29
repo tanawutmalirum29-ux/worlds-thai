@@ -14,5 +14,14 @@ const table = new Table(stack, 'PublicMatches', {
   timeToLiveAttribute: 'ttl',
   removalPolicy: RemovalPolicy.RETAIN
 });
+// Durable aggregate usage data intentionally has no TTL; match records still expire.
+const wordStats = new Table(stack, 'WordUsageStats', {
+  partitionKey: { name:'id', type:AttributeType.STRING },
+  billingMode: BillingMode.PAY_PER_REQUEST,
+  removalPolicy: RemovalPolicy.RETAIN
+});
 table.grantReadWriteData(backend.game.resources.lambda);
+wordStats.grantReadWriteData(backend.game.resources.lambda);
 (backend.game.resources.lambda as LambdaFunction).addEnvironment('MATCHES_TABLE', table.tableName);
+
+(backend.game.resources.lambda as LambdaFunction).addEnvironment('WORD_STATS_TABLE',wordStats.tableName);

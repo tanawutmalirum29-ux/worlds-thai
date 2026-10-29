@@ -7,6 +7,13 @@ const schema = a.schema({
     roomId: a.string().required(),
     snapshot: a.json().required()
   }),
+  // Aggregated word usage only: no names, IDs or individual answers.
+  // The download prompt is a convenience gate, not API authentication.
+  getWordStats: a.query()
+    .arguments({ request: a.string().required(), cursor: a.string() })
+    .returns(a.json())
+    .authorization(allow => [allow.guest()])
+    .handler(a.handler.function(game)),
   listRooms: a.query()
     .returns(a.json())
     .authorization(allow => [allow.guest()])

@@ -1,12 +1,15 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { applyAction, newMatch, snapshot, publicRoom, type Match } from './logic';
 import { resolveOperation } from './request';
+import { roundWordDeltas } from './stats';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), { marshallOptions:{removeUndefinedValues:true} });
 const TABLE=process.env.MATCHES_TABLE;
 if (!TABLE) throw new Error('MATCHES_TABLE is required');
+const STATS_TABLE=process.env.WORD_STATS_TABLE;
+if(!STATS_TABLE)throw new Error('WORD_STATS_TABLE is required');
 const ROOM_ID=/^room-[a-f0-9]{20}$/;
 function userFromEvent(event: any): string {
   const identity = event?.identity ?? event?.context?.identity;
@@ -21,12 +24,60 @@ async function read(roomId:string):Promise<Match|null> {
 }
 async function commit(roomId:string,old:Match|null,updated:Match):Promise<void> {
   updated.version=(old?.version||0)+1;
-  await db.send(new PutCommand({
+  const put={
     TableName:TABLE,Item:updated,
     ConditionExpression:old?'#v = :prior':'attribute_not_exists(#id)',
     ExpressionAttributeNames:old?{'#v':'version'}:{'#id':'id'},
     ExpressionAttributeValues:old?{':prior':old.version}:undefined
+  };
+  const deltas=roundWordDeltas(old,updated);
+  if(!deltas.length){
+    await db.send(new PutCommand(put));
+    return;
+  }
+  // One atomic commit: failed/conflicting match version means NO stat increments.
+  // 8 players x 8 categories <= 64 update items + one match item (under 100).
+  await db.send(new TransactWriteCommand({TransactItems:[
+    {Put:put},
+    ...deltas.map(word=>({Update:{
+      TableName:STATS_TABLE,Key:{id:word.id},
+      UpdateExpression:'SET #letter=:letter, #category=:category, #word=:word, #last=:now ADD #uses :uses, #points :points',
+      ExpressionAttributeNames:{
+        '#letter':'letter','#category':'category','#word':'word','#last':'lastUsedAt',
+        '#uses':'timesUsed','#points':'totalPoints'
+      },
+      ExpressionAttributeValues:{
+        ':letter':word.letter,':category':word.category,':word':word.word,
+        ':now':Date.now(),':uses':word.timesUsed,':points':word.totalPoints
+      }
+    }}))
+  ]}));
+}
+function isRetryableConflict(error:any):boolean {
+  if(error?.name==='ConditionalCheckFailedException' || error?.name==='TransactionConflictException')return true;
+  if(error?.name==='TransactionCanceledException'){
+    return (error.CancellationReasons||[]).some((reason:any)=>
+      reason.Code==='ConditionalCheckFailed'||reason.Code==='TransactionConflict');
+  }
+  return false;
+}
+/** Scan a separate retained stats table in bounded pages. Export is intentionally aggregate-only. */
+async function readWordStats(cursor?:string){
+  if(cursor && (cursor.length>250 || !cursor.startsWith('stats#')))throw new Error('INVALID_CURSOR');
+  const result=await db.send(new ScanCommand({
+    TableName:STATS_TABLE,Limit:250,
+    ExclusiveStartKey:cursor?{id:cursor}:undefined,
+    ProjectionExpression:'#id,#letter,#category,#word,#uses,#points,#last',
+    ExpressionAttributeNames:{
+      '#id':'id','#letter':'letter','#category':'category','#word':'word',
+      '#uses':'timesUsed','#points':'totalPoints','#last':'lastUsedAt'
+    }
   }));
+  const items=(result.Items||[]).map(item=>({
+    letter:item.letter,category:item.category,word:item.word,
+    timesUsed:item.timesUsed||0,totalPoints:item.totalPoints||0,lastUsedAt:item.lastUsedAt||null
+  }));
+  return {items,nextToken:result.LastEvaluatedKey?.id||null};
 }
 /** Public waiting rooms: small, bounded scan for friends-only MVP.
  * Only sanitized summary fields are emitted; no players IDs or answers.
@@ -69,6 +120,10 @@ export const handler=async(event:any)=>{
     return typeof roomId==='string' && ROOM_ID.test(roomId) ? snapshotOrNull(await read(roomId)) : null;
   }
   if (operation==='listRooms') return availableRooms(Date.now());
+  if (operation==='getWordStats') {
+    if(args.request!=='stats')throw new Error('INVALID_STATS_REQUEST');
+    return readWordStats(args.cursor);
+  }
   const action=args.action;
   const now=Date.now();
   const userId=userFromEvent(event);
@@ -81,7 +136,7 @@ export const handler=async(event:any)=>{
         await commit(id,null,state);
         return {roomId:id,snapshot:{...snapshot(state),you:userId}};
       }catch(error:any) {
-        if(error.name!=='ConditionalCheckFailedException')throw error;
+        if(!isRetryableConflict(error))throw error;
       }
     }
     throw new Error('สร้างห้องไม่สำเร็จ กรุณาลองอีกครั้ง');
@@ -97,7 +152,7 @@ export const handler=async(event:any)=>{
       await commit(roomId,before,state);
       return {roomId,snapshot:{...snapshot(state),you:userId}};
     }catch(error:any){
-      if(error.name!=='ConditionalCheckFailedException')throw error;
+      if(!isRetryableConflict(error))throw error;
       await sleep((attempt+1)*20);
     }
   }
