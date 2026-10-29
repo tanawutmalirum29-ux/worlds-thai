@@ -79,6 +79,7 @@ test('rarity is aggregated-only via existing guest stats API, never raw player e
   assert.ok(!aggregated.includes('RARITY_OBSERVATIONS_TABLE'),
     'never send raw events and player pseudonyms to guest frontend');
   assert.equal(resolveOperation({fieldName:'getWordStats'}),'getWordStats');
+  assert.equal(resolveOperation({request:'rarity'}),'getWordStats');
   const auth=readFileSync(new URL('../amplify/auth/resource.ts',import.meta.url),'utf8');
   assert.ok(!auth.includes('RARITY_ADMINS'));
 });
