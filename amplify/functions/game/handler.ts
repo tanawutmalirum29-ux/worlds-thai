@@ -1,9 +1,11 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, TransactWriteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, ScanCommand, TransactWriteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { applyAction, newMatch, snapshot, publicRoom, type Match } from './logic';
 import { resolveOperation } from './request';
 import { roundWordDeltas } from './stats';
+import { analyzeRarity, rarityDay, rarityGroup, roundRarityObservations, stabilizeRarity, wordsForGroup,
+  RARITY_MAX_EVENTS, RARITY_WINDOW_DAYS, type RarityObservation, type RaritySnapshot } from './rarity';
 import {roundDessertSuggestions,SUGGESTION_MIN_REPORTS,SUGGESTION_TTL_DAYS} from './suggestions';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), { marshallOptions:{removeUndefinedValues:true} });
@@ -13,6 +15,89 @@ const STATS_TABLE=process.env.WORD_STATS_TABLE || '';
 if(!STATS_TABLE)throw new Error('WORD_STATS_TABLE is required');
 const SUGGESTIONS_TABLE=process.env.WORD_SUGGESTIONS_TABLE||'';
 if(!SUGGESTIONS_TABLE)throw new Error('WORD_SUGGESTIONS_TABLE is required');
+const RARITY_OBSERVATIONS_TABLE=process.env.RARITY_OBSERVATIONS_TABLE || '';
+const RARITY_META_TABLE=process.env.RARITY_META_TABLE || '';
+if(!RARITY_OBSERVATIONS_TABLE || !RARITY_META_TABLE)throw new Error('RARITY_TABLES required');
+type GroupMeta = {
+  id:string; version:number; groupStartedAt:number;
+  firstEligibleAt:Record<string,number>; dictionarySignature:string;
+  snapshot?:RaritySnapshot;
+};
+const noBonuses:Record<string,number>={};
+/** Cached by day per group, not recalculated on each player input. */
+async function loadRaritySnapshot(letter:string,category:string,now:number):Promise<Record<string,number>>{
+  const words=wordsForGroup(letter,category);
+  if(words.length<10)return noBonuses;
+  const id=rarityGroup(letter,category);
+  const signature=createHash('sha256').update(words.join('\\0')).digest('hex');
+  const day=rarityDay(now);
+  for(let attempt=0;attempt<3;attempt++){
+    const readMeta=await db.send(new GetCommand({TableName:RARITY_META_TABLE,Key:{id},ConsistentRead:true}));
+    const old=readMeta.Item as GroupMeta|undefined;
+    const born={...(old?.firstEligibleAt||{})};
+    for(const word of words)if(!Number.isFinite(born[word]))born[word]=now;
+    if(old?.dictionarySignature===signature && old.snapshot?.day===day && old.snapshot.eligible)
+      return old.snapshot.bonuses;
+    // Cached 'not ready' snapshots are also valid for the day.
+    if(old?.dictionarySignature===signature && old.snapshot?.day===day)
+      return noBonuses;
+    const cutoff=new Date(now-RARITY_WINDOW_DAYS*86400000).toISOString();
+    let cursor:Record<string,unknown>|undefined;
+    const observations:RarityObservation[]=[];
+    let truncated=false;
+    do {
+      const result=await db.send(new QueryCommand({
+        TableName:RARITY_OBSERVATIONS_TABLE,
+        KeyConditionExpression:'#group=:g AND #event>=:cutoff',
+        ExpressionAttributeNames:{'#group':'group','#event':'eventId'},
+        ExpressionAttributeValues:{':g':id,':cutoff':cutoff},
+        ExclusiveStartKey:cursor,Limit:500,ConsistentRead:true
+      }));
+      observations.push(...(result.Items||[]) as RarityObservation[]);
+      cursor=result.LastEvaluatedKey;
+      if(cursor && observations.length>=RARITY_MAX_EVENTS){truncated=true;break;}
+    }while(cursor);
+    // Refuse to misclassify if we cannot analyze the complete recent history.
+    const result=truncated?null:analyzeRarity({
+      words,observations,firstEligibleAt:born,groupStartedAt:old?.groupStartedAt ?? now,now
+    });
+    if(truncated)console.warn('Rarity observation page cap reached for',id);
+    const snapshot=stabilizeRarity(result?.candidates||{},old?.snapshot,day,!!result?.eligible);
+    snapshot.observations=result?.observations||0;
+    snapshot.uniquePlayers=result?.uniquePlayers||0;
+    snapshot.uniqueRooms=result?.uniqueRooms||0;
+    const meta:GroupMeta={
+      id,version:(old?.version||0)+1,
+      groupStartedAt:old?.groupStartedAt ?? now,
+      firstEligibleAt:born,dictionarySignature:signature,snapshot
+    };
+    try{
+      await db.send(new PutCommand({
+        TableName:RARITY_META_TABLE,Item:meta,
+        ConditionExpression:old?'#v=:old':'attribute_not_exists(#id)',
+        ExpressionAttributeNames:old?{'#v':'version'}:{'#id':'id'},
+        ExpressionAttributeValues:old?{':old':old.version}:undefined
+      }));
+      return snapshot.bonuses;
+    }catch(e:any){
+      if(e?.name!=='ConditionalCheckFailedException')throw e;
+    }
+  }
+  console.warn('Rarity metadata contention for',id);
+  return noBonuses;
+}
+async function assignRaritySnapshot(before:Match|null,state:Match,now:number):Promise<void>{
+  if(state.phase!=='playing')return;
+  if(before?.phase==='playing' && before.round===state.round)return;
+  state.rarityBonuses={};
+  // Failed analytics must NEVER stop a round or award unverified bonuses.
+  const results=await Promise.all(state.categories.map(async category=>{
+    try{return [category,await loadRaritySnapshot(state.letter,category,now)] as const;}
+    catch(e){console.warn('Rarity analytics unavailable for',state.letter,category,e);return [category,{}] as const;}
+  }));
+  for(const [category,bonuses] of results)state.rarityBonuses[category]=bonuses;
+}
+
 const ROOM_ID=/^room-[a-f0-9]{20}$/;
 function userFromEvent(event: any): string {
   const identity = event?.identity ?? event?.context?.identity;
@@ -35,14 +120,20 @@ async function commit(roomId:string,old:Match|null,updated:Match):Promise<void> 
     ExpressionAttributeValues:old?{':prior':old.version}:undefined
   };
   const deltas=roundWordDeltas(old,updated);
-  if(!deltas.length){
+  const observations=roundRarityObservations(old,updated,Date.now());
+  if(!deltas.length && !observations.length){
     await db.send(new PutCommand(put));
     return;
   }
-  // One atomic commit: failed/conflicting match version means NO stat increments.
-  // 8 players x 8 categories <= 64 update items + one match item (under 100).
+  // Atomic match, <=64 distinct word updates, <=8 rarity category events: <=73 actions.
+  // Failed/conflicting match version means NO usage or rarity observation increments.
   await db.send(new TransactWriteCommand({TransactItems:[
     {Put:put},
+    ...observations.map(row=>({Put:{
+      TableName:RARITY_OBSERVATIONS_TABLE,Item:row,
+      ConditionExpression:'attribute_not_exists(#g)',
+      ExpressionAttributeNames:{'#g':'group'}
+    }})),
     ...deltas.map(word=>({Update:{
       TableName:STATS_TABLE,Key:{id:word.id},
       UpdateExpression:'SET #letter=:letter, #category=:category, #word=:word, #last=:now ADD #uses :uses, #points :points',
@@ -196,6 +287,7 @@ export const handler=async(event:any)=>{
     if(!before)throw new Error('ไม่พบห้องนี้ หรือห้องหมดอายุแล้ว');
     const state=structuredClone(before);
     applyAction(state,action,userId,now,args.name||'',parseJson(args.answers),parseJson(args.settings));
+    await assignRaritySnapshot(before,state,now);
     try{
       await commit(roomId,before,state);
       await persistDessertSuggestions(before,state);
