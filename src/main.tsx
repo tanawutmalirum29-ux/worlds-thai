@@ -10,7 +10,7 @@ import { encodeGamePayload } from './rooms';
 
 const LABELS: Record<string,string> = {
   animal:'สัตว์', sport:'กีฬา', job:'อาชีพ', verb:'คำกริยา', fruit:'ผลไม้',
-  vegetable:'ผัก', food:'อาหาร', drink:'เครื่องดื่ม', province:'จังหวัด', country:'ประเทศ',
+  vegetable:'ผัก', food:'อาหาร', drink:'เครื่องดื่ม', province:'จังหวัด/รัฐทั่วโลก', country:'ประเทศ',
   city:'เมือง', music:'เครื่องดนตรี', body:'อวัยวะ', clothing:'เครื่องแต่งกาย',
   vehicle:'ยานพาหนะ', device:'เครื่องใช้ไฟฟ้า', school:'ของใช้ในโรงเรียน', plant:'พืช',
   flower:'ดอกไม้', tree:'ต้นไม้', object:'สิ่งของ', color:'สี', cartoon:'ตัวการ์ตูน',
