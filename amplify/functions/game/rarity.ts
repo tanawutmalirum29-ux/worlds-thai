@@ -1,5 +1,5 @@
 import { WORD_BANK } from './dictionary.ts';
-import { canonicalAnswer, validAnswer, wordInitialForCategory, type Match } from './logic.ts';
+import { canonicalAnswer, validRoundAnswer, roundCategory, roundLetter, wordInitialForCategory, type Match } from './logic.ts';
 
 /**
  * A single, transactional record per category in a finished round.
@@ -54,15 +54,18 @@ export function roundRarityObservations(before: Match | null, after: Match, now:
   const round = after.history.at(-1);
   if (!round || round.round !== before.round) return [];
   const rows: RarityObservation[] = [];
-  for (const category of round.categories) {
+  for (const slot of round.categories) {
+    const category=roundCategory(slot,round.topicCategory);
+    const letter=roundLetter(round.letter,slot,round.topicCategory);
     const entries = round.entries.flatMap(player => {
-      const answer = canonicalAnswer(player.answers[category], category);
-      return (player.perCategory[category] || 0) > 0 && validAnswer(answer, round.letter, category)
+      const answer = canonicalAnswer(player.answers[slot], category);
+      return (player.perCategory[slot] || 0) > 0 &&
+        validRoundAnswer(answer,round.letter,slot,round.topicCategory)
         ? [{playerId: player.id, word: answer}] : [];
     });
     if (!entries.length) continue;
     rows.push({
-      group: rarityGroup(round.letter, category),
+      group: rarityGroup(letter, category),
       eventId: new Date(now).toISOString() + '#' + after.id + '#' + round.round,
       matchId: after.id,
       occurredAt: now,
