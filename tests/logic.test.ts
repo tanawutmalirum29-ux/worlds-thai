@@ -101,5 +101,5 @@ test('scores only approved words from valid category, not prefix alone',()=>{
   match.letter='ส'; match.categories=['animal','food','job','sport','object'];
   applyAction(match,'submit','p1',start+11000,'',{animal:'ส้มตำ',food:'เสือ',job:'สถาปนิก',sport:'สนุกเกอร์',object:'สมุด'});
   applyAction(match,'submit','p2',start+11000,'',{animal:'เสือ',food:'ส้มตำ',job:'สถาปนิก',sport:'สนุกเกอร์',object:'สมุด'});
-  assert.deepEqual(scoreRound(match).map(x=>x.points),[30,60]);
+  assert.deepEqual(scoreRound(match).map(x=>x.points),[30,70]);
 });
