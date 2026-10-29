@@ -7,7 +7,7 @@ export function resolveOperation(event: any):'getGame'|'listRooms'|'gameAction' 
   if(args && typeof args==='object') {
     if(typeof args.action==='string')return 'gameAction';
     if(typeof args.roomId==='string')return 'getGame';
-    return 'listRooms';
+    if (event?.arguments && typeof event.arguments==='object') return 'listRooms';
   }
   throw new Error('UNKNOWN_OPERATION');
 }
