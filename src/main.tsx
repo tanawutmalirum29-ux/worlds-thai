@@ -378,10 +378,12 @@ function App(){
       }else if(scene==='final' && previous.phase!=='final'){
         audio?.cue('finish');
       }
-      if(scene==='playing' && previous.phase==='playing' && previous.round===game.round && remaining!==previous.remaining){
-        if(remaining>=1 && remaining<=5)audio?.countdown(remaining);
-        if(remaining===0 && previous.remaining>0)audio?.cue('timeout');
+      if(scene==='playing' && remaining>=1 && remaining<=5 &&
+        (previous.phase!=='playing'||previous.round!==game.round||previous.remaining!==remaining)){
+        audio?.countdown(remaining);
       }
+      if(scene==='playing' && previous.phase==='playing' && previous.round===game.round &&
+        remaining===0 && previous.remaining>0)audio?.cue('timeout');
     }
     audioStateRef.current={roomId:game?.roomId||'',round:game?.round||0,phase:scene,remaining};
   },[game?.roomId,game?.phase,game?.round,remaining]);
@@ -454,7 +456,7 @@ function App(){
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.categories} หมวด · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
-          {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span className={remaining>0&&remaining<=5?'countdown-alert':''}>{remaining>0&&remaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={remaining} className={remaining<=5?'countdown-pulse':remaining<=15?'urgent':''} aria-label={remaining<=5?`เหลือ ${remaining} วินาที`:undefined}>{remaining<=5?remaining:timeLabel(remaining)}</strong><div className="time-track"><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
+          {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span className={remaining>0&&remaining<=5?'countdown-alert':''}>{remaining>0&&remaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={remaining} className={remaining<=5?'countdown-pulse':remaining<=15?'urgent':''} aria-label={remaining<=5?`เหลือ ${remaining} วินาที`:undefined}>{remaining<=5?remaining:timeLabel(remaining)}</strong><div className={remaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p>
               {game.categories.includes('dessert')?<p className="dessert-prefix-help">หมวดขนม: เติม “ขนม” นำหน้าชื่อได้ แต่ไม่นับคำว่า “ขนม” เป็นอักษรต้น เช่น “ขนมจรวดสายรุ้ง” ให้นับ จ จาน (ตัวอย่างสมมติที่ไม่มีจริง ไม่ใช่คำตอบที่ใช้ได้) · ตรวจเฉพาะชื่อขนมจริงในคลัง · “ขนม” เดี่ยว ๆ ไม่รับ</p>:null}</div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
