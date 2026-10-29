@@ -24,6 +24,9 @@ export type RaritySnapshot = {
   observations: number;
   uniquePlayers: number;
   uniqueRooms: number;
+  /** Deduplicated uses from the last 30 days; missing for pre-upgrade snapshots. */
+  recentWordUses?: Record<string,number>;
+  evaluatedAt?: number;
 };
 export const RARITY_WINDOW_DAYS = 30;
 export const RARITY_RETENTION_DAYS = 40;
@@ -93,7 +96,7 @@ export function analyzeRarity(input: {
   firstEligibleAt: Record<string, number>;
   groupStartedAt: number;
   now: number;
-}): { eligible: boolean; observations: number; uniquePlayers: number; uniqueRooms: number; candidates: Record<string, RarityTier> } {
+}): { eligible: boolean; observations: number; uniquePlayers: number; uniqueRooms: number; candidates: Record<string, RarityTier>; recentWordUses: Record<string,number> } {
   const { words, observations, firstEligibleAt, groupStartedAt, now } = input;
   const candidates: Record<string, RarityTier> = {};
   const pool = words.length;
@@ -101,6 +104,7 @@ export function analyzeRarity(input: {
   const cutoff = now - RARITY_WINDOW_DAYS * 86400000;
   const counted = new Set<string>();
   const events: {playerId: string;word: string;at: number}[] = [];
+  const recentWordUses:Record<string,number>={};
   const users = new Set<string>();
   const rooms = new Set<string>();
   const dates = new Set<string>();
@@ -112,6 +116,7 @@ export function analyzeRarity(input: {
       const key = groupByDay(observation.occurredAt) + '\u0000' + entry.playerId + '\u0000' + entry.word;
       if (counted.has(key)) continue;
       counted.add(key);
+      recentWordUses[entry.word]=(recentWordUses[entry.word]||0)+1;
       events.push({playerId:entry.playerId, word:entry.word, at:observation.occurredAt});
       users.add(entry.playerId);
       rooms.add(observation.matchId);
@@ -126,7 +131,7 @@ export function analyzeRarity(input: {
     now - groupStartedAt >= 7 * 86400000 &&
     lastUse - firstUse >= 6 * 86400000 &&
     dates.size >= 4;
-  if (!enough) return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates};
+  if (!enough) return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
 
   const minimumExposure = Math.max(60, 4 * pool);
   const rates = new Map<string,{count:number;exposure:number;rate:number}>();
@@ -140,16 +145,16 @@ export function analyzeRarity(input: {
   }
   // If the baseline contains too few mature words, abstain rather than invent rarity.
   if (rates.size < Math.max(10, Math.ceil(pool * 0.6))) {
-    return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates};
+    return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
   }
   const baseline = median([...rates.values()].map(value => value.rate));
-  if (baseline <= 0) return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates};
+  if (baseline <= 0) return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
   for (const [word, {count,exposure}] of rates) {
     const upper = (count + 1 + 1.65 * Math.sqrt(count + 1)) / exposure;
     if (pool >= 20 && upper < 0.25 * baseline) candidates[word] = 2;
     else if (upper < 0.6 * baseline) candidates[word] = 1;
   }
-  return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates};
+  return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
 }
 
 /** Daily two-day promotion / three-day demotion; never promote twice on one day. */
