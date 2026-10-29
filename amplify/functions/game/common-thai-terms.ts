@@ -193,7 +193,12 @@ export const COMMON_THAI_TERMS: Readonly<Record<string, readonly string[]>> = {
     "กระปุก",
     "ตะหลิว",
     "ถุง",
-    "ถุงพลาสติก"
+    "ถุงพลาสติก",
+    "ถาด",
+    "ถ้วย",
+    "ถัง",
+    "ถังขยะ",
+    "ถังน้ำ"
   ],
   "place": [
     "นา",
@@ -207,7 +212,11 @@ export const COMMON_THAI_TERMS: Readonly<Record<string, readonly string[]>> = {
     "ฟาร์ม",
     "โรงงาน",
     "ห้องครัว",
-    "โรงหนัง"
+    "โรงหนัง",
+    "ถนน",
+    "ถนนคนเดิน",
+    "ถนนใหญ่",
+    "ถนนลูกรัง"
   ],
   "bird": [
     "นกกระทา",
@@ -244,6 +253,13 @@ export const COMMON_THAI_TERMS: Readonly<Record<string, readonly string[]>> = {
     "เสื้อกันฝน",
     "เสื้อกีฬา",
     "เสื้อโปโล",
-    "กางเกงขายาว"
+    "กางเกงขายาว",
+    "ถุงน่อง",
+    "ถุงมือยาง",
+    "ถุงมือกันหนาว"
+  ],
+  "dessert": [
+    "ถั่วตัด",
+    "ถั่วกวน"
   ]
 };
