@@ -4,12 +4,12 @@
 
 ## วิธีเล่น
 
-1. ใส่ชื่อเล่น ไม่ต้องสมัครบัญชีและ **ไม่มีช่องกรอกรหัสห้อง**
-2. เข้า public matchmaking อัตโนมัติ (สูงสุด 8 คนต่อล็อบบี้, 20 ล็อบบี้)
-3. เมื่อมี 2 คนขึ้นไปเริ่มนับถอยหลัง 9 วินาที
-4. แข่ง **3 รอบ** รอบละ **40 วินาที** สุ่มพยัญชนะ 1 ตัวและ **5 หมวดไม่ซ้ำ** จาก **28 หมวดที่มีคลังคำตรวจรับแล้ว**
-5. กดส่งก่อนหมดเวลา คำตรงพยัญชนะต้น **และอยู่ในคลังคำของหมวดนั้น** ไม่ซ้ำคนอื่น = 20 แต้ม, ซ้ำ = 10, คำผิดหมวด/ไม่อยู่ในคลัง/ว่าง = 0 คะแนน; รวมคะแนน 3 รอบ
-6. แชร์ลิงก์จากล็อบบี้ให้เพื่อนเพื่อเข้ากลุ่มเดียวกันโดยไม่ต้องพิมพ์รหัส (ถ้าห้องเต็ม/เริ่มเกมแล้วให้รอเกมถัดไป)
+1. คนแรกใส่ชื่อเล่นและกด **สร้างห้อง** เพื่อเป็นเจ้าของห้อง
+2. เจ้าของตั้งจำนวนรอบ **1–10**, หมวดต่อรอบ **3–8** และเวลาตอบต่อรอบ **20–120 วินาที** (ค่าเริ่มต้น 3 / 5 / 40)
+3. แชร์ลิงก์เชิญให้เพื่อน; ไม่มีช่องพิมพ์รหัสห้อง และผู้เล่นเข้าร่วมห้องเดียวกันผ่าน URL
+4. เมื่อมี 2 คนขึ้นไป เจ้าของกด **เริ่มเกม** ด้วยตัวเอง; ไม่เริ่มอัตโนมัติ
+5. แต่ละรอบสุ่มพยัญชนะและหมวดที่คลังคำรองรับ; คำถูกไม่ซ้ำ 20 คะแนน ถูกซ้ำ 10 คะแนน คำไม่รับรอง/ผิดหมวด 0 คะแนน
+6. จบครบจำนวนรอบ เจ้าของกด **เล่นใหม่** ได้; ถ้าเจ้าของออก ผู้เล่นที่ยังอยู่คนแรกจะเป็นเจ้าของแทน
 
 **ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 7 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 3 คำ **ข ขวดถูกงดสุ่มชั่วคราว** เพราะคำตอบหลายหมวดจำกัด
 
@@ -52,7 +52,7 @@ npm run build
 - DynamoDB ใช้ `ConditionExpression` ตรวจ version เพื่อกันแข่งแก้ state พร้อมกัน, เปิด TTL และ PAY_PER_REQUEST
 - อัปเดตผู้เล่นโดยอ่าน state ผ่าน AppSync query ทุก 2 วินาที และ pulse ผ่าน Lambda ทุก 5 วินาที; **ไม่มี WebSocket subscription** ในรุ่นนี้ เพื่อให้ทำงานกับ Cognito Guest ได้โดยไม่ชนข้อจำกัด Amplify Gen 2
 - `pulse` ทุก 5 วินาที; ไม่ส่งภายใน 43 วินาทีถือว่า offline และออกจากเกม
-- โควตาต่อเกม 8 ผู้เล่น/ห้อง 20 ห้อง และ 3 รอบต่อเกม เป็นเพดาน MVP ปัจจุบัน ไม่ใช่ autoscaling matchmaking ระดับใหญ่
+- สูงสุด 8 ผู้เล่นต่อห้อง กำหนดเวลาและจำนวนรอบได้ ไม่ใช่ระบบ matchmaking สาธารณะ
 
 **ข้อควรทราบก่อนเปิดสาธารณะ:** ใช้ Guest จึงยังไม่ใช่ anti-cheat หรือ moderation แบบสมบูรณ์ มี curated word bank แต่ยังไม่ครอบคลุมคำทุกคำ, ยังไม่มี rate limits/WAF, ระบบรายงานคำไม่เหมาะสม และระบบแอดมิน ควรตั้ง AWS Budgets แจ้งเตือนค่าใช้จ่ายและติดตาม CloudWatch ระหว่างเปิดจริง
 
@@ -76,3 +76,10 @@ Only redeploy after confirming which error occurred. Avoid creating more apps or
 ## AWS Amplify Gen 2 Guest subscription compatibility
 
 In the initial deployment, `gameUpdated` used `a.subscription().handler(a.handler.custom(...)).authorization(allow => [allow.guest()])`. AWS rejects this combination during CDK Assembly with `InvalidSchemaError: identityPool-based auth ... is not supported with a.handler.custom`. To unblock safe production deploy without exposing a public API key, the project intentionally uses Cognito Guest IAM for the query and Lambda-backed mutation, and a short polling interval for multiplayer updates. The old `amplify/data/subscription.js` file is unused by the schema. Do not re-enable that custom resolver with guest authorization. CI includes a regression test for this deployment failure. Backend deployment to AWS still needs to be verified separately.
+
+## Room ownership and event parsing
+
+- Room identifiers are cryptographically random, generated on the server. Users join by invitation URL only; there is no public room list.
+- Owner-only settings, start and replay actions are authorized in the Lambda against the hashed Cognito Guest identity, not a client-supplied owner flag.
+- AppSync custom query/mutation Lambda event may expose `fieldName` directly; check both direct and nested properties and fall back to the arguments shape. This resolves the prior production crash on `event.info.fieldName`.
+- A new production deployment must be tested in two distinct browsers; GitHub CI passing is not sufficient to verify Lambda runtime credentials.

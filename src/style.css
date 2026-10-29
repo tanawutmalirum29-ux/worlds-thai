@@ -2,3 +2,18 @@
 @media(max-width:900px){.welcome-layout{gap:25px;grid-template-columns:1fr 1fr}.welcome-copy h1{font-size:49px}.game-layout{grid-template-columns:minmax(0,1fr) 245px;gap:16px}.answer-text{flex-basis:105px;min-width:80px}.answer-item{gap:8px;padding:9px 10px}.score-card{padding:15px 9px}}
 @media(max-width:720px){.container{width:min(540px,calc(100% - 30px))}.topbar{height:78px}.logo{font-size:24px}.logo-mark{width:38px;height:38px;font-size:27px}.top-actions{gap:8px}.live-pill{font-size:10px;padding:7px 10px}.ghost-btn{font-size:11px}.welcome-layout{display:flex;flex-direction:column;align-items:stretch;gap:30px;padding:37px 0 38px;min-height:0}.welcome-copy{padding:0 0 93px}.welcome-copy h1{font-size:clamp(43px,9.7vw,60px);margin:15px 0}.lead{font-size:13px;line-height:1.9}.feature-chips{margin-top:20px}.feature-chips span{font-size:10px;padding:7px 10px}.floating-letters{bottom:-15px;left:15px;gap:14px}.float-card{width:75px;height:79px;border-radius:14px;font-size:37px}.float-card span{font-size:10px}.join-card{padding:28px 23px;border-radius:22px}.join-card h2{font-size:30px}.game-layout{display:block;padding:24px 0 35px}.game-heading{font-size:26px}.sidebar{padding-top:25px}.challenge-banner{min-height:157px;padding:17px 24px}.letter-display{font-size:83px}.time-box{width:139px}.time-box strong{font-size:32px}.answer-head{margin:24px 0 15px}.answer-head h2{font-size:20px}.answer-item{min-height:67px;padding:8px}.answer-text{flex-basis:88px;min-width:70px;font-size:12px}.answer-symbol{width:32px;height:32px;font-size:18px}.answer-number{display:none}.answer-item input{font-size:13px;padding:10px}.score-card{padding:20px 15px}.review-grid{grid-template-columns:1fr}.footer{flex-direction:column;text-align:center;padding:17px 0;font-size:10px}}
 @media(max-width:370px){.container{width:calc(100% - 22px)}.top-actions{gap:3px}.live-pill{font-size:9px}.help-dot{display:none}.answer-text{flex-basis:75px;min-width:67px}.answer-symbol{width:29px;height:29px}.answer-item{gap:6px}.game-heading{font-size:23px}.join-card{padding:25px 18px}}
+
+/* Owner-managed room settings: accessible tap targets across phone and tablet. */
+.settings-panel{border:1px solid #44566b;background:#152239b8;border-radius:17px;padding:18px;margin:16px 0;color:#f4e5c8;text-align:left;width:100%}
+.settings-panel h3{font:600 19px Kanit,sans-serif;margin:0 0 12px;color:#f0cb91}
+.settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.settings-grid label{display:flex;flex-direction:column;gap:7px;font-size:11px;color:#c9d4e1}
+.settings-grid select{font:500 13px Prompt,sans-serif;width:100%;min-height:46px;border:1px solid #596b80;border-radius:10px;color:#f7f4e9;background:#213248;padding:8px 10px}
+.settings-grid select:focus-visible{outline:2px solid #e9be76;outline-offset:2px}
+.lobby-settings{max-width:640px;margin:22px auto}
+.settings-save{margin:12px 0;width:100%}
+.lobby-settings .primary-btn{width:100%;margin-top:2px}
+.waiting-settings,.invite-info{border:1px solid #4b6171;border-radius:12px;padding:15px;margin:16px auto;font-size:13px;color:#c8d6e0;line-height:1.9}
+.welcome-settings{padding:14px 10px;margin:14px 0}
+.welcome-settings .settings-grid{gap:6px}
+@media(max-width:510px){.settings-grid{grid-template-columns:1fr;gap:10px}.settings-grid label{font-size:12px}.settings-grid select{min-height:44px}.lobby-settings{padding:14px}}
