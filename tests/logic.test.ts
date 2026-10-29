@@ -52,7 +52,7 @@ test('all allowed category counts pick distinct supported groups',()=>{
       for(const category of round.categories)assert.ok(eligibleCategories(round.letter).includes(category));
     }
   }
-  assert.equal(CATEGORIES.length,28);
+  assert.equal(CATEGORIES.length,29);
   assert.ok(LETTERS.includes('ข' as never), 'ข ไข่ must remain playable');
   assert.ok(!LETTERS.includes('ฃ' as never), 'ฃ ขวด is excluded');
   assert.ok(eligibleCategories('ข').length>=8, 'ข ไข่ must support 8-category rooms');

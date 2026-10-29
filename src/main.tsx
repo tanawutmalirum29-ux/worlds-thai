@@ -5,6 +5,7 @@ import { generateClient } from 'aws-amplify/data';
 import './style.css';
 import { validAnswer,wordInitialForCategory,normalizeAnswer } from '../amplify/functions/game/logic.ts';
 import { letterCaption } from './letters.ts';
+import { synonymExamplesForRound } from './word-insights.ts';
 import { encodeGamePayload } from './rooms';
 
 const LABELS: Record<string,string> = {
@@ -47,6 +48,19 @@ function remainingForAutosave(game:Game,now:number){
 function secondsUntil(when:number, now:number){return Math.max(0,Math.ceil((when-now)/1000));}
 function timeLabel(s:number){return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
 function TrophyIcon(){return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M8 21h8m-4-4v4M6 3h12v7a6 6 0 01-12 0V3zm0 2H3v3a5 5 0 004 4m11-7h3v3a5 5 0 01-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+function SynonymLearn({letter,categories}:{letter:string;categories:readonly string[]}) {
+  const examples=synonymExamplesForRound(letter,categories);
+  if(!examples.length)return null;
+  return <section className="synonym-learn" aria-label="คำไวพจน์น่ารู้">
+    <h3>คำไวพจน์น่ารู้</h3>
+    <p>ตัวอย่างคำที่ตอบได้ในหมวดและพยัญชนะของรอบนี้ แต่ละคำสะกดต่างกันนับคะแนนแยกกัน</p>
+    <ul>{examples.map(example=><li key={example.category+':'+example.word}>
+      <strong>{example.word}</strong> <span>({LABELS[example.category]})</span>
+      <span>หมายถึง {example.meaning} · คำที่มีความหมายใกล้กัน: {example.related.join(' · ')}</span>
+    </li>)}</ul>
+  </section>;
+}
+
 function App(){
   const [client,setClient] = useState<Api|null>(null);
   const [status,setStatus] = useState<'loading'|'ready'|'error'>('loading');
@@ -353,8 +367,12 @@ function App(){
           {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>พยัญชนะ <strong className="gold-text">{letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
             <div className="round-results">{latest.entries.slice().sort((a,b)=>b.points-a.points).map((e,i)=><div className="result-person" key={e.id}><span className="rank-bubble">{i+1}</span><span>{e.name} {e.id===me?'(คุณ)':''}</span><strong>+{e.points} คะแนน</strong></div>)}</div>
             <div className="review-grid">{latest.categories.map(id=><div className="review-category" key={id}><h3>{SYMBOLS[id]} {LABELS[id]}</h3>{latest.entries.map(e=><div key={e.id}><span>{e.name}: {e.answers[id]||'—'}</span><b>+{e.perCategory[id]}</b></div>)}</div>)}</div>
+            <SynonymLearn letter={latest.letter} categories={latest.categories}/>
           </div>:null}
-          {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · เจ้าของห้องเป็นผู้เริ่มเกมใหม่</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{isOwner?<button className="primary-btn" disabled={working} onClick={()=>void ownerAction('reset')}>ตั้งค่าห้องและเล่นใหม่ <span>↗</span></button>:null}<p className="small-center">เล่นใหม่ได้จากห้องเดิม เพื่อนที่ออกสามารถเลือกห้องที่เปิดอยู่ได้จากหน้าเกม</p></div>:null}
+          {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · เจ้าของห้องเป็นผู้เริ่มเกมใหม่</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{game.history.map(round=><div key={round.round} className="synonym-history">
+              <p>รอบ {round.round} · {letterCaption(round.letter)}</p>
+              <SynonymLearn letter={round.letter} categories={round.categories}/>
+            </div>)}{isOwner?<button className="primary-btn" disabled={working} onClick={()=>void ownerAction('reset')}>ตั้งค่าห้องและเล่นใหม่ <span>↗</span></button>:null}<p className="small-center">เล่นใหม่ได้จากห้องเดิม เพื่อนที่ออกสามารถเลือกห้องที่เปิดอยู่ได้จากหน้าเกม</p></div>:null}
         </section>
         <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตทุก 2 วินาที</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
           <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+2</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+1</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>แข่งครบจำนวนรอบที่ตั้งค่า ใครคะแนนรวมสูงสุดชนะ!</p></div>
@@ -362,7 +380,7 @@ function App(){
         </aside>
       </div>}
     </main>
-    <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>28 หมวดที่ตรวจรับแล้ว · เจ้าของห้องตั้งเวลา หมวด และรอบได้</span></footer>
+    <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>29 หมวดที่ตรวจรับแล้ว · เจ้าของห้องตั้งเวลา หมวด และรอบได้</span></footer>
     {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวด ระบบตรวจและบันทึกให้ทันทีโดยไม่ต้องกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }

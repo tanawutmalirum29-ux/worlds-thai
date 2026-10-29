@@ -157,3 +157,14 @@ A dessert with a bare registered name may also be submitted with an optional `�
 The admin-only word table now filters by curated dessert subtypes (traditional Thai / baked / fried / chilled / international / unreviewed). Labels are operational metadata, not new player categories; new or uncertain sweets default to unreviewed. A separate AWS-backed suggestions section lists anonymous, repeated unknown-dessert answers from completed rounds (3+ different rounds), and clicking a proposal only **pre-fills** the existing local draft form for manual verification; it never directly changes the game dictionary. This API uses the existing guest-authorized `getWordStats` resolver with request='dessert-suggestions', not an authenticated secret service.
 
 The **ส เสือ** dessert pool gained five distinct real sweets after alias deduplication to preserve the minimum 5 unique kinds rule.
+
+## คำไวพจน์และหมวดธรรมชาติ (Curated Synonyms)
+
+- เกมปกติรับคำทั่วไป คำทับศัพท์ที่ผ่านการตรวจรับ และ **คำไวพจน์จริงที่มีหลักฐานยืนยันและลงคลังไว้เท่านั้น** ไม่เดาคำไวพจน์หรือเรียก AI ตรวจคำระหว่างเล่น
+- ข้อมูลคำไวพจน์ที่ได้รับการตรวจสอบเป็นกลุ่มความหมาย (เช่น ช้าง = คชสาร / กุญชร / หัสดี; ดวงอาทิตย์ = สุริยา / ทินกร) อยู่ใน `amplify/functions/game/synonyms.ts` โดยเก็บหมวดและลิงก์แหล่งคำศัพท์ เพื่อให้ตรวจสอบเพิ่มภายหลังได้
+- **คำไวพจน์ต่างคำได้คะแนนแยกกัน** เช่น รอบ ค ควาย หมวดสัตว์: คชสาร vs คชา ได้คนละ 2 คะแนน ส่วนคำเหมือนกันยังได้คนละ 1 คะแนน การแปลงชื่อจังหวัดที่สะกดต่างกันหรือชื่อขนมที่เป็นของชนิดเดียวกันยังยึดกฎเดิม ไม่ใช่คำไวพจน์อิสระ
+- หมวดใหม่ **ธรรมชาติ** รองรับสิ่งในธรรมชาติและคำไวพจน์ เช่น ทินกร สุริยา น้ำ วารี ชล และคำสามัญที่ลงคลังไว้ (คำใดจะตอบได้ในรอบจริงต้องขึ้นต้นด้วยพยัญชนะที่สุ่มได้ และหมวด/พยัญชนะนั้นผ่านตัวกรองความเป็นธรรมขั้นต่ำ)
+- หมวด **ดอกไม้** เฉพาะชนิด/พันธุ์ดอกไม้ ไม่รับคำว่า บุปผา, ผกา, มาลี เพราะเป็นคำเรียกดอกไม้ทั่ว ๆ ไป; คำเหล่านี้อยู่ในหมวดธรรมชาติแทน
+- ห้ามคำที่เป็นเพียงชื่อหมวด เช่น “สัตว์” ในหมวดสัตว์ หรือ “อาหาร” ในหมวดอาหาร
+- เฉลยหลังจบรอบและสรุปจบเกมมีคำไวพจน์น่ารู้ที่ขึ้นต้นตรงพยัญชนะของรอบนั้นโดยใช้ `src/word-insights.ts` และข้อมูลชุดเดียวกับคลัง เซิร์ฟเวอร์ยังเป็นผู้ตัดสินคะแนน
+- ทุกคำใหม่ต้องตรวจ **ตัวสะกด/ความหมาย/หมวด/หลักฐาน** ก่อนแก้ `dictionary.ts` หรือ `synonyms.ts`; ไฟล์อ้างอิงของแต่ละกลุ่มเป็น metadata เพื่อช่วยทวนสอบ ไม่ใช้การดึงพจนานุกรมมาเพิ่มคำอัตโนมัติ
