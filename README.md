@@ -83,3 +83,7 @@ In the initial deployment, `gameUpdated` used `a.subscription().handler(a.handle
 - Owner-only settings, start and replay actions are authorized in the Lambda against the hashed Cognito Guest identity, not a client-supplied owner flag.
 - AppSync custom query/mutation Lambda event may expose `fieldName` directly; check both direct and nested properties and fall back to the arguments shape. This resolves the prior production crash on `event.info.fieldName`.
 - A new production deployment must be tested in two distinct browsers; GitHub CI passing is not sufficient to verify Lambda runtime credentials.
+
+## Joining by invitation link
+
+The homepage explicitly offers **สร้างห้อง** and **เข้าร่วมห้อง** tabs. Joining requires the full game URL shared by the owner, or opening it directly. Room IDs are not entered as codes. The GraphQL `a.json()` (AWSJSON) settings and answers arguments must be sent as JSON-serialized strings; the Lambda parses those values before acting. The previous `Variable 'settings' has an invalid value` error was caused by sending the JavaScript object directly. Regression tests cover both the invite link and AWSJSON encoding.

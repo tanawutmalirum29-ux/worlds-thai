@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
+import { parseInviteUrl,encodeGamePayload } from './rooms';
 
 const LABELS: Record<string,string> = {
   animal:'สัตว์', sport:'กีฬา', job:'อาชีพ', verb:'คำกริยา', fruit:'ผลไม้',
@@ -45,7 +46,8 @@ function App(){
   const [status,setStatus] = useState<'loading'|'ready'|'error'>('loading');
   const [error,setError] = useState('');
   const [name,setName] = useState(()=>localStorage.getItem('khamwai-name')||'');
-  const [invite,setInvite]=useState(()=>new URLSearchParams(window.location.search).get('match')||'');
+  const [mode,setMode]=useState<'create'|'join'>(()=>new URLSearchParams(window.location.search).has('match')?'join':'create');
+  const [invite,setInvite]=useState(()=>new URLSearchParams(window.location.search).has('match')?window.location.href:'');
   const [draftSettings,setDraftSettings]=useState<GameSettings>({...DEFAULT_SETTINGS});
   const [game,setGame] = useState<Game|null>(null);
   const [me,setMe] = useState('');
@@ -89,7 +91,7 @@ function App(){
   const call=useCallback(async(action:string,roomId?:string, nickname?:string, values?:Record<string,string>, settings?:GameSettings)=>{
     const api=appClient.current as any;
     if(!api) throw new Error('ยังไม่พร้อมเชื่อมต่อ');
-    const response=await api.mutations.gameAction({action,roomId,name:nickname,answers:values,settings}, {authMode:'identityPool'});
+    const response=await api.mutations.gameAction({action,roomId,name:nickname,...encodeGamePayload(values,settings)}, {authMode:'identityPool'});
     if(response.errors?.length) throw new Error(response.errors.map((x:{message:string})=>x.message).join('; '));
     const event=response.data;
     if(!event?.roomId) throw new Error('เซิร์ฟเวอร์ไม่ได้ตอบกลับ');
@@ -101,24 +103,24 @@ function App(){
     if(!trimmed){setError('กรุณาใส่ชื่อเล่นก่อนเริ่มเกม');return;}
     setError('');setWorking(true);workingRef.current=true;
     try{
-      const linkRoom = /^room-[a-f0-9]{20}$/.test(invite) ? invite : undefined;
-      if(invite&&!linkRoom)throw new Error('ลิงก์เชิญไม่ถูกต้อง');
-      const next = await call(linkRoom?'join':'create', linkRoom, trimmed, undefined,
-        linkRoom?undefined:draftSettings);
+      const linkRoom=mode==='join'?parseInviteUrl(invite,window.location.href):null;
+      if(mode==='join'&&!linkRoom)throw new Error('กรุณาวางลิงก์เชิญจากเกมคำไวที่ถูกต้อง');
+      const next = await call(mode==='join'?'join':'create', linkRoom||undefined, trimmed, undefined,
+        mode==='create'?draftSettings:undefined);
       localStorage.setItem('khamwai-name',trimmed);
       meRef.current=next.snapshot.you||'';setMe(meRef.current);
       roomRef.current=next.roomId;roundRef.current=0;current.current=null;
       accept(next.snapshot);
       setDraftSettings(next.snapshot.settings);
       const url=new URL(location.href);url.searchParams.set('match',next.roomId);
-      history.replaceState({},'',url);setInvite(next.roomId);
+      history.replaceState({},'',url);setInvite(url.toString());
     }catch(e){setError(e instanceof Error?e.message:'เข้าร่วมเกมไม่สำเร็จ');}
     finally{setWorking(false);workingRef.current=false;}
   };
   const leave=async()=>{
     const old=roomRef.current;
     roomRef.current=''; meRef.current='';setMe('');setGame(null);current.current=null;roundRef.current=0;setAnswers({});
-    const url=new URL(location.href);url.searchParams.delete('match');history.replaceState({},'',url);setInvite('');
+    const url=new URL(location.href);url.searchParams.delete('match');history.replaceState({},'',url);setInvite('');setMode('create');
     try {await call('leave',old);}catch {/* Guest expires automatically if offline. */}
   };
   useEffect(()=>{
@@ -189,16 +191,26 @@ function App(){
         <section className="join-card">
           <div className="card-deco"><span>✳</span><span>✿</span></div>
           <div className="card-label">READY TO PLAY?</div>
-          <h2>{invite?'เข้าร่วมห้องเพื่อน':'สร้างห้องใหม่'}</h2><p className="muted">{invite?'คุณได้รับลิงก์ชวนเล่น ใส่ชื่อเพื่อเข้าห้อง':'ตั้งค่าเกมแล้วแชร์ลิงก์ให้เพื่อนเข้าร่วม'}</p>
+          <div className="room-mode-switch" role="group" aria-label="เลือกวิธีเล่น">
+            <button type="button" className={mode==='create'?'room-mode active':'room-mode'} aria-pressed={mode==='create'} onClick={()=>{setMode('create');setError('');}}>สร้างห้อง</button>
+            <button type="button" className={mode==='join'?'room-mode active':'room-mode'} aria-pressed={mode==='join'} onClick={()=>{setMode('join');setError('');}}>เข้าร่วมห้อง</button>
+          </div>
+          <h2>{mode==='join'?'เข้าร่วมห้องเพื่อน':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'วางลิงก์จากเพื่อน หรือเปิดลิงก์เชิญโดยตรง':'ตั้งค่าเกมแล้วแชร์ลิงก์ให้เพื่อนเข้าร่วม'}</p>
           <label htmlFor="nickname">ชื่อเล่นของคุณ</label>
           <input id="nickname" maxLength={18} autoComplete="nickname" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')void join();}} placeholder="เช่น เจ้าแม่คำศัพท์" />
-          {!invite?<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
+          {mode==='join'?<div className="invite-form"><label htmlFor="invitation-link">ลิงก์เชิญเข้าห้อง</label>
+            <input id="invitation-link" type="url" inputMode="url" autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false}
+              placeholder="https://main.d27uswg4aln78i.amplifyapp.com/?match=..."
+              value={invite} onChange={e=>setInvite(e.target.value)}
+              onKeyDown={e=>{if(e.key==='Enter')void join();}}/>
+            <p>ไม่ต้องพิมพ์รหัสห้อง เพียงคัดลอกลิงก์จากเจ้าของห้องมาวาง</p>
+          </div>:<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
             <div className="settings-grid">
               <label>จำนวนรอบ<select value={draftSettings.rounds} onChange={e=>setDraftSettings(s=>({...s,rounds:Number(e.target.value)}))}>{Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} รอบ</option>)}</select></label>
               <label>หมวดต่อรอบ<select value={draftSettings.categories} onChange={e=>setDraftSettings(s=>({...s,categories:Number(e.target.value)}))}>{Array.from({length:6},(_,i)=>i+3).map(n=><option key={n} value={n}>{n} หมวด</option>)}</select></label>
               <label>เวลาตอบ<select value={draftSettings.seconds} onChange={e=>setDraftSettings(s=>({...s,seconds:Number(e.target.value)}))}>{TIME_OPTIONS.map(n=><option key={n} value={n}>{n} วินาที</option>)}</select></label>
-            </div></div>:<p className="invite-info">เปิดลิงก์เชิญแล้ว กดเข้าร่วมห้องได้ทันที</p>}
-          <button className="primary-btn" disabled={working||status!=='ready'} onClick={join}>{working?'กำลังเชื่อมต่อ...':invite?'เข้าร่วมห้องเพื่อน':'สร้างห้องและชวนเพื่อน'} <span>↗</span></button>
+            </div></div>}
+          <button className="primary-btn" disabled={working||status!=='ready'} onClick={join}>{working?'กำลังเชื่อมต่อ...':mode==='join'?'เข้าร่วมห้อง':'สร้างห้องและชวนเพื่อน'} <span>↗</span></button>
           {status==='loading'?<p className="notice">กำลังเชื่อมต่อเซิร์ฟเวอร์ AWS…</p>:null}
           {error?<p className="error-message" role="alert">{error}</p>:null}
           {status==='error'&&!error?<p className="error-message">ไม่สามารถเชื่อมต่อระบบออนไลน์</p>:null}

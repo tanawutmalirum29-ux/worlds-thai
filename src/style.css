@@ -17,3 +17,13 @@
 .welcome-settings{padding:14px 10px;margin:14px 0}
 .welcome-settings .settings-grid{gap:6px}
 @media(max-width:510px){.settings-grid{grid-template-columns:1fr;gap:10px}.settings-grid label{font-size:12px}.settings-grid select{min-height:44px}.lobby-settings{padding:14px}}
+
+
+/* Clearly separate creating and joining. Show both actions before opening an invite. */
+.room-mode-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;background:#111b2d;border:1px solid #44556e;padding:5px;border-radius:13px;margin:18px 0 20px}
+.room-mode{background:transparent;border:0;border-radius:9px;min-height:46px;color:#a9bad0;font:600 14px Prompt,sans-serif;padding:10px 5px}
+.room-mode.active{background:#f1ca89;color:#16243a;box-shadow:0 2px 8px #0003}
+.invite-form{margin:14px 0 16px}
+.invite-form label{display:block;margin-bottom:9px}
+.invite-form input{width:100%;font-size:13px;text-overflow:ellipsis}
+.invite-form p{font-size:12px;color:#a9b8c9;line-height:1.7;margin:10px 0 4px}
