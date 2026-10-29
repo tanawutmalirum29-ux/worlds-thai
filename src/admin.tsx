@@ -189,6 +189,10 @@ function WordAdmin(){
       <h1>คลังคำศัพท์</h1>
       <p>ค้นหาทุกหมวดและทุกพยัญชนะ · เพิ่มคำฉบับร่าง · ส่งออกข้อมูล</p>
     </div><button className="button ghost" onClick={()=>setAuthorized(false)}>ล็อกหน้าจอ</button></header>
+    <nav className="admin-shortcuts" aria-label="ทางลัดหน้าแอดมิน">
+      <a href="#admin-rarity-insights">ดูสถิติความหายาก</a>
+      <a href="#admin-vocabulary-search">ค้นคำศัพท์</a>
+    </nav>
     <section className="metrics">
       <div><span>รายการคำทั้งหมด</span><strong>{totalCount.toLocaleString('th-TH')}</strong></div>
       <div><span>จำนวนหมวด</span><strong>{CATEGORY_OPTIONS.length}</strong></div>
