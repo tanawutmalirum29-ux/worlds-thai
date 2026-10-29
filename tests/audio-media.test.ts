@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
-import { synthesizeMusicWav, synthesizeTestWav } from '../src/audio-media.ts';
+import { synthesizeMusicWav, synthesizeTestWav, synthesizeClickWav } from '../src/audio-media.ts';
 
 const main = readFileSync(new URL('../src/main.tsx', import.meta.url), 'utf8');
 const audio = readFileSync(new URL('../src/audio.ts', import.meta.url), 'utf8');
@@ -33,11 +33,17 @@ test('direct sound test synthesizes three bright PCM beeps', async () => {
   await inspectWav(synthesizeTestWav(), 0.85);
 });
 
+test('click fallback produces an audible 120ms WAV', async () => {
+  await inspectWav(synthesizeClickWav(), 0.12);
+});
+
 test('music tries HTMLMediaElement on user gesture and falls back to oscillators', () => {
   assert.match(audio, /new Audio\(this\.musicUrl\)/);
   assert.match(audio, /this\.media\.play\(\)/);
   assert.match(audio, /this\.startSynthMusic\(\)/);
   assert.match(audio, /synthesizeMusicWav\(\)/);
+  assert.match(audio, /synthesizeClickWav\(\)/);
+  assert.match(audio, /this\.playMediaClick\(\)/);
   assert.match(audio, /void started\.then\(/);
   assert.match(audio, /this\.media\?\.pause\(\)/);
   assert.match(audio, /URL\.revokeObjectURL\(this\.musicUrl\)/);
