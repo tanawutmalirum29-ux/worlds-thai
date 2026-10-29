@@ -70,7 +70,7 @@ export function RarityDashboard({entries,inspect}:Props){
               <div><span>เปิดเล่นได้</span><strong>{fmt(summary.playable)}</strong></div>
               <div><span>มีคำหายาก</span><strong>{fmt(summary.active)}</strong></div>
               <div><span>ไม่มีคำหายาก</span><strong>{fmt(summary.noRare)}</strong></div>
-              <div><span>ยังเรียนรู้/รอข้อมูล</span><strong>{fmt(summary.learning)}</strong></div>
+              <div><span>ยังเรียนรู้/พักตรวจ</span><strong>{fmt(summary.learning)}</strong></div>
               <div><span>คำหายาก / หายากมาก</span><strong>{fmt(summary.rare)} / {fmt(summary.veryRare)}</strong></div>
             </div>
             <div className="rarity-controls">
@@ -89,7 +89,7 @@ export function RarityDashboard({entries,inspect}:Props){
               <label>สถานะ
                 <select value={stateFilter} onChange={e=>{setStateFilter(e.target.value);setSelected('');}}>
                   <option value="">ทั้งหมด</option>
-                  {(['active','no-rare','learning','not-started','stale','not-playable'] as GroupState[]).map(v=>
+                  {(['active','no-rare','learning','suspicious','not-started','stale','not-playable'] as GroupState[]).map(v=>
                     <option key={v} value={v}>{displayRarityState(v)}</option>)}
                 </select>
               </label>
