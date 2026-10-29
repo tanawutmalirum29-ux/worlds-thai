@@ -1,0 +1,155 @@
+/** Reviewed first-level administrative divisions around Thailand (Thai spellings).
+ * Laos: 17 provinces + Vientiane capital prefecture.
+ * Cambodia: 24 provinces + Phnom Penh capital municipality.
+ * Myanmar: 7 states + 7 regions + Naypyidaw Union Territory.
+ * Malaysia: 13 states + 3 federal territories.
+ * Vietnam: 28 provinces + 6 centrally governed cities (in force since 1 July 2025).
+ *
+ * Entries are the place names without an obligatory "จังหวัด"/"รัฐ"/"แขวง" prefix,
+ * matching the province category's existing exact-match scoring convention.
+ * Vientiane province and Vientiane capital are distinguished by their Thai names.
+ *
+ * Geography references (accessed 2026-10-29):
+ * https://build.boi.go.th/EN/view-country/9/Laos
+ * https://phnompenh.thaiembassy.org/th/content/ข้อมูลประเทศกัมพูชา
+ * https://build.boi.go.th/EN/view-country/2/Myanmar
+ * https://www.malaysia.travel/index.php/about-malaysia
+ * https://vietnam.travel/th/things-to-do/vietnam’s-new-provincial-system-34-names-you-should-know/
+ */
+export const NEIGHBOR_PROVINCES = {
+  laos: [
+    "พงสาลี",
+    "หลวงน้ำทา",
+    "อุดมไซ",
+    "บ่อแก้ว",
+    "หลวงพระบาง",
+    "หัวพัน",
+    "เชียงขวาง",
+    "ไซยะบุรี",
+    "เวียงจันทน์",
+    "บอลิคำไซ",
+    "คำม่วน",
+    "สะหวันนะเขต",
+    "สาละวัน",
+    "เซกอง",
+    "จำปาสัก",
+    "อัตตะปือ",
+    "ไซสมบูน",
+    "นครหลวงเวียงจันทน์",
+  ],
+  cambodia: [
+    "บันเตียเมียนเจย",
+    "พระตะบอง",
+    "กำปงจาม",
+    "กำปงชนัง",
+    "กำปงสปือ",
+    "กำปงธม",
+    "กัมปอต",
+    "กันดาล",
+    "เกาะกง",
+    "กระแจะ",
+    "มณฑลคีรี",
+    "อุดรมีชัย",
+    "ไพลิน",
+    "พนมเปญ",
+    "พระสีหนุ",
+    "พระวิหาร",
+    "ไพรแวง",
+    "โพธิ์สัตว์",
+    "รัตนคีรี",
+    "เสียมราฐ",
+    "สตึงแตรง",
+    "สวายเรียง",
+    "ตาแก้ว",
+    "แกบ",
+    "ตโบงฆมุม",
+  ],
+  myanmar: [
+    "กะฉิ่น",
+    "กะยา",
+    "กะเหรี่ยง",
+    "ชิน",
+    "มอญ",
+    "ฉาน",
+    "ยะไข่",
+    "สะกาย",
+    "มาเกว",
+    "มัณฑะเลย์",
+    "พะโค",
+    "ย่างกุ้ง",
+    "อิรวดี",
+    "ตะนาวศรี",
+    "เนปยีดอ",
+  ],
+  malaysia: [
+    "กลันตัน",
+    "ตรังกานู",
+    "ปะหัง",
+    "ยะโฮร์",
+    "มะละกา",
+    "เนกรีเซมบีลัน",
+    "สลังงอร์",
+    "เปรัก",
+    "ปีนัง",
+    "เกดะห์",
+    "ปะลิส",
+    "ซาบะฮ์",
+    "ซาราวัก",
+    "กัวลาลัมเปอร์",
+    "ปุตราจายา",
+    "ลาบวน",
+  ],
+  vietnam: [
+    "หล่าวกาย",
+    "ไทเหงียน",
+    "ฟู้เถาะ",
+    "บั๊กนิญ",
+    "ฮึงเอียน",
+    "ไฮฟอง",
+    "นิญบิญ",
+    "กวางจิ",
+    "ดานัง",
+    "กวางงาย",
+    "ซาลาย",
+    "คั้ญฮวา",
+    "เลิมด่ง",
+    "ดั๊กลัก",
+    "โฮจิมินห์",
+    "ด่งนาย",
+    "เต็ยนิญ",
+    "เกิ่นเทอ",
+    "หวิญลอง",
+    "ด่งทับ",
+    "ก่าเมา",
+    "อานซาง",
+    "ตว็ยนกวาง",
+    "กาวบั่ง",
+    "เดียนเบียน",
+    "ห่าติ๋ญ",
+    "ไหลเจิว",
+    "ลั่งเซิน",
+    "เหงะอาน",
+    "กวางนิญ",
+    "เซินลา",
+    "ทัญฮวา",
+    "ฮานอย",
+    "เว้",
+  ],
+} as const;
+
+export const NEIGHBORING_PROVINCES: readonly string[] = Object.values(NEIGHBOR_PROVINCES).flat();
+
+/** Familiar Thai spelling variants, all treated as the same location when scoring. */
+export const NEIGHBOR_PROVINCE_ALIASES: Readonly<Record<string, string>> = {
+  "กัมปงจาม": "กำปงจาม",
+  "กัมปงชนัง": "กำปงชนัง",
+  "กัมปงธม": "กำปงธม",
+  "กัมปงสปือ": "กำปงสปือ",
+  "เสียมเรียบ": "เสียมราฐ",
+  "บัตตัมบอง": "พระตะบอง",
+  "ไซยบุรี": "ไซยะบุรี",
+  "อัดตะปือ": "อัตตะปือ",
+  "ลาวไก": "หล่าวกาย",
+  "สะหวันนะเขด": "สะหวันนะเขต",
+  "ตบองขมุม": "ตโบงฆมุม",
+};
