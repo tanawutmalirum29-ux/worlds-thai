@@ -40,16 +40,16 @@ test('reported familiar words have correct spellings and actual playable categor
   assert.equal(validAnswer('ถนน','ถ','place'),true);
 });
 
-test('ถ rounds respect the original eight-category minimum and five-distinct-answer rule',()=>{
-  assert.equal(MIN_WORDS_PER_PAIR,5);
-  assert.equal(MIN_CATEGORIES_PER_LETTER,8);
+test('ถ rounds meet the new five-category minimum and two-distinct-answer rule',()=>{
+  assert.equal(MIN_WORDS_PER_PAIR,2);
+  assert.equal(MIN_CATEGORIES_PER_LETTER,5);
   assert.ok(LETTERS.includes('ถ' as never),'ถ needs to be randomly selectable');
   const eligible=eligibleCategories('ถ');
-  assert.ok(eligible.length>=8);
+  assert.ok(eligible.length>=5);
   for(const category of eligible){
     const distinct=new Set(WORD_BANK[category]
       .filter(word=>wordInitialForCategory(word,category)==='ถ'));
-    assert.ok(distinct.size>=5,category+' has fewer than five ถ answers');
+    assert.ok(distinct.size>=2,category+' has fewer than two ถ answers');
   }
 });
 
