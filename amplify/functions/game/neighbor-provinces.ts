@@ -138,3 +138,18 @@ export const NEIGHBOR_PROVINCES = {
 } as const;
 
 export const NEIGHBORING_PROVINCES: readonly string[] = Object.values(NEIGHBOR_PROVINCES).flat();
+
+/** Familiar Thai spelling variants, all treated as the same location when scoring. */
+export const NEIGHBOR_PROVINCE_ALIASES: Readonly<Record<string, string>> = {
+  "กัมปงจาม": "กำปงจาม",
+  "กัมปงชนัง": "กำปงชนัง",
+  "กัมปงธม": "กำปงธม",
+  "กัมปงสปือ": "กำปงสปือ",
+  "เสียมเรียบ": "เสียมราฐ",
+  "บัตตัมบอง": "พระตะบอง",
+  "ไซยบุรี": "ไซยะบุรี",
+  "อัดตะปือ": "อัตตะปือ",
+  "ลาวไก": "หล่าวกาย",
+  "สะหวันนะเขด": "สะหวันนะเขต",
+  "ตบองขมุม": "ตโบงฆมุม",
+};
