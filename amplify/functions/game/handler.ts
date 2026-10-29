@@ -6,9 +6,9 @@ import { resolveOperation } from './request';
 import { roundWordDeltas } from './stats';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), { marshallOptions:{removeUndefinedValues:true} });
-const TABLE=process.env.MATCHES_TABLE;
+const TABLE=process.env.MATCHES_TABLE || '';
 if (!TABLE) throw new Error('MATCHES_TABLE is required');
-const STATS_TABLE=process.env.WORD_STATS_TABLE;
+const STATS_TABLE=process.env.WORD_STATS_TABLE || '';
 if(!STATS_TABLE)throw new Error('WORD_STATS_TABLE is required');
 const ROOM_ID=/^room-[a-f0-9]{20}$/;
 function userFromEvent(event: any): string {
@@ -24,7 +24,8 @@ async function read(roomId:string):Promise<Match|null> {
 }
 async function commit(roomId:string,old:Match|null,updated:Match):Promise<void> {
   updated.version=(old?.version||0)+1;
-  const put={
+  const put:{TableName:string;Item:Match;ConditionExpression:string;
+    ExpressionAttributeNames:Record<string,string>;ExpressionAttributeValues?:Record<string,number>}={
     TableName:TABLE,Item:updated,
     ConditionExpression:old?'#v = :prior':'attribute_not_exists(#id)',
     ExpressionAttributeNames:old?{'#v':'version'}:{'#id':'id'},
