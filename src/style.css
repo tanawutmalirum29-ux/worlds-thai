@@ -174,3 +174,13 @@
   .custom-popup-actions{gap:8px}
 }
 @media(prefers-reduced-motion:no-preference){.custom-popup{animation:dialog-in .16s ease-out}@keyframes dialog-in{from{opacity:.5;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}}
+
+
+/* Synthesized soundtrack control: always accessible, including narrow phones. */
+.sound-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 11px;border:1px solid #5b6c7e;border-radius:12px;background:#202e42;color:#f1d19b;font:600 12px Prompt,sans-serif;white-space:nowrap;transition:background .15s,border-color .15s}
+.sound-toggle:hover{background:#30435c;border-color:#f1ca89}
+.sound-toggle[aria-pressed="false"]{color:#acb8ca;border-color:#49566b;background:#1a2639}
+.sound-toggle:focus-visible{outline:2px solid #f1ca89;outline-offset:3px}
+.sound-toggle svg{flex-shrink:0}
+@media(max-width:900px){.sound-button-text{display:none}.sound-toggle{width:39px;height:39px;min-height:39px;padding:7px}.top-actions{gap:9px}}
+@media(max-width:370px){.top-actions{gap:5px}.sound-toggle{width:36px;height:36px;min-height:36px}.ghost-btn{padding:3px}}
