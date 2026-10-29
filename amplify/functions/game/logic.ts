@@ -1,3 +1,5 @@
+import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary';
+
 export const CATEGORIES = [
   ['animal', 'สัตว์'], ['sport', 'กีฬา'], ['job', 'อาชีพ'], ['verb', 'คำกริยา'],
   ['fruit', 'ผลไม้'], ['vegetable', 'ผัก'], ['food', 'อาหาร'], ['drink', 'เครื่องดื่ม'],
@@ -12,10 +14,23 @@ export const CATEGORIES = [
   ['furniture', 'เฟอร์นิเจอร์'], ['material', 'วัสดุ'], ['health', 'สุขภาพ'],
   ['tool', 'เครื่องมือ'], ['fiction', 'ตัวละครในนิยาย'], ['transport', 'การเดินทาง']
 ] as const;
-// Choose letters that occur sufficiently often in ordinary Thai vocabulary.
-export const LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
+const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
+const eligibleByLetter: Record<string,string[]> = Object.fromEntries(
+  ALL_LETTERS.map(letter => [letter, CATEGORIES.map(([id]) => id).filter(category =>
+    (WORD_BANK[category] || []).filter(word => initialConsonant(word) === letter).length >= MIN_WORDS_PER_PAIR)])
+);
+export const LETTERS = ALL_LETTERS.filter(letter =>
+  !EXCLUDED_LETTERS.has(letter) && eligibleByLetter[letter].length >= MIN_CATEGORIES_PER_LETTER
+);
+export function eligibleCategories(letter: string): string[] {
+  return (LETTERS as readonly string[]).includes(letter) ? [...eligibleByLetter[letter]] : [];
+}
+const acceptedWords = new Map<string,Set<string>>(
+  Object.entries(WORD_BANK).map(([category,words]) =>
+    [category,new Set(words.map(word => normalizeAnswer(word).toLocaleLowerCase('th')))])
+);
 export const MAX_PLAYERS = 8;
-export const ROUND_SECONDS = 75;
+export const ROUND_SECONDS = 40;
 export const ROUNDS = 3;
 export const REVIEW_SECONDS = 12;
 export const LOBBY_SECONDS = 9;
@@ -38,15 +53,19 @@ export function newMatch(id: string, now: number): Match {
 }
 export function normalizeAnswer(value: unknown): string {
   if (typeof value !== 'string') return '';
-  return value.normalize('NFC').trim().replace(/\s+/g, ' ').slice(0, 48);
+  return value.normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g, '').trim().replace(/\s+/g, ' ').slice(0, 48);
 }
 export function initialConsonant(value: string): string {
   const clean = normalizeAnswer(value).replace(/^["'“”‘’\s]+/, '');
   // Thai written leading vowels are stored before the initial consonant.
   return clean.replace(/^[เแโใไ]+/, '').charAt(0);
 }
-export function validAnswer(value: string, letter: string): boolean {
-  return normalizeAnswer(value).length > 0 && initialConsonant(value) === letter;
+export function validAnswer(value: string, letter: string, category: string): boolean {
+  const answer = normalizeAnswer(value).toLocaleLowerCase('th');
+  return answer.length > 0
+    && initialConsonant(answer) === letter
+    && eligibleCategories(letter).includes(category)
+    && (acceptedWords.get(category)?.has(answer) ?? false);
 }
 export function cleanAnswers(value: unknown, categories: string[]): Record<string,string> {
   const input = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string,unknown> : {};
@@ -55,8 +74,8 @@ export function cleanAnswers(value: unknown, categories: string[]): Record<strin
 export function chooseRound(match: Match, random = Math.random) {
   const available = LETTERS.filter(x => !match.previousLetters.slice(-6).includes(x));
   const letter = available[Math.floor(random() * available.length)] || LETTERS[0];
-  let pool = CATEGORIES.map(x => x[0]).filter(id => !match.previousCategories.includes(id));
-  if (pool.length < 5) pool = CATEGORIES.map(x => x[0]);
+  let pool = eligibleCategories(letter).filter(id => !match.previousCategories.includes(id));
+  if (pool.length < 5) pool = eligibleCategories(letter);
   const chosen: string[] = [];
   for (let i = 0; i < 5; i++) {
     const index = Math.floor(random() * pool.length);
@@ -70,8 +89,8 @@ export function scoreRound(match: Match): RoundEntry[] {
     const perCategory: Record<string, number> = {};
     for (const category of match.categories) {
       const answer = answers[category];
-      if (!validAnswer(answer, match.letter)) { perCategory[category] = 0; continue; }
-      const duplicates = all.filter(entry => validAnswer(entry.answers[category], match.letter) &&
+      if (!validAnswer(answer, match.letter, category)) { perCategory[category] = 0; continue; }
+      const duplicates = all.filter(entry => validAnswer(entry.answers[category], match.letter, category) &&
         entry.answers[category].toLocaleLowerCase('th') === answer.toLocaleLowerCase('th')).length;
       perCategory[category] = duplicates > 1 ? 10 : 20;
     }

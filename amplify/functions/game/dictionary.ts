@@ -1,8 +1,8 @@
 /**
- * Reviewed Thai common words for fair multiplayer category scoring.
- * Each word is an explicitly accepted answer, not an arbitrary prefix match.
- * Only pairs with at least 3 entries and letters with at least 7 eligible categories are offered.
- * ข is deliberately excluded until enough good answers across categories are reviewed.
+ * Curated Thai answers for category-aware scoring. All items are individually approved.
+ * New vocabulary must be reviewed for spelling and category before inclusion.
+ * To keep rounds fair, each offered letter/category has at least 3 approved words.
+ * Exclude ข in this release: some categories have too few unambiguous common answers.
  */
 export const WORD_BANK: Record<string, readonly string[]> = {
   "animal": [
@@ -136,7 +136,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "กัปตัน",
     "กสิกร",
     "กุ๊ก",
-    "กายภาพบำบัด",
     "ครู",
     "คนขับรถ",
     "ครีเอเตอร์",
@@ -171,7 +170,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "บรรณารักษ์",
     "บาริสต้า",
     "บริกร",
-    "บัญชีกร",
     "โปรแกรมเมอร์",
     "ประติมากร",
     "ปลัดอำเภอ",
@@ -182,7 +180,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "มัคคุเทศก์",
     "หมอ",
     "หมอนวด",
-    "มอเตอร์ไซค์รับจ้าง",
     "รังสีแพทย์",
     "รัฐมนตรี",
     "ราชทูต",
@@ -194,7 +191,9 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อาจารย์",
     "อัยการ",
     "อธิการบดี",
-    "อาจารย์มหาวิทยาลัย"
+    "อาจารย์มหาวิทยาลัย",
+    "นักกายภาพบำบัด",
+    "พนักงานต้อนรับ"
   ],
   "verb": [
     "กิน",
@@ -379,7 +378,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "มันฝรั่ง",
     "ร็อกเก็ต",
     "เรดิช",
-    "สลัด",
     "สะระแหน่",
     "สวิสชาร์ด",
     "หอมแดง",
@@ -402,7 +400,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "คะน้าหมูกรอบ",
     "จิ้มจุ่ม",
     "จับฉ่าย",
-    "จ๊ก",
     "ซูชิ",
     "ชาบู",
     "ชะอมชุบไข่",
@@ -413,7 +410,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ตับหวาน",
     "ทอดมัน",
     "ทาโก้",
-    "นึ่งมะนาว",
     "น้ำพริก",
     "บะหมี่",
     "บิบิมบับ",
@@ -437,7 +433,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สเต๊ก",
     "ออมเล็ต",
     "อุด้ง",
-    "อาหารทะเล"
+    "อาหารทะเล",
+    "โจ๊ก"
   ],
   "drink": [
     "กาแฟ",
@@ -455,7 +452,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ดาร์กช็อกโกแลตร้อน",
     "ตะไคร้ต้ม",
     "แตงโมปั่น",
-    "ต้มใบเตย",
     "น้ำเปล่า",
     "น้ำส้ม",
     "น้ำมะพร้าว",
@@ -464,7 +460,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เบียร์",
     "บ๊วยโซดา",
     "บลูเลมอน",
-    "ปั่นสตรอว์เบอร์รี",
     "พั้นช์",
     "มอคค่า",
     "มัทฉะ",
@@ -479,7 +474,9 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อเมริกาโน",
     "เอสเปรสโซ",
     "โอเลี้ยง",
-    "อัญชันมะนาว"
+    "อัญชันมะนาว",
+    "น้ำใบเตย",
+    "น้ำสตรอว์เบอร์รีปั่น"
   ],
   "music": [
     "กีตาร์",
@@ -698,7 +695,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ที่เย็บกระดาษ",
     "โน้ต",
     "หนังสือ",
-    "บรรทัด",
     "ปากกา",
     "ปากกาลบคำผิด",
     "ปากกาเน้นข้อความ",
@@ -833,7 +829,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "จิก",
     "ชิงชัน",
     "ชัยพฤกษ์",
-    "ชะอม",
     "ดู่",
     "ตะเคียน",
     "ตาล",
@@ -953,7 +948,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ตลาด",
     "ตึก",
     "ตึกเรียน",
-    "ตู้โทรศัพท์",
     "ท่าเรือ",
     "ท่าอากาศยาน",
     "ทะเล",
@@ -963,7 +957,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "น่าน",
     "บ้าน",
     "บึง",
-    "บรรณาคาร",
     "ป่า",
     "ปราสาท",
     "ป้อม",
@@ -988,7 +981,12 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อุทยาน",
     "อำเภอ",
     "อาคาร",
-    "ออฟฟิศ"
+    "ออฟฟิศ",
+    "สวน",
+    "สวนสัตว์",
+    "สนามเด็กเล่น",
+    "สนามฟุตบอล",
+    "สถานีตำรวจ"
   ],
   "toy": [
     "กระดานหมากรุก",
@@ -1027,8 +1025,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ลูกแก้ว",
     "สไลม์",
     "สกูตเตอร์เด็ก",
-    "อาร์ซีคาร์",
-    "อุปกรณ์เล่นทราย"
+    "อาร์ซีคาร์"
   ],
   "fish": [
     "กระเบน",
@@ -1042,16 +1039,13 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ฉลาม",
     "ช่อน",
     "ชะโด",
-    "ช้างเหยียบ",
     "ดุก",
     "ดาบเงิน",
     "ตะเพียน",
     "ตะกรับ",
     "ตะลุมพุก",
     "ทูน่า",
-    "ทูตทะเล",
     "นิล",
-    "น้ำเงิน",
     "บึก",
     "บู่",
     "ปลาไหล",
@@ -1060,13 +1054,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปลาเข็ม",
     "มังกรทะเล",
     "ม้าน้ำ",
-    "ราหู",
     "สวาย",
     "สลิด",
     "สาก",
     "เสือพ่นน้ำ",
-    "ออสการ์",
-    "อังโกะ"
+    "ออสการ์"
   ],
   "insect": [
     "กว่าง",
@@ -1082,7 +1074,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ตั๊กแตน",
     "ต่อ",
     "แตน",
-    "ทับ",
     "ปลวก",
     "ผีเสื้อ",
     "เพลี้ย",
@@ -1107,7 +1098,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "จาบคาเล็ก",
     "จาบดิน",
     "ช้อนหอย",
-    "ชาปีไหน",
     "ดุเหว่า",
     "ตะกรุม",
     "ตะขาบดง",
@@ -1143,7 +1133,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "คัสตาร์ด",
     "จ่ามงกุฎ",
     "จาวตาลเชื่อม",
-    "จัมโบ้โดนัท",
     "ช็อกโกแลต",
     "ชีสเค้ก",
     "ชูครีม",
@@ -1202,7 +1191,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "โซฟา",
     "บีนแบ็ก",
     "เบาะ",
-    "พนักพิง",
     "ม้านั่ง",
     "ม้านั่งยาว",
     "มู่ลี่",
@@ -1218,7 +1206,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "กรรไกร",
     "กบไสไม้",
     "กุญแจปอนด์",
-    "กาว",
     "เกรียง",
     "ค้อน",
     "คีม",
@@ -1235,11 +1222,9 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ดอกไขควง",
     "ตลับเมตร",
     "ตะไบ",
-    "ตะปู",
     "เทปวัด",
     "ทั่ง",
     "ทุ่นระดับ",
-    "นอต",
     "ใบเลื่อย",
     "บันได",
     "บล็อกหกเหลี่ยม",
@@ -1247,7 +1232,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปากกาจับชิ้นงาน",
     "ปากคีบ",
     "พู่กัน",
-    "พายไม้",
     "มีด",
     "ไม้บรรทัด",
     "ไม้ฉาก",
@@ -1258,10 +1242,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สว่าน",
     "สกัด",
     "สิ่ว",
-    "สว่านไฟฟ้า",
-    "อุปกรณ์วัด",
-    "อุปกรณ์เชื่อม",
-    "อีเตอร์"
+    "สว่านไฟฟ้า"
   ]
 };
 export const EXCLUDED_LETTERS = new Set(['ข']);
