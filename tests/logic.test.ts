@@ -219,7 +219,10 @@ test('new real-world word classes and corrected categorization',async()=>{
   const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
   assert.ok(WORD_BANK.country.length>=193);
   assert.ok(WORD_BANK.province.length>=140);
-  assert.ok(!WORD_BANK.dessert.some(word=>word.startsWith('ขนม')));
+  assert.ok(WORD_BANK.dessert.includes('ขนมไข่'));
+  assert.ok(WORD_BANK.dessert.includes('ขนมครก'));
+  assert.ok(!WORD_BANK.dessert.includes('ขนม'));
+  assert.ok(!WORD_BANK.dessert.includes('ไข่'));
 });
 
 test('country list contains missing countries including ones whose initials are not selected',async()=>{
@@ -230,4 +233,15 @@ test('country list contains missing countries including ones whose initials are 
   // must still be present in the country dictionary for future expansion.
   assert.ok(!LETTERS.includes('ซ' as never));
   assert.equal(validAnswer('สโลวาเกีย','ส','country'),true);
+});
+
+test('ข ไข่ dessert accepts real full dessert names, not generic prefix or eggs',()=>{
+  for(const word of ['ขนมไข่','ขนมครก','ขนมชั้น','ขนมถ้วย','ขนมหม้อแกง','ขนมเปียกปูน']){
+    assert.equal(validAnswer(word,'ข','dessert'),true,word);
+  }
+  for(const word of ['ขนม','ไข่','ไข่เจียว','ขนมที่ไม่มีจริง']){
+    assert.equal(validAnswer(word,'ข','dessert'),false,word);
+  }
+  assert.equal(validAnswer('ขนมไข่','ข','food'),false);
+  assert.equal(validAnswer('ไข่เจียว','ข','food'),true);
 });

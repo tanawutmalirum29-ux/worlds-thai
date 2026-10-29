@@ -141,3 +141,6 @@ Build CI verifies that the production dist directory includes the random-filenam
 - Only show rankings after the real AWS statistics have loaded. If the backend is unavailable or has not recorded any answers yet, display an explicit empty/error state rather than invented popularity.
 - Retained historical word statistics remain visible even for words removed from the current dictionary; the dashboard labels these as removed/archived. Locally staged words have zero server usage until they are merged and actually played.
 - Statistics are lifetime aggregates from the point collection was activated; **no per-day timelines** exist in the current schema.
+
+### ข ไข่ in the dessert category
+Real named desserts beginning with **ขนม** are valid full answers (e.g. **ขนมไข่**, **ขนมครก**, **ขนมชั้น**), but the generic word **ขนม** by itself is not an accepted dessert. The prefix is part of the full name; **ไข่** alone is not a dessert. The existing initial-consonant rule still reads ข ไข่ and distinct full names count as distinct answers. Older instructions disallowing all ขนม-prefixed words are superseded.
