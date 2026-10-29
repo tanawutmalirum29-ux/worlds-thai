@@ -11,7 +11,7 @@
  * https://thbif.onep.go.th/minisite/phu-khiao/onepage
  * https://info.doa.go.th/research/?act=view_detail&id=2261
  */
-export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
+export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> =  {
   "animal": [
     "ผึ้ง",
     "ผึ้งหลวง",
@@ -125,13 +125,10 @@ export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
     "ผ่อนแรง",
     "ผสมสี",
     "ผสมน้ำ",
-    "ผัดไฟแดง",
     "ผสมแป้ง",
-    "ผัดเส้น",
     "ผัดหมี่",
     "ผัดก๋วยเตี๋ยว",
-    "ผ่ามะพร้าว",
-    "ผักดอง"
+    "ผ่ามะพร้าว"
   ],
   "vegetable": [
     "ผักบุ้งจีน",
@@ -172,11 +169,7 @@ export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
     "ผักคะน้า",
     "ผักแม้ว",
     "ผักกาดหางหงส์",
-    "ผักขี้หูด",
-    "ผักบวบ",
-    "ผักสลัด",
-    "ผักหอม",
-    "ผักกาดน้ำ"
+    "ผักขี้หูด"
   ],
   "food": [
     "ผัดไทยกุ้งสด",
@@ -227,9 +220,7 @@ export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
     "ผัดหมี่ซั่ว",
     "ผัดหมี่เหลือง",
     "ผัดหมี่ฮ่องกง",
-    "ผัดวุ้นเส้นชะอม",
     "ผัดหมึกไข่เค็ม",
-    "ผัดผงกะหรี่ทะเล",
     "ผักดอง",
     "ผักกาดดอง",
     "ผักเสี้ยนดอง",
@@ -276,7 +267,6 @@ export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
     "ผ้ากันเปื้อน",
     "ผ้าเอี๊ยม",
     "ผ้าพันศีรษะ",
-    "ผ้าเกี้ยว",
     "ผ้าคลุมศีรษะ"
   ],
   "school": [
@@ -289,8 +279,7 @@ export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
     "แผ่นรองตัด",
     "แผ่นรองเมาส์",
     "แผ่นกระดาษ",
-    "ผ้าลบกระดาน",
-    "ผังก้างปลา"
+    "ผ้าลบกระดาน"
   ],
   "plant": [
     "ผักชี",
@@ -322,7 +311,6 @@ export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
     "ผักเชียงดา",
     "ผักติ้ว",
     "ผักเป็ด",
-    "ผักปอด",
     "ผักกุ่ม"
   ],
   "flower": [
@@ -435,9 +423,7 @@ export const PHO_PHUENG_TERMS: Readonly<Record<string, readonly string[]>> = {
     "เผือกปิ้ง",
     "เผือกต้มน้ำตาล",
     "เผือกต้มกะทิ",
-    "เผือกกรอบ",
-    "เผือกแก้ว",
-    "เผือกบัวลอย"
+    "เผือกกรอบ"
   ],
   "nature": [
     "ผา",
