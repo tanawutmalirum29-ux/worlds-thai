@@ -1,6 +1,7 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { RemovalPolicy } from 'aws-cdk-lib';
+import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { game } from './functions/game/resource';
@@ -14,4 +15,4 @@ const table = new Table(stack, 'PublicMatches', {
   removalPolicy: RemovalPolicy.RETAIN
 });
 table.grantReadWriteData(backend.game.resources.lambda);
-backend.game.resources.lambda.addEnvironment('MATCHES_TABLE', table.tableName);
+(backend.game.resources.lambda as LambdaFunction).addEnvironment('MATCHES_TABLE', table.tableName);
