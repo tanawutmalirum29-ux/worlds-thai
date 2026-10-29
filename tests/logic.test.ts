@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { newMatch, applyAction, advance, chooseRound, scoreRound, snapshot, initialConsonant, validAnswer, CATEGORIES, LETTERS, eligibleCategories, ROUNDS, ROUND_SECONDS, MAX_PLAYERS } from '../amplify/functions/game/logic.ts';
 const start = 1_700_000_000_000;
-test('five distinct categories out of 40+ and Thai letter each round', () => {
+test('five distinct categories out of 25+ and Thai letter each round', () => {
   let match = newMatch('public-1',start);
   applyAction(match,'join','p1',start,'หนึ่ง');
   applyAction(match,'join','p2',start,'สอง');
@@ -10,7 +10,7 @@ test('five distinct categories out of 40+ and Thai letter each round', () => {
   assert.equal(match.phase,'playing');
   assert.equal(match.categories.length,5);
   assert.equal(new Set(match.categories).size,5);
-  assert.ok(CATEGORIES.length>=40);
+  assert.ok(CATEGORIES.length>=25);
   assert.ok(match.letter.length===1);
 });
 test('accepts Thai leading vowels before the consonant',()=>{

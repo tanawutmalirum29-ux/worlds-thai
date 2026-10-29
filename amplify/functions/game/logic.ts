@@ -1,6 +1,6 @@
 import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary.ts';
 
-export const CATEGORIES = [
+const CATEGORY_LABELS = [
   ['animal', 'สัตว์'], ['sport', 'กีฬา'], ['job', 'อาชีพ'], ['verb', 'คำกริยา'],
   ['fruit', 'ผลไม้'], ['vegetable', 'ผัก'], ['food', 'อาหาร'], ['drink', 'เครื่องดื่ม'],
   ['province', 'จังหวัด'], ['country', 'ประเทศ'], ['city', 'เมือง'], ['music', 'เครื่องดนตรี'],
@@ -14,6 +14,7 @@ export const CATEGORIES = [
   ['furniture', 'เฟอร์นิเจอร์'], ['material', 'วัสดุ'], ['health', 'สุขภาพ'],
   ['tool', 'เครื่องมือ'], ['fiction', 'ตัวละครในนิยาย'], ['transport', 'การเดินทาง']
 ] as const;
+export const CATEGORIES = CATEGORY_LABELS.filter(([id]) => Object.prototype.hasOwnProperty.call(WORD_BANK,id));
 const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
 const eligibleByLetter: Record<string,string[]> = Object.fromEntries(
   ALL_LETTERS.map(letter => [letter, CATEGORIES.map(([id]) => id).filter(category =>
