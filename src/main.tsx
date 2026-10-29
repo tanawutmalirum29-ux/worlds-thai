@@ -153,7 +153,7 @@ function App(){
     if(!game||workingRef.current||game.ownerId!==me)return;
     workingRef.current=true;setWorking(true);setError('');
     try {
-      const next=await call(action,game.roomId,undefined,undefined,action==='settings'?draftSettings:undefined);
+      const next=await call(action,game.roomId,undefined,undefined,(action==='settings'||action==='start')?draftSettings:undefined);
       accept(next.snapshot);
     }catch(e){setError(e instanceof Error?e.message:'ดำเนินการไม่สำเร็จ');}
     finally{workingRef.current=false;setWorking(false);}

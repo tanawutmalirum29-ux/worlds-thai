@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,initialConsonant,validAnswer,
-  CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings } from '../amplify/functions/game/logic.ts';
+  CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings,type GameSettings } from '../amplify/functions/game/logic.ts';
 import {resolveOperation} from '../amplify/functions/game/request.ts';
 const start=1_700_000_000_000;
 const room=()=>newMatch('room-aabbccddeeff00112233',start);
-function setup(settings=DEFAULT_SETTINGS){
+function setup(settings:GameSettings=DEFAULT_SETTINGS){
   const m=room();
   applyAction(m,'create','host',start,'Host',undefined,settings);
   applyAction(m,'join','guest',start,'Guest');

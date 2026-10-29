@@ -201,6 +201,8 @@ export function applyAction(
       if (match.ownerId!==userId) throw new Error('เฉพาะเจ้าของห้องเท่านั้นที่เริ่มเกมได้');
       if (match.phase!=='lobby') throw new Error('เกมเริ่มไปแล้ว');
       if (match.players.length<2) throw new Error('ต้องมีผู้เล่นอย่างน้อย 2 คน');
+      // Starting commits the settings in the same authorized mutation.
+      if (rawSettings!==undefined) match.settings=validateSettings(rawSettings);
       match.round=1;
       match.history=[];match.submissions={};match.previousLetters=[];match.previousCategories=[];
       const round=chooseRound(match);
