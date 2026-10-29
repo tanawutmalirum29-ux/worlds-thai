@@ -79,6 +79,8 @@ test('finish configurable rounds, score once and require owner to reset',()=>{
   assert.equal(m.phase,'final');
   assert.throws(()=>applyAction(m,'reset','guest',start+90001),/เจ้าของห้อง/);
   applyAction(m,'reset','host',start+90001);
+  assert.equal(m.phase,'final','legacy owner reset is only one vote');
+  applyAction(m,'rematch','guest',start+90002);
   assert.equal(m.phase,'lobby');assert.equal(m.round,0);
 });
 test('late submissions blocked; invalid words do not score',()=>{
