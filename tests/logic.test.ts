@@ -57,7 +57,7 @@ test('all allowed category counts pick distinct supported groups',()=>{
   assert.ok(!LETTERS.includes('ฃ' as never), 'ฃ ขวด is excluded');
   assert.ok(eligibleCategories('ข').length>=8, 'ข ไข่ must support 8-category rooms');
   assert.equal(validAnswer('ข้าวผัด','ข','food'),true);
-  assert.equal(validAnswer('ขนมครก','ข','dessert'),true);
+  assert.equal(validAnswer('ข้าวเหนียวแก้ว','ข','dessert'),true);
   assert.equal(validAnswer('ขลุ่ย','ข','music'),true);
   assert.equal(validAnswer('ขวด','ข','object'),true);
   assert.equal(validAnswer('ขวด','ฃ','object'),false);
