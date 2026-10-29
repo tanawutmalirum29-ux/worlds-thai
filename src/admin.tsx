@@ -15,6 +15,7 @@ import {
 } from './admin-data.ts';
 import './admin.css';
 import {PopularityDashboard} from './admin-dashboard-view.tsx';
+import {RarityDashboard} from './admin-rarity-view.tsx';
 
 function loadDrafts():Drafts{
   try{return normalizeDrafts(JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));}
@@ -196,6 +197,11 @@ function WordAdmin(){
     </section>
     <PopularityDashboard rows={allEntries} stats={stats} status={statsState} error={statsError}
       refresh={()=>{void refreshStats();}}
+      inspect={(categoryId,consonant,word)=>{
+        setFilterCategory(categoryId);setFilterLetter(consonant);setQuery(word||'');setShowAll(false);
+        document.getElementById('admin-vocabulary-search')?.scrollIntoView({behavior:'smooth'});
+      }}/>
+    <RarityDashboard entries={allEntries}
       inspect={(categoryId,consonant,word)=>{
         setFilterCategory(categoryId);setFilterLetter(consonant);setQuery(word||'');setShowAll(false);
         document.getElementById('admin-vocabulary-search')?.scrollIntoView({behavior:'smooth'});
