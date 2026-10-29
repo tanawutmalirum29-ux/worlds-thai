@@ -10,6 +10,7 @@ import {
   mergedBank,getEntries,filterEntries,exactEntries,exportDictionary,type Drafts
 } from './admin-data.ts';
 import './admin.css';
+import {PopularityDashboard} from './admin-dashboard-view.tsx';
 
 function loadDrafts():Drafts{
   try{return normalizeDrafts(JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));}
@@ -126,7 +127,13 @@ function WordAdmin(){
       <div><span>คำเพิ่มใหม่ในเครื่อง</span><strong>{draftCount}</strong></div>
       <div><span>สถิติออนไลน์</span><strong>{statsState==='ready'?'พร้อม':statsState==='loading'?'กำลังโหลด':'ยังไม่พร้อม'}</strong></div>
     </section>
-    <section className="panel">
+    <PopularityDashboard rows={allEntries} stats={stats} status={statsState} error={statsError}
+      refresh={()=>{void refreshStats();}}
+      inspect={(categoryId,consonant,word)=>{
+        setFilterCategory(categoryId);setFilterLetter(consonant);setQuery(word||'');setShowAll(false);
+        document.getElementById('admin-vocabulary-search')?.scrollIntoView({behavior:'smooth'});
+      }}/>
+    <section className="panel" id="admin-vocabulary-search">
       <div className="panel-title"><h2>ค้นหาคำศัพท์</h2><span>เลือกหมวด ตัวอักษร หรือไม่เลือกอะไรเลยก็ได้</span></div>
       <div className="filter-grid">
         <label>ค้นคำ<input type="search" value={query} onChange={e=>{setQuery(e.target.value);setShowAll(false);}}

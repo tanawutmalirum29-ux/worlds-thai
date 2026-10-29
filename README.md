@@ -132,3 +132,12 @@ A separate, unlinked static HTML page is built as a second Vite entry. The owner
 5. Download **CSV word-usage statistics** only from the admin page. Includes every original and locally staged word (0 uses for new staged words), with category and Thai letter.
 
 Build CI verifies that the production dist directory includes the random-filename HTML and the usual player index.
+
+## Word popularity dashboard (private workspace)
+- The unlinked administrator page contains a data dashboard using the same cumulative, server-owned word statistics stored in DynamoDB; **no new backend tables or write APIs** are needed.
+- Switch between **popular words**, **category rankings**, **consonant rankings**, **category × consonant heatmap**, and **words never used**.
+- Filter by category, consonant or both; sort highest/lowest; choose frequency or cumulative awarded points; select 10/20/50/100 ranks. Bar charts and heatmap cells drill into the word-search section.
+- Summary shows total accepted answer uses, used and unused word/category entries, points and percentage coverage. The same spelling used in different categories is counted separately, matching the backend's aggregate key.
+- Only show rankings after the real AWS statistics have loaded. If the backend is unavailable or has not recorded any answers yet, display an explicit empty/error state rather than invented popularity.
+- Retained historical word statistics remain visible even for words removed from the current dictionary; the dashboard labels these as removed/archived. Locally staged words have zero server usage until they are merged and actually played.
+- Statistics are lifetime aggregates from the point collection was activated; **no per-day timelines** exist in the current schema.

@@ -63,3 +63,16 @@ test('word stats CSV download includes pending draft words as zero-use',()=>{
   const csv=buildWordUsageCsv([],newBank);
   assert.match(csv,/"ท","ท ทหาร","คำกริยา","ทดสอบคำใหม่","0","0"/);
 });
+
+test('popularity dashboard is part of the protected admin page only',()=>{
+  const admin=readFileSync(new URL('../src/admin.tsx',import.meta.url),'utf8');
+  const player=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  const dashboard=readFileSync(new URL('../src/admin-dashboard-view.tsx',import.meta.url),'utf8');
+  assert.match(admin,/PopularityDashboard rows=\{allEntries\} stats=\{stats\}/);
+  assert.match(admin,/admin-vocabulary-search/);
+  assert.doesNotMatch(player,/PopularityDashboard|admin-dashboard-view/);
+  for(const section of ['คำยอดนิยม','แยกตามหมวด','แยกตามอักษร','หมวด × อักษร','ยังไม่เคยใช้'])
+    assert.ok(dashboard.includes(section),section);
+  assert.match(dashboard,/status!=='ready'/);
+  assert.match(dashboard,/usageMatrix\(filtered\)/);
+});
