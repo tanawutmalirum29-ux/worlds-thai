@@ -17,10 +17,20 @@ const CATEGORY_LABELS = [
 export const CATEGORIES = CATEGORY_LABELS.filter(([id]) => Object.prototype.hasOwnProperty.call(WORD_BANK,id));
 // Modern ข ไข่ is a playable consonant. The obsolete ฃ ขวด is not sampled.
 const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
+/** In desserts, ขนม is only a label prefix, not the first letter of the answer.
+ * ขนมไข่ => ข, ขนมครก => ค. All other categories keep normal initials.
+ * The bare word ขนม yields no answer consonant.
+ */
+export function wordInitialForCategory(value:string,category:string):string {
+  const word=normalizeAnswer(value);
+  if(category==='dessert' && word.startsWith('ขนม'))
+    return initialConsonant(normalizeAnswer(word.slice('ขนม'.length)));
+  return initialConsonant(word);
+}
 const eligibleByLetter: Record<string,string[]> = Object.fromEntries(
   ALL_LETTERS.map(letter => [letter, CATEGORIES.map(([id]) => id).filter(category =>
     new Set((WORD_BANK[category] || [])
-      .filter(word => initialConsonant(word) === letter)
+      .filter(word => wordInitialForCategory(word,category) === letter)
       .map(word => normalizeAnswer(word).toLocaleLowerCase('th'))).size >= MIN_WORDS_PER_PAIR)])
 );
 export const LETTERS = ALL_LETTERS.filter(letter =>
@@ -82,7 +92,7 @@ export function initialConsonant(value: string): string {
 export function validAnswer(value: string, letter: string, category: string): boolean {
   const answer = normalizeAnswer(value).toLocaleLowerCase('th');
   return answer.length > 0
-    && initialConsonant(answer) === letter
+    && wordInitialForCategory(answer,category) === letter
     && eligibleCategories(letter).includes(category)
     && (acceptedWords.get(category)?.has(answer) ?? false);
 }
@@ -103,7 +113,7 @@ export function chooseRound(match: Match, random = Math.random) {
   for (let i=0;i<match.settings.categories;i++) {
     // Prefer categories offering more distinct valid answers, reducing easy duplicates.
     const weights=pool.map(category=>{
-      const count=(WORD_BANK[category] || []).filter(word=>initialConsonant(word)===letter).length;
+      const count=(WORD_BANK[category] || []).filter(word=>wordInitialForCategory(word,category)===letter).length;
       return Math.min(4,Math.max(1,(count-MIN_WORDS_PER_PAIR)/2+1));
     });
     const totalWeight=weights.reduce((sum,weight)=>sum+weight,0);

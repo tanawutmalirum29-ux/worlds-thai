@@ -56,3 +56,13 @@ test('transactional stats guard in backend',()=>{
   const schema=readFileSync(new URL('../amplify/data/resource.ts',import.meta.url),'utf8');
   assert.match(schema,/getWordStats: a\.query\(\)/);
 });
+
+test('CSV remaps the dessert-prefix letter and preserves historical stats',()=>{
+  const csv=buildWordUsageCsv([
+    {letter:'ข',category:'dessert',word:'ขนมครก',timesUsed:3,totalPoints:6,lastUsedAt:now-100},
+    {letter:'ค',category:'dessert',word:'ขนมครก',timesUsed:2,totalPoints:4,lastUsedAt:now},
+    {letter:'ข',category:'dessert',word:'ขนมไข่',timesUsed:1,totalPoints:2,lastUsedAt:now}
+  ]);
+  assert.match(csv,/"ค","ค ควาย","ขนม","ขนมครก","5","10"/);
+  assert.match(csv,/"ข","ข ไข่","ขนม","ขนมไข่","1","2"/);
+});

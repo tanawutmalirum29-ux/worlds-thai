@@ -52,3 +52,18 @@ test('no stats means no usage; zero-use words do not become fabricated winners',
   assert.equal(sum.coverage,0);
   assert.equal(sumUsage([]).coverage,0);
 });
+
+test('admin and dashboard place named desserts under the consonant AFTER ขนม',()=>{
+  const rows=getEntries({},[
+    {letter:'ข',category:'dessert',word:'ขนมครก',timesUsed:2,totalPoints:4,lastUsedAt:100},
+    {letter:'ค',category:'dessert',word:'ขนมครก',timesUsed:1,totalPoints:2,lastUsedAt:200}
+  ]);
+  const crock=rows.find(x=>x.word==='ขนมครก'&&x.category==='dessert');
+  assert.equal(crock?.letter,'ค');
+  assert.equal(crock?.uses,3);
+  assert.equal(crock?.points,6);
+  assert.equal(dashboardFilter(mergeHistoricalStats(rows,[]),'dessert','ข')
+    .some(x=>x.word==='ขนมครก'),false);
+  assert.equal(dashboardFilter(mergeHistoricalStats(rows,[]),'dessert','ค')
+    .some(x=>x.word==='ขนมครก'),true);
+});

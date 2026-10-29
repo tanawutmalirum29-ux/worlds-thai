@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,publicRoom,initialConsonant,validAnswer,
+import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,publicRoom,initialConsonant,wordInitialForCategory,validAnswer,
   CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings,type GameSettings } from '../amplify/functions/game/logic.ts';
 import {resolveOperation} from '../amplify/functions/game/request.ts';
 const start=1_700_000_000_000;
@@ -169,7 +169,7 @@ test('fairness filter excludes low-vocabulary consonants and weak letter-categor
     const cats=eligibleCategories(letter);
     assert.ok(cats.length>=8,letter+' needs at least 8 eligible categories');
     for(const category of cats){
-      const words=new Set((WORD_BANK[category]||[]).filter(word=>initialConsonant(word)===letter)
+      const words=new Set((WORD_BANK[category]||[]).filter(word=>wordInitialForCategory(word,category)===letter)
         .map(word=>word.normalize('NFC').trim().toLocaleLowerCase('th')));
       assert.ok(words.size>=5,letter+':'+category+' only '+words.size+' distinct answers');
     }
@@ -235,13 +235,32 @@ test('country list contains missing countries including ones whose initials are 
   assert.equal(validAnswer('สโลวาเกีย','ส','country'),true);
 });
 
-test('ข ไข่ dessert accepts real full dessert names, not generic prefix or eggs',()=>{
-  for(const word of ['ขนมไข่','ขนมครก','ขนมชั้น','ขนมถ้วย','ขนมหม้อแกง','ขนมเปียกปูน']){
-    assert.equal(validAnswer(word,'ข','dessert'),true,word);
+test('dessert prefix ขนม is ignored; only the named sweet determines the letter',async()=>{
+  const groups:Record<string,string[]>={
+    'ข':['ขนมไข่','ขนมเข่ง','ขนมขี้หนู','ขนมข้าวโพด','ขนมไข่นกกระทา'],
+    'ค':['ขนมครก'],
+    'ช':['ขนมชั้น'],
+    'ถ':['ขนมถ้วย'],
+    'ต':['ขนมตาล'],
+    'ม':['ขนมหม้อแกง'],
+    'ป':['ขนมเปียกปูน']
+  };
+  for(const [letter,words] of Object.entries(groups)){
+    for(const word of words){
+      assert.equal(wordInitialForCategory(word,'dessert'),letter,word);
+      assert.equal(validAnswer(word,letter,'dessert'),true,word);
+      if(letter!=='ข')assert.equal(validAnswer(word,'ข','dessert'),false,word);
+    }
   }
   for(const word of ['ขนม','ไข่','ไข่เจียว','ขนมที่ไม่มีจริง']){
     assert.equal(validAnswer(word,'ข','dessert'),false,word);
   }
+  assert.equal(wordInitialForCategory('ขนม','dessert'),'');
+  assert.equal(wordInitialForCategory('ขนมจีนน้ำยา','food'),'ข');
   assert.equal(validAnswer('ขนมไข่','ข','food'),false);
   assert.equal(validAnswer('ไข่เจียว','ข','food'),true);
+  assert.ok(eligibleCategories('ข').includes('dessert'),'24 real ข desserts allow this category');
+  const eligibleKh=(await import('../amplify/functions/game/dictionary.ts')).WORD_BANK.dessert
+    .filter(w=>wordInitialForCategory(w,'dessert')==='ข');
+  assert.equal(eligibleKh.length,24);
 });

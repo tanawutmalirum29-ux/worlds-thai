@@ -1,19 +1,27 @@
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
-import { CATEGORIES, initialConsonant, normalizeAnswer } from '../amplify/functions/game/logic.ts';
+import { CATEGORIES, wordInitialForCategory, normalizeAnswer } from '../amplify/functions/game/logic.ts';
 import { letterCaption } from './letters.ts';
 // Intentional nuisance gate ONLY: public code cannot secure an API.
 export const EXPORT_PROMPT_CODE='251029';
 export type WordStatRecord={letter:string;category:string;word:string;timesUsed:number;totalPoints:number;lastUsedAt?:number|null};
 const quote=(value:string|number)=>'"'+String(value).replaceAll('"','""')+'"';
 export function buildWordUsageCsv(records:WordStatRecord[],dictionary:Record<string,readonly string[]>=WORD_BANK):string{
+  // Merge both historical and new stat rows for the same category+word,
+  // regardless of whether an older record was filed under the prefix ข.
   const lookup=new Map<string,WordStatRecord>();
-  for(const item of records)lookup.set([item.letter,item.category,normalizeAnswer(item.word).toLocaleLowerCase('th')].join('\u0000'),item);
+  for(const item of records){
+    const k=[item.category,normalizeAnswer(item.word).toLocaleLowerCase('th')].join('\u0000');
+    const old=lookup.get(k);
+    lookup.set(k,{...item,timesUsed:(old?.timesUsed||0)+(item.timesUsed||0),
+      totalPoints:(old?.totalPoints||0)+(item.totalPoints||0),
+      lastUsedAt:Math.max(old?.lastUsedAt||0,item.lastUsedAt||0)||null});
+  }
   const labels=new Map<string,string>(CATEGORIES.map(([id,label])=>[id,label]));
   const rows:{letter:string;category:string;word:string;used:number;points:number;last:string}[]=[];
   for(const [category,words] of Object.entries(dictionary)){
     for(const raw of words){
-      const word=normalizeAnswer(raw),letter=initialConsonant(word);
-      const stat=lookup.get([letter,category,word.toLocaleLowerCase('th')].join('\u0000'));
+      const word=normalizeAnswer(raw),letter=wordInitialForCategory(word,category);
+      const stat=lookup.get([category,word.toLocaleLowerCase('th')].join('\u0000'));
       rows.push({letter,category,word,used:stat?.timesUsed||0,points:stat?.totalPoints||0,
         last:stat?.lastUsedAt?new Date(stat.lastUsedAt).toISOString():''});
     }

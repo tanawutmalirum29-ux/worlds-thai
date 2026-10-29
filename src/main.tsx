@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
-import { validAnswer,initialConsonant,normalizeAnswer } from '../amplify/functions/game/logic.ts';
+import { validAnswer,wordInitialForCategory,normalizeAnswer } from '../amplify/functions/game/logic.ts';
 import { letterCaption } from './letters.ts';
 import { encodeGamePayload } from './rooms';
 
@@ -323,10 +323,11 @@ function App(){
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
           {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span>เวลาที่เหลือ</span><strong className={remaining<=15?'urgent':''}>{timeLabel(remaining)}</strong><div className="time-track"><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
-            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
+            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p>
+              {game.categories.includes('dessert')?<p className="dessert-prefix-help">หมวดขนม: ถ้าชื่อขึ้นต้นด้วย “ขนม” ให้นับอักษรของคำที่ตามมา เช่น ขนมครก = ค ควาย</p>:null}</div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
               const typed=normalizeAnswer(answers[id]);
-              const state=!typed?'empty':validAnswer(typed,game.letter,id)?'accepted':initialConsonant(typed)!==game.letter?'wrong-letter':'unknown';
+              const state=!typed?'empty':validAnswer(typed,game.letter,id)?'accepted':wordInitialForCategory(typed,id)!==game.letter?'wrong-letter':'unknown';
               return <label className={`answer-item answer-${state}`} key={`${game.round}-${id}`}>
                 <span className="answer-number">{String(index+1).padStart(2,'0')}</span>
                 <span className="answer-symbol">{SYMBOLS[id]||'✦'}</span>

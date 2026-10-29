@@ -1,5 +1,5 @@
 import {WORD_BANK,EXCLUDED_LETTERS,MIN_WORDS_PER_PAIR,MIN_CATEGORIES_PER_LETTER} from '../amplify/functions/game/dictionary.ts';
-import {CATEGORIES,initialConsonant,normalizeAnswer} from '../amplify/functions/game/logic.ts';
+import {CATEGORIES,initialConsonant,wordInitialForCategory,normalizeAnswer} from '../amplify/functions/game/logic.ts';
 import {LETTER_NAMES,letterCaption} from './letters.ts';
 import type {WordStatRecord} from './stats-export.ts';
 
@@ -50,14 +50,25 @@ export function dropDraft(drafts:Drafts,word:string,category:string):Drafts{
   return normalizeDrafts({...drafts,[category]:(drafts[category]||[]).filter(w=>key(w)!==key(word))});
 }
 export function getEntries(drafts:Drafts,stats:WordStatRecord[]=[]):Entry[]{
-  const counter=new Map(stats.map(s=>[s.category+'\u0000'+key(s.word),s]));
+  // Old stats may have been filed under ข before the dessert-prefix rule changed.
+  // Aggregate by word+category (not stored letter), preserving both old and new totals.
+  const counter=new Map<string,{timesUsed:number;totalPoints:number;lastUsedAt:number|null}>();
+  for(const stat of stats){
+    const id=stat.category+'\u0000'+key(stat.word);
+    const prev=counter.get(id);
+    counter.set(id,{
+      timesUsed:(prev?.timesUsed||0)+(stat.timesUsed||0),
+      totalPoints:(prev?.totalPoints||0)+(stat.totalPoints||0),
+      lastUsedAt:Math.max(prev?.lastUsedAt||0,stat.lastUsedAt||0)||null
+    });
+  }
   const staged=new Set(Object.entries(normalizeDrafts(drafts)).flatMap(([category,words])=>
     words.map(w=>category+'\u0000'+key(w))));
   const rows:Entry[]=[];
   for(const [category,words] of Object.entries(mergedBank(drafts))){
     for(const word of words){
       const id=category+'\u0000'+key(word),s=counter.get(id);
-      rows.push({word,category,label:labels.get(category)||category,letter:initialConsonant(word),
+      rows.push({word,category,label:labels.get(category)||category,letter:wordInitialForCategory(word,category),
         draft:staged.has(id),uses:s?.timesUsed||0,points:s?.totalPoints||0,lastUsedAt:s?.lastUsedAt||null});
     }
   }

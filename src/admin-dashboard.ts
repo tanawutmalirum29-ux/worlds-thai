@@ -1,4 +1,4 @@
-import {initialConsonant,normalizeAnswer} from '../amplify/functions/game/logic.ts';
+import {wordInitialForCategory,normalizeAnswer} from '../amplify/functions/game/logic.ts';
 import {CATEGORY_OPTIONS,type Entry} from './admin-data.ts';
 import type {WordStatRecord} from './stats-export.ts';
 
@@ -24,7 +24,7 @@ export function mergeHistoricalStats(entries:Entry[],rawStats:WordStatRecord[]):
     if(seen.has(id)||!Number.isFinite(row.timesUsed)||row.timesUsed<=0)continue;
     seen.add(id);
     combined.push({word:row.word,category:row.category,label:labels.get(row.category)||row.category,
-      letter:initialConsonant(row.word),draft:false,archived:true,
+      letter:wordInitialForCategory(row.word,row.category),draft:false,archived:true,
       uses:row.timesUsed,points:row.totalPoints||0,lastUsedAt:row.lastUsedAt||null});
   }
   return combined;
