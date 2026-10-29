@@ -139,3 +139,38 @@
 /* Server-confirmed rarity is shown only in the round result, never during drafting. */
 .review-category .rarity-bonus{display:inline-block;color:#f4d39a;font-weight:600;font-size:10px;line-height:1.45;margin-left:3px}
 .review-category div>span{min-width:0;overflow-wrap:anywhere}
+
+/* Shared custom selection dialog: consistent appearance on iOS/Android/desktop. */
+.settings-choice-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.settings-choice-label{font-size:11px;color:#c9d4e1}
+.settings-choice-trigger{width:100%;min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #596b80;border-radius:10px;color:#f7f4e9;background:#213248;padding:8px 11px;text-align:left;font:500 13px Prompt,sans-serif}
+.settings-choice-trigger:hover,.settings-choice-trigger[aria-expanded="true"]{border-color:#edc68a;background:#2e4058}
+.settings-choice-trigger:focus-visible,.custom-popup button:focus-visible{outline:2px solid #f0cb91;outline-offset:2px}
+.settings-chevron{color:#e9c185;font-size:21px;line-height:1;transform:translateY(-3px)}
+.custom-popup-backdrop{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:20px max(14px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));background:#060d1cde;backdrop-filter:blur(7px)}
+.custom-popup{width:min(430px,100%);max-height:min(88dvh,690px);overflow:auto;overscroll-behavior:contain;border:1px solid #64748b;border-radius:22px;background:linear-gradient(155deg,#25344b 0%,#18253a 100%);box-shadow:0 28px 80px #030714b3;padding:24px;color:#f7efe0}
+.custom-popup-kicker{font:700 10px Prompt,sans-serif;letter-spacing:2.1px;color:#f0c785}
+.custom-popup h2{font:600 26px Kanit,sans-serif;line-height:1.3;margin:9px 0 12px}
+.custom-popup p{font-size:13px;color:#b9c9d9;line-height:1.75}
+.custom-popup-title-row{display:flex;justify-content:space-between;align-items:start;gap:12px}
+.custom-popup-close{width:37px;height:37px;border:1px solid #66778b;border-radius:10px;background:#2b3a50;color:#dde6ef;font-size:26px;line-height:1;flex-shrink:0}
+.custom-popup-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.custom-popup-option{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:51px;border:1px solid #4a5b74;border-radius:12px;background:#16253b;color:#e5eef6;padding:11px 13px;font:600 13px Prompt,sans-serif}
+.custom-popup-option:hover{background:#2a3c55;border-color:#b39b70}
+.custom-popup-option.selected{border-color:#edc685;background:#4e4239;color:#ffdfa5}
+.option-check{color:#f5d28b;font-size:16px}
+.custom-popup-footnote{font-size:11px!important;margin:13px 0 0;color:#91a6bd!important}
+.custom-popup-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+.custom-popup-actions button{min-height:48px;border-radius:12px;font:600 13px Prompt,sans-serif;padding:10px}
+.popup-cancel{background:#293952;border:1px solid #718197;color:#e6eef6}
+.popup-danger{background:#d77969;border:1px solid #ef9b8c;color:#1b2537}
+@media(max-width:510px){
+  .settings-choice-label{font-size:12px}
+  .settings-choice-trigger{min-height:44px}
+  .custom-popup{padding:19px;border-radius:18px;max-height:calc(100dvh - 36px)}
+  .custom-popup h2{font-size:23px}
+  .custom-popup-options{gap:8px}
+  .custom-popup-option{min-height:49px}
+  .custom-popup-actions{gap:8px}
+}
+@media(prefers-reduced-motion:no-preference){.custom-popup{animation:dialog-in .16s ease-out}@keyframes dialog-in{from{opacity:.5;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}}
