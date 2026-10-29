@@ -21,6 +21,8 @@ test('AWSJSON GraphQL input uses JSON text for settings and answers',()=>{
   const payload=encodeGamePayload(answers,settings);
   assert.equal(typeof payload.settings,'string');
   assert.equal(typeof payload.answers,'string');
+  if (payload.settings===undefined || payload.answers===undefined)
+    throw new Error('Expected serialized settings and answers');
   assert.deepEqual(JSON.parse(payload.settings),settings);
   assert.deepEqual(JSON.parse(payload.answers),answers);
   assert.deepEqual(encodeGamePayload(),{});
