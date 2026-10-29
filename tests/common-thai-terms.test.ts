@@ -5,7 +5,7 @@ import {WORD_BANK,MIN_WORDS_PER_PAIR,MIN_CATEGORIES_PER_LETTER} from '../amplify
 import {CATEGORIES,LETTERS,eligibleCategories,wordInitialForCategory,validAnswer,newMatch,applyAction,scoreRound} from '../amplify/functions/game/logic.ts';
 
 test('every reviewed everyday word is registered in its specific category without duplicates',()=>{
-  const categories=new Set(CATEGORIES.map(([id])=>id));
+  const categories=new Set<string>(CATEGORIES.map(([id])=>id));
   let count=0;
   for(const [category,words] of Object.entries(COMMON_THAI_TERMS)){
     assert.ok(categories.has(category),category+' not a supported category');
