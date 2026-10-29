@@ -2,7 +2,8 @@ import {StrictMode,useEffect,useMemo,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Amplify} from 'aws-amplify';
 import {generateClient} from 'aws-amplify/data';
-import {initialConsonant,normalizeAnswer} from '../amplify/functions/game/logic.ts';
+import {initialConsonant,canonicalAnswer,normalizeAnswer} from '../amplify/functions/game/logic.ts';
+import {DESSERT_SUBTYPES,dessertSubtype,dessertSubtypeLabel,type DessertSubtype} from './dessert-subtypes.ts';
 import {letterCaption} from './letters.ts';
 import {
   INBOX_STORAGE_KEY,normalizeInbox,addInboxWords,removeInboxWord,exportPendingWords
@@ -55,6 +56,29 @@ async function queryStats():Promise<WordStatRecord[]>{
   return rows;
 }
 type StatsState='idle'|'loading'|'ready'|'error';
+type DessertSuggestionRow={category:'dessert';word:string;letter:string;timesSuggested:number;lastSeenAt:number|null};
+async function querySuggestions():Promise<DessertSuggestionRow[]>{
+  const response=await fetch('/amplify_outputs.json',{cache:'no-store'});
+  if(!response.ok)throw new Error('ไม่พบการตั้งค่า AWS Amplify');
+  Amplify.configure(await response.json());
+  const client=(generateClient as any)();
+  const rows:DessertSuggestionRow[]=[];
+  let cursor:string|null=null,completed=false;
+  for(let page=0;page<40;page++){
+    const result=await client.queries.getWordStats({
+      request:'dessert-suggestions',...(cursor?{cursor}:{})
+    },{authMode:'identityPool'});
+    if(result.errors?.length)throw new Error(result.errors.map((x:{message:string})=>x.message).join('; '));
+    const data=unpack(result.data) as {items?:DessertSuggestionRow[];nextToken?:string|null};
+    if(!Array.isArray(data?.items))throw new Error('ข้อมูลคำเสนอแนะมีรูปแบบไม่ถูกต้อง');
+    rows.push(...data.items);
+    cursor=data.nextToken||null;
+    if(!cursor){completed=true;break;}
+  }
+  if(!completed)throw new Error('คำเสนอแนะมากเกินขอบเขตที่เปิดอ่านได้');
+  return rows.sort((a,b)=>b.timesSuggested-a.timesSuggested);
+}
+
 function WordAdmin(){
   const [authorized,setAuthorized]=useState(false);
   const [pin,setPin]=useState('');
@@ -71,10 +95,21 @@ function WordAdmin(){
   const [stats,setStats]=useState<WordStatRecord[]>([]);
   const [statsState,setStatsState]=useState<StatsState>('idle');
   const [statsError,setStatsError]=useState('');
+  const [suggestions,setSuggestions]=useState<DessertSuggestionRow[]>([]);
+  const [suggestionState,setSuggestionState]=useState<StatsState>('idle');
+  const [suggestionError,setSuggestionError]=useState('');
+  const [dessertType,setDessertType]=useState<''|DessertSubtype>('');
   const [showAll,setShowAll]=useState(false);
   const bank=useMemo(()=>mergedBank(drafts),[drafts]);
   const allEntries=useMemo(()=>getEntries(drafts,stats),[drafts,stats]);
-  const shown=useMemo(()=>filterEntries(allEntries,query,filterCategory,filterLetter),[allEntries,query,filterCategory,filterLetter]);
+  const shown=useMemo(()=>filterEntries(allEntries,query,filterCategory,filterLetter)
+    .filter(row=>!dessertType||(row.category==='dessert'&&dessertSubtype(row.word)===dessertType)),
+    [allEntries,query,filterCategory,filterLetter,dessertType]);
+  const pendingSuggestions=useMemo(()=>{
+    const known=new Set(allEntries.filter(row=>row.category==='dessert')
+      .map(row=>canonicalAnswer(row.word,'dessert')));
+    return suggestions.filter(row=>!known.has(canonicalAnswer(row.word,'dessert')));
+  },[suggestions,allEntries]);
   const exact=useMemo(()=>exactEntries(allEntries,query),[allEntries,query]);
   const visible=showAll?shown:shown.slice(0,100);
   const draftCount=Object.values(drafts).reduce((sum,words)=>sum+words.length,0);
@@ -93,10 +128,17 @@ function WordAdmin(){
     try{const rows=await queryStats();setStats(rows);setStatsState('ready');}
     catch(error){setStatsState('error');setStatsError(error instanceof Error?error.message:'เชื่อมต่อสถิติไม่ได้');}
   }
+  async function refreshSuggestions(){
+    setSuggestionState('loading');setSuggestionError('');
+    try{setSuggestions(await querySuggestions());setSuggestionState('ready');}
+    catch(error){setSuggestionState('error');
+      setSuggestionError(error instanceof Error?error.message:'อ่านคำเสนอแนะไม่ได้');}
+  }
   function login(){
     if(pin!==EXPORT_PROMPT_CODE){setPinError('รหัสไม่ถูกต้อง');return;}
     setAuthorized(true);setPin('');setPinError('');
     void refreshStats();
+    void refreshSuggestions();
   }
   function insert(){
     try{
@@ -158,13 +200,38 @@ function WordAdmin(){
         setFilterCategory(categoryId);setFilterLetter(consonant);setQuery(word||'');setShowAll(false);
         document.getElementById('admin-vocabulary-search')?.scrollIntoView({behavior:'smooth'});
       }}/>
+    <section className="panel suggestion-panel">
+      <div className="panel-title">
+        <div><h2>ขนมที่ผู้เล่นเสนอให้ตรวจ</h2>
+          <p className="help">แสดงเมื่อมีการตอบคำเดียวกันในอย่างน้อย 3 รอบที่จบแล้ว · ไม่เก็บชื่อหรือรหัสผู้เล่น · ข้อมูลหมดอายุใน 90 วัน</p></div>
+        <button className="button ghost" type="button" disabled={suggestionState==='loading'}
+          onClick={()=>void refreshSuggestions()}>{suggestionState==='loading'?'กำลังโหลด':'↻ โหลดรายการใหม่'}</button>
+      </div>
+      {suggestionState==='error'?<p className="error" role="alert">{suggestionError} · หากเพิ่งอัปเดต ต้อง Deploy ฐานข้อมูล AWS ใหม่ก่อน</p>:null}
+      {suggestionState==='ready'&&pendingSuggestions.length===0?
+        <p className="help">ยังไม่มีคำที่ผ่านเกณฑ์การเสนอซ้ำและรอตรวจ</p>:null}
+      {suggestionState==='ready'&&pendingSuggestions.length>0?
+        <div className="suggestion-scroll"><table>
+          <thead><tr><th>คำเสนอแนะ</th><th>ตัวอักษร</th><th>พบ (รอบ)</th><th>ตรวจคำ</th></tr></thead>
+          <tbody>{pendingSuggestions.slice(0,80).map(row=><tr key={row.letter+'-'+row.word}>
+            <td className="word">{row.word}</td><td>{letterCaption(row.letter)}</td>
+            <td>{row.timesSuggested.toLocaleString('th-TH')}</td>
+            <td><button type="button" className="button ghost" onClick={()=>{
+              setAddText(row.word);setAddCategory('dessert');setFilterCategory('dessert');
+              setQuery(row.word);setDessertType('');
+              document.getElementById('admin-add-words')?.scrollIntoView({behavior:'smooth'});
+            }}>ตรวจแล้วเพิ่มเอง</button></td>
+          </tr>)}</tbody>
+        </table></div>:null}
+      <p className="help">คำที่ไม่รู้จักอาจเป็นคำพิมพ์ผิดหรือคำแกล้งพิมพ์ แม้มีคนใช้บ่อยก็ยังไม่ใช่คำที่ผ่านการตรวจ ต้องตรวจชื่อขนมจริงก่อนเพิ่มฉบับร่าง และคำในหน้านี้ไม่ใช่สถิติผู้เล่นที่ไม่ซ้ำกัน</p>
+    </section>
     <section className="panel" id="admin-vocabulary-search">
       <div className="panel-title"><h2>ค้นหาคำศัพท์</h2><span>เลือกหมวด ตัวอักษร หรือไม่เลือกอะไรเลยก็ได้</span></div>
       <div className="filter-grid">
         <label>ค้นคำ<input type="search" value={query} onChange={e=>{setQuery(e.target.value);setShowAll(false);}}
           placeholder="เช่น พนมมือ, อุรุกวัย, พลับ"/></label>
         <label>หมวด
-          <select value={filterCategory} onChange={e=>{setFilterCategory(e.target.value);if(e.target.value)setAddCategory(e.target.value);setShowAll(false);}}>
+          <select value={filterCategory} onChange={e=>{setFilterCategory(e.target.value);if(e.target.value)setAddCategory(e.target.value);setDessertType('');setShowAll(false);}}>
             <option value="">ทุกหมวด</option>
             {CATEGORY_OPTIONS.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
@@ -175,9 +242,15 @@ function WordAdmin(){
             {LETTER_OPTIONS.map(l=><option key={l.id} value={l.id}>{l.label}</option>)}
           </select>
         </label>
+        <label>ประเภทขนมย่อย
+          <select value={dessertType} onChange={e=>{setDessertType(e.target.value as ''|DessertSubtype);setShowAll(false);}}>
+            <option value="">ทุกประเภท</option>
+            {DESSERT_SUBTYPES.map(t=><option key={t.id} value={t.id}>{t.label}</option>)}
+          </select>
+        </label>
       </div>
       {query.trim()?<div className="match-note" role="status">{exact.length?
-        <><b>{query.trim()}</b> มีอยู่ {exact.length} หมวด: {exact.map(x=>x.label).join(', ')} ({letterCaption(initialConsonant(query))})</>:
+        <><b>{query.trim()}</b> มีอยู่ {exact.length} หมวด: {exact.map(x=>x.label).join(', ')} ({exact.map(x=>letterCaption(x.letter)).join(', ')})</>:
         <>ไม่พบคำ <b>{query.trim()}</b> ในคลังปัจจุบัน — ตรวจความถูกต้องก่อนเพิ่มคำใหม่</>}
       </div>:null}
       <div className="result-count"><strong>พบ {shown.length.toLocaleString('th-TH')} รายการ</strong>
@@ -185,7 +258,9 @@ function WordAdmin(){
       <div className="table-scroll"><table><thead><tr><th>คำศัพท์</th><th>หมวด</th><th>พยัญชนะ</th>
         <th>ใช้แล้ว (ครั้ง)</th><th>คะแนนสะสม</th><th>สถานะ</th><th></th></tr></thead><tbody>
         {visible.map(row=><tr key={row.category+'::'+row.word}>
-          <td className="word">{row.word}</td><td>{row.label}</td><td>{letterCaption(row.letter)}</td>
+          <td className="word">{row.word}
+            {row.category==='dessert'?<small className="dessert-subtype-caption">{dessertSubtypeLabel(dessertSubtype(row.word))}</small>:null}
+          </td><td>{row.label}</td><td>{letterCaption(row.letter)}</td>
           <td>{statsState==='ready'?row.uses.toLocaleString('th-TH'):'—'}</td>
           <td>{statsState==='ready'?row.points.toLocaleString('th-TH'):'—'}</td>
           <td><span className={row.draft?'tag draft':'tag'}>{row.draft?'เพิ่มใหม่':'ในคลัง'}</span></td>
@@ -221,7 +296,7 @@ function WordAdmin(){
       </div>:<p className="help">ยังไม่มีคำรอจัดหมวด สามารถวางหลายคำแล้วบันทึกพร้อมกันได้</p>}
       <p className="help">ไฟล์ TXT จะรวมเฉพาะคำที่เพิ่มเองทั้งหมด (ทั้งคำรอจัดหมวดและคำฉบับร่างที่เลือกหมวดแล้ว) โดยตัดคำซ้ำ เหลือหนึ่งคำต่อบรรทัด ไม่มีชื่อหมวดหรือข้อความอื่น</p>
     </section>
-    <section className="panel">
+    <section className="panel" id="admin-add-words">
       <div className="panel-title"><h2>เพิ่มคำศัพท์</h2><span>บันทึกในเบราว์เซอร์เท่านั้น ไม่เปลี่ยนเกมออนไลน์</span></div>
       <form className="add-grid" onSubmit={e=>{e.preventDefault();insert();}}>
         <label>คำศัพท์<input value={addText} maxLength={48} onChange={e=>setAddText(e.target.value)}

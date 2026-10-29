@@ -85,11 +85,13 @@ export function getEntries(drafts:Drafts,stats:WordStatRecord[]=[]):Entry[]{
 export function filterEntries(rows:Entry[],search='',category='',letter=''):Entry[]{
   const q=key(search);
   return rows.filter(row=>(!category||row.category===category)&&(!letter||row.letter===letter)
-    &&(!q||key(row.word).includes(q)));
+    &&(!q||key(row.word).includes(q)||
+      (row.category==='dessert'&&canonicalAnswer(row.word,'dessert')===canonicalAnswer(search,'dessert'))));
 }
 export function exactEntries(rows:Entry[],search:string):Entry[]{
   const q=key(search);
-  return q?rows.filter(row=>key(row.word)===q):[];
+  return q?rows.filter(row=>key(row.word)===q||
+    (row.category==='dessert'&&canonicalAnswer(row.word,'dessert')===canonicalAnswer(search,'dessert'))):[];
 }
 export function exportDictionary(drafts:Drafts):string{
   const data=mergedBank(drafts);

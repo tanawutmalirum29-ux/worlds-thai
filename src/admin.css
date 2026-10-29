@@ -53,3 +53,14 @@ td.word{color:#ffdfae;font-weight:700}.no-rows{text-align:center;color:#a6b9ca;p
 .inbox-word-chips button{border:1px solid #856c4c;border-radius:18px;
   background:#3c362b;color:#f1d4ab;padding:6px 11px;font-size:12px}
 @media(max-width:760px){.inbox-actions>.button{width:100%}.inbox-actions span{min-width:0}}
+
+/* Admin-only dessert subtypes and moderated unknown-word queue. */
+.filter-grid{grid-template-columns:2fr 1fr 1fr 1fr}
+.dessert-subtype-caption{display:block;font-weight:400;font-size:10px;color:#a9bbd1;margin-top:3px}
+.suggestion-panel{border-color:#617a67}
+.suggestion-panel .panel-title .help{margin:6px 0 0}
+.suggestion-scroll{max-height:345px;overflow-y:auto;overflow-x:auto;border:1px solid #3a5266;border-radius:12px}
+.suggestion-scroll table{min-width:460px}
+.suggestion-scroll .button{font-size:11px;padding:6px 9px;min-height:32px}
+@media(max-width:900px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.filter-grid{grid-template-columns:1fr}.suggestion-panel .panel-title{align-items:flex-start}}

@@ -97,3 +97,16 @@ test('admin draft validation prevents redundant dessert variants',()=>{
   assert.throws(()=>addDraft({},'ไข่เหี้ย','dessert'),/มีคำนี้/);
   assert.throws(()=>addDraft({},'ขนมข้าวตู','dessert'),/มีคำนี้/);
 });
+
+test('dessert alias search, subtype tag and moderated-suggestion view are admin-only',()=>{
+  
+  assert.ok(exactEntries(getEntries({}),'ใส่ไส้').some(x=>x.category==='dessert'));
+  assert.ok(filterEntries(getEntries({}),'ขนมใส่ไส้').some(x=>x.category==='dessert'));
+  const admin=readFileSync(new URL('../src/admin.tsx',import.meta.url),'utf8');
+  assert.match(admin,/dessert-suggestions/);
+  assert.match(admin,/timesSuggested/);
+  assert.match(admin,/pendingSuggestions/);
+  assert.match(admin,/dessertSubtypeLabel/);
+  assert.match(admin,/admin-add-words/);
+  assert.doesNotMatch(readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8'),/dessert-suggestions/);
+});
