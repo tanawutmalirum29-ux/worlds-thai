@@ -1,3 +1,4 @@
+import { ANIMAL_SYNONYM_ADDITIONS, NATURE_TERMS } from './synonyms.ts';
 import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 
 /**
@@ -89,7 +90,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เรนเดียร์",
     "นกเงือก",
     "นกกระจิบ",
-    "ชะนีมือขาว"
+    "ชะนีมือขาว",
+    ...ANIMAL_SYNONYM_ADDITIONS
   ],
   "sport": [
     "กอล์ฟ",
@@ -1103,6 +1105,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "พลับพลึง",
     "พลับพลึงธาร"
   ],
+  "nature": [...NATURE_TERMS],
   "tree": [
     "ก้ามปู",
     "กัลปพฤกษ์",
