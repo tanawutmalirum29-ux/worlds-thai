@@ -4,7 +4,7 @@ import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
 import { GameAudio, readAudioMuted, writeAudioMuted, type AudioScene } from './audio.ts';
-import { validAnswer,wordInitialForCategory,normalizeAnswer } from '../amplify/functions/game/logic.ts';
+import { validRoundAnswer,wordInitialForCategory,normalizeAnswer } from '../amplify/functions/game/logic.ts';
 import { letterCaption } from './letters.ts';
 import { synonymExamplesForRound } from './word-insights.ts';
 import { encodeGamePayload } from './rooms';
@@ -28,7 +28,7 @@ const SYMBOLS: Record<string,string> = {
   festival:'🎏', toy:'✦', fish:'🐟', insect:'🐝', bird:'🕊', dessert:'🍩', nature:'☘',
   furniture:'▤', material:'⬡', health:'✚', tool:'⚒', fiction:'📖', transport:'➤'
 };
-type GameSettings = {rounds:number;categories:number;seconds:number};
+type GameSettings = {rounds:number;categories:number;seconds:number;mode?:'letter'|'category'};
 const DEFAULT_SETTINGS:GameSettings={rounds:3,categories:5,seconds:40};
 const TIME_OPTIONS=[20,30,40,50,60,75,90,120];
 type SettingKey=keyof GameSettings;
@@ -40,8 +40,8 @@ const SETTINGS_CHOICES:{field:SettingKey;label:string;unit:string;options:number
 type PublicRoom = {roomId:string;hostName:string;playerCount:number;createdAt:number;settings:GameSettings};
 type Player = { id:string; name:string; score:number };
 type Entry = { id:string; name:string; answers:Record<string,string>; points:number; perCategory:Record<string,number>; rarityBonus?:Record<string,number> };
-type Round = {round:number; letter:string; categories:string[]; entries:Entry[]};
-type Game = {roomId:string; phase:'lobby'|'playing'|'review'|'final'; round:number; letter:string;
+type Round = {round:number; letter:string; categories:string[]; topicCategory?:string; entries:Entry[]};
+type Game = {roomId:string; phase:'lobby'|'playing'|'review'|'final'; round:number; letter:string; topicCategory?:string;
   categories:string[]; deadline:number; countdown:number; players:Player[]; submitted:string[];
   history:Round[]; revision:number; ownerId:string; settings:GameSettings; you?:string;
   skipVotes?:string[]; rematchVotes?:string[];
@@ -354,8 +354,8 @@ function App(){
     const state=current.current;
     if(!state || state.phase!=='playing' || Date.now()>=state.deadline)return;
     const previousWord=answersRef.current[category]||'';
-    if(value.trim() && !validAnswer(normalizeAnswer(previousWord),state.letter,category) &&
-       validAnswer(normalizeAnswer(value),state.letter,category))audioRef.current?.cue('answer');
+    if(value.trim() && !validRoundAnswer(normalizeAnswer(previousWord),state.letter,category,state.topicCategory) &&
+       validRoundAnswer(normalizeAnswer(value),state.letter,category,state.topicCategory))audioRef.current?.cue('answer');
     const latest={...answersRef.current,[category]:value};
     answersRef.current=latest;setAnswers(latest);draftVersionRef.current++;
     setDraftStatus('saving');
@@ -408,11 +408,22 @@ function App(){
     void leave();
   }
   const activeChoice=SETTINGS_CHOICES.find(choice=>choice.field===choicePopup);
-  const settingsControls=<div className="settings-grid">{SETTINGS_CHOICES.map(choice=><div className="settings-choice-field" key={choice.field}>
-    <span className="settings-choice-label">{choice.label}</span>
-    <button type="button" className="settings-choice-trigger" aria-label={`เลือก${choice.label} ค่าปัจจุบัน ${draftSettings[choice.field]} ${choice.unit}`} aria-haspopup="dialog" aria-expanded={choicePopup===choice.field}
-      onClick={e=>openSetting(choice.field,e.currentTarget)}><span>{draftSettings[choice.field]} {choice.unit}</span><span className="settings-chevron" aria-hidden="true">⌄</span></button>
-  </div>)}</div>;
+  const activeChoiceLabel=activeChoice?.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':activeChoice?.label;
+  const settingsControls=<>
+    <div className="game-mode-picker" role="group" aria-label="เลือกโหมดเกม">
+      <button type="button" className={draftSettings.mode!=='category'?'game-mode-option active':'game-mode-option'}
+        aria-pressed={draftSettings.mode!=='category'}
+        onClick={()=>setDraftSettings(s=>({...s,mode:'letter'}))}><strong>โหมดพยัญชนะ</strong><small>อักษรเดียว หลายหมวด</small></button>
+      <button type="button" className={draftSettings.mode==='category'?'game-mode-option active':'game-mode-option'}
+        aria-pressed={draftSettings.mode==='category'}
+        onClick={()=>setDraftSettings(s=>({...s,mode:'category'}))}><strong>โหมดหมวดใหญ่</strong><small>หมวดเดียว หลายอักษร</small></button>
+    </div>
+    <div className="settings-grid">{SETTINGS_CHOICES.map(choice=><div className="settings-choice-field" key={choice.field}>
+      <span className="settings-choice-label">{choice.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':choice.label}</span>
+      <button type="button" className="settings-choice-trigger" aria-label={`เลือก${choice.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':choice.label} ค่าปัจจุบัน ${draftSettings[choice.field]} ${choice.field==='categories'&&draftSettings.mode==='category'?'คำ':choice.unit}`} aria-haspopup="dialog" aria-expanded={choicePopup===choice.field}
+        onClick={e=>openSetting(choice.field,e.currentTarget)}><span>{draftSettings[choice.field]} {choice.field==='categories'&&draftSettings.mode==='category'?'คำ':choice.unit}</span><span className="settings-chevron" aria-hidden="true">⌄</span></button>
+    </div>)}</div>
+  </>;
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
@@ -485,7 +496,7 @@ function App(){
         <section className="welcome-copy">
           <div className="eyebrow"><span className="eyebrow-line"/> เกมคำศัพท์ปาร์ตี้ออนไลน์</div>
           <h1>คิดให้ไว <span>ตอบให้ทัน</span><br/>แล้วมาวัดกัน!</h1>
-          <p className="lead">สุ่มพยัญชนะไทย แข่งตอบคำให้ตรงหมวดกับเพื่อนแบบออนไลน์ คำไม่ซ้ำยิ่งได้แต้มเยอะ!</p>
+          <p className="lead">เลือกเล่นได้สองโหมด สุ่มพยัญชนะหรือสุ่มหมวดใหญ่ แข่งตอบคำให้ตรงโจทย์กับเพื่อนแบบออนไลน์!</p>
           <div className="floating-letters" aria-hidden="true"><div className="float-card first">ก<span>ไก่</span></div><div className="float-card second">ส<span>เสือ</span></div><div className="float-card third">ม<span>ม้า</span></div></div>
         </section>
         <section className="join-card">
@@ -504,7 +515,7 @@ function App(){
             {roomsLoading?<p className="notice">กำลังค้นหาห้องออนไลน์...</p>:
             rooms.length===0?<div className="empty-rooms"><strong>ยังไม่มีห้องที่รอผู้เล่น</strong><p>ให้เพื่อนคนหนึ่งกดสร้างห้องก่อน ห้องจะปรากฏที่นี่อัตโนมัติ</p><button type="button" className="secondary-btn" onClick={()=>setMode('create')}>สร้างห้องใหม่</button></div>:
             <div className="public-room-list">{rooms.map(room=><div className="public-room-card" key={room.roomId}>
-              <div className="public-room-description"><strong>ห้องของ {room.hostName}</strong><span>● {room.playerCount}/8 คน · {room.settings.rounds} รอบ · {room.settings.categories} หมวด · {room.settings.seconds} วินาที</span></div>
+              <div className="public-room-description"><strong>ห้องของ {room.hostName}</strong><span>● {room.playerCount}/8 คน · {room.settings.rounds} รอบ · {room.settings.mode==='category'?'หมวดใหญ่':'พยัญชนะ'} · {room.settings.categories} {room.settings.mode==='category'?'คำ':'หมวด'} · {room.settings.seconds} วินาที</span></div>
               <button type="button" className="public-room-join" disabled={working||status!=='ready'} onClick={()=>void join(room.roomId)}>{working?'กำลังเข้า...':'เข้าร่วม'}</button>
             </div>)}</div>}
           </div>:<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
@@ -530,7 +541,7 @@ function App(){
               {settingsControls}
               <button className="secondary-btn settings-save" disabled={working} onClick={()=>void ownerAction('settings')}>บันทึกการตั้งค่า</button>
               <button className="primary-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span>→</span></button>
-            </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.categories} หมวด · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
+            </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.mode==='category'?'โหมดหมวดใหญ่':'โหมดพยัญชนะ'} · {game.settings.categories} {game.settings.mode==='category'?'คำ':'หมวด'} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
           {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
