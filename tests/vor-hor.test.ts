@@ -24,18 +24,18 @@ test('only ว and ห are expanded with distinct real category-specific words',
   }
 });
 
-test('both new letters pass the unchanged eight-category/5-answer fairness threshold',()=>{
-  assert.equal(MIN_WORDS_PER_PAIR,5);
-  assert.equal(MIN_CATEGORIES_PER_LETTER,8);
+test('ว and ห pass the five-category/two-answer fairness threshold',()=>{
+  assert.equal(MIN_WORDS_PER_PAIR,2);
+  assert.equal(MIN_CATEGORIES_PER_LETTER,5);
   for(const letter of ['ว','ห']){
     assert.ok(LETTERS.includes(letter as never),letter+' should be in random pool');
     const categories=eligibleCategories(letter);
-    assert.ok(categories.length>=8,letter+' must offer 8 categories');
+    assert.ok(categories.length>=5,letter+' must offer 5 categories');
     for(const category of categories){
       const uniques=new Set(WORD_BANK[category]
         .filter(word=>wordInitialForCategory(word,category)===letter)
         .map(word=>canonicalAnswer(word,category)));
-      assert.ok(uniques.size>=5,letter+'/'+category+' has '+uniques.size+' answers');
+      assert.ok(uniques.size>=2,letter+'/'+category+' has '+uniques.size+' answers');
     }
   }
 });

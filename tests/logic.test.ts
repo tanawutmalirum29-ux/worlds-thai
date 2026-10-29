@@ -147,38 +147,42 @@ test('listRooms operation resolves without requiring roomId',()=>{
 
 test('random draw can select ข ไข่ with eight supported categories',()=>{
   const m=setup({rounds:1,categories:8,seconds:40});
-  const target=LETTERS.indexOf('ข' as never);
+  const eightCategoryLetters=LETTERS.filter(letter=>eligibleCategories(letter).length>=8);
+  const target=eightCategoryLetters.indexOf('ข');
   assert.ok(target>=0);
-  const round=chooseRound(m,()=> (target+0.01)/LETTERS.length);
+  const round=chooseRound(m,()=> (target+0.01)/eightCategoryLetters.length);
   assert.equal(round.letter,'ข');
   assert.equal(round.categories.length,8);
   for(const id of round.categories)assert.ok(eligibleCategories('ข').includes(id));
   assert.ok(!round.categories.includes('not-a-category'));
 });
 
-test('fairness filter excludes low-vocabulary consonants and weak letter-category pairs', async ()=>{
-  const {WORD_BANK,MIN_WORDS_PER_PAIR,MIN_CATEGORIES_PER_LETTER}=await import('../amplify/functions/game/dictionary.ts');
-  assert.equal(MIN_WORDS_PER_PAIR,5);
-  assert.equal(MIN_CATEGORIES_PER_LETTER,8);
-  assert.ok(LETTERS.includes('ข' as never));
-  assert.ok(LETTERS.includes('ด' as never));
-  for(const rare of ['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ','ง','ฉ','ซ','ฟ','ภ','ย','ล']){
-    assert.ok(!LETTERS.includes(rare as never),rare+' should not be offered');
-  }
-  for(const letter of LETTERS){
-    const cats=eligibleCategories(letter);
-    assert.ok(cats.length>=8,letter+' needs at least 8 eligible categories');
-    for(const category of cats){
-      const words=new Set((WORD_BANK[category]||[]).filter(word=>wordInitialForCategory(word,category)===letter)
-        .map(word=>canonicalAnswer(word,category)));
-      assert.ok(words.size>=5,letter+':'+category+' only '+words.size+' distinct answers');
-    }
+test('new fairness gate requires at least 5 categories with 2 distinct accepted words each', async ()=>{
+  const {WORD_BANK,EXCLUDED_LETTERS,MIN_WORDS_PER_PAIR,MIN_CATEGORIES_PER_LETTER}=await import('../amplify/functions/game/dictionary.ts');
+  assert.equal(MIN_WORDS_PER_PAIR,2);
+  assert.equal(MIN_CATEGORIES_PER_LETTER,5);
+  for(const oldLetter of ['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ'])
+    assert.ok(!LETTERS.includes(oldLetter as never),oldLetter+' is explicitly excluded');
+  assert.ok(LETTERS.includes('ข' as never),'ข must remain playable');
+  assert.ok(LETTERS.includes('ด' as never),'ด must remain playable');
+
+  // Check both sides of the new thresholds for every candidate consonant.
+  for(const letter of [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']){
+    const qualifying=CATEGORIES.map(([id])=>id).filter(category=>
+      new Set((WORD_BANK[category]||[])
+        .filter(word=>wordInitialForCategory(word,category)===letter)
+        .map(word=>canonicalAnswer(word,category))).size>=2);
+    const expected=!EXCLUDED_LETTERS.has(letter)&&qualifying.length>=5;
+    assert.equal(LETTERS.includes(letter as never),expected,letter+' eligibility must match 5×2 rule');
+    assert.deepEqual(eligibleCategories(letter),expected?qualifying:[],letter+' qualifying category mismatch');
   }
   for(const count of [3,5,8]){
     const m=setup({rounds:1,categories:count,seconds:40});
     for(let attempt=0;attempt<100;attempt++){
       const round=chooseRound(m,()=>attempt/100);
       assert.equal(round.categories.length,count);
+      assert.ok(eligibleCategories(round.letter).length>=Math.max(5,count),
+        round.letter+' cannot support a '+count+'-category room');
       for(const category of round.categories)assert.ok(eligibleCategories(round.letter).includes(category));
     }
   }
@@ -229,9 +233,8 @@ test('country list contains missing countries including ones whose initials are 
   const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
   for(const name of ['อุรุกวัย','สหรัฐอาหรับเอมิเรตส์','กาบูเวร์ดี','ไซปรัส','สโลวาเกีย'])
     assert.ok(WORD_BANK.country.includes(name),name);
-  // ซ has few qualifying categories and isn't a round letter, but Cyprus
-  // must still be present in the country dictionary for future expansion.
-  assert.ok(!LETTERS.includes('ซ' as never));
+  // Country names remain registered even when their initial letter is not currently drawn.
+  assert.equal(validAnswer('ไซปรัส','ซ','country'),eligibleCategories('ซ').includes('country'));
   assert.equal(validAnswer('สโลวาเกีย','ส','country'),true);
 });
 

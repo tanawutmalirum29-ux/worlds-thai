@@ -37,8 +37,8 @@ test('only recognizable overseas regions are retained; ordinary foreign cities a
 });
 
 test('cutting international regions does not disable existing playable letters',()=>{
-  assert.equal(MIN_WORDS_PER_PAIR,5);
-  assert.equal(MIN_CATEGORIES_PER_LETTER,8);
+  assert.equal(MIN_WORDS_PER_PAIR,2);
+  assert.equal(MIN_CATEGORIES_PER_LETTER,5);
   assert.equal(CATEGORIES.length,29);
   for(const letter of ['ว','ห','จ','ก','ข','ค','ช','ด','ต','ท','น','บ','ป','พ','ม','ร','ส','อ']){
     assert.ok(LETTERS.includes(letter as never),letter+' lost playability');
@@ -46,8 +46,8 @@ test('cutting international regions does not disable existing playable letters',
       const answerCount=new Set((WORD_BANK[category]||[])
         .filter(word=>wordInitialForCategory(word,category)===letter)
         .map(word=>canonicalAnswer(word,category))).size;
-      assert.ok(answerCount>=5,letter+'/'+category+' contains only '+answerCount+' words');
+      assert.ok(answerCount>=2,letter+'/'+category+' contains only '+answerCount+' words');
     }
-    assert.ok(eligibleCategories(letter).length>=8,letter+' must still support eight categories');
+    assert.ok(eligibleCategories(letter).length>=8,letter+' was playable in eight-category rooms and should remain so');
   }
 });
