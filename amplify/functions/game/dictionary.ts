@@ -7,8 +7,8 @@ import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-pro
 /**
  * Curated Thai answers for category-aware scoring. All items are individually approved.
  * New vocabulary must be reviewed for spelling and category before inclusion.
- * Fairness filter: each eligible consonant/category pair has >=5 distinct reviewed
- * words and each playable consonant must support >=8 such categories.
+ * Fairness filter: each eligible consonant/category pair has >=2 distinct reviewed
+ * words and each playable consonant must support >=5 such categories.
  * Rare consonants (e.g. ฎ ชฎา, ฮ นกฮูก) are deliberately not offered.
  * ฃ ขวด is excluded, while ข ไข่ remains playable.
  */
@@ -1979,5 +1979,5 @@ export const WORD_BANK: Record<string, readonly string[]> = {
   ]
 };
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
-export const MIN_WORDS_PER_PAIR = 5;
-export const MIN_CATEGORIES_PER_LETTER = 8;
+export const MIN_WORDS_PER_PAIR = 2;
+export const MIN_CATEGORIES_PER_LETTER = 5;
