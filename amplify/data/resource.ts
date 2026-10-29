@@ -16,6 +16,12 @@ const schema = a.schema({
     .returns(a.json())
     .authorization(allow => [allow.guest()])
     .handler(a.handler.function(game)),
+  // Private rarity telemetry: signed-in Cognito admins ONLY (never guest API).
+  getAdminRarity: a.query()
+    .arguments({ cursor: a.string() })
+    .returns(a.json())
+    .authorization(allow => [allow.groups(['RARITY_ADMINS'])])
+    .handler(a.handler.function(game)),
   listRooms: a.query()
     .returns(a.json())
     .authorization(allow => [allow.guest()])
