@@ -114,7 +114,7 @@ The earlier rules admitted a letter/category pair with only 3 approved answers, 
 
 Answers will be autosaved to the server as the player types and scored using the last successfully saved draft when the round ends. No manual submission button; typing feedback still uses the same reviewed dictionary. The backend retains 'submit' for backwards compatibility but the updated client never invokes it. Debounced writes reduce requests; network loss may prevent the most recent text from reaching the server, so the UI shows save status.
 
-Added missing common verbs (including **พนมมือ** and **ปรบมือ**), **อุรุกวัย** and many more countries, states/provinces from multiple countries, common drinks, dishes with eggs, and desserts beginning with ข that do **not** start with 'ขนม'. **พลับพลึง** is a flower/plant, not a commonly eaten fruit; **พลับ** and **พลัม** are fruits. International administrative subdivisions are labelled จังหวัด/รัฐทั่วโลก.
+Added missing common verbs (including **พนมมือ** and **ปรบมือ**), **อุรุกวัย** and many more countries, states/provinces from multiple countries, common drinks, dishes with eggs, and desserts beginning with ข that do **not** start with 'ขนม'. **พลับพลึง** is a flower/plant, not a commonly eaten fruit; **พลับ** and **พลัม** are fruits. The จังหวัด/รัฐทั่วโลก category is now a deliberately small shortlist of foreign regions familiar to Thai players, not an exhaustive atlas.
 
 Country vocabulary has 193 reviewed Thai name entries after this change (not a formal guarantee of exhaustive UN-member coverage; some names and naming conventions may differ). Added Albania, Algeria, Bahamas, Cabo Verde, Cyprus, Slovakia, Slovenia, and UAE in Thai.
 
@@ -168,3 +168,17 @@ The **ส เสือ** dessert pool gained five distinct real sweets after ali
 - ห้ามคำที่เป็นเพียงชื่อหมวด เช่น “สัตว์” ในหมวดสัตว์ หรือ “อาหาร” ในหมวดอาหาร
 - เฉลยหลังจบรอบและสรุปจบเกมมีคำไวพจน์น่ารู้ที่ขึ้นต้นตรงพยัญชนะของรอบนั้นโดยใช้ `src/word-insights.ts` และข้อมูลชุดเดียวกับคลัง เซิร์ฟเวอร์ยังเป็นผู้ตัดสินคะแนน
 - ทุกคำใหม่ต้องตรวจ **ตัวสะกด/ความหมาย/หมวด/หลักฐาน** ก่อนแก้ `dictionary.ts` หรือ `synonyms.ts`; ไฟล์อ้างอิงของแต่ละกลุ่มเป็น metadata เพื่อช่วยทวนสอบ ไม่ใช้การดึงพจนานุกรมมาเพิ่มคำอัตโนมัติ
+
+## คัดรายชื่อจังหวัด/รัฐต่างประเทศให้เหมาะกับผู้เล่นไทย
+
+หมวด **จังหวัด/รัฐทั่วโลก** ไม่ใช่รายชื่อจังหวัดทั้งหมดของโลกอีกต่อไป โดยตั้งใจให้ตอบสนุกสำหรับผู้เล่นไทย:
+
+- จังหวัดไทย **ครบ 77 จังหวัด** (รวมกรุงเทพมหานคร)
+- จังหวัด/เขตการปกครองระดับเดียวกันของประเทศเพื่อนบ้าน **38 ชื่อหลัก**: ลาว 8, กัมพูชา 8, เมียนมา 8, มาเลเซีย 8, เวียดนาม 6
+- รัฐ/จังหวัด/จังหวัดเทียบเท่าของประเทศอื่น **26 ชื่อหลัก**: สหรัฐอเมริกา 10, แคนาดา 3, ญี่ปุ่น 8, ออสเตรเลีย 3, เยอรมนี 2
+- รูปสะกดภาษาไทยทางเลือกอีก **5 แบบ** ที่นับเป็นสถานที่เดียวกัน (ไม่นับเป็นคำตอบใหม่)
+- รวม **141 ชื่อหลัก** (77+38+26) หรือ **146 รูปคำ** เมื่อรวมรูปสะกดทางเลือก ไม่มีการเพิ่มชื่อเมืองทั่วไปที่ไม่ได้เป็นเขตการปกครองระดับจังหวัด
+- เกณฑ์สุ่มเดิมยังใช้เหมือนเดิม: อย่างน้อย **5 คำต่อหมวด/พยัญชนะ** และ **8 หมวดต่อพยัญชนะ** จึงสุ่มได้ หากชื่อรัฐหรือจังหวัดอยู่ในคลังแต่พยัญชนะนั้นยังไม่ผ่านเกณฑ์ เกมจะยังไม่สุ่มรอบนั้น
+- แหล่งข้อมูล: `amplify/functions/game/neighbor-provinces.ts`, `amplify/functions/game/familiar-world-provinces.ts` และรายการจังหวัดไทยใน `dictionary.ts`; เปลี่ยน shortlist ได้หลังตรวจคำและเทสต์
+
+เกณฑ์คัดเลือกเป็นเกณฑ์บรรณาธิการโดยประมาณ (พบในข่าว การเรียน การท่องเที่ยว หรือประเทศเพื่อนบ้าน) **ไม่ใช่การจัดอันดับจากผลสำรวจว่าคนไทยรู้จักจังหวัดใดมากที่สุด** รายการที่ถูกตัดออกไม่ถือว่าเป็นสถานที่ไม่มีจริง เพียงแต่ไม่ได้เป็นคำตอบที่คลังเกมฉบับนี้รองรับ
