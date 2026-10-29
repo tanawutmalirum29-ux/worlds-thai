@@ -83,7 +83,7 @@ export const ROUND_SECONDS = DEFAULT_SETTINGS.seconds;
 export const ROUNDS = DEFAULT_SETTINGS.rounds;
 export type Phase = 'lobby' | 'playing' | 'review' | 'final';
 export type Player = { id: string; name: string; score: number; lastSeen: number };
-export type RoundEntry = { id: string; name: string; answers: Record<string,string>; points: number; perCategory: Record<string,number> };
+export type RoundEntry = { id: string; name: string; answers: Record<string,string>; points: number; perCategory: Record<string,number>; rarityBonus?: Record<string,number> };
 export type History = { round: number; letter: string; categories: string[]; entries: RoundEntry[] };
 export type Match = {
   id: string; version: number; phase: Phase; players: Player[]; round: number;
@@ -91,6 +91,8 @@ export type Match = {
   letter: string; categories: string[]; deadline: number; countdown: number;
   submissions: Record<string, Record<string,string>>; history: History[];
   previousLetters: string[]; previousCategories: string[]; ttl: number;
+  /** Current round's SERVER-ONLY daily rarity snapshot; never returned during play. */
+  rarityBonuses?: Record<string, Record<string, number>>;
 };
 export function newMatch(id: string, now: number): Match {
   return { id, version: 0, phase: 'lobby', players: [], ownerId: '', createdAt: now, settings: { ...DEFAULT_SETTINGS },
@@ -164,18 +166,35 @@ export function scoreRound(match: Match): RoundEntry[] {
   const all = match.players.map(player => ({ player, answers: cleanAnswers(match.submissions[player.id], match.categories) }));
   return all.map(({ player, answers }) => {
     const perCategory: Record<string,number> = {};
+    const rarityBonus: Record<string,number> = {};
+    const candidates: {category:string; bonus:number}[] = [];
     for (const category of match.categories) {
       const answer = answers[category];
       if (!validAnswer(answer,match.letter,category)) { perCategory[category]=0; continue; }
+      const canonical = canonicalAnswer(answer,category);
       const duplicateCount = all.filter(entry =>
         validAnswer(entry.answers[category],match.letter,category) &&
-        canonicalAnswer(entry.answers[category],category) === canonicalAnswer(answer,category)).length;
+        canonicalAnswer(entry.answers[category],category) === canonical).length;
       perCategory[category] = duplicateCount > 1 ? 1 : 2;
+      if (duplicateCount === 1) {
+        const bonus = match.rarityBonuses?.[category]?.[canonical] || 0;
+        if (bonus === 1 || bonus === 2) candidates.push({category,bonus});
+      }
     }
-    return { id: player.id, name: player.name, answers, perCategory,
+    // The rarest word receives priority; cap bonuses at +3 per player per round.
+    let remainingBonus = 3;
+    for (const candidate of candidates.sort((a,b) => b.bonus-a.bonus)) {
+      const bonus = Math.min(candidate.bonus,remainingBonus);
+      if (bonus <= 0) break;
+      rarityBonus[candidate.category] = bonus;
+      perCategory[candidate.category] += bonus;
+      remainingBonus -= bonus;
+    }
+    return { id: player.id, name: player.name, answers, perCategory, rarityBonus,
       points: Object.values(perCategory).reduce((a,b)=>a+b,0) };
   });
 }
+
 export function advance(match: Match, now: number, random = Math.random): Match {
   match.players = match.players.filter(player => now-player.lastSeen <= IDLE_SECONDS*1000);
   if (!match.players.some(player => player.id === match.ownerId)) {
@@ -200,7 +219,7 @@ export function advance(match: Match, now: number, random = Math.random): Match 
       match.letter=round.letter; match.categories=round.categories;
       match.previousLetters.push(round.letter);
       match.previousCategories.push(...round.categories);
-      match.phase='playing'; match.submissions={};
+      match.phase='playing'; match.submissions={}; match.rarityBonuses={};
       match.deadline=now+match.settings.seconds*1000;
     }
   }
@@ -265,13 +284,13 @@ export function applyAction(
       const round=chooseRound(match);
       match.letter=round.letter;match.categories=round.categories;
       match.previousLetters.push(round.letter);match.previousCategories.push(...round.categories);
-      match.phase='playing';
+      match.phase='playing'; match.rarityBonuses={};
       match.deadline=now+match.settings.seconds*1000;
     } else if (action==='reset') {
       if (match.ownerId!==userId) throw new Error('เฉพาะเจ้าของห้องเท่านั้นที่เริ่มเกมใหม่ได้');
       if (match.phase!=='final') throw new Error('เกมยังไม่จบ');
       match.phase='lobby';match.round=0;match.letter='';match.categories=[];match.deadline=0;
-      match.submissions={};match.history=[];match.previousLetters=[];match.previousCategories=[];
+      match.submissions={};match.history=[];match.previousLetters=[];match.previousCategories=[];match.rarityBonuses={};
       for(const p of match.players)p.score=0;
     } else if (action==='draft' || action==='submit') {
       // The most recent server-saved input is scored at the deadline.
