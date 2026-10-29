@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
+import { GameAudio, readAudioMuted, writeAudioMuted, type AudioScene } from './audio.ts';
 import { validAnswer,wordInitialForCategory,normalizeAnswer } from '../amplify/functions/game/logic.ts';
 import { letterCaption } from './letters.ts';
 import { synonymExamplesForRound } from './word-insights.ts';
@@ -53,6 +54,7 @@ function remainingForAutosave(game:Game,now:number){
 }
 function secondsUntil(when:number, now:number){return Math.max(0,Math.ceil((when-now)/1000));}
 function timeLabel(s:number){return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
+function SoundIcon({muted}:{muted:boolean}){return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/>{muted?<path d="m16 9 5 6m0-6-5 6"/>:<><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></>}</svg>}
 function TrophyIcon(){return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M8 21h8m-4-4v4M6 3h12v7a6 6 0 01-12 0V3zm0 2H3v3a5 5 0 004 4m11-7h3v3a5 5 0 01-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>}
 function SynonymLearn({letter,categories}:{letter:string;categories:readonly string[]}) {
   const examples=synonymExamplesForRound(letter,categories);
@@ -86,6 +88,9 @@ function App(){
   const [help,setHelp] = useState(false);
   const [exitConfirm,setExitConfirm] = useState(false);
   const [choicePopup,setChoicePopup] = useState<SettingKey|null>(null);
+  const [audioMuted,setAudioMuted] = useState(readAudioMuted);
+  const audioRef = useRef<GameAudio|null>(null);
+  const audioStateRef = useRef<{roomId:string;round:number;phase:AudioScene;remaining:number}|null>(null);
   const dialogRef = useRef<HTMLElement|null>(null);
   const openerRef = useRef<HTMLButtonElement|null>(null);
   const current = useRef<Game|null>(null);
@@ -100,6 +105,21 @@ function App(){
   const draftTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
   const draftInFlightRef=useRef(false);
   useEffect(()=>()=>{if(draftTimerRef.current)clearTimeout(draftTimerRef.current);},[]);
+  useEffect(()=>{
+    const audio = new GameAudio(audioMuted);
+    audioRef.current = audio;
+    const unlock = () => audio.unlock();
+    const visibility = () => audio.setHidden(document.hidden);
+    document.addEventListener('pointerdown',unlock,{passive:true});
+    document.addEventListener('keydown',unlock);
+    document.addEventListener('visibilitychange',visibility);
+    return()=>{
+      document.removeEventListener('pointerdown',unlock);
+      document.removeEventListener('keydown',unlock);
+      document.removeEventListener('visibilitychange',visibility);
+      audio.dispose();audioRef.current=null;
+    };
+  },[]);
   // Trap keyboard focus in custom dialogs and allow Escape without native browser UI.
   useEffect(()=>{
     if(!exitConfirm && !choicePopup)return;
@@ -178,12 +198,14 @@ function App(){
       roomRef.current=next.roomId;roundRef.current=0;current.current=null;
       accept(next.snapshot);
       setDraftSettings(next.snapshot.settings);
+      audioRef.current?.cue('join');
       // Keep the browser on the one public game URL.
       if(window.location.search)history.replaceState({},'',location.pathname);
     }catch(e){setError(e instanceof Error?e.message:'เข้าร่วมเกมไม่สำเร็จ');}
     finally{setWorking(false);workingRef.current=false;}
   };
   const leave=async()=>{
+    audioRef.current?.cue('exit');
     const old=roomRef.current;
     roomRef.current=''; meRef.current='';setMe('');setGame(null);current.current=null;roundRef.current=0;setAnswers({});
     if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
@@ -271,6 +293,9 @@ function App(){
   function updateWord(category:string,value:string){
     const state=current.current;
     if(!state || state.phase!=='playing' || Date.now()>=state.deadline)return;
+    const previousWord=answersRef.current[category]||'';
+    if(value.trim() && !validAnswer(normalizeAnswer(previousWord),state.letter,category) &&
+       validAnswer(normalizeAnswer(value),state.letter,category))audioRef.current?.cue('answer');
     const latest={...answersRef.current,[category]:value};
     answersRef.current=latest;setAnswers(latest);draftVersionRef.current++;
     setDraftStatus('saving');
@@ -300,6 +325,7 @@ function App(){
     openerRef.current?.focus();
   }
   function openSetting(field:SettingKey,button:HTMLButtonElement){
+    audioRef.current?.cue('tap');
     openerRef.current=button;
     setChoicePopup(field);
   }
@@ -316,6 +342,33 @@ function App(){
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
+  useEffect(()=>{
+    const scene:AudioScene=game?.phase??'home';
+    const audio=audioRef.current;
+    audio?.setScene(scene,remaining);
+    const previous=audioStateRef.current;
+    if(previous && game && previous.roomId===game.roomId){
+      if(scene==='playing' && (previous.phase!=='playing'||previous.round!==game.round)){
+        audio?.cue('start');
+      }else if(scene==='review' && previous.phase==='playing'){
+        audio?.cue('review');
+      }else if(scene==='final' && previous.phase!=='final'){
+        audio?.cue('finish');
+      }
+      if(scene==='playing' && previous.phase==='playing' && previous.round===game.round && remaining!==previous.remaining){
+        if(remaining>=1 && remaining<=5)audio?.countdown(remaining);
+        if(remaining===0 && previous.remaining>0)audio?.cue('timeout');
+      }
+    }
+    audioStateRef.current={roomId:game?.roomId||'',round:game?.round||0,phase:scene,remaining};
+  },[game?.roomId,game?.phase,game?.round,remaining]);
+  function toggleAudio(){
+    const next=!audioMuted;
+    writeAudioMuted(next);
+    setAudioMuted(next);
+    audioRef.current?.setMuted(next);
+    if(!next)audioRef.current?.cue('tap');
+  }
   const ordered=(game?.players||[]).slice().sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'th'));
   const latest=game?.history.at(-1);
   const leaders=ordered.filter(p=>p.score===ordered[0]?.score);
@@ -323,7 +376,7 @@ function App(){
     <div className="ambient ambient-left"/><div className="ambient ambient-right"/>
     <header className={playing?'topbar container topbar-playing':'topbar container'}>
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
-      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
+      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button type="button" className="sound-toggle" aria-label={audioMuted?'เปิดเสียงเพลงและเอฟเฟกต์':'ปิดเสียงเพลงและเอฟเฟกต์'} aria-pressed={!audioMuted} title={audioMuted?'เปิดเสียง':'ปิดเสียง'} onClick={toggleAudio}><SoundIcon muted={audioMuted}/><span className="sound-button-text">{audioMuted?'เปิดเสียง':'ปิดเสียง'}</span></button><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
     <main className="container">
       {!game ? <div className="welcome-layout">
