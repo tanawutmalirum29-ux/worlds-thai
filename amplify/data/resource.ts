@@ -17,7 +17,8 @@ const schema = a.schema({
       action: a.string().required(),
       roomId: a.string(),
       name: a.string(),
-      answers: a.json()
+      answers: a.json(),
+      settings: a.json()
     })
     .returns(a.ref('GameEvent'))
     .authorization(allow => [allow.guest()])

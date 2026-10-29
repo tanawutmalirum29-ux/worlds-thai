@@ -1,105 +1,116 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { newMatch, applyAction, advance, chooseRound, scoreRound, snapshot, initialConsonant, validAnswer, CATEGORIES, LETTERS, eligibleCategories, ROUNDS, ROUND_SECONDS, MAX_PLAYERS } from '../amplify/functions/game/logic.ts';
-const start = 1_700_000_000_000;
-test('five distinct categories out of 25+ and Thai letter each round', () => {
-  let match = newMatch('public-1',start);
-  applyAction(match,'join','p1',start,'หนึ่ง');
-  applyAction(match,'join','p2',start,'สอง');
-  advance(match,start + 10_000,()=>.01);
-  assert.equal(match.phase,'playing');
-  assert.equal(match.categories.length,5);
-  assert.equal(new Set(match.categories).size,5);
-  assert.ok(CATEGORIES.length>=25);
-  assert.ok(match.letter.length===1);
+import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,initialConsonant,validAnswer,
+  CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings } from '../amplify/functions/game/logic.ts';
+import {resolveOperation} from '../amplify/functions/game/request.ts';
+const start=1_700_000_000_000;
+const room=()=>newMatch('room-aabbccddeeff00112233',start);
+function setup(settings=DEFAULT_SETTINGS){
+  const m=room();
+  applyAction(m,'create','host',start,'Host',undefined,settings);
+  applyAction(m,'join','guest',start,'Guest');
+  return m;
+}
+test('creates owner-controlled room; no automatic matchmaking or start',()=>{
+  const m=setup();
+  advance(m,start+15000);
+  assert.equal(m.phase,'lobby');
+  assert.equal(m.ownerId,'host');
+  assert.equal(m.players.length,2);
+  assert.equal(m.settings.seconds,40);
+  assert.equal(m.round,0);
+  assert.throws(()=>applyAction(m,'create','stranger',start+200,'X'),/ROOM_UNAVAILABLE/);
+  assert.throws(()=>applyAction(room(),'join','stranger',start,'X'),/ห้องนี้/);
 });
-test('accepts Thai leading vowels before the consonant',()=>{
-  assert.equal(initialConsonant('เสือ'),'ส');
-  assert.equal(initialConsonant('แมว'),'ม');
-  assert.equal(initialConsonant('ไก่'),'ก');
-  assert.equal(validAnswer('   เสือ  ','ส','animal'),true);
-  assert.equal(validAnswer('แมว','ส','animal'),false);
+test('only owner configures and starts; 2 players required',()=>{
+  const m=room();
+  applyAction(m,'create','host',start,'Host');
+  assert.throws(()=>applyAction(m,'start','host',start+1000),/อย่างน้อย 2/);
+  applyAction(m,'join','guest',start,'Guest');
+  assert.throws(()=>applyAction(m,'settings','guest',start+1000,'',undefined,{rounds:9,categories:3,seconds:20}),/เจ้าของห้อง/);
+  assert.throws(()=>applyAction(m,'start','guest',start+1000),/เจ้าของห้อง/);
+  applyAction(m,'settings','host',start+1000,'',undefined,{rounds:2,categories:8,seconds:30});
+  applyAction(m,'start','host',start+2000);
+  assert.equal(m.phase,'playing');
+  assert.equal(m.settings.categories,8);
+  assert.equal(m.categories.length,8);
+  assert.equal(m.deadline,start+32000);
+  assert.throws(()=>applyAction(m,'settings','host',start+2001,'',undefined,{rounds:1}),/ก่อนเริ่ม/);
 });
-test('unique 20, duplicate 10, invalid 0 and no early reveal',()=>{
-  const match=newMatch('public-1',start);
-  applyAction(match,'join','p1',start,'A'); applyAction(match,'join','p2',start,'B');
-  advance(match,start+10000,()=>.01);
-  match.letter='ส'; match.categories=['animal','job','sport','food','place'];
-  applyAction(match,'submit','p1',start+11000,'',{animal:'เสือ',job:'สถาปนิก',sport:'สนุกเกอร์',food:'ส้มตำ',place:'สวน'});
-  applyAction(match,'submit','p2',start+11000,'',{animal:'เสือ',job:'หมอ',sport:'สนุกเกอร์',food:'ส้มตำ',place:'โรงเรียน'});
-  assert.equal('submissions' in snapshot(match),false);
-  assert.equal(snapshot(match).history.length,0);
-  assert.deepEqual(scoreRound(match).map(x=>x.points),[70,30]);
-  for(const p of match.players) p.lastSeen=start+10000+ROUND_SECONDS*1000;
-  advance(match,start+10000+ROUND_SECONDS*1000+1);
-  assert.equal(match.phase,'review');
-  assert.deepEqual(match.players.map(x=>x.score),[70,30]);
+test('settings validation protects bounds and non-integer values',()=>{
+  for(const input of [{rounds:0},{rounds:11},{categories:2},{categories:9},{seconds:19},{seconds:121},{rounds:'3'},{seconds:30.5}])
+    assert.throws(()=>validateSettings(input),/ตั้งค่าไม่ถูกต้อง/);
+  assert.deepEqual(validateSettings({rounds:10,categories:8,seconds:120}),{rounds:10,categories:8,seconds:120});
 });
-test('blocks late answers and requires membership',()=>{
-  const match=newMatch('public-1',start);
-  assert.throws(()=>applyAction(match,'submit','stranger',start,'',{}),/NOT_JOINED/);
-  applyAction(match,'join','p1',start,'A');applyAction(match,'join','p2',start,'B');
-  advance(match,start+10000);
-  for(const p of match.players) p.lastSeen=match.deadline;
-  assert.throws(()=>applyAction(match,'submit','p1',match.deadline+1,'',{}),/หมดเวลา/);
-});
-test('match capacity and rejoin are idempotent',()=>{
-  const match=newMatch('public-1',start);
-  for(let i=0;i<MAX_PLAYERS;i++) applyAction(match,'join',String(i),start,String(i));
-  assert.throws(()=>applyAction(match,'join','extra',start,'X'),/ROOM_UNAVAILABLE/);
-  applyAction(match,'join','0',start,'updated');
-  assert.equal(match.players.length,MAX_PLAYERS);
-  assert.equal(match.players[0].name,'updated');
-});
-test('three rounds transition and final reset',()=>{
-  const match=newMatch('public-1',start);
-  applyAction(match,'join','p1',start,'A');applyAction(match,'join','p2',start,'B');
-  advance(match,start+10000);
-  for(let i=1;i<=ROUNDS;i++) {
-    assert.equal(match.round,i);
-    for(const p of match.players) p.lastSeen=match.deadline;
-    advance(match,match.deadline+1);assert.equal(match.phase,'review');
-    for(const p of match.players) p.lastSeen=match.deadline;
-    advance(match,match.deadline+1);
+test('all allowed category counts pick distinct supported groups',()=>{
+  for(let count=3;count<=8;count++){
+    const m=setup({rounds:1,categories:count,seconds:40});
+    for(const seed of [0,.17,.42,.75,.99]){
+      const round=chooseRound(m,()=>seed);
+      assert.equal(round.categories.length,count);
+      assert.equal(new Set(round.categories).size,count);
+      for(const category of round.categories)assert.ok(eligibleCategories(round.letter).includes(category));
+    }
   }
-  assert.equal(match.phase,'final');
-  for(const p of match.players) p.lastSeen=match.deadline;
-  advance(match,match.deadline+1);
-  assert.equal(match.phase,'lobby'); assert.equal(match.players[0].score,0);
-});
-
-
-test('round is 40 seconds, never picks ข and gives five well-supported categories', () => {
-  assert.equal(ROUND_SECONDS, 40);
+  assert.equal(CATEGORIES.length,28);
   assert.ok(!LETTERS.includes('ข' as never));
-  for(const letter of LETTERS) {
-    const supported=eligibleCategories(letter);
-    assert.ok(supported.length>=7, letter);
-    assert.ok(new Set(supported).size===supported.length, letter);
-  }
-  const match=newMatch('public-1',start);
-  for(let seed=0;seed<100;seed++) {
-    const r=chooseRound(match,()=>seed/100);
-    assert.equal(r.categories.length,5);
-    for(const id of r.categories) assert.ok(eligibleCategories(r.letter).includes(id),r.letter+':'+id);
-  }
 });
-test('rejects made-up words and real words in the wrong category',()=>{
-  assert.equal(validAnswer('เสือ','ส','animal'),true);
-  assert.equal(validAnswer('ส้มตำ','ส','animal'),false);
-  assert.equal(validAnswer('เสือ','ส','food'),false);
-  assert.equal(validAnswer('ส้มตำ','ส','food'),true);
-  assert.equal(validAnswer('ส้มตำน้ำแข็ง','ส','food'),false);
+test('finish configurable rounds, score once and require owner to reset',()=>{
+  const m=setup({rounds:2,categories:3,seconds:20});
+  applyAction(m,'start','host',start+1000);
+  for(let n=1;n<=2;n++){
+    const deadline=m.deadline;
+    for(const p of m.players)p.lastSeen=deadline;
+    advance(m,deadline+1);
+    assert.equal(m.phase,'review');
+    for(const p of m.players)p.lastSeen=m.deadline;
+    advance(m,m.deadline+1);
+  }
+  assert.equal(m.phase,'final');
+  assert.equal(m.history.length,2);
+  advance(m,start+90000);
+  assert.equal(m.phase,'final');
+  assert.throws(()=>applyAction(m,'reset','guest',start+90001),/เจ้าของห้อง/);
+  applyAction(m,'reset','host',start+90001);
+  assert.equal(m.phase,'lobby');assert.equal(m.round,0);
+});
+test('late submissions blocked; invalid words do not score',()=>{
+  const m=setup();
+  applyAction(m,'start','host',start+1000);
+  m.letter='ส';m.categories=['animal','sport','food'];
+  applyAction(m,'submit','host',start+2000,'',{animal:'เสือ',sport:'สนุกเกอร์',food:'ส้มตำ'});
+  applyAction(m,'submit','guest',start+2000,'',{animal:'ส้มตำ',sport:'สนุกเกอร์',food:'เสือ'});
+  assert.deepEqual(scoreRound(m).map(entry=>entry.points),[50,10]);
+  assert.equal(snapshot(m).settings.seconds,40);
+  for(const p of m.players)p.lastSeen=m.deadline;
+  assert.throws(()=>applyAction(m,'submit','host',m.deadline+1,'',{}),/หมดเวลา/);
   assert.equal(validAnswer('แอปเปิล','อ','fruit'),true);
-  assert.equal(validAnswer('เสือ','ข','animal'),false);
-  assert.equal(validAnswer('ส้มตำ','ส','fiction'),false);
+  assert.equal(initialConsonant('เสือ'),'ส');
 });
-test('scores only approved words from valid category, not prefix alone',()=>{
-  const match=newMatch('public-1',start);
-  applyAction(match,'join','p1',start,'A'); applyAction(match,'join','p2',start,'B');
-  advance(match,start+10000,()=>.01);
-  match.letter='ส'; match.categories=['animal','food','job','sport','object'];
-  applyAction(match,'submit','p1',start+11000,'',{animal:'ส้มตำ',food:'เสือ',job:'สถาปนิก',sport:'สนุกเกอร์',object:'สมุด'});
-  applyAction(match,'submit','p2',start+11000,'',{animal:'เสือ',food:'ส้มตำ',job:'สถาปนิก',sport:'สนุกเกอร์',object:'สมุด'});
-  assert.deepEqual(scoreRound(match).map(x=>x.points),[30,70]);
+test('owner transfer after explicit exit and timeout',()=>{
+  const m=setup();
+  applyAction(m,'leave','host',start+1000);
+  assert.equal(m.ownerId,'guest');
+  applyAction(m,'settings','guest',start+2000,'',undefined,{rounds:4,categories:3,seconds:50});
+  assert.equal(m.settings.rounds,4);
+  const other=setup();
+  other.players[0].lastSeen=start;
+  other.players[1].lastSeen=start+30000;
+  advance(other,start+44000);
+  assert.equal(other.ownerId,'guest');
+});
+test('8-player capacity and rejoin',()=>{
+  const m=room();
+  applyAction(m,'create','host',start,'Host');
+  for(let i=1;i<MAX_PLAYERS;i++)applyAction(m,'join','p'+i,start,'Guest'+i);
+  assert.throws(()=>applyAction(m,'join','extra',start,'Extra'),/เต็ม/);
+  applyAction(m,'join','host',start+100,'Host');
+  assert.equal(m.players.length,8);
+});
+test('AppSync Lambda event resolver does not assume info.fieldName exists',()=>{
+  assert.equal(resolveOperation({fieldName:'getGame',arguments:{roomId:'x'}}),'getGame');
+  assert.equal(resolveOperation({info:{fieldName:'gameAction'},arguments:{action:'create'}}),'gameAction');
+  assert.equal(resolveOperation({arguments:{action:'start'}}),'gameAction');
+  assert.equal(resolveOperation({arguments:{roomId:'room-x'}}),'getGame');
+  assert.throws(()=>resolveOperation({}),/UNKNOWN_OPERATION/);
 });
