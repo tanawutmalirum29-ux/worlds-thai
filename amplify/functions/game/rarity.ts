@@ -83,7 +83,8 @@ function median(numbers: number[]): number {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid-1] + sorted[mid]) / 2;
 }
 function groupByDay(now: number): string {
-  return new Date(now).toISOString().slice(0, 10);
+  // Use the same 03:00 Bangkok boundary as rarity snapshot refresh.
+  return rarityDay(now);
 }
 function recentDayDifference(a: string, b: string): number {
   return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
