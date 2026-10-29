@@ -3,6 +3,8 @@
  * All notes are generated with Web Audio after the first user gesture; no remote
  * tracks, audio downloads, or background autoplay permissions are required.
  */
+import { synthesizeMusicWav, synthesizeTestWav, synthesizeClickWav } from './audio-media.ts';
+
 export type AudioScene = 'home' | 'lobby' | 'playing' | 'review' | 'final';
 export type AudioCue = 'tap' | 'select' | 'focus' | 'join' | 'start' | 'answer' | 'review' | 'finish' | 'timeout' | 'exit';
 
@@ -45,6 +47,11 @@ export class GameAudio {
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
   private interval: ReturnType<typeof setInterval> | null = null;
+  private media: HTMLAudioElement | null = null;
+  private musicUrl: string | null = null;
+  private testUrl: string | null = null;
+  private clickUrl: string | null = null;
+  private mediaAttempt = 0;
   private scene: AudioScene = 'home';
   private remaining = 0;
   private urgent = false;
@@ -60,15 +67,16 @@ export class GameAudio {
     this.makeContext = makeContext;
   }
 
-  /** Call directly from pointerdown/keydown, for iOS and other autoplay policies. */
+  /** Must be called in a real touchstart/click/keydown gesture on iOS. */
   unlock(): void {
     if (this.disposed || this.muted || this.hidden) return;
+    // Media-element playback is considerably more dependable than an
+    // oscillator-only AudioContext on some iOS browsers and WebViews.
+    this.startMediaMusic();
     try {
       if (!this.context) {
         const context = this.makeContext();
         const master = context.createGain();
-        // Previous 0.24 output was nearly inaudible on phone speakers.
-        // Keep headroom while giving both music and short feedback a real presence.
         master.gain.value = 0.85;
         master.connect(context.destination);
         this.context = context;
@@ -76,19 +84,85 @@ export class GameAudio {
       }
       const context = this.context;
       if (context.state !== 'running') void context.resume().catch(() => {});
-      if (!this.interval) {
-        this.nextNoteAt = 0;
-        this.interval = setInterval(() => this.schedule(), 70);
+    } catch {
+      // HTMLAudioElement music is still available even without Web Audio.
+    }
+  }
+
+  private startMediaMusic(): void {
+    if (typeof Audio === 'undefined' || typeof URL === 'undefined' ||
+        typeof URL.createObjectURL !== 'function') {
+      this.startSynthMusic(); // Node tests and browsers without media support
+      return;
+    }
+    try {
+      if (!this.media) {
+        this.musicUrl = URL.createObjectURL(synthesizeMusicWav());
+        const media = new Audio(this.musicUrl);
+        media.loop = true;
+        media.preload = 'auto';
+        media.volume = 0.88;
+        this.media = media;
+      }
+      this.media.playbackRate = this.urgent ? 1.42 : this.scene === 'playing' ? 1.09 : 1;
+      if (!this.media.paused) {
+        this.stopMusic();
+        return;
+      }
+      const attempt = ++this.mediaAttempt;
+      const started = this.media.play(); // synchronous invocation inside real gesture
+      if (started && typeof started.then === 'function') {
+        void started.then(() => {
+          if (this.disposed || this.muted || this.hidden) {
+            this.media?.pause();
+            return;
+          }
+          // Multiple touch/pointer/click events may race on mobile. A stale
+          // resolved play() must NEVER pause a newer successful playback.
+          if (attempt !== this.mediaAttempt) return;
+          this.stopMusic();
+        }).catch(() => {
+          if (this.disposed || attempt !== this.mediaAttempt || this.muted || this.hidden) return;
+          if (this.media && !this.media.paused) { this.stopMusic(); return; }
+          this.startSynthMusic();
+        });
+      } else {
+        this.stopMusic();
       }
     } catch {
-      // Audio must never stop the game working on unsupported/restricted devices.
+      this.startSynthMusic();
     }
+  }
+
+  private startSynthMusic(): void {
+    if (this.interval || this.disposed || this.muted || this.hidden) return;
+    this.nextNoteAt = 0;
+    this.interval = setInterval(() => this.schedule(), 70);
+  }
+
+  /** Plays an independent triple-beep media test, also cueing Web Audio. */
+  test(): Promise<boolean> {
+    if (this.muted || this.disposed || this.hidden) return Promise.resolve(false);
+    this.unlock();
+    this.cue('select');
+    if (typeof Audio !== 'undefined' && typeof URL !== 'undefined' &&
+        typeof URL.createObjectURL === 'function') {
+      try {
+        if (!this.testUrl) this.testUrl = URL.createObjectURL(synthesizeTestWav());
+        const ping = new Audio(this.testUrl);
+        ping.volume = 1;
+        return Promise.resolve(ping.play()).then(() => true, () => this.context?.state === 'running');
+      } catch { /* Web Audio still offers a test cue. */ }
+    }
+    return Promise.resolve(this.context?.state === 'running');
   }
 
   setMuted(muted: boolean): void {
     if (this.muted === muted || this.disposed) return;
     this.muted = muted;
     if (muted) {
+      this.mediaAttempt++;
+      this.media?.pause();
       this.stopMusic();
       if (this.context) void this.context.suspend().catch(() => {});
     } else {
@@ -100,6 +174,8 @@ export class GameAudio {
     if (this.hidden === hidden || this.disposed) return;
     this.hidden = hidden;
     if (hidden) {
+      this.mediaAttempt++;
+      this.media?.pause();
       this.stopMusic();
       if (this.context) void this.context.suspend().catch(() => {});
     } else {
@@ -117,10 +193,16 @@ export class GameAudio {
     this.scene = scene;
     this.remaining = remaining;
     this.urgent = urgent;
+    if (this.media) this.media.playbackRate =
+      urgent ? 1.42 : scene === 'playing' ? 1.09 : 1;
   }
 
-  /** Audible, short feedback. Text inputs are cued on tap/focus, never per keystroke. */
+  /** Short feedback, using HTML media when Web Audio cannot resume. */
   cue(name: AudioCue): void {
+    if (this.context?.state !== 'running') {
+      this.playMediaClick();
+      return;
+    }
     const at = this.readyTime();
     if (at === null) return;
     switch (name) {
@@ -170,6 +252,10 @@ export class GameAudio {
 
   countdown(second: number): void {
     if (second < 1 || second > 5) return;
+    if (this.context?.state !== 'running') {
+      this.playMediaClick();
+      return;
+    }
     const at = this.readyTime();
     if (at === null) return;
     // One distinct metronome-like "beep" on 5,4,3,2; a doubled high beep on 1.
@@ -181,6 +267,18 @@ export class GameAudio {
       this.note(83, at, 0.19, 0.30, 'triangle');
       this.note(71, at, 0.12, 0.12, 'sine');
     }
+  }
+
+  private playMediaClick(): void {
+    if (this.disposed || this.muted || this.hidden || typeof Audio === 'undefined' ||
+        typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return;
+    try {
+      if (!this.clickUrl) this.clickUrl = URL.createObjectURL(synthesizeClickWav());
+      const click = new Audio(this.clickUrl);
+      click.volume = 0.87;
+      const p = click.play();
+      if (p && typeof p.catch === 'function') void p.catch(() => {});
+    } catch { /* Audio must never prevent normal gameplay. */ }
   }
 
   private readyTime(): number | null {
@@ -262,6 +360,17 @@ export class GameAudio {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.mediaAttempt++;
+    this.media?.pause();
+    this.media?.removeAttribute('src');
+    this.media?.load();
+    this.media = null;
+    if (this.musicUrl) URL.revokeObjectURL(this.musicUrl);
+    if (this.testUrl) URL.revokeObjectURL(this.testUrl);
+    if (this.clickUrl) URL.revokeObjectURL(this.clickUrl);
+    this.musicUrl = null;
+    this.testUrl = null;
+    this.clickUrl = null;
     this.stopMusic();
     const context = this.context;
     this.context = null;

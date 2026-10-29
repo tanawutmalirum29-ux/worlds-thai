@@ -92,6 +92,7 @@ function App(){
   const [exitConfirm,setExitConfirm] = useState(false);
   const [choicePopup,setChoicePopup] = useState<SettingKey|null>(null);
   const [audioMuted,setAudioMuted] = useState(readAudioMuted);
+  const [audioNotice,setAudioNotice] = useState('');
   const audioRef = useRef<GameAudio|null>(null);
   const audioStateRef = useRef<{roomId:string;round:number;phase:AudioScene;remaining:number}|null>(null);
   const dialogRef = useRef<HTMLElement|null>(null);
@@ -135,12 +136,16 @@ function App(){
     };
     document.addEventListener('pointerdown',pointerFeedback,{capture:true,passive:true});
     document.addEventListener('pointerdown',unlock,{passive:true});
+    document.addEventListener('touchstart',unlock,{passive:true});
+    document.addEventListener('click',unlock);
     document.addEventListener('keydown',unlock);
     document.addEventListener('keydown',keyboardFeedback);
     document.addEventListener('visibilitychange',visibility);
     return()=>{
       document.removeEventListener('pointerdown',pointerFeedback,true);
       document.removeEventListener('pointerdown',unlock);
+      document.removeEventListener('touchstart',unlock);
+      document.removeEventListener('click',unlock);
       document.removeEventListener('keydown',unlock);
       document.removeEventListener('keydown',keyboardFeedback);
       document.removeEventListener('visibilitychange',visibility);
@@ -447,8 +452,23 @@ function App(){
     const next=!audioMuted;
     writeAudioMuted(next);
     setAudioMuted(next);
+    setAudioNotice(next?'ปิดเสียงเพลงและเอฟเฟกต์แล้ว':'เปิดเสียงแล้ว แตะปุ่มทดสอบเสียงเพื่อเช็กทันที');
     audioRef.current?.setMuted(next);
     if(!next)audioRef.current?.cue('tap');
+  }
+  async function testSound(){
+    const audio=audioRef.current;
+    if(!audio){setAudioNotice('ระบบเสียงยังไม่พร้อม ลองโหลดหน้าเกมใหม่');return;}
+    if(audioMuted){
+      writeAudioMuted(false);
+      setAudioMuted(false);
+      audio.setMuted(false);
+    }
+    // test() starts an audible media beep synchronously inside the tap event.
+    const started=await audio.test();
+    setAudioNotice(started
+      ? 'ส่งเสียงทดสอบ 3 ครั้งแล้ว ถ้ายังไม่ได้ยิน ให้ตรวจเสียงสื่อและอุปกรณ์ Bluetooth'
+      : 'เบราว์เซอร์ยังไม่อนุญาตให้เล่นเสียง ลองแตะทดสอบเสียงอีกครั้ง');
   }
   const ordered=(game?.players||[]).slice().sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'th'));
   const latest=game?.history.at(-1);
@@ -457,9 +477,10 @@ function App(){
     <div className="ambient ambient-left"/><div className="ambient ambient-right"/>
     <header className={playing?'topbar container topbar-playing':'topbar container'}>
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
-      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button type="button" className="sound-toggle" aria-label={audioMuted?'เปิดเสียงเพลงและเอฟเฟกต์':'ปิดเสียงเพลงและเอฟเฟกต์'} aria-pressed={!audioMuted} title={audioMuted?'เปิดเสียง':'ปิดเสียง'} onClick={toggleAudio}><SoundIcon muted={audioMuted}/><span className="sound-button-text">{audioMuted?'เปิดเสียง':'ปิดเสียง'}</span></button><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
+      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button type="button" className="sound-toggle" aria-label={audioMuted?'เปิดเสียงเพลงและเอฟเฟกต์':'ปิดเสียงเพลงและเอฟเฟกต์'} aria-pressed={!audioMuted} title={audioMuted?'เปิดเสียง':'ปิดเสียง'} onClick={toggleAudio}><SoundIcon muted={audioMuted}/><span className="sound-button-text">{audioMuted?'เปิดเสียง':'ปิดเสียง'}</span></button><button type="button" className="sound-test" aria-label="ทดสอบเสียงเพลงและเอฟเฟกต์" title="ทดสอบเสียง" onClick={()=>void testSound()}><span aria-hidden="true">♪</span><span className="sound-test-text">ลองเสียง</span></button><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
     <main className="container">
+      {audioNotice?<p className="audio-notice" role="status" aria-live="polite">{audioNotice}</p>:null}
       {!game ? <div className="welcome-layout">
         <section className="welcome-copy">
           <div className="eyebrow"><span className="eyebrow-line"/> เกมคำศัพท์ปาร์ตี้ออนไลน์</div>

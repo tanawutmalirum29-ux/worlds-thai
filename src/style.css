@@ -237,3 +237,21 @@
 @media (max-width:600px){.skip-time-floating{right:max(9px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));min-height:48px;padding:8px 12px;
  font-size:12px;max-width:190px;gap:5px;border-radius:13px}.skip-time-floating .skip-time-symbol{font-size:15px}
  .skip-time-floating strong{font-size:12px;padding:3px 6px}}
+
+
+/* Always-visible audio smoke test: compact enough for 320px phones. */
+.sound-test{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;min-height:40px;padding:7px 11px;border:1px solid #5e7d72;border-radius:12px;background:#203b38;color:#c9f2db;font:600 12px Prompt,sans-serif;white-space:nowrap}
+.sound-test>span:first-child{font-size:23px;font-family:Kanit,sans-serif;line-height:1}
+.sound-test:hover{background:#2b4b45;border-color:#91e6b8}
+.sound-test:focus-visible{outline:2px solid #eac586;outline-offset:3px}
+.audio-notice{margin:8px 0 0;border:1px solid #6a8b80;background:#1c3436;border-radius:10px;padding:11px 13px;color:#c9f2df;font-size:12px;line-height:1.7}
+@media(max-width:720px){
+  .topbar .live-pill{display:none}
+  .sound-test-text{display:none}
+  .sound-test{width:39px;height:39px;min-height:39px;padding:6px}
+  .topbar .top-actions{gap:7px}
+}
+@media(max-width:370px){
+  .sound-test{width:35px;height:35px;min-height:35px}
+  .topbar .top-actions{gap:4px}
+}
