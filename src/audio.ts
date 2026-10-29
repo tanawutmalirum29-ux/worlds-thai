@@ -112,13 +112,17 @@ export class GameAudio {
       const started = this.media.play(); // synchronous invocation inside real gesture
       if (started && typeof started.then === 'function') {
         void started.then(() => {
-          if (this.disposed || attempt !== this.mediaAttempt || this.muted || this.hidden) {
+          if (this.disposed || this.muted || this.hidden) {
             this.media?.pause();
             return;
           }
+          // Multiple touch/pointer/click events may race on mobile. A stale
+          // resolved play() must NEVER pause a newer successful playback.
+          if (attempt !== this.mediaAttempt) return;
           this.stopMusic();
         }).catch(() => {
           if (this.disposed || attempt !== this.mediaAttempt || this.muted || this.hidden) return;
+          if (this.media && !this.media.paused) { this.stopMusic(); return; }
           this.startSynthMusic();
         });
       } else {
