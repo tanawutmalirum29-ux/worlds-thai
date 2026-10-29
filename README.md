@@ -59,3 +59,16 @@ npm run build
 ## สถานะ
 
 ซอร์สโค้ดสำหรับขึ้น production อยู่ใน `main` หลัง merge แต่สถานะ AWS deploy ต้องตรวจยืนยันจาก Amplify Console ของบัญชีจริง ไม่ถือว่า live เพียงเพราะโค้ดอยู่บน GitHub
+
+
+## Diagnose a failed AWS Amplify deploy
+
+GitHub Actions passing means tests and TypeScript/Vite build succeeded. It **does not** deploy AWS backend infrastructure. In Amplify Console open the failed deployment, then open **Build logs** and find the **first** `[ERROR]` / `[ERROR]:` and the **backend** phase that failed:
+
+- `Unable to assume specified IAM Role`, `AccessDenied`: open Amplify **App settings → IAM roles** and confirm an **Amplify Backend Deployment** service role is selected, properly trusted, and authorized. Do not paste AWS access keys into Git.
+- `BootstrapDetectionError`, `CDKToolkit`, `SSM /cdk-bootstrap`: inspect the CDK bootstrap CloudFormation stack in the same AWS account and region as the Amplify app.
+- `Node.js`, `unsupported engine`: use the Amazon Linux 2023 build image and Node.js 22. The repository build specification now runs `nvm use 22` and prints the version.
+- `CREATE_FAILED`, `UPDATE_ROLLBACK`, `Circular dependency`: check **CloudFormation → Stacks → Events** for the first failed resource and its actual error message. In this project, verify the custom DynamoDB table, Lambda and AppSync resources.
+- `amplify_outputs.json` missing: the Amplify Gen 2 backend phase did not successfully produce config. Do not bypass the backend or deploy only a static frontend: multiplayer requires real backend services.
+
+Only redeploy after confirming which error occurred. Avoid creating more apps or deleting CloudFormation resources blindly.
