@@ -78,6 +78,8 @@ async function loadRaritySnapshot(letter:string,category:string,now:number):Prom
         Object.entries(old.snapshot.candidates).filter(([word])=>liveWords.has(word))
       );
     }
+    snapshot.recentWordUses=result?.recentWordUses||{};
+    snapshot.evaluatedAt=now;
     snapshot.observations=result?.observations||0;
     snapshot.uniquePlayers=result?.uniquePlayers||0;
     snapshot.uniqueRooms=result?.uniqueRooms||0;
@@ -214,6 +216,42 @@ function isRetryableConflict(error:any):boolean {
   }
   return false;
 }
+/** Private read-only aggregate report. Authorization is enforced by AppSync AND here.
+ * Never expose observation records containing pseudonymous player IDs.
+ */
+async function readAdminRarity(event:any,cursor?:string) {
+  const claims=event?.identity?.claims ?? event?.context?.identity?.claims ?? {};
+  const groups=claims['cognito:groups'];
+  if (!(Array.isArray(groups) ? groups.includes('RARITY_ADMINS') :
+    typeof groups==='string' && groups.split(',').some((v:string)=>v.trim()==='RARITY_ADMINS'))) {
+    throw new Error('ADMIN_AUTH_REQUIRED');
+  }
+  if(cursor && (cursor.length>160 || !/^[ก-ฮ]#[a-z]+$/.test(cursor)))throw new Error('INVALID_CURSOR');
+  const result=await db.send(new ScanCommand({
+    TableName:RARITY_META_TABLE,Limit:100,
+    ExclusiveStartKey:cursor?{id:cursor}:undefined,
+    ProjectionExpression:'#id,#start,#born,#snapshot',
+    ExpressionAttributeNames:{
+      '#id':'id','#start':'groupStartedAt',
+      '#born':'firstEligibleAt','#snapshot':'snapshot'
+    }
+  }));
+  return {
+    items:(result.Items||[]).flatMap(item=>{
+      if(typeof item.id!=='string')return [];
+      const [letter,category]=item.id.split('#');
+      if(!letter||!category)return [];
+      return [{
+        letter,category,
+        groupStartedAt:item.groupStartedAt||null,
+        firstEligibleAt:item.firstEligibleAt||{},
+        snapshot:item.snapshot||null
+      }];
+    }),
+    nextToken:result.LastEvaluatedKey?.id||null
+  };
+}
+
 /** Scan a separate retained stats table in bounded pages. Export is intentionally aggregate-only. */
 async function readWordStats(cursor?:string){
   if(cursor && (cursor.length>250 || !cursor.startsWith('stats#')))throw new Error('INVALID_CURSOR');
@@ -273,6 +311,7 @@ export const handler=async(event:any)=>{
     return typeof roomId==='string' && ROOM_ID.test(roomId) ? snapshotOrNull(await read(roomId)) : null;
   }
   if (operation==='listRooms') return availableRooms(Date.now());
+  if (operation==='getAdminRarity')return readAdminRarity(event,args.cursor);
   if (operation==='getWordStats') {
     if(args.request==='stats')return readWordStats(args.cursor);
     if(args.request==='dessert-suggestions')return readDessertSuggestions(args.cursor);

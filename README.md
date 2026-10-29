@@ -209,3 +209,19 @@ The **ส เสือ** dessert pool gained five distinct real sweets after ali
 - Rarity is evaluated lazily at the start of a round, cached per group per Thai rarity day (03:00 cutoff), and frozen in server match state for scoring. Promotions need two consecutive day evaluations, demotions three. Database or analysis failures fail closed to normal scoring rather than failing the match.
 - The first deploy starts new rarity observation history; **existing lifetime WordUsageStats cannot be retroactively treated as recent deduplicated evidence**. The group/day snapshots are cached inside the private RarityGroupMeta table. A safety cap of 5,000 recent round records per group refuses classification rather than reading a truncated dataset; at higher scale add a daily rollup/background aggregation pipeline. This implementation is intentionally fail-closed, not unlimited-capacity analytics.
 - Local checks: `npm run check`. After an Amplify backend deploy, verify with >=2 real guest devices and inspect both new DynamoDB tables and Lambda logs; GitHub Actions passing does **not** verify an AWS deployment.
+
+
+## Admin rarity operations (Cognito group protected)
+The existing unlinked word workspace includes a **สถิติความหายาก** panel. It lists all current category × consonant groups, filters by category/letter/state, and shows lifetime usage alongside deduplicated 30-day recent usage, sample counts, active rare/+1 and very rare/+2 tiers, pending tier stabilization, first-eligible dates, and the last analysis day. Draft words are excluded. Groups can legitimately show `ไม่มีคำหายาก`; groups not yet sampled are separately labelled `ยังไม่เริ่มสะสมสถิติ`. Do not confuse zero recent uses with a missing snapshot (displayed as `—`).
+
+**Security:** The old static workspace PIN is NOT authentication. This section additionally uses an **AWS Cognito User Pool account in the `RARITY_ADMINS` group**. The `getAdminRarity` AppSync custom query has group-only authorization and server-side group validation; it never returns player identities or raw round observations. Existing guest queries and multiplayer remain unchanged.
+
+**One-time admin setup in the AWS account (required):**
+1. Deploy the `main` branch using Amplify Gen 2 backend deployment. Verify successful creation of the `RARITY_ADMINS` Cognito group, AppSync query, and updated Lambda. A GitHub CI pass alone does not deploy backend changes.
+2. Open **Amazon Cognito → User pools → the user pool belonging to this Amplify app**. Create a user for the owner/admin email (or use an existing user), verify the email, and set a usable **permanent password** using the supported Cognito flow. Do not commit passwords to GitHub.
+3. In the same user pool, open **Groups → RARITY_ADMINS → Add user to group**. Only grant this group to trusted administrators. Existing users must sign out/in after group assignment so new token claims are issued.
+4. Open the existing private word workspace, unlock the legacy front-end screen, then scroll to **สถิติความหายาก** and sign in with the Cognito admin email/password. Click **โหลดข้อมูลล่าสุด** when needed.
+
+The rarity report is read-only, uses the existing daily server rarity snapshots, and does NOT recalculate or alter bonuses. Recent counts are populated by the new backend upon its next daily evaluation for each encountered group; preexisting snapshots may show `—`. A group only receives an evaluation on game play, so old/stale groups may show `รอประเมินรอบใหม่`. The raw 40-day player-observation table is never returned to the browser.
+
+**Regression:** `npm run check` includes admin access and data-mapping checks. To validate production access, test both a `RARITY_ADMINS` user (can query) and an ordinary guest/non-group user (must be denied). Do not announce the feature as fully live before checking Amplify backend deployment.

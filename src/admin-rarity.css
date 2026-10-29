@@ -1,0 +1,65 @@
+.admin-shortcuts{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 16px}
+.admin-shortcuts a{padding:9px 13px;border-radius:9px;background:#2b3e51;border:1px solid #52667b;color:#f3d2a0;font-size:12px;text-decoration:none}
+.admin-shortcuts a:focus-visible{outline:2px solid #f3d2a0;outline-offset:3px}
+.rarity-admin{border-color:#526978;background:linear-gradient(180deg,#203247,#182a3d 260px)}
+.rarity-eyebrow{font-size:11px;letter-spacing:.11em;color:#eac58b;font-weight:700;margin-bottom:5px}
+.rarity-admin .panel-title{align-items:flex-start;gap:16px}
+.rarity-admin .help,.rarity-admin .rarity-notice,.rarity-legend{font-size:12px;line-height:1.7;color:#b6c8da}
+.rarity-auth{border:1px solid #41576b;border-radius:13px;background:#18273a;padding:20px;max-width:660px}
+.rarity-auth h3{font-size:18px;margin:0 0 8px}
+.rarity-auth p,.rarity-auth small{color:#c3d1de;font-size:12px;line-height:1.7}
+.rarity-auth code{color:#f3cb8c}
+.rarity-login{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:15px 0}
+.rarity-login label{display:grid;gap:7px;flex:1 1 185px;font-size:12px;color:#c7d6e6}
+.rarity-login input,.rarity-controls select,.rarity-detail-controls input,.rarity-detail-controls select{color:#eff4f8;border:1px solid #536981;background:#111d2f;padding:10px;border-radius:8px;min-width:0;font:inherit}
+.rarity-login .button{flex:1 1 185px;min-height:40px}
+.rarity-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rarity-toolbar p{max-width:730px}
+.rarity-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.rarity-metrics>div{padding:13px;background:#172739;border:1px solid #3f5368;border-radius:11px;display:grid;gap:6px}
+.rarity-metrics span{font-size:11px;color:#a9bfd0}
+.rarity-metrics strong{font-size:21px;font-weight:700;color:#f2cc91}
+.rarity-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+.rarity-controls label{display:grid;gap:7px;font-size:12px;color:#c4d3e1;min-width:0}
+.rarity-groups,.rarity-word-scroll{max-width:100%;overflow:auto;border:1px solid #42576b;border-radius:11px}
+.rarity-groups{max-height:380px}
+.rarity-groups table,.rarity-word-scroll table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}
+.rarity-groups th,.rarity-groups td,.rarity-word-scroll th,.rarity-word-scroll td{padding:11px 10px;border-bottom:1px solid #ffffff13;vertical-align:middle}
+.rarity-groups th,.rarity-word-scroll th{background:#24374c;color:#e0e6ef;position:sticky;top:0;z-index:1;font-weight:600;white-space:nowrap}
+.rarity-groups tr:hover td,.rarity-word-scroll tr:hover td{background:#283b4e}
+.rarity-groups td:first-child{min-width:180px}
+.rarity-link{border:0;background:none;color:#f0c783;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font:inherit;text-align:left;word-break:break-word}
+.rarity-link.selected{font-weight:700;color:#ffe2b0}
+.rarity-state{font-size:11px;display:inline-block;padding:5px 8px;border-radius:7px;background:#34475a;color:#dbe5ef;line-height:1.5;white-space:normal}
+.state-active{background:#3e3a23;color:#ffe0a4}
+.state-no-rare{background:#234838;color:#b2e7c6}
+.state-learning,.state-stale,.state-not-started{background:#3b3c52;color:#ccd1ef}
+.state-not-playable{background:#333b45;color:#a2b0bf}
+.rarity-more{margin-top:12px}
+.rarity-detail{margin-top:20px;border:1px solid #485e74;padding:16px;border-radius:13px;background:#16273a}
+.rarity-detail-head{display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between;margin-bottom:13px}
+.rarity-detail-head h3{margin:0 0 8px;font:600 20px Kanit,sans-serif}
+.rarity-detail-head p{margin-bottom:0}
+.rarity-detail-controls{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.rarity-detail-controls>*{max-width:100%}
+.rarity-word{font-weight:600;color:#e7d9ba}
+.rarity-tier{font-size:12px;white-space:nowrap;color:#d8d5ef}
+.rarity-tier-2{color:#f8c379}
+.rarity-tier-1{color:#afd7d1}
+.rarity-legend{margin-top:16px;border-top:1px solid #ffffff23;padding-top:12px}
+@media(max-width:720px){
+  .rarity-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rarity-controls{grid-template-columns:1fr}
+  .rarity-admin .panel-title{flex-direction:column}
+  .rarity-groups table,.rarity-word-scroll table{min-width:680px}
+  .rarity-detail{padding:12px}
+  .rarity-detail-head{display:block}
+  .rarity-detail-controls{margin-top:12px}
+}
+
+.rarity-gates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:13px 0 7px}
+.rarity-gates>div{padding:9px;border:1px solid #516477;background:#263749;border-radius:8px;display:grid;gap:6px}
+.rarity-gates>div.ready{border-color:#517763;background:#213d34}
+.rarity-gates span{font-size:10px;color:#a9bdd0}
+.rarity-gates strong{font-size:13px;color:#f1d49e}
+@media(max-width:720px){.rarity-gates{grid-template-columns:repeat(2,minmax(0,1fr))}}
