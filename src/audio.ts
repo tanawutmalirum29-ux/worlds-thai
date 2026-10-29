@@ -34,7 +34,7 @@ const CHORDS = [
 const ARPEGGIO = [0, 2, 1, 3, 2, 1, 0, 2] as const;
 
 function createBrowserAudioContext(): AudioContext {
-  const vendor = window as Window & { webkitAudioContext?: typeof AudioContext };
+  const vendor = window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
   const Constructor = vendor.AudioContext || vendor.webkitAudioContext;
   if (!Constructor) throw new Error('Web Audio is unavailable');
   return new Constructor();
