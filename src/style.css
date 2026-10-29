@@ -255,3 +255,41 @@
   .sound-test{width:35px;height:35px;min-height:35px}
   .topbar .top-actions{gap:4px}
 }
+
+/* Category-specific guidance belongs immediately below its category title,
+   not under the round consonant. Hint rows get a full-width, stable input. */
+.answer-category{display:flex;flex:0 0 125px;min-width:100px;max-width:128px;flex-direction:column;gap:5px;overflow-wrap:anywhere}
+.answer-category .answer-text{display:block;min-width:0;max-width:100%;flex:none}
+.answer-item-with-hint{
+  display:grid;
+  grid-template-columns:20px 37px minmax(0,1fr) 17px;
+  grid-template-areas:"number symbol category check" ". . input input";
+  align-items:center;
+  gap:8px 12px;
+}
+.answer-item-with-hint .answer-number{grid-area:number}
+.answer-item-with-hint .answer-symbol{grid-area:symbol}
+.answer-item-with-hint .answer-category{grid-area:category;max-width:none;min-width:0;flex:none;gap:5px}
+.answer-item-with-hint .answer-input-wrap{grid-area:input;width:100%}
+.answer-item-with-hint .answer-check{grid-area:check}
+.answer-category-hint{display:block;font:400 11px/1.65 Prompt,sans-serif;color:#e0c79d;white-space:normal;overflow-wrap:anywhere}
+.answer-hint-note{display:block;color:#a5bacf;font-size:10px;line-height:1.6;margin-top:3px}
+@media(max-width:900px){
+  .answer-category{flex-basis:105px;min-width:80px}
+  .answer-item-with-hint{grid-template-columns:20px 32px minmax(0,1fr) 17px;gap:7px}
+}
+@media(max-width:720px){
+  .answer-category{flex-basis:88px;min-width:70px}
+  .answer-item-with-hint{
+    grid-template-columns:32px minmax(0,1fr) 17px;
+    grid-template-areas:"symbol category check" "input input input";
+    gap:8px;padding:11px;
+  }
+  .answer-item-with-hint .answer-number{display:none}
+  .answer-category-hint{font-size:11px;line-height:1.6}
+  .answer-hint-note{font-size:10px}
+}
+@media(max-width:370px){
+  .answer-category{flex-basis:75px;min-width:67px}
+  .answer-item-with-hint{grid-template-columns:29px minmax(0,1fr) 17px;gap:6px;padding:9px}
+}

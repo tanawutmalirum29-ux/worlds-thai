@@ -534,16 +534,24 @@ function App(){
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
           {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
-            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p>
-              {game.categories.includes('dessert')?<p className="dessert-prefix-help">หมวดขนม: เติม “ขนม” นำหน้าชื่อได้ แต่ไม่นับคำว่า “ขนม” เป็นอักษรต้น เช่น “ขนมจรวดสายรุ้ง” ให้นับ จ จาน (ตัวอย่างสมมติที่ไม่มีจริง ไม่ใช่คำตอบที่ใช้ได้) · ตรวจเฉพาะชื่อขนมจริงในคลัง · “ขนม” เดี่ยว ๆ ไม่รับ</p>:null}
-              {game.categories.includes('tree')?<p className="dessert-prefix-help">หมวดต้นไม้: เติม “ต้น” นำหน้าชื่อได้ แต่ไม่นับคำว่า “ต้น” เป็นอักษรต้น เช่น “ต้นประกายเมฆ” นับ ป ปลา (ตัวอย่างต้นไม้สมมติ ไม่ใช่คำตอบที่ใช้ได้) · ต้องเป็นชื่อต้นไม้ที่มีจริงในคลัง · “ต้น” หรือ “ต้นไม้” อย่างเดียวไม่รับ</p>:null}</div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
+            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
               const typed=normalizeAnswer(answers[id]);
               const state=!typed?'empty':validAnswer(typed,game.letter,id)?'accepted':wordInitialForCategory(typed,id)!==game.letter?'wrong-letter':'unknown';
-              return <label className={`answer-item answer-${state}`} key={`${game.round}-${id}`}>
+              return <label className={`answer-item answer-${state} ${id==='dessert'||id==='tree'?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
                 <span className="answer-number">{String(index+1).padStart(2,'0')}</span>
                 <span className="answer-symbol">{SYMBOLS[id]||'✦'}</span>
-                <span className="answer-text">{LABELS[id]||id}</span>
+                <span className="answer-category">
+                  <span className="answer-text">{LABELS[id]||id}</span>
+                  {id==='dessert'?<span className="answer-category-hint">
+                    เติม “ขนม” นำหน้าได้ แต่ให้นับอักษรของชื่อขนมที่ตามมา เช่น “ขนมจรวดสายรุ้ง” นับ จ จาน
+                    <span className="answer-hint-note">ตัวอย่างสมมติ ไม่ใช่คำตอบจริง · “ขนม” คำเดียวใช้ไม่ได้</span>
+                  </span>:null}
+                  {id==='tree'?<span className="answer-category-hint">
+                    เติม “ต้น” นำหน้าได้ แต่ให้นับอักษรของชื่อต้นไม้ที่ตามมา เช่น “ต้นประกายเมฆ” นับ ป ปลา
+                    <span className="answer-hint-note">ตัวอย่างสมมติ ไม่ใช่คำตอบจริง · “ต้น” หรือ “ต้นไม้” คำเดียวใช้ไม่ได้</span>
+                  </span>:null}
+                </span>
                 <span className="answer-input-wrap">
                   <input disabled={remaining===0} maxLength={48} value={answers[id]||''}
                     onChange={e=>updateWord(id,e.target.value)}

@@ -252,3 +252,6 @@ Run `npm run check` and verify the live API and mobile admin after backend deplo
 
 ## Optional ต้น prefix in the tree category
 The `tree` category treats a leading `ต้น` as an optional prefix for any curated tree name: `มะม่วง` and `ต้นมะม่วง` share the same identity, while a dictionary entry `ต้นโพธิ์` can also be submitted as `โพธิ์`. The consonant is always taken **after** the prefix, so `ต้นมะม่วง` counts as ม and `ต้นโพธิ์` as พ, not ต. The bare forms `ต้น` and `ต้นไม้`, repeated prefixes, and made-up names remain invalid. No normalization changes apply to fruits, plants, foods or any other category. Rarity eligibility, word-choice weights, duplicate scoring, aggregate analytics, historical stats and admin searches all share the same canonical identity. The on-screen hint uses a fictional non-accepted tree, **ต้นประกายเมฆ**, to explain the rule without providing an actual answer.
+
+## Category-local hint placement
+On the gameplay answer screen, the special dessert/tree prefix hints appear directly below their own category titles inside their respective answer cards, rather than in the round letter/header region. Hint cards use a stacked, full-width input on mobile to keep the fictional sample and text readable while preserving the same scoring and autosave behavior. All other category rows remain compact.

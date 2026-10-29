@@ -34,3 +34,21 @@ test('game UI autosaves drafts and has no submit control',()=>{
   assert.doesNotMatch(source,/onClick=\{send\}|call\('submit'/);
   assert.doesNotMatch(source,/ส่งคำตอบแล้ว ✓|ต้องส่งก่อนหมดเวลา/);
 });
+
+test('special-category hints render directly below each answer category title, not near the round letter',()=>{
+  const source=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  const styles=readFileSync(new URL('../src/style.css',import.meta.url),'utf8');
+  const header=source.slice(source.indexOf('className="answer-head"'),source.indexOf('className="answer-list"'));
+  const answerRows=source.slice(source.indexOf('className="answer-list"'),source.indexOf('className="auto-save-status'));
+  assert.doesNotMatch(header,/ขนมจรวดสายรุ้ง|ต้นประกายเมฆ|answer-category-hint/);
+  assert.match(answerRows,/className="answer-category"/);
+  assert.match(answerRows,/className="answer-text"/);
+  assert.match(answerRows,/id==='dessert'\?<span className="answer-category-hint"/);
+  assert.match(answerRows,/id==='tree'\?<span className="answer-category-hint"/);
+  assert.match(answerRows,/ขนมจรวดสายรุ้ง/);
+  assert.match(answerRows,/ต้นประกายเมฆ/);
+  assert.match(answerRows,/className="answer-input-wrap"/);
+  assert.match(styles,/\.answer-item-with-hint\{/);
+  assert.match(styles,/grid-template-areas:"symbol category check" "input input input"/);
+  assert.match(styles,/\.answer-hint-note/);
+});
