@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "test": "node --experimental-strip-types --test tests/*.test.ts tests/*.test.mjs",
     "check": "npm run test && npm run build"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "typescript": "~5.8.3",
     "vite": "^7.0.0",
     "@vitejs/plugin-react": "^5.2.0",
-    "aws-cdk-lib": "^2.200.0"
+    "aws-cdk-lib": "^2.200.0",
+    "yaml": "^2.8.1"
   }
 }

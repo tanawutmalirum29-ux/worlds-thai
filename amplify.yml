@@ -14,7 +14,7 @@ frontend:
   phases:
     build:
       commands:
-        - test -s amplify_outputs.json || (echo "ERROR: Backend outputs missing; inspect Amplify backend build log" && exit 1)
+        - test -s amplify_outputs.json || (echo AMPLIFY_OUTPUTS_MISSING_CHECK_BACKEND_BUILD_LOG && exit 1)
         - cp amplify_outputs.json public/amplify_outputs.json
         - npm run build
   artifacts:
