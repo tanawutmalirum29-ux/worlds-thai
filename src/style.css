@@ -76,3 +76,62 @@
 /* No manual submission: unobtrusive status for debounced server draft updates. */
 .auto-save-status{margin:18px auto 8px;text-align:center;min-height:23px;font-size:13px;font-weight:600;color:#b9cad7}
 .autosave-saved{color:#8fdcb0}.autosave-saving{color:#e9cc96}.autosave-error{color:#ffb59f}
+
+/* Compact mobile home: room controls must not be buried below decorative content. */
+@media(max-width:720px){
+  .welcome-layout{gap:12px;padding:18px 0 28px}
+  .welcome-copy{padding:0}
+  .welcome-copy .eyebrow{font-size:12px;letter-spacing:.2px;gap:8px}
+  .welcome-copy .eyebrow-line{width:21px}
+  .welcome-copy h1{font-size:clamp(32px,8.7vw,43px);line-height:1.14;letter-spacing:-1.4px;margin:10px 0 9px}
+  .welcome-copy .lead{font-size:12px;line-height:1.55;margin:0}
+  .welcome-copy .floating-letters{position:relative;left:auto;bottom:auto;transform:none;justify-content:center;gap:13px;margin-top:12px}
+  .welcome-copy .float-card{width:54px;height:59px;border-radius:11px;font-size:30px;box-shadow:0 7px 14px #0002}
+  .welcome-copy .float-card span{font-size:9px}
+  .welcome-copy .float-card.second{transform:rotate(7deg) translateY(-3px)}
+  .welcome-copy .float-card.third{transform:rotate(11deg) translateY(1px)}
+  .join-card{padding:18px 18px 23px}
+  .join-card .card-deco{font-size:70px}
+  .join-card .card-label{font-size:10px;letter-spacing:2px}
+  .join-card .room-mode-switch{margin:11px 0 13px}
+  .join-card .room-mode{min-height:43px;font-size:13px}
+  .join-card h2{font-size:25px;margin:9px 0 2px}
+  .join-card .muted{font-size:12px;margin-bottom:16px}
+  .join-card .public-room-browser{margin:13px 0}
+  .join-card .divider-word{margin:20px 0 13px}
+  .join-card .join-benefits{gap:9px;font-size:12px}
+
+  /* The challenge panel follows the viewport on narrow screens. */
+  .topbar-playing{height:62px}
+  .game-layout-playing{padding-top:10px}
+  .game-layout-playing .game-status-row{gap:8px}
+  .game-layout-playing .game-status-row .eyebrow{font-size:9px;letter-spacing:1.5px}
+  .game-layout-playing .game-heading{font-size:clamp(19px,5.4vw,24px);margin:3px 0 4px}
+  .game-layout-playing .exit-btn{padding:7px 10px;font-size:11px}
+  .game-layout-playing .game-meta{margin:7px 0 11px;gap:7px}
+  .game-layout-playing .round-marker,.game-layout-playing .people-marker{padding:6px 11px;font-size:10px}
+  .game-layout-playing .challenge-banner{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;min-height:105px;padding:10px 14px;border-radius:15px;box-shadow:0 8px 24px #090f2060}
+  .game-layout-playing .challenge-banner:before{font-size:115px;top:-62px;left:36px}
+  .game-layout-playing .banner-label{font-size:10px}
+  .game-layout-playing .letter-display{font-size:64px;line-height:.96}
+  .game-layout-playing .letter-caption{font-size:13px;margin-top:2px}
+  .game-layout-playing .time-box{width:115px;min-width:98px}
+  .game-layout-playing .time-box span{font-size:11px}
+  .game-layout-playing .time-box strong{font-size:29px;margin:0 0 4px}
+  .game-layout-playing .time-track{height:4px}
+  .game-layout-playing .answer-head{margin:14px 0 11px;align-items:flex-start}
+  .game-layout-playing .answer-head h2{font-size:19px}
+  .game-layout-playing .answer-head p{font-size:11px;line-height:1.55}
+  .game-layout-playing .progress-tag{font-size:11px;padding:5px 9px;align-self:center}
+}
+@media(max-width:370px){
+  .welcome-copy h1{font-size:31px}
+  .welcome-copy .floating-letters{margin-top:10px}
+  .game-layout-playing .challenge-banner{min-height:95px;padding:9px 12px}
+  .game-layout-playing .letter-display{font-size:57px}
+  .game-layout-playing .time-box strong{font-size:27px}
+  .game-layout-playing .game-heading{font-size:19px}
+}
+/* overflow:hidden creates a scroll ancestor which breaks position:sticky.
+   overflow:clip retains ambient clipping without swallowing viewport scrolling. */
+.app-shell{overflow:clip}
