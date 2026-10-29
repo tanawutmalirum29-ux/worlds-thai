@@ -321,6 +321,10 @@ export const NOR_NU_TERMS: Readonly<Record<string, readonly string[]>> = {
     "นาฬิกาทราย",
     "นาฬิกาจับเวลา"
   ],
+  "tree": [
+    "น้อยหน่า",
+    "น้อยโหน่ง"
+  ],
   "plant": [
     "น้อยโหน่ง",
     "นางพญาเสือโคร่ง",
@@ -422,7 +426,6 @@ export const NOR_NU_TERMS: Readonly<Record<string, readonly string[]>> = {
     "เนินทราย",
     "เนินดิน",
     "นิคมอุตสาหกรรม",
-    "นาริมคลอง",
     "นาชลประทาน"
   ],
   "toy": [
