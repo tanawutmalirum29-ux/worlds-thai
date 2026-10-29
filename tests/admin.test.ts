@@ -42,8 +42,8 @@ test('full dictionary export includes original words and staged words with compa
   assert.ok(source.includes('"อุรุกวัย"'));
   assert.ok(source.includes('"ทดสอบคำใหม่"'));
   assert.ok(source.includes('export const EXCLUDED_LETTERS = new Set('));
-  assert.ok(source.includes('export const MIN_WORDS_PER_PAIR = 5;'));
-  assert.ok(source.includes('export const MIN_CATEGORIES_PER_LETTER = 8;'));
+  assert.ok(source.includes('export const MIN_WORDS_PER_PAIR = 2;'));
+  assert.ok(source.includes('export const MIN_CATEGORIES_PER_LETTER = 5;'));
   assert.ok(source.length>25000);
 });
 test('admin-only download and no player page references',()=>{
