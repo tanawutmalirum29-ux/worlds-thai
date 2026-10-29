@@ -22,6 +22,24 @@ const wordStats = new Table(stack, 'WordUsageStats', {
 });
 table.grantReadWriteData(backend.game.resources.lambda);
 wordStats.grantReadWriteData(backend.game.resources.lambda);
+/** Recent, private round-level rarity evidence. TTL avoids indefinite retention of pseudonymous IDs. */
+const rarityObservations = new Table(stack,'RarityObservations',{
+  partitionKey:{name:'group',type:AttributeType.STRING},
+  sortKey:{name:'eventId',type:AttributeType.STRING},
+  billingMode:BillingMode.PAY_PER_REQUEST,
+  timeToLiveAttribute:'ttl',
+  removalPolicy:RemovalPolicy.RETAIN
+});
+const rarityMeta = new Table(stack,'RarityGroupMeta',{
+  partitionKey:{name:'id',type:AttributeType.STRING},
+  billingMode:BillingMode.PAY_PER_REQUEST,
+  removalPolicy:RemovalPolicy.RETAIN
+});
+rarityObservations.grantReadWriteData(backend.game.resources.lambda);
+rarityMeta.grantReadWriteData(backend.game.resources.lambda);
+(backend.game.resources.lambda as LambdaFunction).addEnvironment('RARITY_OBSERVATIONS_TABLE',rarityObservations.tableName);
+(backend.game.resources.lambda as LambdaFunction).addEnvironment('RARITY_META_TABLE',rarityMeta.tableName);
+
 // Pending, anonymous suggestions expire; original usage statistics never expire.
 const wordSuggestions = new Table(stack,'DessertSuggestions',{
   partitionKey:{name:'id',type:AttributeType.STRING},
