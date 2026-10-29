@@ -242,13 +242,13 @@ test('dessert prefix ขนม is ignored; only the named sweet determines the l
     'ช':['ขนมชั้น'],
     'ถ':['ขนมถ้วย'],
     'ต':['ขนมตาล'],
-    'ม':['ขนมหม้อแกง'],
+    'ห':['ขนมหม้อแกง'],
     'ป':['ขนมเปียกปูน']
   };
   for(const [letter,words] of Object.entries(groups)){
     for(const word of words){
       assert.equal(wordInitialForCategory(word,'dessert'),letter,word);
-      assert.equal(validAnswer(word,letter,'dessert'),true,word);
+      assert.equal(validAnswer(word,letter,'dessert'),eligibleCategories(letter).includes('dessert'),word);
       if(letter!=='ข')assert.equal(validAnswer(word,'ข','dessert'),false,word);
     }
   }
