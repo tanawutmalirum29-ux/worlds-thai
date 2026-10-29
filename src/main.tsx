@@ -211,7 +211,7 @@ function App(){
         </aside>
       </div>}
     </main>
-    <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>26 หมวดคำศัพท์ที่ตรวจรับแล้ว · 5 หมวดต่อรอบ · 3 รอบต่อเกม</span></footer>
+    <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>28 หมวดคำศัพท์ที่ตรวจรับแล้ว · 5 หมวดต่อรอบ · 3 รอบต่อเกม</span></footer>
     {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>ใส่ชื่อเล่นแล้วเข้าห้องสาธารณะ หรือแชร์ลิงก์ให้เพื่อน</li><li>เมื่อมีอย่างน้อย 2 คน เกมจะสุ่มตัวอักษรและ 5 หมวดหมู่</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวดภายใน 40 วินาที แล้วกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 20 คะแนน ซ้ำกับเพื่อนได้ 10 คะแนน</li><li>แข่งขัน 3 รอบ รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }
