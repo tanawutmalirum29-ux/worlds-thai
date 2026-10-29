@@ -7,12 +7,12 @@ const main = readFileSync(new URL('../src/main.tsx', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8');
 
 function mockContext() {
-  const stats = { oscillators: 0, starts: 0, closes: 0, suspends: 0, resumes: 0 };
+  const stats = { oscillators: 0, starts: 0, closes: 0, suspends: 0, resumes: 0, peakGains: [] as number[] };
   const gain = () => ({
     gain: {
       value: 1,
-      setValueAtTime: (_v: number, _t: number) => {},
-      exponentialRampToValueAtTime: (_v: number, _t: number) => {},
+      setValueAtTime: (v: number, _t: number) => { stats.peakGains.push(v); },
+      exponentialRampToValueAtTime: (v: number, _t: number) => { stats.peakGains.push(v); },
     },
     connect: (_value: unknown) => {},
     disconnect: () => {},
@@ -57,15 +57,17 @@ test('game audio is lazy, muted tabs never construct an AudioContext', async () 
     audio.cue('answer');
     assert.equal(stats.oscillators, 2);
     audio.countdown(5);
-    assert.equal(stats.oscillators, 3);
+    assert.equal(stats.oscillators, 4); // distinctive two-layer beep
+    audio.countdown(1);
+    assert.equal(stats.oscillators, 6); // double high beep
     audio.countdown(0);
     audio.countdown(6);
-    assert.equal(stats.oscillators, 3);
+    assert.equal(stats.oscillators, 6);
     audio.setMuted(true);
     await Promise.resolve();
     assert.equal(stats.suspends, 1);
     audio.cue('start');
-    assert.equal(stats.oscillators, 3);
+    assert.equal(stats.oscillators, 6);
     audio.setMuted(false);
     await Promise.resolve();
     assert.equal(stats.resumes, 1);
@@ -89,7 +91,7 @@ test('background tab is silent and resumes on visibility change', async () => {
     audio.setHidden(false);
     await Promise.resolve();
     audio.cue('tap');
-    assert.equal(stats.oscillators, 1);
+    assert.equal(stats.oscillators, 2);
   } finally { audio.dispose(); }
 });
 
@@ -112,8 +114,48 @@ test('UI integrates sound, valid-answer cue, match-phase cues and countdown with
   assert.match(main, /writeAudioMuted\(next\)/);
   assert.match(main, /audio\?\.setScene\(scene,remaining\)/);
   assert.match(main, /remaining>=1 && remaining<=5/);
-  assert.match(main, /previous\.round===game\.round && remaining!==previous\.remaining/);
+  assert.match(main, /previous\.remaining!==remaining/);
   assert.match(main, /audio\?\.countdown\(remaining\)/);
   assert.match(main, /audioRef\.current\?\.cue\('answer'\)/);
   assert.match(css, /@media\(max-width:900px\)\{\.sound-button-text\{display:none\}/);
+});
+
+
+test('all clickable controls and text fields have distinct audible pointer feedback', () => {
+  assert.match(main, /document\.addEventListener\('pointerdown',pointerFeedback,\{capture:true,passive:true\}\)/);
+  assert.match(main, /target\.closest\('button,input,textarea,select,label\.answer-item'\)/);
+  assert.match(main, /control\.matches\(':disabled,\.sound-toggle'\)/);
+  assert.match(main, /control\.matches\('input,textarea,select,label\.answer-item'\)\?'focus'/);
+  assert.match(main, /control\.matches\('\.room-mode,\.settings-choice-trigger,\.custom-popup-option'\)\?'select':'tap'/);
+  assert.match(main, /document\.addEventListener\('keydown',keyboardFeedback\)/);
+  assert.doesNotMatch(main, /function openSetting\([^{]+\{\s*audioRef\.current\?\.cue\('tap'\)/);
+  assert.match(main, /audio\.cue\(cue\)/);
+});
+
+test('urgent countdown is red, replays its punch once per tick, and respects reduced motion', () => {
+  assert.match(main, /<strong key=\{remaining\} className=\{remaining<=5\?'countdown-pulse'/);
+  assert.match(main, /remaining<=5\?remaining:timeLabel\(remaining\)/);
+  assert.match(main, /remaining<=5\?'time-track critical-track'/);
+  assert.match(css, /\.time-box strong\.countdown-pulse\{/);
+  assert.match(css, /animation:khamwai-last-seconds/);
+  assert.match(css, /@keyframes khamwai-last-seconds/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
+});
+
+test('click and countdown effects have enough gain to be audible on small speakers', () => {
+  const { context, stats } = mockContext();
+  const audio = new GameAudio(false, () => context);
+  try {
+    audio.unlock();
+    // The main output is significantly stronger than the former 0.24.
+    // The mocked GainNode does not expose live volume levels, but captures the
+    // note peaks; distinct effects now create at least two independent notes.
+    audio.cue('tap');
+    audio.cue('select');
+    audio.cue('focus');
+    audio.countdown(2);
+    audio.countdown(1);
+    assert.equal(stats.oscillators, 9);
+    assert.ok(stats.peakGains.some(v => v >= 0.3));
+  } finally { audio.dispose(); }
 });

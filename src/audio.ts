@@ -4,7 +4,7 @@
  * tracks, audio downloads, or background autoplay permissions are required.
  */
 export type AudioScene = 'home' | 'lobby' | 'playing' | 'review' | 'final';
-export type AudioCue = 'tap' | 'join' | 'start' | 'answer' | 'review' | 'finish' | 'timeout' | 'exit';
+export type AudioCue = 'tap' | 'select' | 'focus' | 'join' | 'start' | 'answer' | 'review' | 'finish' | 'timeout' | 'exit';
 
 export const AUDIO_MUTED_KEY = 'khamwai-audio-muted-v1';
 
@@ -67,7 +67,9 @@ export class GameAudio {
       if (!this.context) {
         const context = this.makeContext();
         const master = context.createGain();
-        master.gain.value = 0.24;
+        // Previous 0.24 output was nearly inaudible on phone speakers.
+        // Keep headroom while giving both music and short feedback a real presence.
+        master.gain.value = 0.85;
         master.connect(context.destination);
         this.context = context;
         this.master = master;
@@ -117,42 +119,51 @@ export class GameAudio {
     this.urgent = urgent;
   }
 
-  /** Short, quiet feedback; never plays for each keystroke. */
+  /** Audible, short feedback. Text inputs are cued on tap/focus, never per keystroke. */
   cue(name: AudioCue): void {
     const at = this.readyTime();
     if (at === null) return;
     switch (name) {
       case 'tap':
-        this.note(76, at, 0.09, 0.07);
+        this.note(81, at, 0.10, 0.22, 'triangle');
+        this.note(69, at, 0.075, 0.10, 'sine');
+        break;
+      case 'select':
+        this.note(79, at, 0.10, 0.19, 'triangle');
+        this.note(84, at + 0.075, 0.16, 0.20, 'sine');
+        break;
+      case 'focus':
+        this.note(72, at, 0.14, 0.16, 'triangle');
         break;
       case 'join':
-        this.note(67, at, 0.17, 0.09);
-        this.note(72, at + 0.10, 0.23, 0.09);
+        this.note(67, at, 0.17, 0.18);
+        this.note(72, at + 0.10, 0.23, 0.19);
         break;
       case 'start':
-        this.note(72, at, 0.16, 0.10);
-        this.note(76, at + 0.12, 0.17, 0.10);
-        this.note(79, at + 0.24, 0.33, 0.11);
+        this.note(72, at, 0.16, 0.17);
+        this.note(76, at + 0.12, 0.17, 0.18);
+        this.note(79, at + 0.24, 0.33, 0.19);
         break;
       case 'answer':
-        this.note(79, at, 0.13, 0.055);
-        this.note(84, at + 0.07, 0.18, 0.055);
+        this.note(79, at, 0.13, 0.13);
+        this.note(84, at + 0.07, 0.18, 0.14);
         break;
       case 'review':
-        this.note(79, at, 0.17, 0.10);
-        this.note(76, at + 0.14, 0.18, 0.09);
-        this.note(72, at + 0.28, 0.39, 0.09);
+        this.note(79, at, 0.17, 0.17);
+        this.note(76, at + 0.14, 0.18, 0.16);
+        this.note(72, at + 0.28, 0.39, 0.16);
         break;
       case 'finish':
-        [72, 76, 79, 84].forEach((pitch, i) => this.note(pitch, at + i * 0.14, 0.39, 0.09));
+        [72, 76, 79, 84].forEach((pitch, i) => this.note(pitch, at + i * 0.14, 0.39, 0.18));
         break;
       case 'timeout':
-        this.note(67, at, 0.22, 0.10, 'triangle');
-        this.note(60, at + 0.16, 0.45, 0.10, 'triangle');
+        this.note(79, at, 0.22, 0.28, 'square');
+        this.note(67, at + 0.18, 0.36, 0.28, 'triangle');
+        this.note(60, at + 0.34, 0.47, 0.23, 'sine');
         break;
       case 'exit':
-        this.note(67, at, 0.13, 0.055);
-        this.note(60, at + 0.12, 0.17, 0.055);
+        this.note(67, at, 0.13, 0.13);
+        this.note(60, at + 0.12, 0.17, 0.13);
         break;
     }
   }
@@ -161,14 +172,23 @@ export class GameAudio {
     if (second < 1 || second > 5) return;
     const at = this.readyTime();
     if (at === null) return;
-    this.note(second === 1 ? 88 : 81 + (5 - second), at, second === 1 ? 0.22 : 0.12, 0.11, 'sine');
-    if (second === 1) this.note(76, at, 0.19, 0.05);
+    // One distinct metronome-like "beep" on 5,4,3,2; a doubled high beep on 1.
+    // Do not use arpeggio-like rising notes here: they sound like music, not a timer.
+    if (second === 1) {
+      this.note(88, at, 0.19, 0.31, 'triangle');
+      this.note(88, at + 0.17, 0.24, 0.31, 'triangle');
+    } else {
+      this.note(83, at, 0.19, 0.30, 'triangle');
+      this.note(71, at, 0.12, 0.12, 'sine');
+    }
   }
 
   private readyTime(): number | null {
     const context = this.context;
-    return this.disposed || this.muted || this.hidden || !context || context.state !== 'running'
-      ? null : context.currentTime + 0.012;
+    // Audio may still be resuming on the first mobile pointerdown. Web Audio
+    // accepts scheduled notes while suspended and plays them as soon as it resumes.
+    return this.disposed || this.muted || this.hidden || !context || context.state === 'closed'
+      ? null : context.currentTime + 0.025;
   }
 
   private note(
@@ -213,22 +233,23 @@ export class GameAudio {
     const chord = CHORDS[Math.floor(step / 8) % CHORDS.length];
     const index = step % 8;
     const quiet = this.scene === 'home' || this.scene === 'lobby' || this.scene === 'final';
-    const velocity = quiet ? 0.69 : 1;
+    // Keep music lively but leave space for the final five loud timer beeps.
+    const velocity = this.urgent ? 0.50 : quiet ? 0.84 : 1;
     if (index === 0) {
       // Soft, airy harmony with a warm low note.
-      this.note(chord[0] - 12, at, length * 6.8, 0.043 * velocity, 'sine');
-      [0, 1, 2].forEach(i => this.note(chord[i], at, length * 7.5, 0.023 * velocity, 'sine'));
+      this.note(chord[0] - 12, at, length * 6.8, 0.098 * velocity, 'sine');
+      [0, 1, 2].forEach(i => this.note(chord[i], at, length * 7.5, 0.060 * velocity, 'sine'));
     } else if (index === 4) {
-      this.note(chord[0] - 12, at, length * 3.2, 0.027 * velocity, 'sine');
+      this.note(chord[0] - 12, at, length * 3.2, 0.068 * velocity, 'sine');
     }
     // Gently rotating, plucked melody (one note at a time).
     if (index !== 6 || this.urgent) {
       const octave = this.urgent ? 12 : 0;
-      this.note(chord[ARPEGGIO[index]] + octave, at, length * 1.28, 0.058 * velocity, 'triangle');
+      this.note(chord[ARPEGGIO[index]] + octave, at, length * 1.28, 0.165 * velocity, 'triangle');
     }
     // For the last five seconds, synthesize a light double-time pulse.
     if (this.urgent && step % 2 === 0) {
-      this.note(48, at, 0.07, 0.037, 'sine');
+      this.note(48, at, 0.07, 0.064, 'sine');
     }
   }
 
