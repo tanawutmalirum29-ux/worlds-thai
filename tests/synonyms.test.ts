@@ -8,7 +8,8 @@ import { synonymExamplesForRound } from '../src/word-insights.ts';
 test('reviewed Thai synonym groups have sourced, approved category-specific entries', () => {
   assert.equal(SYNONYM_GROUPS.length, 5);
   assert.equal(NATURE_TERMS.length, new Set(NATURE_TERMS).size, 'no duplicate nature words');
-  assert.equal(WORD_BANK.nature.length, NATURE_TERMS.length);
+  assert.ok(NATURE_TERMS.every(word => WORD_BANK.nature.includes(word)), 'existing approved nature vocabulary is retained');
+  assert.equal(new Set(WORD_BANK.nature).size, WORD_BANK.nature.length, 'no duplicate nature answers');
   assert.equal(WORD_BANK.animal.length, new Set(WORD_BANK.animal).size, 'no duplicate animal words');
   for (const group of SYNONYM_GROUPS) {
     assert.match(group.source, /^https:\/\//);

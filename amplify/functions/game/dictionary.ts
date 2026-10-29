@@ -1,3 +1,4 @@
+import { VOR_HOR_TERMS } from './vor-hor-terms.ts';
 import { ANIMAL_SYNONYM_ADDITIONS, NATURE_TERMS } from './synonyms.ts';
 import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 
@@ -91,7 +92,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "นกเงือก",
     "นกกระจิบ",
     "ชะนีมือขาว",
-    ...ANIMAL_SYNONYM_ADDITIONS
+    ...ANIMAL_SYNONYM_ADDITIONS,
+    ...VOR_HOR_TERMS.animal
   ],
   "sport": [
     "กอล์ฟ",
@@ -174,7 +176,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปาเป้าลูกดอก",
     "ปั่นจักรยานทางไกล",
     "ปั่นจักรยานลู่",
-    "ประลองฟันดาบ"
+    "ประลองฟันดาบ",
+    ...VOR_HOR_TERMS.sport
   ],
   "job": [
     "กรรมกร",
@@ -248,7 +251,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อายุรแพทย์",
     "ออร์แกไนเซอร์",
     "รองผู้จัดการ",
-    "รองผู้อำนวยการ"
+    "รองผู้อำนวยการ",
+    ...VOR_HOR_TERMS.job
   ],
   "verb": [
     "กิน",
@@ -456,7 +460,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ออกกำลังกาย",
     "อุ่น",
     "โอบ",
-    "เอียง"
+    "เอียง",
+    ...VOR_HOR_TERMS.verb
   ],
   "fruit": [
     "กล้วย",
@@ -584,7 +589,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "หอมแดง",
     "หัวไชเท้า",
     "อาร์ติโชก",
-    "ออริกาโน"
+    "ออริกาโน",
+    ...VOR_HOR_TERMS.vegetable
   ],
   "food": [
     "ก๋วยเตี๋ยว",
@@ -664,7 +670,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ข้าวหมูกระเทียม",
     "ข้าวขาหมู",
     "ขนมจีนน้ำยา",
-    "ขนมจีนน้ำเงี้ยว"
+    "ขนมจีนน้ำเงี้ยว",
+    ...VOR_HOR_TERMS.food
   ],
   "drink": [
     "กาแฟ",
@@ -1046,7 +1053,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ชะมวง",
     "ชะคราม",
     "พลับพลึง",
-    "พลับพลึงธาร"
+    "พลับพลึงธาร",
+    ...VOR_HOR_TERMS.plant
   ],
   "flower": [
     "กุหลาบ",
@@ -1103,9 +1111,10 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "มะลิซ้อน",
     "มะลิวัลย์",
     "พลับพลึง",
-    "พลับพลึงธาร"
+    "พลับพลึงธาร",
+    ...VOR_HOR_TERMS.flower
   ],
-  "nature": [...NATURE_TERMS],
+  "nature": [...NATURE_TERMS, ...VOR_HOR_TERMS.nature],
   "tree": [
     "ก้ามปู",
     "กัลปพฤกษ์",
@@ -1155,7 +1164,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สารภี",
     "อโศก",
     "อินทนิล",
-    "อุโลก"
+    "อุโลก",
+    ...VOR_HOR_TERMS.tree
   ],
   "object": [
     "กระจก",
@@ -1241,7 +1251,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "รั้ว",
     "รางน้ำ",
     "อ่างล้างหน้า",
-    "คีมตัด"
+    "คีมตัด",
+    ...VOR_HOR_TERMS.object
   ],
   "place": [
     "กรุงเทพมหานคร",
@@ -1324,7 +1335,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "พุทธมณฑล",
     "เมืองเก่า",
     "อุโมงค์",
-    "อุทยานแห่งชาติ"
+    "อุทยานแห่งชาติ",
+    ...VOR_HOR_TERMS.place
   ],
   "toy": [
     "กระดานหมากรุก",
@@ -1573,7 +1585,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สาคูเปียก",
     "สาคูเปียกลำไย",
     "สาคูเปียกมะพร้าวอ่อน",
-    "ขนมสาลี่"
+    "ขนมสาลี่",
+    ...VOR_HOR_TERMS.dessert
   ],
   "furniture": [
     "เก้าอี้",
