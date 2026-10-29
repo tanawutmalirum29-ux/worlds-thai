@@ -76,3 +76,18 @@ test('popularity dashboard is part of the protected admin page only',()=>{
   assert.match(dashboard,/status!=='ready'/);
   assert.match(dashboard,/usageMatrix\(filtered\)/);
 });
+
+test('uncategorized word export is only on admin page',()=>{
+  const source=readFileSync(new URL('../src/admin.tsx',import.meta.url),'utf8');
+  const player=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  const dashboard=readFileSync(new URL('../src/admin-dashboard.css',import.meta.url),'utf8');
+  assert.match(source,/INBOX_STORAGE_KEY/);
+  assert.match(source,/addInboxWords\(inbox,inboxText\)/);
+  assert.match(source,/exportPendingWords\(drafts,inbox\)/);
+  assert.match(source,/ดาวน์โหลดคำใหม่ \.txt/);
+  assert.doesNotMatch(player,/INBOX_STORAGE_KEY|downloadPendingTxt/);
+  assert.match(dashboard,/\.pop-word-scroll\{overflow-y:auto;overflow-x:hidden/);
+  assert.match(dashboard,/\.pop-words-table\{width:100%;min-width:0/);
+  const view=readFileSync(new URL('../src/admin-dashboard-view.tsx',import.meta.url),'utf8');
+  assert.match(view,/className="pop-word-link"/);
+});

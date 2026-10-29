@@ -142,5 +142,7 @@ Build CI verifies that the production dist directory includes the random-filenam
 - Retained historical word statistics remain visible even for words removed from the current dictionary; the dashboard labels these as removed/archived. Locally staged words have zero server usage until they are merged and actually played.
 - Statistics are lifetime aggregates from the point collection was activated; **no per-day timelines** exist in the current schema.
 
-### ข ไข่ in the dessert category
-Real named desserts beginning with **ขนม** are valid full answers (e.g. **ขนมไข่**, **ขนมครก**, **ขนมชั้น**), but the generic word **ขนม** by itself is not an accepted dessert. The prefix is part of the full name; **ไข่** alone is not a dessert. The existing initial-consonant rule still reads ข ไข่ and distinct full names count as distinct answers. Older instructions disallowing all ขนม-prefixed words are superseded.
+## Ranking table / AI word review inbox
+The private admin popular-word ranking has no horizontal scrolling; it uses a fixed-width, wrap-friendly table that scrolls vertically. Smaller screens suppress secondary columns while keeping tappable word details. The separate category×letter matrix remains horizontally scrollable as required for many consonants.
+
+Admins can paste one or multiple unclassified Thai words into a distinct local inbox, persist them in the same browser, remove them and download a plain UTF-8 `.txt` file with only pending added words (categorized drafts + unclassified inbox; unique one per line; no header, no category labels). This file can be given to AI to review categories. Unclassified entries do NOT enter `dictionary.ts` or live play until assigned to a category. Full dictionary export remains separate.

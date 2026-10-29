@@ -4,6 +4,9 @@ import {Amplify} from 'aws-amplify';
 import {generateClient} from 'aws-amplify/data';
 import {initialConsonant,normalizeAnswer} from '../amplify/functions/game/logic.ts';
 import {letterCaption} from './letters.ts';
+import {
+  INBOX_STORAGE_KEY,normalizeInbox,addInboxWords,removeInboxWord,exportPendingWords
+} from './admin-inbox.ts';
 import {EXPORT_PROMPT_CODE,buildWordUsageCsv,type WordStatRecord} from './stats-export.ts';
 import {
   STORAGE_KEY,CATEGORY_OPTIONS,LETTER_OPTIONS,addDraft,dropDraft,normalizeDrafts,
@@ -15,6 +18,10 @@ import {PopularityDashboard} from './admin-dashboard-view.tsx';
 function loadDrafts():Drafts{
   try{return normalizeDrafts(JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));}
   catch{return {};}
+}
+function loadInbox():string[]{
+  try{return normalizeInbox(JSON.parse(localStorage.getItem(INBOX_STORAGE_KEY)||'[]'));}
+  catch{return [];}
 }
 function unpack(value:unknown):any{
   if(typeof value==='string'){try{return JSON.parse(value);}catch{return null;}}
@@ -53,6 +60,8 @@ function WordAdmin(){
   const [pin,setPin]=useState('');
   const [pinError,setPinError]=useState('');
   const [drafts,setDrafts]=useState<Drafts>(loadDrafts);
+  const [inbox,setInbox]=useState<string[]>(loadInbox);
+  const [inboxText,setInboxText]=useState('');
   const [query,setQuery]=useState('');
   const [filterCategory,setFilterCategory]=useState('');
   const [filterLetter,setFilterLetter]=useState('');
@@ -75,6 +84,10 @@ function WordAdmin(){
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(drafts));}
     catch{setMessage('บันทึกคำในเบราว์เซอร์ไม่ได้ กรุณาดาวน์โหลด dictionary.ts สำรองไว้');}
   },[drafts]);
+  useEffect(()=>{
+    try{localStorage.setItem(INBOX_STORAGE_KEY,JSON.stringify(inbox));}
+    catch{setMessage('เก็บคำรอจัดหมวดในเบราว์เซอร์ไม่ได้ กรุณาดาวน์โหลดไฟล์ TXT สำรอง');}
+  },[inbox]);
   async function refreshStats(){
     setStatsState('loading');setStatsError('');
     try{const rows=await queryStats();setStats(rows);setStatsState('ready');}
@@ -96,6 +109,18 @@ function WordAdmin(){
   function downloadDictionary(){
     downloadFile('dictionary.ts',exportDictionary(drafts));
     setMessage('ดาวน์โหลด dictionary.ts ฉบับเต็มแล้ว วางแทน amplify/functions/game/dictionary.ts ใน GitHub');
+  }
+  function saveUncategorized(){
+    const result=addInboxWords(inbox,inboxText);
+    if(!inboxText.trim()){setMessage('กรุณาพิมพ์คำก่อนบันทึก');return;}
+    setInbox(result.words);setInboxText('');
+    setMessage('บันทึกคำรอจัดหมวด '+result.added+' คำ'+(result.ignored?' · ข้ามคำซ้ำหรือไม่ถูกต้อง '+result.ignored+' รายการ':''));
+  }
+  function downloadPendingTxt(){
+    const text=exportPendingWords(drafts,inbox);
+    if(!text){setMessage('ยังไม่มีคำใหม่ให้ดาวน์โหลด');return;}
+    downloadFile('khamwai-words-for-ai-categorization.txt',text,'text/plain;charset=utf-8');
+    setMessage('ดาวน์โหลดรายการคำใหม่ล้วน ๆ แล้ว (ไม่มีหมวดหรือหัวตาราง)');
   }
   function downloadCsv(){
     if(statsState!=='ready'){setMessage('สถิติยังไม่พร้อม กรุณากดโหลดสถิติใหม่');return;}
@@ -173,6 +198,29 @@ function WordAdmin(){
       {!showAll&&shown.length>100?<button className="button ghost" onClick={()=>setShowAll(true)}>
         แสดงครบ {shown.length.toLocaleString('th-TH')} รายการ</button>:null}
     </section>
+    <section className="panel inbox-panel">
+      <div className="panel-title"><h2>จดคำที่ยังไม่รู้หมวด</h2><span>เอาไว้ให้ AI ช่วยตรวจและจัดหมวดภายหลัง</span></div>
+      <form onSubmit={e=>{e.preventDefault();saveUncategorized();}}>
+        <label>คำศัพท์รอพิจารณา (หนึ่งคำต่อบรรทัด หรือคั่นด้วยเครื่องหมายจุลภาค)
+          <textarea className="inbox-textarea" rows={4} value={inboxText}
+            onChange={e=>setInboxText(e.target.value)}
+            placeholder={'ตัวอย่าง:\nขนมไข่\nอุรุกวัย\nปรบมือ'}/>
+        </label>
+        <div className="inbox-actions">
+          <button type="submit" className="button primary" disabled={!inboxText.trim()}>+ เก็บคำรอจัดหมวด</button>
+          <button type="button" className="button ghost"
+            disabled={inbox.length===0&&Object.values(drafts).every(items=>items.length===0)}
+            onClick={downloadPendingTxt}>ดาวน์โหลดเฉพาะคำใหม่ (.txt)</button>
+          <span>ไม่ส่งเข้าคลังเกมจนกว่าจะตรวจหมวดและนำเข้า GitHub</span>
+        </div>
+      </form>
+      {inbox.length>0?<div className="draft-summary"><h3>คำที่รอให้จัดหมวด ({inbox.length})</h3>
+        <div className="inbox-word-chips">{inbox.map(word=><button key={word} type="button"
+          onClick={()=>setInbox(current=>removeInboxWord(current,word))}
+          title="กดเพื่อลบคำจากรายการรอจัดหมวด">{word} ×</button>)}</div>
+      </div>:<p className="help">ยังไม่มีคำรอจัดหมวด สามารถวางหลายคำแล้วบันทึกพร้อมกันได้</p>}
+      <p className="help">ไฟล์ TXT จะรวมเฉพาะคำที่เพิ่มเองทั้งหมด (ทั้งคำรอจัดหมวดและคำฉบับร่างที่เลือกหมวดแล้ว) โดยตัดคำซ้ำ เหลือหนึ่งคำต่อบรรทัด ไม่มีชื่อหมวดหรือข้อความอื่น</p>
+    </section>
     <section className="panel">
       <div className="panel-title"><h2>เพิ่มคำศัพท์</h2><span>บันทึกในเบราว์เซอร์เท่านั้น ไม่เปลี่ยนเกมออนไลน์</span></div>
       <form className="add-grid" onSubmit={e=>{e.preventDefault();insert();}}>
@@ -199,6 +247,11 @@ function WordAdmin(){
         <div><h3>คลังคำฉบับเต็ม</h3>
           <p>รวมคำเดิมทั้งหมดกับคำที่เพิ่มไว้ในเครื่อง พร้อมค่าเงื่อนไขการสุ่ม เป็นไฟล์ <code>dictionary.ts</code> ที่ใช้แทนของเดิมได้</p>
           <button className="button primary" onClick={downloadDictionary}>ดาวน์โหลด dictionary.ts</button>
+        </div>
+        <div><h3>รายการคำใหม่สำหรับ AI</h3>
+          <p>ดาวน์โหลดเฉพาะคำที่คุณเพิ่มไว้ในเครื่อง ทั้งคำที่ยังไม่รู้หมวดและคำที่จัดหมวดแล้ว เพื่อให้ AI ตรวจและแยกประเภท ไม่มีคำเก่าจากคลังปะปน</p>
+          <button className="button ghost" onClick={downloadPendingTxt}
+            disabled={inbox.length===0&&draftCount===0}>ดาวน์โหลดคำใหม่ .txt ({new Set([...inbox,...Object.values(drafts).flat()]).size})</button>
         </div>
         <div><h3>สถิติการใช้คำ</h3>
           <p>ไฟล์ CSV แยกหมวด พยัญชนะ จำนวนครั้ง และคะแนนสะสม รวมถึงคำที่ยังไม่มีการใช้ (0 ครั้ง)</p>

@@ -127,7 +127,9 @@ export function PopularityDashboard({rows,stats,status,error,refresh,inspect}:Pr
               {sorted.slice(0,limit).map((row,i)=><tr key={row.category+'::'+row.word}>
                 <td className="pop-number">{i+1}</td>
                 <td className="pop-word">
-                  <strong>{row.word}</strong>{row.archived?<small>คำเก่าที่ถอดจากคลัง</small>:
+                  <button className="pop-word-link" type="button" onClick={()=>inspectWord(row.category,row.letter,row.word)}>{row.word}</button>
+                  <small className="pop-word-mobile-score">คะแนน {fmt(row.points)} · {letterCaption(row.letter)}</small>
+                  {row.archived?<small>คำเก่าที่ถอดจากคลัง</small>:
                     row.draft?<small>ฉบับร่าง</small>:null}
                 </td>
                 <td>{row.label}</td><td>{letterCaption(row.letter)}</td>

@@ -56,3 +56,45 @@ background:#15273a;border:1px solid #344d65;border-radius:11px;padding:9px 12px;
 .pop-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.pop-tab{font-size:11px;padding:8px 10px}
 .pop-rank-title{flex-direction:column;align-items:flex-start;gap:4px}.pop-bar-row{grid-template-columns:17px minmax(95px,120px) minmax(35px,1fr) 42px;gap:6px;padding:8px}
 .pop-bar-name{font-size:11px}.pop-bar-value{font-size:11px}.pop-overview strong{font-size:21px}}
+
+/* Word-rank table must remain fixed and scroll vertically only, even on phones.
+   The dense letter/bar/score/action columns are hidden at progressively smaller widths,
+   while tapping the word always opens its full dictionary entry. */
+.popularity-panel,.pop-ranking,.pop-word-scroll{min-width:0;max-width:100%}
+.pop-word-scroll{overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}
+.pop-words-table{width:100%;min-width:0;max-width:100%;table-layout:fixed}
+.pop-words-table th,.pop-words-table td{white-space:normal;overflow-wrap:anywhere;word-break:normal;min-width:0;padding:10px 6px}
+.pop-words-table th:nth-child(1){width:6%}
+.pop-words-table th:nth-child(2){width:25%}
+.pop-words-table th:nth-child(3){width:15%}
+.pop-words-table th:nth-child(4){width:12%}
+.pop-words-table th:nth-child(5){width:10%}
+.pop-words-table th:nth-child(6){width:10%}
+.pop-words-table th:nth-child(7){width:13%}
+.pop-words-table th:nth-child(8){width:9%}
+.pop-word-link{border:0;padding:0;background:transparent;color:#f9ebd3;
+ font-size:13px;font-weight:700;text-align:left;overflow-wrap:anywhere;white-space:normal;max-width:100%}
+.pop-word-link:hover{text-decoration:underline}
+.pop-mini-bar{min-width:0}
+.pop-word-mobile-score{display:none}
+@media(max-width:760px){
+  .pop-words-table th:nth-child(4),.pop-words-table td:nth-child(4),
+  .pop-words-table th:nth-child(7),.pop-words-table td:nth-child(7){display:none}
+  .pop-words-table th:nth-child(1){width:7%}
+  .pop-words-table th:nth-child(2){width:30%}
+  .pop-words-table th:nth-child(3){width:21%}
+  .pop-words-table th:nth-child(5){width:13%}
+  .pop-words-table th:nth-child(6){width:13%}
+  .pop-words-table th:nth-child(8){width:16%}
+  .pop-word-link{font-size:12px}
+}
+@media(max-width:440px){
+  .pop-words-table th:nth-child(6),.pop-words-table td:nth-child(6),
+  .pop-words-table th:nth-child(8),.pop-words-table td:nth-child(8){display:none}
+  .pop-words-table th:nth-child(1){width:12%}
+  .pop-words-table th:nth-child(2){width:43%}
+  .pop-words-table th:nth-child(3){width:28%}
+  .pop-words-table th:nth-child(5){width:17%}
+  .pop-words-table th,.pop-words-table td{padding:10px 4px;font-size:11px}
+  .pop-word-mobile-score{display:block;color:#a9bfd3;font-size:10px;margin-top:5px}
+}

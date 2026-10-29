@@ -41,3 +41,15 @@ td.word{color:#ffdfae;font-weight:700}.no-rows{text-align:center;color:#a6b9ca;p
 .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metrics>div{padding:13px}.metrics strong{font-size:21px}
 .panel{padding:15px}.panel-title{flex-direction:column;align-items:flex-start;gap:5px}.filter-grid,.add-grid,.download-grid{grid-template-columns:1fr}
 .download-grid .button{width:100%;margin:6px 0}.heading>.button{font-size:10px;padding:8px}.add-grid>.button{width:100%}}
+
+/* Separate, persistent inbox for unclassified vocabulary suggestions. */
+.inbox-panel{border-color:#5c6b77}
+.inbox-textarea{display:block;width:100%;min-height:132px;resize:vertical;line-height:1.8;
+  background:#122034;color:#f5f8fa;border:1px solid #4b6179;border-radius:10px;padding:13px}
+.inbox-textarea:focus-visible{outline:2px solid #eed095;outline-offset:2px}
+.inbox-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.inbox-actions span{font-size:11px;color:#a8bcd0;flex:1;min-width:180px}
+.inbox-word-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.inbox-word-chips button{border:1px solid #856c4c;border-radius:18px;
+  background:#3c362b;color:#f1d4ab;padding:6px 11px;font-size:12px}
+@media(max-width:760px){.inbox-actions>.button{width:100%}.inbox-actions span{min-width:0}}
