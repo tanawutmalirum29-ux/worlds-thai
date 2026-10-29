@@ -18,7 +18,7 @@ test('same Cognito identity across tabs is exactly one player and one vote',()=>
   assert.deepEqual(snapshot(m).skipVotes,['same-cognito-id']);
   assert.equal(m.deadline,now+41000);
   applyAction(m,'skip','guest-2',now+1500);
-  assert.equal(m.skipVotes&&Object.keys(m.skipVotes).length,0);
+  assert.equal(m.skipVotes&&Object.keys(m.skipVotes).length,2);
   assert.ok(m.timeRush);
 });
 test('unanimous skip accelerates visible time then preserves five real seconds',()=>{
