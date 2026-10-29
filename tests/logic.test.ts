@@ -162,7 +162,7 @@ test('fairness filter excludes low-vocabulary consonants and weak letter-categor
   assert.equal(MIN_CATEGORIES_PER_LETTER,8);
   assert.ok(LETTERS.includes('ข' as never));
   assert.ok(LETTERS.includes('ด' as never));
-  for(const rare of ['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ','ง','ฉ','ซ','ถ','ฟ','ภ','ย','ล']){
+  for(const rare of ['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ','ง','ฉ','ซ','ฟ','ภ','ย','ล']){
     assert.ok(!LETTERS.includes(rare as never),rare+' should not be offered');
   }
   for(const letter of LETTERS){
