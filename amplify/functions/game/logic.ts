@@ -15,6 +15,7 @@ const CATEGORY_LABELS = [
   ['tool', 'เครื่องมือ'], ['fiction', 'ตัวละครในนิยาย'], ['transport', 'การเดินทาง']
 ] as const;
 export const CATEGORIES = CATEGORY_LABELS.filter(([id]) => Object.prototype.hasOwnProperty.call(WORD_BANK,id));
+// Modern ข ไข่ is a playable consonant. The obsolete ฃ ขวด is not sampled.
 const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
 const eligibleByLetter: Record<string,string[]> = Object.fromEntries(
   ALL_LETTERS.map(letter => [letter, CATEGORIES.map(([id]) => id).filter(category =>

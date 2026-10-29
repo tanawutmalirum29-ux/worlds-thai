@@ -2,7 +2,7 @@
  * Curated Thai answers for category-aware scoring. All items are individually approved.
  * New vocabulary must be reviewed for spelling and category before inclusion.
  * To keep rounds fair, each offered letter/category has at least 3 approved words.
- * Exclude ข in this release: some categories have too few unambiguous common answers.
+ * Exclude ฃ ขวด (the obsolete consonant), not ข ไข่. The latter is eligible when its category has enough reviewed words.
  */
 export const WORD_BANK: Record<string, readonly string[]> = {
   "animal": [
@@ -73,7 +73,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อีเห็น",
     "อึ่งอ่าง",
     "อ้น",
-    "อุรังอุตัง"
+    "อุรังอุตัง",
+    "เขียด",
+    "เขียดงู",
+    "เขียดตะปาด",
+    "ขุนทอง"
   ],
   "sport": [
     "กอล์ฟ",
@@ -129,7 +133,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สปีดสเก็ต",
     "อเมริกันฟุตบอล",
     "แอโรบิก",
-    "อีสปอร์ต"
+    "อีสปอร์ต",
+    "ขี่ม้า",
+    "ขี่จักรยาน",
+    "ขว้างจักร",
+    "ขว้างค้อน"
   ],
   "job": [
     "กรรมกร",
@@ -295,7 +303,20 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อุ้ม",
     "อัด",
     "เอา",
-    "เอื้อม"
+    "เอื้อม",
+    "ขาย",
+    "ขับ",
+    "ขุด",
+    "ขีด",
+    "เขียน",
+    "ขึ้น",
+    "ขว้าง",
+    "ข้าม",
+    "ขยับ",
+    "ขัด",
+    "ขยี้",
+    "ข่วน",
+    "ขน"
   ],
   "fruit": [
     "กล้วย",
@@ -519,7 +540,12 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สังข์",
     "ออร์แกน",
     "อูคูเลเล",
-    "อังกะลุง"
+    "อังกะลุง",
+    "ขลุ่ย",
+    "ขิม",
+    "ขลุ่ยเพียงออ",
+    "ขลุ่ยอู้",
+    "ขลุ่ยหลิบ"
   ],
   "body": [
     "กระดูก",
@@ -567,7 +593,15 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เอว",
     "อก",
     "อวัยวะเพศ",
-    "อุ้งเท้า"
+    "อุ้งเท้า",
+    "ขา",
+    "ข้อมือ",
+    "ข้อศอก",
+    "ข้อเท้า",
+    "ข้อเข่า",
+    "ขากรรไกร",
+    "ขนตา",
+    "ขนคิ้ว"
   ],
   "clothing": [
     "กางเกง",
@@ -709,7 +743,12 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สีน้ำ",
     "สีไม้",
     "อุปกรณ์เรขาคณิต",
-    "เอกสาร"
+    "เอกสาร",
+    "ขวดกาว",
+    "ขวดน้ำ",
+    "ขวดหมึก",
+    "เข็มทิศ",
+    "ขาตั้งวาดภาพ"
   ],
   "plant": [
     "กล้วย",
@@ -924,7 +963,16 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อิฐ",
     "อ่าง",
     "อุปกรณ์ชาร์จ",
-    "เอกสาร"
+    "เอกสาร",
+    "ขวด",
+    "ขัน",
+    "ขวาน",
+    "ขอบรูป",
+    "เข็ม",
+    "ขาตั้ง",
+    "ขวดน้ำ",
+    "ขวดโหล",
+    "ขันน้ำ"
   ],
   "place": [
     "กรุงเทพมหานคร",
@@ -986,7 +1034,12 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สวนสัตว์",
     "สนามเด็กเล่น",
     "สนามฟุตบอล",
-    "สถานีตำรวจ"
+    "สถานีตำรวจ",
+    "เขาใหญ่",
+    "เขาค้อ",
+    "เขื่อนภูมิพล",
+    "เขื่อนสิริกิติ์",
+    "ขุนยวม"
   ],
   "toy": [
     "กระดานหมากรุก",
@@ -1169,7 +1222,15 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ไอศกรีม",
     "เอแคลร์",
     "อาลัว",
-    "อัญชันกะทิ"
+    "อัญชันกะทิ",
+    "ขนมครก",
+    "ขนมชั้น",
+    "ขนมถ้วย",
+    "ขนมเปียกปูน",
+    "ข้าวเหนียวมะม่วง",
+    "ขนมตาล",
+    "ขนมหม้อแกง",
+    "ข้าวต้มมัด"
   ],
   "furniture": [
     "เก้าอี้",
@@ -1242,7 +1303,14 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สว่าน",
     "สกัด",
     "สิ่ว",
-    "สว่านไฟฟ้า"
+    "สว่านไฟฟ้า",
+    "ขวาน",
+    "ไขควง",
+    "ขอเกี่ยว",
+    "ขวานผ่าไม้",
+    "ขวานตัดไม้",
+    "เข็มเย็บผ้า",
+    "เข็มหมุด"
   ],
   "province": [
     "กระบี่",
@@ -1409,6 +1477,6 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เอธิโอเปีย"
   ]
 };
-export const EXCLUDED_LETTERS = new Set(['ข']);
+export const EXCLUDED_LETTERS = new Set(['ฃ']);
 export const MIN_WORDS_PER_PAIR = 3;
 export const MIN_CATEGORIES_PER_LETTER = 7;

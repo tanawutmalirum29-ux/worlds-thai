@@ -11,7 +11,7 @@
 5. แต่ละรอบสุ่มพยัญชนะและหมวดที่คลังคำรองรับ; คำถูกไม่ซ้ำ 2 คะแนน ถูกซ้ำ 1 คะแนน คำไม่รับรอง/ผิดหมวด 0 คะแนน
 6. จบครบจำนวนรอบ เจ้าของกด **เล่นใหม่** ได้; ถ้าเจ้าของออก ผู้เล่นที่ยังอยู่คนแรกจะเป็นเจ้าของแทน
 
-**ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 7 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 3 คำ **ข ขวดถูกงดสุ่มชั่วคราว** เพราะคำตอบหลายหมวดจำกัด
+**ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 7 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 3 คำ **ฃ ขวด (ตัว ฃ) ถูกงดสุ่ม** ส่วน **ข ไข่ (ตัว ข) ใช้ได้ตามปกติ** และมีคลังคำรองรับอย่างน้อย 8 หมวด
 
 **ข้อจำกัด:** นี่เป็นคลังคำคัดเลือก ไม่ใช่พจนานุกรมภาษาไทยฉบับสมบูรณ์ คำจริงที่ไม่ได้บันทึกจะได้ 0 คะแนน (false negative) จึงควรเปิดคำขอเพิ่มคำให้ผู้ดูแลตรวจสอบก่อนปล่อยให้เล่นแข่งขันจริง และห้ามอ้างว่าตรวจคำได้ครบทุกคำ
 
@@ -94,10 +94,14 @@ In the initial deployment, `gameUpdated` used `a.subscription().handler(a.handle
 
 ## Instant hints, per-word statistics, and CSV
 - Word inputs show green when accepted, orange for wrong initial consonant or words absent from the curated category dictionary. Final server scoring uses the same dictionary.
-- The letter now shows its Thai name, such as **บ ใบไม้**, **ส เสือ**, **ข ไข่**. ข is still omitted from random rounds by the prior balance rule.
+- The letter now shows its Thai name, such as **บ ใบไม้**, **ส เสือ**, **ข ไข่**. ฃ ขวด is excluded from the letter pool; ข ไข่ remains playable with sufficient reviewed answers in 8-category rooms.
 - Award **2 points** for a correct unique answer and **1** for a correct duplicated answer. Invalid/empty = 0.
 - A new separate **WordUsageStats** DynamoDB table (no TTL, RETAIN) stores totals grouped by initial letter, category, and reviewed word: usage count, cumulative awarded points, most recent usage. No player identifiers are stored.
 - The round's match state and per-word increments are committed in **one DynamoDB transaction** with optimistic match-version checking; a failed/retried transaction cannot double-count stats.
 - The top-bar **สถิติคำ ↓** export downloads UTF-8 CSV including unused dictionary words (0 uses), after prompting for **251029**, hardcoded in frontend GitHub source as requested.
 - **This code is merely a nuisance prompt, NOT security**: anyone who can inspect the public source/client bundle can find the code and directly call the guest-authorized aggregate API. Strong authorization requires accounts/backend IAM, which is not used here.
 - Data collection begins only after the successful deployment. Historical usage is unavailable. Only accepted dictionary words are aggregated; rejected entries are not stored.
+
+## Thai consonant clarification
+
+The old exclusion accidentally removed **ข ไข่** because **ฃ ขวด** was confused with it. Fix: exclude only `ฃ`, never `ข`. `ข ไข่` can now be randomly selected with 3–8 categories per round. There is no manual consonant button: the server picks the letter at the start of each round. Regression tests verify the distinction and accepted words such as `ข้าวผัด`, `ขลุ่ย`, and `ขวด` (the last is the word for a bottle, not the obsolete consonant).

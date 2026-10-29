@@ -27,9 +27,10 @@ test('small 2/1 scoring and one-time round word deltas',()=>{
   assert.equal(roundWordDeltas(game,game).length,0);
   assert.equal(roundWordDeltas(null,game).length,0);
 });
-test('correct Thai consonant names including non-sampled letter ข',()=>{
+test('distinct letter names: ข ไข่ is playable, ฃ ขวด is omitted from game',()=>{
   assert.equal(letterCaption('บ'),'บ ใบไม้');
   assert.equal(letterCaption('ข'),'ข ไข่');
+  assert.equal(letterCaption('ฃ'),'ฃ ขวด');
   assert.equal(letterCaption('ส'),'ส เสือ');
 });
 test('export CSV includes used and zero-use reviewed dictionary words',()=>{

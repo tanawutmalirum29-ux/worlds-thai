@@ -53,7 +53,14 @@ test('all allowed category counts pick distinct supported groups',()=>{
     }
   }
   assert.equal(CATEGORIES.length,28);
-  assert.ok(!LETTERS.includes('ข' as never));
+  assert.ok(LETTERS.includes('ข' as never), 'ข ไข่ must remain playable');
+  assert.ok(!LETTERS.includes('ฃ' as never), 'ฃ ขวด is excluded');
+  assert.ok(eligibleCategories('ข').length>=8, 'ข ไข่ must support 8-category rooms');
+  assert.equal(validAnswer('ข้าวผัด','ข','food'),true);
+  assert.equal(validAnswer('ขนมครก','ข','dessert'),true);
+  assert.equal(validAnswer('ขลุ่ย','ข','music'),true);
+  assert.equal(validAnswer('ขวด','ข','object'),true);
+  assert.equal(validAnswer('ขวด','ฃ','object'),false);
 });
 test('finish configurable rounds, score once and require owner to reset',()=>{
   const m=setup({rounds:2,categories:3,seconds:20});
@@ -136,4 +143,15 @@ test('listRooms operation resolves without requiring roomId',()=>{
   assert.equal(resolveOperation({fieldName:'listRooms',arguments:{}}),'listRooms');
   assert.equal(resolveOperation({arguments:{}}),'listRooms');
   assert.equal(resolveOperation({arguments:{action:'start'}}),'gameAction');
+});
+
+test('random draw can select ข ไข่ with eight supported categories',()=>{
+  const m=setup({rounds:1,categories:8,seconds:40});
+  const target=LETTERS.indexOf('ข' as never);
+  assert.ok(target>=0);
+  const round=chooseRound(m,()=> (target+0.01)/LETTERS.length);
+  assert.equal(round.letter,'ข');
+  assert.equal(round.categories.length,8);
+  for(const id of round.categories)assert.ok(eligibleCategories('ข').includes(id));
+  assert.ok(!round.categories.includes('not-a-category'));
 });
