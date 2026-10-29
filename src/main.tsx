@@ -30,6 +30,12 @@ const SYMBOLS: Record<string,string> = {
 type GameSettings = {rounds:number;categories:number;seconds:number};
 const DEFAULT_SETTINGS:GameSettings={rounds:3,categories:5,seconds:40};
 const TIME_OPTIONS=[20,30,40,50,60,75,90,120];
+type SettingKey=keyof GameSettings;
+const SETTINGS_CHOICES:{field:SettingKey;label:string;unit:string;options:number[]}[]=[
+  {field:'rounds',label:'จำนวนรอบ',unit:'รอบ',options:Array.from({length:10},(_,i)=>i+1)},
+  {field:'categories',label:'หมวดต่อรอบ',unit:'หมวด',options:Array.from({length:6},(_,i)=>i+3)},
+  {field:'seconds',label:'เวลาตอบ',unit:'วินาที',options:TIME_OPTIONS}
+];
 type PublicRoom = {roomId:string;hostName:string;playerCount:number;createdAt:number;settings:GameSettings};
 type Player = { id:string; name:string; score:number };
 type Entry = { id:string; name:string; answers:Record<string,string>; points:number; perCategory:Record<string,number>; rarityBonus?:Record<string,number> };
@@ -78,6 +84,10 @@ function App(){
   const [working,setWorking] = useState(false);
   const [now,setNow] = useState(Date.now());
   const [help,setHelp] = useState(false);
+  const [exitConfirm,setExitConfirm] = useState(false);
+  const [choicePopup,setChoicePopup] = useState<SettingKey|null>(null);
+  const dialogRef = useRef<HTMLElement|null>(null);
+  const openerRef = useRef<HTMLButtonElement|null>(null);
   const current = useRef<Game|null>(null);
   const appClient = useRef<Api|null>(null);
   const roomRef = useRef('');
@@ -90,6 +100,29 @@ function App(){
   const draftTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
   const draftInFlightRef=useRef(false);
   useEffect(()=>()=>{if(draftTimerRef.current)clearTimeout(draftTimerRef.current);},[]);
+  // Trap keyboard focus in custom dialogs and allow Escape without native browser UI.
+  useEffect(()=>{
+    if(!exitConfirm && !choicePopup)return;
+    const dialog=dialogRef.current;
+    dialog?.querySelector<HTMLElement>('[data-initial-focus]')?.focus();
+    const previousOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
+    const keyDown=(event:KeyboardEvent)=>{
+      if(event.key==='Escape'){
+        event.preventDefault();
+        setExitConfirm(false);setChoicePopup(null);
+        openerRef.current?.focus();
+      }else if(event.key==='Tab' && dialog){
+        const focusable=Array.from(dialog.querySelectorAll<HTMLElement>('button:not(:disabled)'));
+        if(!focusable.length)return;
+        const first=focusable[0],last=focusable[focusable.length-1];
+        if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
+        else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
+      }
+    };
+    document.addEventListener('keydown',keyDown);
+    return()=>{document.removeEventListener('keydown',keyDown);document.body.style.overflow=previousOverflow;};
+  },[exitConfirm,choicePopup]);
   useEffect(()=>{ const id=window.setInterval(()=>setNow(Date.now()),250);return()=>clearInterval(id); },[]);
   useEffect(()=>{
     let active=true;
@@ -262,6 +295,24 @@ function App(){
     }catch(e){setError(e instanceof Error?e.message:'ดำเนินการไม่สำเร็จ');}
     finally{workingRef.current=false;setWorking(false);}
   }
+  function closeCustomDialog(){
+    setExitConfirm(false);setChoicePopup(null);
+    openerRef.current?.focus();
+  }
+  function openSetting(field:SettingKey,button:HTMLButtonElement){
+    openerRef.current=button;
+    setChoicePopup(field);
+  }
+  function confirmExit(){
+    setExitConfirm(false);
+    void leave();
+  }
+  const activeChoice=SETTINGS_CHOICES.find(choice=>choice.field===choicePopup);
+  const settingsControls=<div className="settings-grid">{SETTINGS_CHOICES.map(choice=><div className="settings-choice-field" key={choice.field}>
+    <span className="settings-choice-label">{choice.label}</span>
+    <button type="button" className="settings-choice-trigger" aria-label={`เลือก${choice.label} ค่าปัจจุบัน ${draftSettings[choice.field]} ${choice.unit}`} aria-haspopup="dialog" aria-expanded={choicePopup===choice.field}
+      onClick={e=>openSetting(choice.field,e.currentTarget)}><span>{draftSettings[choice.field]} {choice.unit}</span><span className="settings-chevron" aria-hidden="true">⌄</span></button>
+  </div>)}</div>;
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
@@ -302,11 +353,7 @@ function App(){
               <button type="button" className="public-room-join" disabled={working||status!=='ready'} onClick={()=>void join(room.roomId)}>{working?'กำลังเข้า...':'เข้าร่วม'}</button>
             </div>)}</div>}
           </div>:<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
-            <div className="settings-grid">
-              <label>จำนวนรอบ<select value={draftSettings.rounds} onChange={e=>setDraftSettings(s=>({...s,rounds:Number(e.target.value)}))}>{Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} รอบ</option>)}</select></label>
-              <label>หมวดต่อรอบ<select value={draftSettings.categories} onChange={e=>setDraftSettings(s=>({...s,categories:Number(e.target.value)}))}>{Array.from({length:6},(_,i)=>i+3).map(n=><option key={n} value={n}>{n} หมวด</option>)}</select></label>
-              <label>เวลาตอบ<select value={draftSettings.seconds} onChange={e=>setDraftSettings(s=>({...s,seconds:Number(e.target.value)}))}>{TIME_OPTIONS.map(n=><option key={n} value={n}>{n} วินาที</option>)}</select></label>
-            </div></div>}
+            {settingsControls}</div>}
           {mode==='create'?<button className="primary-btn" disabled={working||status!=='ready'} onClick={()=>void join()}>{working?'กำลังสร้างห้อง...':'สร้างห้อง'} <span>↗</span></button>:null}
           {status==='loading'?<p className="notice">กำลังเชื่อมต่อเซิร์ฟเวอร์ AWS…</p>:null}
           {error?<p className="error-message" role="alert">{error}</p>:null}
@@ -316,20 +363,16 @@ function App(){
         </section>
       </div> : <div className={playing?'game-layout game-layout-playing':'game-layout'}>
         <section className="game-main">
-          <div className="game-status-row"><div><span className="eyebrow tiny">LIVE MATCH <span className="gold-dot">●</span></span><h1 className="game-heading">{game.phase==='lobby'?'รอเพื่อนมาร่วมสนุก':game.phase==='playing'?'ได้เวลาประลองคำ!':game.phase==='review'?'เฉลยคำตอบรอบนี้':'จบเกมแล้ว!'}</h1></div><button className="exit-btn" onClick={leave}>ออกจากเกม ×</button></div>
+          <div className="game-status-row"><div><span className="eyebrow tiny">LIVE MATCH <span className="gold-dot">●</span></span><h1 className="game-heading">{game.phase==='lobby'?'รอเพื่อนมาร่วมสนุก':game.phase==='playing'?'ได้เวลาประลองคำ!':game.phase==='review'?'เฉลยคำตอบรอบนี้':'จบเกมแล้ว!'}</h1></div><button type="button" className="exit-btn" onClick={e=>{openerRef.current=e.currentTarget;setExitConfirm(true);}}>ออกจากเกม ×</button></div>
           {error?<p className="error-message" role="alert">{error}</p>:null}
           <div className="game-meta"><span className="round-marker">{game.round?`รอบ ${game.round} / ${game.settings.rounds}`:'ห้องของเพื่อน'}</span><span className="people-marker">◉ {game.players.length} / 8 คน</span></div>
           {game.phase==='lobby'?<div className="lobby-view">
-            <div className="lobby-visual"><div className="lobby-ring one"/><div className="lobby-ring two"/><span className="lobby-letter">ค<span>◈</span></span></div>
-            <h2>{isOwner?'คุณเป็นเจ้าของห้อง':'รอเจ้าของห้องเริ่มเกม'}</h2>
-            <p>{game.players.length<2?'รอเพื่อนกดเข้าร่วมห้องจากหน้าเกม':'ทุกคนพร้อมแล้ว เจ้าของห้องสามารถเริ่มได้เลย'}</p>
-            <div className="public-room-notice">ห้องของคุณแสดงอยู่ในหน้าเข้าร่วมห้องของทุกคนโดยอัตโนมัติ</div>
+            <div className="lobby-visual"><div className="lobby-ring one"/><div className="lobby-ring two"/><span className="lobby-letter">{isOwner?'จ':'ร'}<span>◈</span></span></div>
+            <h2>{isOwner?'เจ้าของห้อง':'รอเจ้าของห้องเริ่มเกม'}</h2>
+            <p>{isOwner?(game.players.length<2?'รอเพื่อนกดเข้าร่วมห้องจากหน้าเกม':'ทุกคนพร้อมแล้ว กดเริ่มเกมได้เลย'):'เจ้าของห้องจะเริ่มเกมเมื่อพร้อม'}</p>
+            <div className="public-room-notice">{isOwner?'ห้องของคุณแสดงอยู่ในหน้าเข้าร่วมห้องของทุกคนโดยอัตโนมัติ':'อยู่ในห้องแล้ว รอเจ้าของห้องเริ่มเกมได้เลย'}</div>
             {isOwner?<div className="settings-panel lobby-settings"><h3>ตั้งค่าห้อง</h3>
-              <div className="settings-grid">
-                <label>จำนวนรอบ<select value={draftSettings.rounds} onChange={e=>setDraftSettings(s=>({...s,rounds:Number(e.target.value)}))}>{Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} รอบ</option>)}</select></label>
-                <label>หมวดต่อรอบ<select value={draftSettings.categories} onChange={e=>setDraftSettings(s=>({...s,categories:Number(e.target.value)}))}>{Array.from({length:6},(_,i)=>i+3).map(n=><option key={n} value={n}>{n} หมวด</option>)}</select></label>
-                <label>เวลาตอบ<select value={draftSettings.seconds} onChange={e=>setDraftSettings(s=>({...s,seconds:Number(e.target.value)}))}>{TIME_OPTIONS.map(n=><option key={n} value={n}>{n} วินาที</option>)}</select></label>
-              </div>
+              {settingsControls}
               <button className="secondary-btn settings-save" disabled={working} onClick={()=>void ownerAction('settings')}>บันทึกการตั้งค่า</button>
               <button className="primary-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span>→</span></button>
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.categories} หมวด · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
@@ -380,6 +423,33 @@ function App(){
       </div>}
     </main>
     <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>29 หมวดที่ตรวจรับแล้ว · เจ้าของห้องตั้งเวลา หมวด และรอบได้</span></footer>
+    {exitConfirm?<div className="custom-popup-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)closeCustomDialog();}}>
+      <section className="custom-popup custom-popup-confirm" ref={dialogRef} role="alertdialog" aria-modal="true" aria-labelledby="exit-dialog-title" aria-describedby="exit-dialog-description">
+        <span className="custom-popup-kicker">CONFIRM EXIT</span>
+        <h2 id="exit-dialog-title">ออกจากเกมหรือไม่?</h2>
+        <p id="exit-dialog-description">คุณจะออกจากห้องนี้ทันที หากเกมกำลังเล่นอยู่จะไม่สามารถตอบคำในรอบนี้ต่อได้</p>
+        <div className="custom-popup-actions">
+          <button type="button" className="popup-cancel" data-initial-focus onClick={closeCustomDialog}>อยู่ในห้องต่อ</button>
+          <button type="button" className="popup-danger" onClick={confirmExit}>ยืนยันออกเกม</button>
+        </div>
+      </section>
+    </div>:null}
+    {activeChoice?<div className="custom-popup-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)closeCustomDialog();}}>
+      <section className="custom-popup custom-popup-picker" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title">
+        <div className="custom-popup-title-row"><div><span className="custom-popup-kicker">GAME SETTINGS</span><h2 id="settings-dialog-title">เลือก{activeChoice.label}</h2></div>
+          <button type="button" className="custom-popup-close" aria-label="ปิดตัวเลือก" onClick={closeCustomDialog}>×</button>
+        </div>
+        <div className="custom-popup-options" role="group" aria-label={activeChoice.label}>
+          {activeChoice.options.map(value=><button key={value} type="button" data-initial-focus={value===draftSettings[activeChoice.field]?'':undefined}
+            className={value===draftSettings[activeChoice.field]?'custom-popup-option selected':'custom-popup-option'}
+            aria-pressed={value===draftSettings[activeChoice.field]}
+            onClick={()=>{setDraftSettings(s=>({...s,[activeChoice.field]:value}));closeCustomDialog();}}>
+            <span>{value} {activeChoice.unit}</span><span className="option-check" aria-hidden="true">{value===draftSettings[activeChoice.field]?'✓':''}</span>
+          </button>)}
+        </div>
+        <p className="custom-popup-footnote">การตั้งค่าจะมีผลเมื่อสร้างห้องหรือบันทึกการตั้งค่า</p>
+      </section>
+    </div>:null}
     {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวด ระบบตรวจและบันทึกให้ทันทีโดยไม่ต้องกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน; คำหายากที่ไม่ซ้ำอาจได้โบนัส +1 ถึง +2 หลังระบบมีข้อมูลเพียงพอ (รวมโบนัสไม่เกิน +3 ต่อรอบ)</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }
