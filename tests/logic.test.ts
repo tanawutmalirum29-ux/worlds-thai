@@ -301,3 +301,16 @@ test('same dessert with or without ขนม and historical alias counts as dupl
   m.submissions.guest.dessert='ขนมไข่หงส์';
   assert.deepEqual(scoreRound(m).map(x=>x.perCategory.dessert),[1,1]);
 });
+
+test('synonymous Thai sweet สอดไส้ / ใส่ไส้ is one type for scoring and fairness',()=>{
+  for(const answer of ['ขนมสอดไส้','ขนมใส่ไส้','สอดไส้','ใส่ไส้']){
+    assert.equal(wordInitialForCategory(answer,'dessert'),'ส',answer);
+    assert.equal(canonicalAnswer(answer,'dessert'),'ขนมสอดไส้',answer);
+    assert.equal(validAnswer(answer,'ส','dessert'),true,answer);
+  }
+  const m=setup();m.phase='playing';m.letter='ส';m.categories=['dessert'];
+  m.submissions={host:{dessert:'ขนมสอดไส้'},guest:{dessert:'ใส่ไส้'}};
+  assert.deepEqual(scoreRound(m).map(x=>x.perCategory.dessert),[1,1]);
+  assert.equal(canonicalAnswer('ขนมจรวดสายรุ้ง','dessert'),'ขนมจรวดสายรุ้ง');
+  assert.equal(validAnswer('ขนมจรวดสายรุ้ง','จ','dessert'),false);
+});

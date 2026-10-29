@@ -152,3 +152,6 @@ When checking a name in **dessert** category, ignore the common leading word **�
 
 ## Optional ขนม-prefix for all registered desserts
 A dessert with a bare registered name may also be submitted with an optional `ขนม` prefix. Both `ไข่หงส์` and `ขนมไข่หงส์` are valid and identical for uniqueness/scoring; `ขนมข้าวตู` matches the curated `ข้าวตู`. The historic name `ไข่เหี้ย` / `ขนมไข่เหี้ย` is a manually curated alias for `ไข่หงส์`, not a separate dessert for duplicate scoring. Prefixing never makes an unlisted sweet valid, and `ขนม` alone is invalid. Originally fully prefixed dictionary names (e.g. `ขนมครก`) stay accepted without requiring the nonsensical bare `ครก` to be accepted. Letter matching ignores `ขนม` for dessert only; other categories remain unchanged. All duplicates, usage records, admin views, and CSV exports use the same canonical dessert identity, while preserving historical data in the old prefixes.
+
+### Synonyms and non-spoiling rule examples
+Names `ขนมสอดไส้`, `ขนมใส่ไส้`, `สอดไส้`, and `ใส่ไส้` are valid alternative names for **one** sweet, and count as duplicates between players. Game instructions illustrate consonant stripping with the intentionally **fictional** `ขนมจรวดสายรุ้ง` rather than showing an actual playable answer. The fictional example is not accepted by the dictionary.

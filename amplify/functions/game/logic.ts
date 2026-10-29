@@ -29,7 +29,13 @@ export function wordInitialForCategory(value:string,category:string):string {
 }
 // Named sweet aliases refer to the SAME dessert (not separate distinct answers).
 // ขนมไข่เหี้ย is the historical name for ขนมไข่หงส์.
-const dessertAliases:Readonly<Record<string,string>>={'ไข่เหี้ย':'ไข่หงส์'};
+const dessertAliases:Readonly<Record<string,string>>={
+  'ไข่เหี้ย':'ไข่หงส์',
+  // Both Thai names describe the same traditional sweet.
+  'สอดไส้':'ขนมสอดไส้',
+  'ใส่ไส้':'ขนมสอดไส้',
+  'ขนมใส่ไส้':'ขนมสอดไส้'
+};
 const dessertVocabulary=new Set(WORD_BANK.dessert.map(word=>normalizeAnswer(word).toLocaleLowerCase('th')));
 /** Canonical identity for scoring, duplicates and word statistics.
  * An optional leading "ขนม" is accepted ONLY when its remainder is a real

@@ -91,3 +91,18 @@ test('CSV joins prefixed historical statistics with bare canonical word',()=>{
   assert.match(csv,/"ข","ข ไข่","ขนม","ไข่หงส์","4","6"/);
   assert.match(csv,/"ข","ข ไข่","ขนม","ข้าวตู","0","0"/);
 });
+
+test('canonical name variants do not generate multiple statistics records',()=>{
+  const game=newMatch('room-dddddddddddddddddddd',now);
+  applyAction(game,'create','host',now,'Host');
+  applyAction(game,'join','guest',now,'Guest');
+  applyAction(game,'start','host',now+1000);
+  game.letter='ส';game.categories=['dessert'];
+  applyAction(game,'draft','host',now+2000,'',{dessert:'ขนมสอดไส้'});
+  applyAction(game,'draft','guest',now+2000,'',{dessert:'ขนมใส่ไส้'});
+  const before=structuredClone(game);
+  for(const p of game.players)p.lastSeen=game.deadline;
+  advance(game,game.deadline+1);
+  const changes=roundWordDeltas(before,game);
+  assert.deepEqual(changes.map(x=>[x.word,x.timesUsed,x.totalPoints]),[['ขนมสอดไส้',2,2]]);
+});
