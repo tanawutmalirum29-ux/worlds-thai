@@ -270,7 +270,7 @@ function App(){
   const leaders=ordered.filter(p=>p.score===ordered[0]?.score);
   return <div className="app-shell">
     <div className="ambient ambient-left"/><div className="ambient ambient-right"/>
-    <header className="topbar container">
+    <header className={playing?'topbar container topbar-playing':'topbar container'}>
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
       <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
@@ -279,8 +279,7 @@ function App(){
         <section className="welcome-copy">
           <div className="eyebrow"><span className="eyebrow-line"/> เกมคำศัพท์ปาร์ตี้ออนไลน์</div>
           <h1>คิดให้ไว <span>ตอบให้ทัน</span><br/>แล้วมาวัดกัน!</h1>
-          <p className="lead">สุ่มพยัญชนะไทยแล้วแข่งตอบคำให้ตรงหมวด เจ้าของตั้งค่าห้องเอง เพื่อนเปิดหน้าเกมเดียวกันแล้วเลือกเข้าห้องที่แสดงอยู่ได้เลย คำไม่ซ้ำยิ่งได้แต้มเยอะ!</p>
-          <div className="feature-chips"><span>✦ เล่นพร้อมเพื่อน</span><span>✦ ไม่ต้องสมัคร</span><span>✦ เห็นห้องและกดเข้าร่วมได้เลย</span></div>
+          <p className="lead">สุ่มพยัญชนะไทย แข่งตอบคำให้ตรงหมวดกับเพื่อนแบบออนไลน์ คำไม่ซ้ำยิ่งได้แต้มเยอะ!</p>
           <div className="floating-letters" aria-hidden="true"><div className="float-card first">ก<span>ไก่</span></div><div className="float-card second">ส<span>เสือ</span></div><div className="float-card third">ม<span>ม้า</span></div></div>
         </section>
         <section className="join-card">
@@ -315,7 +314,7 @@ function App(){
           <div className="divider-word"><span>เล่นง่าย ๆ</span></div>
           <div className="join-benefits"><div><strong>01</strong> เจ้าของสร้างห้อง</div><div><strong>02</strong> เพื่อนเห็นห้องและกดเข้าร่วม</div><div><strong>03</strong> เจ้าของกดเริ่มเกม</div></div>
         </section>
-      </div> : <div className="game-layout">
+      </div> : <div className={playing?'game-layout game-layout-playing':'game-layout'}>
         <section className="game-main">
           <div className="game-status-row"><div><span className="eyebrow tiny">LIVE MATCH <span className="gold-dot">●</span></span><h1 className="game-heading">{game.phase==='lobby'?'รอเพื่อนมาร่วมสนุก':game.phase==='playing'?'ได้เวลาประลองคำ!':game.phase==='review'?'เฉลยคำตอบรอบนี้':'จบเกมแล้ว!'}</h1></div><button className="exit-btn" onClick={leave}>ออกจากเกม ×</button></div>
           {error?<p className="error-message" role="alert">{error}</p>:null}
