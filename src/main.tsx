@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
-import { parseInviteUrl,encodeGamePayload } from './rooms';
+import { encodeGamePayload } from './rooms';
 
 const LABELS: Record<string,string> = {
   animal:'สัตว์', sport:'กีฬา', job:'อาชีพ', verb:'คำกริยา', fruit:'ผลไม้',
@@ -27,6 +27,7 @@ const SYMBOLS: Record<string,string> = {
 type GameSettings = {rounds:number;categories:number;seconds:number};
 const DEFAULT_SETTINGS:GameSettings={rounds:3,categories:5,seconds:40};
 const TIME_OPTIONS=[20,30,40,50,60,75,90,120];
+type PublicRoom = {roomId:string;hostName:string;playerCount:number;createdAt:number;settings:GameSettings};
 type Player = { id:string; name:string; score:number };
 type Entry = { id:string; name:string; answers:Record<string,string>; points:number; perCategory:Record<string,number> };
 type Round = {round:number; letter:string; categories:string[]; entries:Entry[]};
@@ -46,8 +47,10 @@ function App(){
   const [status,setStatus] = useState<'loading'|'ready'|'error'>('loading');
   const [error,setError] = useState('');
   const [name,setName] = useState(()=>localStorage.getItem('khamwai-name')||'');
-  const [mode,setMode]=useState<'create'|'join'>(()=>new URLSearchParams(window.location.search).has('match')?'join':'create');
-  const [invite,setInvite]=useState(()=>new URLSearchParams(window.location.search).has('match')?window.location.href:'');
+  const [mode,setMode]=useState<'create'|'join'>('join');
+  const [rooms,setRooms]=useState<PublicRoom[]>([]);
+  const [roomsLoading,setRoomsLoading]=useState(true);
+  const [roomsError,setRoomsError]=useState('');
   const [draftSettings,setDraftSettings]=useState<GameSettings>({...DEFAULT_SETTINGS});
   const [game,setGame] = useState<Game|null>(null);
   const [me,setMe] = useState('');
@@ -55,7 +58,6 @@ function App(){
   const [submitted,setSubmitted] = useState(false);
   const [working,setWorking] = useState(false);
   const [now,setNow] = useState(Date.now());
-  const [copied,setCopied] = useState(false);
   const [help,setHelp] = useState(false);
   const current = useRef<Game|null>(null);
   const appClient = useRef<Api|null>(null);
@@ -97,32 +99,53 @@ function App(){
     if(!event?.roomId) throw new Error('เซิร์ฟเวอร์ไม่ได้ตอบกลับ');
     return { roomId:event.roomId as string, snapshot:unpack(event.snapshot) as Game };
   },[]);
-  const join=async()=>{
+  const join=async(targetRoomId?:string)=>{
     if(workingRef.current || !client)return;
     const trimmed=name.trim().slice(0,18);
     if(!trimmed){setError('กรุณาใส่ชื่อเล่นก่อนเริ่มเกม');return;}
     setError('');setWorking(true);workingRef.current=true;
     try{
-      const linkRoom=mode==='join'?parseInviteUrl(invite,window.location.href):null;
-      if(mode==='join'&&!linkRoom)throw new Error('กรุณาวางลิงก์เชิญจากเกมคำไวที่ถูกต้อง');
-      const next = await call(mode==='join'?'join':'create', linkRoom||undefined, trimmed, undefined,
-        mode==='create'?draftSettings:undefined);
+      // A room is selected from the live public directory; no code or URL needed.
+      const next=await call(targetRoomId?'join':'create',targetRoomId,trimmed,undefined,
+        targetRoomId?undefined:draftSettings);
       localStorage.setItem('khamwai-name',trimmed);
       meRef.current=next.snapshot.you||'';setMe(meRef.current);
       roomRef.current=next.roomId;roundRef.current=0;current.current=null;
       accept(next.snapshot);
       setDraftSettings(next.snapshot.settings);
-      const url=new URL(location.href);url.searchParams.set('match',next.roomId);
-      history.replaceState({},'',url);setInvite(url.toString());
+      // Keep the browser on the one public game URL.
+      if(window.location.search)history.replaceState({},'',location.pathname);
     }catch(e){setError(e instanceof Error?e.message:'เข้าร่วมเกมไม่สำเร็จ');}
     finally{setWorking(false);workingRef.current=false;}
   };
   const leave=async()=>{
     const old=roomRef.current;
     roomRef.current=''; meRef.current='';setMe('');setGame(null);current.current=null;roundRef.current=0;setAnswers({});
-    const url=new URL(location.href);url.searchParams.delete('match');history.replaceState({},'',url);setInvite('');setMode('create');
+    setMode('join');
     try {await call('leave',old);}catch {/* Guest expires automatically if offline. */}
   };
+  useEffect(()=>{
+    if(!client || game)return;
+    const api=client as any;
+    let stopped=false;
+    let updating=false;
+    const refreshRooms=async()=>{
+      if(updating)return;
+      updating=true;
+      try {
+        const response=await api.queries.listRooms({}, {authMode:'identityPool'});
+        if(response.errors?.length)throw new Error(response.errors.map((entry:{message:string})=>entry.message).join('; '));
+        const value=unpack(response.data);
+        if(!Array.isArray(value))throw new Error('รูปแบบรายการห้องไม่ถูกต้อง');
+        if(!stopped){setRooms(value as PublicRoom[]);setRoomsError('');}
+      }catch(err){
+        if(!stopped)setRoomsError(err instanceof Error?err.message:'โหลดรายชื่อห้องไม่สำเร็จ');
+      }finally{updating=false;if(!stopped)setRoomsLoading(false);}
+    };
+    void refreshRooms();
+    const interval=window.setInterval(()=>void refreshRooms(),3000);
+    return()=>{stopped=true;clearInterval(interval);};
+  },[client,game?.roomId]);
   useEffect(()=>{
     if(!client||!me||!game?.roomId)return;
     const id=game.roomId;
@@ -160,13 +183,6 @@ function App(){
     }catch(e){setError(e instanceof Error?e.message:'ดำเนินการไม่สำเร็จ');}
     finally{workingRef.current=false;setWorking(false);}
   }
-  async function share(){
-    if(!game)return;
-    const url=new URL(location.origin+location.pathname);
-    url.searchParams.set('match',game.roomId);
-    try {await navigator.clipboard.writeText(url.toString());setCopied(true);setTimeout(()=>setCopied(false),2200);}
-    catch {window.prompt('คัดลอกลิงก์ชวนเพื่อน',url.toString());}
-  }
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
@@ -184,8 +200,8 @@ function App(){
         <section className="welcome-copy">
           <div className="eyebrow"><span className="eyebrow-line"/> เกมคำศัพท์ปาร์ตี้ออนไลน์</div>
           <h1>คิดให้ไว <span>ตอบให้ทัน</span><br/>แล้วมาวัดกัน!</h1>
-          <p className="lead">สุ่มพยัญชนะไทยแล้วแข่งตอบคำให้ตรงหมวด เจ้าของห้องเลือกจำนวนรอบ หมวดและเวลาเล่นได้เอง คำไม่ซ้ำยิ่งได้แต้มเยอะ!</p>
-          <div className="feature-chips"><span>✦ เล่นพร้อมเพื่อน</span><span>✦ ไม่ต้องสมัคร</span><span>✦ ไม่มีรหัสห้อง</span></div>
+          <p className="lead">สุ่มพยัญชนะไทยแล้วแข่งตอบคำให้ตรงหมวด เจ้าของตั้งค่าห้องเอง เพื่อนเปิดหน้าเกมเดียวกันแล้วเลือกเข้าห้องที่แสดงอยู่ได้เลย คำไม่ซ้ำยิ่งได้แต้มเยอะ!</p>
+          <div className="feature-chips"><span>✦ เล่นพร้อมเพื่อน</span><span>✦ ไม่ต้องสมัคร</span><span>✦ เห็นห้องและกดเข้าร่วมได้เลย</span></div>
           <div className="floating-letters" aria-hidden="true"><div className="float-card first">ก<span>กีฬา</span></div><div className="float-card second">ส<span>สัตว์</span></div><div className="float-card third">ม<span>ผลไม้</span></div></div>
         </section>
         <section className="join-card">
@@ -195,27 +211,30 @@ function App(){
             <button type="button" className={mode==='create'?'room-mode active':'room-mode'} aria-pressed={mode==='create'} onClick={()=>{setMode('create');setError('');}}>สร้างห้อง</button>
             <button type="button" className={mode==='join'?'room-mode active':'room-mode'} aria-pressed={mode==='join'} onClick={()=>{setMode('join');setError('');}}>เข้าร่วมห้อง</button>
           </div>
-          <h2>{mode==='join'?'เข้าร่วมห้องเพื่อน':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'วางลิงก์จากเพื่อน หรือเปิดลิงก์เชิญโดยตรง':'ตั้งค่าเกมแล้วแชร์ลิงก์ให้เพื่อนเข้าร่วม'}</p>
+          <h2>{mode==='join'?'ห้องที่กำลังรอผู้เล่น':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'ห้องที่เพื่อนสร้างจะปรากฏอัตโนมัติ กดเข้าร่วมได้ทันที':'ตั้งค่าจำนวนรอบ หมวด และเวลา จากนั้นรอเพื่อนเข้ามา'}</p>
           <label htmlFor="nickname">ชื่อเล่นของคุณ</label>
-          <input id="nickname" maxLength={18} autoComplete="nickname" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')void join();}} placeholder="เช่น เจ้าแม่คำศัพท์" />
-          {mode==='join'?<div className="invite-form"><label htmlFor="invitation-link">ลิงก์เชิญเข้าห้อง</label>
-            <input id="invitation-link" type="url" inputMode="url" autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false}
-              placeholder="https://main.d27uswg4aln78i.amplifyapp.com/?match=..."
-              value={invite} onChange={e=>setInvite(e.target.value)}
-              onKeyDown={e=>{if(e.key==='Enter')void join();}}/>
-            <p>ไม่ต้องพิมพ์รหัสห้อง เพียงคัดลอกลิงก์จากเจ้าของห้องมาวาง</p>
+          <input id="nickname" maxLength={18} autoComplete="nickname" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&mode==='create')void join();}} placeholder="เช่น เจ้าแม่คำศัพท์" />
+          {mode==='join'?<div className="public-room-browser">
+            <div className="public-room-heading"><strong>ห้องที่เปิดอยู่</strong><span>อัปเดตทุก 3 วินาที</span></div>
+            {roomsError?<p role="alert" className="error-message">โหลดห้องไม่สำเร็จ: {roomsError}</p>:null}
+            {roomsLoading?<p className="notice">กำลังค้นหาห้องออนไลน์...</p>:
+            rooms.length===0?<div className="empty-rooms"><strong>ยังไม่มีห้องที่รอผู้เล่น</strong><p>ให้เพื่อนคนหนึ่งกดสร้างห้องก่อน ห้องจะปรากฏที่นี่อัตโนมัติ</p><button type="button" className="secondary-btn" onClick={()=>setMode('create')}>สร้างห้องใหม่</button></div>:
+            <div className="public-room-list">{rooms.map(room=><div className="public-room-card" key={room.roomId}>
+              <div className="public-room-description"><strong>ห้องของ {room.hostName}</strong><span>● {room.playerCount}/8 คน · {room.settings.rounds} รอบ · {room.settings.categories} หมวด · {room.settings.seconds} วินาที</span></div>
+              <button type="button" className="public-room-join" disabled={working||status!=='ready'} onClick={()=>void join(room.roomId)}>{working?'กำลังเข้า...':'เข้าร่วม'}</button>
+            </div>)}</div>}
           </div>:<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
             <div className="settings-grid">
               <label>จำนวนรอบ<select value={draftSettings.rounds} onChange={e=>setDraftSettings(s=>({...s,rounds:Number(e.target.value)}))}>{Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} รอบ</option>)}</select></label>
               <label>หมวดต่อรอบ<select value={draftSettings.categories} onChange={e=>setDraftSettings(s=>({...s,categories:Number(e.target.value)}))}>{Array.from({length:6},(_,i)=>i+3).map(n=><option key={n} value={n}>{n} หมวด</option>)}</select></label>
               <label>เวลาตอบ<select value={draftSettings.seconds} onChange={e=>setDraftSettings(s=>({...s,seconds:Number(e.target.value)}))}>{TIME_OPTIONS.map(n=><option key={n} value={n}>{n} วินาที</option>)}</select></label>
             </div></div>}
-          <button className="primary-btn" disabled={working||status!=='ready'} onClick={join}>{working?'กำลังเชื่อมต่อ...':mode==='join'?'เข้าร่วมห้อง':'สร้างห้องและชวนเพื่อน'} <span>↗</span></button>
+          {mode==='create'?<button className="primary-btn" disabled={working||status!=='ready'} onClick={()=>void join()}>{working?'กำลังสร้างห้อง...':'สร้างห้อง'} <span>↗</span></button>:null}
           {status==='loading'?<p className="notice">กำลังเชื่อมต่อเซิร์ฟเวอร์ AWS…</p>:null}
           {error?<p className="error-message" role="alert">{error}</p>:null}
           {status==='error'&&!error?<p className="error-message">ไม่สามารถเชื่อมต่อระบบออนไลน์</p>:null}
           <div className="divider-word"><span>เล่นง่าย ๆ</span></div>
-          <div className="join-benefits"><div><strong>01</strong> เจ้าของสร้างห้อง</div><div><strong>02</strong> ส่งลิงก์ชวนเพื่อน</div><div><strong>03</strong> เจ้าของกดเริ่มเกม</div></div>
+          <div className="join-benefits"><div><strong>01</strong> เจ้าของสร้างห้อง</div><div><strong>02</strong> เพื่อนเห็นห้องและกดเข้าร่วม</div><div><strong>03</strong> เจ้าของกดเริ่มเกม</div></div>
         </section>
       </div> : <div className="game-layout">
         <section className="game-main">
@@ -225,8 +244,8 @@ function App(){
           {game.phase==='lobby'?<div className="lobby-view">
             <div className="lobby-visual"><div className="lobby-ring one"/><div className="lobby-ring two"/><span className="lobby-letter">ค<span>◈</span></span></div>
             <h2>{isOwner?'คุณเป็นเจ้าของห้อง':'รอเจ้าของห้องเริ่มเกม'}</h2>
-            <p>{game.players.length<2?'ชวนเพื่อนมาอย่างน้อยอีก 1 คนเพื่อแข่งขัน':'ทุกคนพร้อมแล้ว เจ้าของห้องสามารถเริ่มได้เลย'}</p>
-            <button className="secondary-btn" onClick={share}>{copied?'คัดลอกแล้ว ✓':'⤴ คัดลอกลิงก์ชวนเพื่อน'}</button>
+            <p>{game.players.length<2?'รอเพื่อนกดเข้าร่วมห้องจากหน้าเกม':'ทุกคนพร้อมแล้ว เจ้าของห้องสามารถเริ่มได้เลย'}</p>
+            <div className="public-room-notice">ห้องของคุณแสดงอยู่ในหน้าเข้าร่วมห้องของทุกคนโดยอัตโนมัติ</div>
             {isOwner?<div className="settings-panel lobby-settings"><h3>ตั้งค่าห้อง</h3>
               <div className="settings-grid">
                 <label>จำนวนรอบ<select value={draftSettings.rounds} onChange={e=>setDraftSettings(s=>({...s,rounds:Number(e.target.value)}))}>{Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>{n} รอบ</option>)}</select></label>
@@ -236,7 +255,7 @@ function App(){
               <button className="secondary-btn settings-save" disabled={working} onClick={()=>void ownerAction('settings')}>บันทึกการตั้งค่า</button>
               <button className="primary-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span>→</span></button>
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.categories} หมวด · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
-            <div className="lobby-tip">ส่งลิงก์ให้เพื่อนเข้าร่วม ไม่ต้องใช้รหัสห้อง และไม่มีการเริ่มเกมอัตโนมัติ</div>
+            <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
           {playing?<><div className="challenge-banner"><div><div className="banner-label">ตัวอักษรประจำรอบ</div><div className="letter-display">{game.letter}</div></div><div className="time-box"><span>เวลาที่เหลือ</span><strong className={remaining<=15?'urgent':''}>{timeLabel(remaining)}</strong><div className="time-track"><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วยตัว <b>“{game.letter}”</b></p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
@@ -248,16 +267,16 @@ function App(){
             <div className="round-results">{latest.entries.slice().sort((a,b)=>b.points-a.points).map((e,i)=><div className="result-person" key={e.id}><span className="rank-bubble">{i+1}</span><span>{e.name} {e.id===me?'(คุณ)':''}</span><strong>+{e.points} คะแนน</strong></div>)}</div>
             <div className="review-grid">{latest.categories.map(id=><div className="review-category" key={id}><h3>{SYMBOLS[id]} {LABELS[id]}</h3>{latest.entries.map(e=><div key={e.id}><span>{e.name}: {e.answers[id]||'—'}</span><b>+{e.perCategory[id]}</b></div>)}</div>)}</div>
           </div>:null}
-          {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · เจ้าของห้องเป็นผู้เริ่มเกมใหม่</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{isOwner?<button className="primary-btn" disabled={working} onClick={()=>void ownerAction('reset')}>ตั้งค่าห้องและเล่นใหม่ <span>↗</span></button>:null}<button className="secondary-btn" onClick={share}>⤴ ชวนเพื่อนมาแข่งรอบต่อไป</button></div>:null}
+          {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · เจ้าของห้องเป็นผู้เริ่มเกมใหม่</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{isOwner?<button className="primary-btn" disabled={working} onClick={()=>void ownerAction('reset')}>ตั้งค่าห้องและเล่นใหม่ <span>↗</span></button>:null}<p className="small-center">เล่นใหม่ได้จากห้องเดิม เพื่อนที่ออกสามารถเลือกห้องที่เปิดอยู่ได้จากหน้าเกม</p></div>:null}
         </section>
         <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตทุก 2 วินาที</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
           <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+20</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+10</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>แข่งครบจำนวนรอบที่ตั้งค่า ใครคะแนนรวมสูงสุดชนะ!</p></div>
-          <button className="invite-card" onClick={share}><span>⤴</span><span><b>{copied?'คัดลอกลิงก์แล้ว':'ชวนเพื่อนมาเล่น'}</b><small>แชร์ลิงก์ ไม่ต้องใช้รหัสห้อง</small></span><span>↗</span></button>
+          <div className="public-room-notice">เพื่อนเปิดเว็บไซต์คำไวเดียวกัน แล้วเลือกชื่อห้องที่รอผู้เล่นได้ทันที</div>
         </aside>
       </div>}
     </main>
     <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>28 หมวดที่ตรวจรับแล้ว · เจ้าของห้องตั้งเวลา หมวด และรอบได้</span></footer>
-    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>เจ้าของใส่ชื่อและสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา แล้วแชร์ลิงก์ให้เพื่อน</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวดภายในเวลาที่เจ้าของห้องเลือก แล้วกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 20 คะแนน ซ้ำกับเพื่อนได้ 10 คะแนน</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
+    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวดภายในเวลาที่เจ้าของห้องเลือก แล้วกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 20 คะแนน ซ้ำกับเพื่อนได้ 10 คะแนน</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode><App/></StrictMode>);

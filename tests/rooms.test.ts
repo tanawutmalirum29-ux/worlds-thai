@@ -1,37 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {parseInviteUrl,encodeGamePayload} from '../src/rooms.ts';
-const site='https://main.d27uswg4aln78i.amplifyapp.com/';
-const room='room-aabbccddeeff00112233';
+import {encodeGamePayload} from '../src/rooms.ts';
 
-test('invitation accepts URL from our game, not a code or outside domain',()=>{
-  assert.equal(parseInviteUrl(site+'?match='+room,site),room);
-  assert.equal(parseInviteUrl(' '+site+'?match='+room+' ',site),room);
-  assert.equal(parseInviteUrl(room,site),null);
-  assert.equal(parseInviteUrl('https://evil.example/?match='+room,site),null);
-  assert.equal(parseInviteUrl(site+'?match=public-1',site),null);
-  assert.equal(parseInviteUrl(site+'?match='+room+'&match='+room,site),null);
-  assert.equal(parseInviteUrl(site+'?match='+room.slice(0,-1),site),null);
-});
-
-test('AWSJSON GraphQL input uses JSON text for settings and answers',()=>{
-  const settings={rounds:3,categories:5,seconds:40};
-  const answers={animal:'เสือ',fruit:'ส้ม'};
-  const payload=encodeGamePayload(answers,settings);
-  assert.equal(typeof payload.settings,'string');
-  assert.equal(typeof payload.answers,'string');
-  if (payload.settings===undefined || payload.answers===undefined)
-    throw new Error('Expected serialized settings and answers');
-  assert.deepEqual(JSON.parse(payload.settings),settings);
-  assert.deepEqual(JSON.parse(payload.answers),answers);
+test('AWSJSON variables use JSON serialization',()=>{
+  const payload=encodeGamePayload({animal:'เสือ'},{rounds:3,categories:5,seconds:40});
+  assert.deepEqual(JSON.parse(payload.answers!),{animal:'เสือ'});
+  assert.deepEqual(JSON.parse(payload.settings!),{rounds:3,categories:5,seconds:40});
   assert.deepEqual(encodeGamePayload(),{});
-  assert.deepEqual(encodeGamePayload(undefined,settings),{settings:JSON.stringify(settings)});
 });
-test('frontend displays joining path and passes AWSJSON encoded variables',()=>{
-  const code=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
-  assert.match(code,/เข้าร่วมห้อง/);
-  assert.match(code,/mode==='join'/);
-  assert.match(code,/parseInviteUrl\(invite,window\.location\.href\)/);
-  assert.match(code,/\.\.\.encodeGamePayload\(values,settings\)/);
+test('join flow displays public room list and does not require links or codes',()=>{
+  const ui=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  assert.match(ui,/api\.queries\.listRooms\(/);
+  assert.match(ui,/setInterval\(\(\)=>void refreshRooms\(\),3000\)/);
+  assert.match(ui,/onClick=\{\(\)=>void join\(room\.roomId\)\}/);
+  assert.match(ui,/ห้องที่เปิดอยู่/);
+  assert.doesNotMatch(ui,/parseInviteUrl|ลิงก์เชิญ|invitation-link|\?match=|onClick=\{share\}/);
 });

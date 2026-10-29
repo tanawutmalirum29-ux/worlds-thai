@@ -1,12 +1,12 @@
 # คำไว (Worlds Thai) — เกมคำไทยออนไลน์
 
-เกมแข่งตอบคำศัพท์ภาษาไทยแบบหลายผู้เล่นจริง ใช้ **AWS Amplify Gen 2 + AppSync API + Lambda + DynamoDB + Cognito Guest** และ Vite/React
+เกมแข่งตอบคำศัพท์ภาษาไทยแบบหลายผู้เล่นจริง มีระบบแสดงห้องรอผู้เล่นแบบสาธารณะ เปิด URL เกมเดียวกันก็เล่นกับเพื่อนได้ ใช้ **AWS Amplify Gen 2 + AppSync API + Lambda + DynamoDB + Cognito Guest** และ Vite/React
 
 ## วิธีเล่น
 
 1. คนแรกใส่ชื่อเล่นและกด **สร้างห้อง** เพื่อเป็นเจ้าของห้อง
 2. เจ้าของตั้งจำนวนรอบ **1–10**, หมวดต่อรอบ **3–8** และเวลาตอบต่อรอบ **20–120 วินาที** (ค่าเริ่มต้น 3 / 5 / 40)
-3. แชร์ลิงก์เชิญให้เพื่อน; ไม่มีช่องพิมพ์รหัสห้อง และผู้เล่นเข้าร่วมห้องเดียวกันผ่าน URL
+3. เพื่อนเปิด URL **หน้าเกมเดียวกัน** กด **เข้าร่วมห้อง** จะเห็นรายชื่อห้องที่ยังรอผู้เล่น แล้วกดเข้าร่วมได้ทันที **ไม่ต้องส่งลิงก์หรือกรอกรหัสใด ๆ**
 4. เมื่อมี 2 คนขึ้นไป เจ้าของกด **เริ่มเกม** ด้วยตัวเอง; ไม่เริ่มอัตโนมัติ
 5. แต่ละรอบสุ่มพยัญชนะและหมวดที่คลังคำรองรับ; คำถูกไม่ซ้ำ 20 คะแนน ถูกซ้ำ 10 คะแนน คำไม่รับรอง/ผิดหมวด 0 คะแนน
 6. จบครบจำนวนรอบ เจ้าของกด **เล่นใหม่** ได้; ถ้าเจ้าของออก ผู้เล่นที่ยังอยู่คนแรกจะเป็นเจ้าของแทน
@@ -79,11 +79,15 @@ In the initial deployment, `gameUpdated` used `a.subscription().handler(a.handle
 
 ## Room ownership and event parsing
 
-- Room identifiers are cryptographically random, generated on the server. Users join by invitation URL only; there is no public room list.
+- Room identifiers are cryptographically random and generated on the server. The public room directory lists waiting rooms via guest-authorized listRooms query, without exposing player IDs. Visitors select a room directly from the game homepage.
 - Owner-only settings, start and replay actions are authorized in the Lambda against the hashed Cognito Guest identity, not a client-supplied owner flag.
 - AppSync custom query/mutation Lambda event may expose `fieldName` directly; check both direct and nested properties and fall back to the arguments shape. This resolves the prior production crash on `event.info.fieldName`.
 - A new production deployment must be tested in two distinct browsers; GitHub CI passing is not sufficient to verify Lambda runtime credentials.
 
-## Joining by invitation link
 
-The homepage explicitly offers **สร้างห้อง** and **เข้าร่วมห้อง** tabs. Joining requires the full game URL shared by the owner, or opening it directly. Room IDs are not entered as codes. The GraphQL `a.json()` (AWSJSON) settings and answers arguments must be sent as JSON-serialized strings; the Lambda parses those values before acting. The previous `Variable 'settings' has an invalid value` error was caused by sending the JavaScript object directly. Regression tests cover both the invite link and AWSJSON encoding.
+## Public lobby (one game URL, no invitations)
+
+- One person creates a room with 1–10 rounds, 3–8 categories per round and 20–120 seconds per round.
+- Others open the same game homepage, select **เข้าร่วมห้อง** and choose an available room. No invitation link, password, room ID or code is needed.
+- `listRooms` returns only active, joinable waiting rooms (host display name, player count, settings); it filters out full, started and inactive rooms. The list refreshes every 3 seconds and is backed by a bounded DynamoDB Scan for the MVP.
+- Only the server authorizes owner actions and validates the number of players. Opening the homepage does not automatically join any room.

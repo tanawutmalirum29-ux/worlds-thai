@@ -27,3 +27,22 @@
 .invite-form label{display:block;margin-bottom:9px}
 .invite-form input{width:100%;font-size:13px;text-overflow:ellipsis}
 .invite-form p{font-size:12px;color:#a9b8c9;line-height:1.7;margin:10px 0 4px}
+
+/* Public directory instead of invitation URLs or room codes. */
+.public-room-browser{margin:18px 0 20px}
+.public-room-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.public-room-heading strong{color:#ecc992;font:600 17px Kanit,sans-serif}
+.public-room-heading span{color:#899fb8;font-size:11px}
+.public-room-list{display:flex;flex-direction:column;gap:10px;max-height:345px;overflow-y:auto;padding:2px}
+.public-room-card{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid #455973;border-radius:13px;background:#18283e;padding:13px}
+.public-room-description{display:flex;flex-direction:column;gap:5px;min-width:0}
+.public-room-description strong{color:#f2ede5;font-size:14px;overflow-wrap:anywhere}
+.public-room-description span{font-size:11px;color:#a8bfd1;line-height:1.6}
+.public-room-join{flex-shrink:0;border:0;border-radius:9px;background:#efcb92;color:#152136;padding:10px 14px;min-height:42px;font-weight:700;font-size:12px}
+.public-room-join:disabled{opacity:.45}
+.empty-rooms{background:#172438;border:1px dashed #51627a;border-radius:15px;padding:18px;color:#c2d1df;text-align:center}
+.empty-rooms>strong{font:600 18px Kanit,sans-serif;color:#edca95}
+.empty-rooms p{font-size:12px;line-height:1.8}
+.empty-rooms .secondary-btn{margin:9px 0 0}
+.public-room-notice{border:1px solid #425c62;border-radius:12px;background:#20303a;color:#b9dbd2;padding:13px;margin:15px 0;line-height:1.8;font-size:12px;text-align:center}
+@media(max-width:370px){.public-room-card{padding:10px;gap:7px}.public-room-join{padding:9px}.public-room-description span{font-size:10px}}
