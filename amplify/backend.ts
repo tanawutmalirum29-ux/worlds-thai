@@ -22,6 +22,16 @@ const wordStats = new Table(stack, 'WordUsageStats', {
 });
 table.grantReadWriteData(backend.game.resources.lambda);
 wordStats.grantReadWriteData(backend.game.resources.lambda);
+// Pending, anonymous suggestions expire; original usage statistics never expire.
+const wordSuggestions = new Table(stack,'DessertSuggestions',{
+  partitionKey:{name:'id',type:AttributeType.STRING},
+  billingMode:BillingMode.PAY_PER_REQUEST,
+  timeToLiveAttribute:'ttl',
+  removalPolicy:RemovalPolicy.RETAIN
+});
+wordSuggestions.grantReadWriteData(backend.game.resources.lambda);
 (backend.game.resources.lambda as LambdaFunction).addEnvironment('MATCHES_TABLE', table.tableName);
 
 (backend.game.resources.lambda as LambdaFunction).addEnvironment('WORD_STATS_TABLE',wordStats.tableName);
+
+(backend.game.resources.lambda as LambdaFunction).addEnvironment('WORD_SUGGESTIONS_TABLE',wordSuggestions.tableName);

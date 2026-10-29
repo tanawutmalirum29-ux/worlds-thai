@@ -1,15 +1,18 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, TransactWriteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { applyAction, newMatch, snapshot, publicRoom, type Match } from './logic';
 import { resolveOperation } from './request';
 import { roundWordDeltas } from './stats';
+import {roundDessertSuggestions,SUGGESTION_MIN_REPORTS,SUGGESTION_TTL_DAYS} from './suggestions';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), { marshallOptions:{removeUndefinedValues:true} });
 const TABLE=process.env.MATCHES_TABLE || '';
 if (!TABLE) throw new Error('MATCHES_TABLE is required');
 const STATS_TABLE=process.env.WORD_STATS_TABLE || '';
 if(!STATS_TABLE)throw new Error('WORD_STATS_TABLE is required');
+const SUGGESTIONS_TABLE=process.env.WORD_SUGGESTIONS_TABLE||'';
+if(!SUGGESTIONS_TABLE)throw new Error('WORD_SUGGESTIONS_TABLE is required');
 const ROOM_ID=/^room-[a-f0-9]{20}$/;
 function userFromEvent(event: any): string {
   const identity = event?.identity ?? event?.context?.identity;
@@ -53,6 +56,49 @@ async function commit(roomId:string,old:Match|null,updated:Match):Promise<void> 
       }
     }}))
   ]}));
+}
+/** Best-effort, after winning the match CAS/transaction. Never block gameplay
+ * or count a failed/duplicate transaction. Each round contributes once per word.
+ */
+async function persistDessertSuggestions(before:Match|null,after:Match):Promise<void>{
+  const proposed=roundDessertSuggestions(before,after);
+  if(!proposed.length)return;
+  const now=Date.now();
+  const ttl=Math.floor(now/1000)+SUGGESTION_TTL_DAYS*86400;
+  const updates=proposed.map(item=>db.send(new UpdateCommand({
+    TableName:SUGGESTIONS_TABLE,Key:{id:item.id},
+    UpdateExpression:'SET #word=:word,#category=:cat,#letter=:letter,#last=:last,#ttl=:ttl ADD #count :one',
+    ExpressionAttributeNames:{
+      '#word':'word','#category':'category','#letter':'letter',
+      '#last':'lastSeenAt','#ttl':'ttl','#count':'timesSuggested'
+    },
+    ExpressionAttributeValues:{
+      ':word':item.word,':cat':item.category,':letter':item.letter,
+      ':last':now,':ttl':ttl,':one':1
+    }
+  })));
+  const results=await Promise.allSettled(updates);
+  if(results.some(item=>item.status==='rejected'))
+    console.warn('Dessert suggestion aggregation incomplete; game result was still committed');
+}
+async function readDessertSuggestions(cursor?:string){
+  if(cursor && (cursor.length>250||!cursor.startsWith('suggest#dessert#')))
+    throw new Error('INVALID_CURSOR');
+  const result=await db.send(new ScanCommand({
+    TableName:SUGGESTIONS_TABLE,Limit:250,
+    ExclusiveStartKey:cursor?{id:cursor}:undefined,
+    FilterExpression:'#count >= :minimum',
+    ProjectionExpression:'#word,#letter,#count,#last',
+    ExpressionAttributeNames:{
+      '#word':'word','#letter':'letter','#count':'timesSuggested','#last':'lastSeenAt'
+    },
+    ExpressionAttributeValues:{':minimum':SUGGESTION_MIN_REPORTS}
+  }));
+  const items=(result.Items||[]).map(row=>({
+    category:'dessert',word:row.word,letter:row.letter,
+    timesSuggested:row.timesSuggested||0,lastSeenAt:row.lastSeenAt||null
+  }));
+  return {items,nextToken:result.LastEvaluatedKey?.id||null};
 }
 function isRetryableConflict(error:any):boolean {
   if(error?.name==='ConditionalCheckFailedException' || error?.name==='TransactionConflictException')return true;
@@ -122,8 +168,9 @@ export const handler=async(event:any)=>{
   }
   if (operation==='listRooms') return availableRooms(Date.now());
   if (operation==='getWordStats') {
-    if(args.request!=='stats')throw new Error('INVALID_STATS_REQUEST');
-    return readWordStats(args.cursor);
+    if(args.request==='stats')return readWordStats(args.cursor);
+    if(args.request==='dessert-suggestions')return readDessertSuggestions(args.cursor);
+    throw new Error('INVALID_STATS_REQUEST');
   }
   const action=args.action;
   const now=Date.now();
@@ -151,6 +198,7 @@ export const handler=async(event:any)=>{
     applyAction(state,action,userId,now,args.name||'',parseJson(args.answers),parseJson(args.settings));
     try{
       await commit(roomId,before,state);
+      await persistDessertSuggestions(before,state);
       return {roomId,snapshot:{...snapshot(state),you:userId}};
     }catch(error:any){
       if(!isRetryableConflict(error))throw error;

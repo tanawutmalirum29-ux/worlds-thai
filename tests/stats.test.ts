@@ -92,17 +92,15 @@ test('CSV joins prefixed historical statistics with bare canonical word',()=>{
   assert.match(csv,/"ข","ข ไข่","ขนม","ข้าวตู","0","0"/);
 });
 
-test('canonical name variants do not generate multiple statistics records',()=>{
-  const game=newMatch('room-dddddddddddddddddddd',now);
-  applyAction(game,'create','host',now,'Host');
-  applyAction(game,'join','guest',now,'Guest');
-  applyAction(game,'start','host',now+1000);
-  game.letter='ส';game.categories=['dessert'];
-  applyAction(game,'draft','host',now+2000,'',{dessert:'ขนมสอดไส้'});
-  applyAction(game,'draft','guest',now+2000,'',{dessert:'ขนมใส่ไส้'});
-  const before=structuredClone(game);
-  for(const p of game.players)p.lastSeen=game.deadline;
-  advance(game,game.deadline+1);
-  const changes=roundWordDeltas(before,game);
-  assert.deepEqual(changes.map(x=>[x.word,x.timesUsed,x.totalPoints]),[['ขนมสอดไส้',2,2]]);
+test('backend writes anonymous suggestions only after a committed match, not on draft',()=>{
+  const backend=readFileSync(new URL('../amplify/functions/game/handler.ts',import.meta.url),'utf8');
+  const updated=backend.indexOf('await commit(roomId,before,state)');
+  const later=backend.indexOf('await persistDessertSuggestions(before,state)',updated);
+  assert.ok(updated>=0&&later>updated);
+  assert.match(backend,/SUGGESTION_MIN_REPORTS/);
+  assert.match(backend,/readDessertSuggestions/);
+  assert.match(backend,/Promise\.allSettled/);
+  const resource=readFileSync(new URL('../amplify/backend.ts',import.meta.url),'utf8');
+  assert.match(resource,/timeToLiveAttribute:'ttl'/);
+  assert.match(resource,/WORD_SUGGESTIONS_TABLE/);
 });

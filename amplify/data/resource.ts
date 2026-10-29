@@ -7,7 +7,9 @@ const schema = a.schema({
     roomId: a.string().required(),
     snapshot: a.json().required()
   }),
-  // Aggregated word usage only: no names, IDs or individual answers.
+  // Aggregated word usage and (on request='dessert-suggestions') anonymous
+  // repeated unknown dessert names. No names or player IDs are returned.
+  // Guest-accessible; client-side admin PIN is NOT real authorization.
   // The download prompt is a convenience gate, not API authentication.
   getWordStats: a.query()
     .arguments({ request: a.string().required(), cursor: a.string() })
