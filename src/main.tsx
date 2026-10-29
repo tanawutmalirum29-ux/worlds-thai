@@ -544,21 +544,23 @@ function App(){
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.mode==='category'?'โหมดหมวดใหญ่':'โหมดพยัญชนะ'} · {game.settings.categories} {game.settings.mode==='category'?'คำ':'หมวด'} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
-          {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
-            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
+          {playing?<><div className="challenge-banner"><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
+            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} {game.topicCategory?'คำ':'หมวด'}</h2><p>{game.topicCategory?<>ตอบคำหมวด <b>“{LABELS[game.topicCategory]||game.topicCategory}”</b> ให้ตรงพยัญชนะของแต่ละช่อง · ตรวจทันที</>:<>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</>}</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
               const typed=normalizeAnswer(answers[id]);
-              const state=!typed?'empty':validAnswer(typed,game.letter,id)?'accepted':wordInitialForCategory(typed,id)!==game.letter?'wrong-letter':'unknown';
-              return <label className={`answer-item answer-${state} ${id==='dessert'||id==='tree'?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
+              const category=game.topicCategory||id;
+              const requestedLetter=game.topicCategory?id:game.letter;
+              const state=!typed?'empty':validRoundAnswer(typed,game.letter,id,game.topicCategory)?'accepted':wordInitialForCategory(typed,category)!==requestedLetter?'wrong-letter':'unknown';
+              return <label className={`answer-item answer-${state} ${category==='dessert'||category==='tree'?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
                 <span className="answer-number">{String(index+1).padStart(2,'0')}</span>
-                <span className="answer-symbol">{SYMBOLS[id]||'✦'}</span>
+                <span className="answer-symbol">{game.topicCategory?requestedLetter:SYMBOLS[id]||'✦'}</span>
                 <span className="answer-category">
-                  <span className="answer-text">{LABELS[id]||id}</span>
-                  {id==='dessert'?<span className="answer-category-hint">
+                  <span className="answer-text">{game.topicCategory?letterCaption(id):LABELS[id]||id}</span>
+                  {(id==='dessert'||(game.topicCategory==='dessert'&&index===0))?<span className="answer-category-hint">
                     เติม “ขนม” นำหน้าได้ แต่ให้นับอักษรของชื่อขนมที่ตามมา เช่น “ขนมจรวดสายรุ้ง” นับ จ จาน
                     <span className="answer-hint-note">ตัวอย่างสมมติ ไม่ใช่คำตอบจริง · “ขนม” คำเดียวใช้ไม่ได้</span>
                   </span>:null}
-                  {id==='tree'?<span className="answer-category-hint">
+                  {(id==='tree'||(game.topicCategory==='tree'&&index===0))?<span className="answer-category-hint">
                     เติม “ต้น” นำหน้าได้ แต่ให้นับอักษรของชื่อต้นไม้ที่ตามมา เช่น “ต้นประกายเมฆ” นับ ป ปลา
                     <span className="answer-hint-note">ตัวอย่างสมมติ ไม่ใช่คำตอบจริง · “ต้น” หรือ “ต้นไม้” คำเดียวใช้ไม่ได้</span>
                   </span>:null}
@@ -567,7 +569,7 @@ function App(){
                   <input disabled={remaining===0} maxLength={48} value={answers[id]||''}
                     onChange={e=>updateWord(id,e.target.value)}
                     onBlur={()=>void flushDraft()}
-                    placeholder="พิมพ์คำตอบ..." aria-label={`คำตอบหมวด${LABELS[id]}`}/>
+                    placeholder={game.topicCategory?`คำขึ้นต้นด้วย ${letterCaption(id)}...`:'พิมพ์คำตอบ...'} aria-label={game.topicCategory?`คำหมวด${LABELS[game.topicCategory]} ขึ้นต้นด้วย ${letterCaption(id)}`:`คำตอบหมวด${LABELS[id]}`}/>
                   <span className={`answer-feedback feedback-${state}`}>{state==='empty'?'ตรวจคำให้ทันที':state==='accepted'?'✓ คำนี้ใช้ได้':state==='wrong-letter'?'ตัวอักษรต้นไม่ตรง':'ยังไม่พบคำนี้ในหมวด'}</span>
                 </span>
                 <span className={state==='accepted'?'answer-check filled':state==='empty'?'answer-check':'answer-check invalid'}>{state==='accepted'?'✓':state==='empty'?'—':'!'}</span>
@@ -581,14 +583,14 @@ function App(){
             </div>
             <p className="small-center">ไม่ต้องกดส่งคำตอบ ระบบคิดคะแนนจากคำล่าสุดที่บันทึกสำเร็จเมื่อหมดเวลา</p>
           </>:null}
-          {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>พยัญชนะ <strong className="gold-text">{letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
+          {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>{latest.topicCategory?'หมวดใหญ่':'พยัญชนะ'} <strong className="gold-text">{latest.topicCategory?LABELS[latest.topicCategory]||latest.topicCategory:letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
             <div className="round-results">{latest.entries.slice().sort((a,b)=>b.points-a.points).map((e,i)=><div className="result-person" key={e.id}><span className="rank-bubble">{i+1}</span><span>{e.name} {e.id===me?'(คุณ)':''}</span><strong>+{e.points} คะแนน</strong></div>)}</div>
-            <div className="review-grid">{latest.categories.map(id=><div className="review-category" key={id}><h3>{SYMBOLS[id]} {LABELS[id]}</h3>{latest.entries.map(e=><div key={e.id}><span>{e.name}: {e.answers[id]||'—'}{e.rarityBonus?.[id]?<small className="rarity-bonus"> · คำหายาก +{e.rarityBonus[id]}</small>:null}</span><b>+{e.perCategory[id]}</b></div>)}</div>)}</div>
-            <SynonymLearn letter={latest.letter} categories={latest.categories}/>
+            <div className="review-grid">{latest.categories.map(id=><div className="review-category" key={id}><h3>{latest.topicCategory?letterCaption(id):SYMBOLS[id]+' '+LABELS[id]}</h3>{latest.entries.map(e=><div key={e.id}><span>{e.name}: {e.answers[id]||'—'}{e.rarityBonus?.[id]?<small className="rarity-bonus"> · คำหายาก +{e.rarityBonus[id]}</small>:null}</span><b>+{e.perCategory[id]}</b></div>)}</div>)}</div>
+            {latest.topicCategory?latest.categories.slice(0,3).map(id=><SynonymLearn key={id} letter={id} categories={[latest.topicCategory!]}/>):<SynonymLearn letter={latest.letter} categories={latest.categories}/>}
           </div>:null}
           {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · ทุกคนโหวตเล่นอีกครั้งเพื่อกลับล็อบบี้ห้องเดิม</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{game.history.map(round=><div key={round.round} className="synonym-history">
-              <p>รอบ {round.round} · {letterCaption(round.letter)}</p>
-              <SynonymLearn letter={round.letter} categories={round.categories}/>
+              <p>รอบ {round.round} · {round.topicCategory?LABELS[round.topicCategory]||round.topicCategory:letterCaption(round.letter)}</p>
+              {round.topicCategory?round.categories.slice(0,3).map(id=><SynonymLearn key={id} letter={id} categories={[round.topicCategory!]}/>):<SynonymLearn letter={round.letter} categories={round.categories}/>}
             </div>)}<button className="primary-btn rematch-vote" type="button"
               aria-pressed={hasRematched} disabled={hasRematched||working}
               onClick={()=>void vote('rematch')}>{hasRematched?'ลงคะแนนแล้ว':'เล่นอีกครั้ง'} · {rematchCount}/{game.players.length}
@@ -623,7 +625,7 @@ function App(){
     </div>:null}
     {activeChoice?<div className="custom-popup-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)closeCustomDialog();}}>
       <section className="custom-popup custom-popup-picker" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title">
-        <div className="custom-popup-title-row"><div><span className="custom-popup-kicker">GAME SETTINGS</span><h2 id="settings-dialog-title">เลือก{activeChoice.label}</h2></div>
+        <div className="custom-popup-title-row"><div><span className="custom-popup-kicker">GAME SETTINGS</span><h2 id="settings-dialog-title">เลือก{activeChoiceLabel}</h2></div>
           <button type="button" className="custom-popup-close" aria-label="ปิดตัวเลือก" onClick={closeCustomDialog}>×</button>
         </div>
         <div className="custom-popup-options" role="group" aria-label={activeChoice.label}>
@@ -631,13 +633,13 @@ function App(){
             className={value===draftSettings[activeChoice.field]?'custom-popup-option selected':'custom-popup-option'}
             aria-pressed={value===draftSettings[activeChoice.field]}
             onClick={()=>{setDraftSettings(s=>({...s,[activeChoice.field]:value}));closeCustomDialog();}}>
-            <span>{value} {activeChoice.unit}</span><span className="option-check" aria-hidden="true">{value===draftSettings[activeChoice.field]?'✓':''}</span>
+            <span>{value} {activeChoice.field==='categories'&&draftSettings.mode==='category'?'คำ':activeChoice.unit}</span><span className="option-check" aria-hidden="true">{value===draftSettings[activeChoice.field]?'✓':''}</span>
           </button>)}
         </div>
         <p className="custom-popup-footnote">การตั้งค่าจะมีผลเมื่อสร้างห้องหรือบันทึกการตั้งค่า</p>
       </section>
     </div>:null}
-    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวด ระบบตรวจและบันทึกให้ทันทีโดยไม่ต้องกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน; คำหายากที่ไม่ซ้ำอาจได้โบนัส +1 ถึง +2 หลังระบบมีข้อมูลเพียงพอ (รวมโบนัสไม่เกิน +3 ต่อรอบ)</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
+    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกโหมด จำนวนรอบ จำนวนหมวดหรือคำ และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม โหมดพยัญชนะจะสุ่มอักษรเดียวกับหลายหมวด ส่วนโหมดหมวดใหญ่จะสุ่มหนึ่งหมวดและพยัญชนะไม่ซ้ำกันหลายตัว</li><li>พิมพ์คำที่ขึ้นต้นตามอักษรในโจทย์และตรงหมวดของช่องนั้น ระบบตรวจและบันทึกให้ทันทีโดยไม่ต้องกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน; คำหายากที่ไม่ซ้ำอาจได้โบนัส +1 ถึง +2 หลังระบบมีข้อมูลเพียงพอ (รวมโบนัสไม่เกิน +3 ต่อรอบ)</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode><App/></StrictMode>);
