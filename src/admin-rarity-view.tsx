@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {CATEGORY_OPTIONS,LETTER_OPTIONS,type Entry} from './admin-data.ts';
 import {letterCaption} from './letters.ts';
-import {buildRarityGroups,displayRarityState,rarityGroupSummary,
+import {buildRarityGroups,displayRarityState,rarityGroupSummary,rarityReadiness,
   type RarityMetaRecord,type GroupState,type RarityWordRow} from './admin-rarity-data.ts';
 import {hasRarityAdminSession,loginRarityAdmin,logoutRarityAdmin,queryRarityAdmin} from './admin-rarity-api.ts';
 import './admin-rarity.css';
@@ -176,6 +176,14 @@ export function RarityDashboard({entries,inspect}:Props){
                   </select>
                 </div>
               </div>
+              <div className="rarity-gates" aria-label="เกณฑ์ความพร้อมในการประเมิน">
+                {Object.entries(rarityReadiness(details)).map(([key,gate])=>
+                  <div key={key} className={gate.value!==null&&gate.value>=gate.required?'ready':'pending'}>
+                    <span>{({words:'จำนวนคำ',uses:'จำนวนคำตอบ',players:'ผู้เล่น',rooms:'ห้องแข่งขัน',days:'อายุสถิติ (วัน)'} as Record<string,string>)[key]}</span>
+                    <strong>{gate.value===null?'—':fmt(gate.value)} / {fmt(gate.required)}</strong>
+                  </div>)}
+              </div>
+              <p className="rarity-notice">เงื่อนไขข้างต้นเป็นเพียงส่วนหนึ่ง ยังต้องตรวจความต่อเนื่องของวันใช้งานและระยะเรียนรู้ของแต่ละคำด้วย</p>
               <div className="rarity-word-scroll"><table>
                 <thead><tr><th>คำศัพท์</th><th>ใช้สะสม</th><th>ใช้ 30 วัน*</th><th>เริ่มเก็บสถิติ</th><th>ผลประเมิน</th><th>ตรวจคำ</th></tr></thead>
                 <tbody>{wordRows.slice(0,100).map((w:RarityWordRow)=><tr key={w.canonical}>
@@ -183,7 +191,9 @@ export function RarityDashboard({entries,inspect}:Props){
                   <td>{fmt(w.lifetimeUses)}</td><td>{w.recentUses===null?'—':fmt(w.recentUses)}</td>
                   <td>{wordAge(w.firstEligibleAt)}</td>
                   <td>{w.bonus?<strong className={'rarity-tier rarity-tier-'+w.bonus}>{bonusLabel(w.bonus)}</strong>:
-                    w.pendingDays>0?<span>รอตรวจต่อ {fmt(w.pendingDays)} วัน · ระดับ {w.pendingTier}</span>:
+                    w.pendingDays>0?<span>แนวโน้ม {bonusLabel(w.pendingTier)} · ยืนยันแล้ว {fmt(w.pendingDays)} วัน</span>:
+                    w.firstEligibleAt===null?<span>ยังไม่เริ่มเก็บข้อมูลคำ</span>:
+                    Date.now()-w.firstEligibleAt<5*86400000?<span>คำใหม่ · อยู่ในระยะเรียนรู้</span>:
                     details.state==='no-rare'||details.state==='active'?<span>ปกติ / ยังไม่ผ่านเกณฑ์คำ</span>:
                     <span>ยังไม่ตัดสิน</span>}</td>
                   <td><button className="rarity-link" type="button" onClick={()=>inspect(details.category,details.letter,w.word)}>ดูคำ</button></td>
