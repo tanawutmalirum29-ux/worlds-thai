@@ -217,7 +217,12 @@ test('new real-world word classes and corrected categorization',async()=>{
   assert.equal(validAnswer('ปีนเขา','ป','sport'),true);
   assert.equal(validAnswer('ปาเลา','ป','country'),true);
   const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
-  assert.ok(WORD_BANK.country.length>=170);
+  assert.ok(WORD_BANK.country.length>=193);
   assert.ok(WORD_BANK.province.length>=140);
   assert.ok(!WORD_BANK.dessert.some(word=>word.startsWith('ขนม')));
+});
+
+test('country list includes commonly missed sovereign states',()=>{
+  for(const name of ['อุรุกวัย','สหรัฐอาหรับเอมิเรตส์','กาบูเวร์ดี','ไซปรัส','สโลวาเกีย'])
+    assert.equal(validAnswer(name,initialConsonant(name),'country'),true,name);
 });
