@@ -202,7 +202,8 @@ export const NOR_NU_TERMS: Readonly<Record<string, readonly string[]>> = {
     "น้อยหน่าฝ้าย"
   ],
   "vegetable": [
-    "น้ำเต้า"
+    "น้ำเต้า",
+    "เนียมหูเสือ"
   ],
   "food": [
     "น้ำพริกกะปิ",
