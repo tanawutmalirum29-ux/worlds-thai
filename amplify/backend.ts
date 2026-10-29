@@ -1,5 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend';
-import { AttributeType, BillingMode, Table, RemovalPolicy } from 'aws-cdk-lib/aws-dynamodb';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { game } from './functions/game/resource';
