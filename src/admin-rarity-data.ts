@@ -91,6 +91,11 @@ export function buildRarityGroups(
     if(bonus===1)group.rareWords++;
     if(bonus===2)group.veryRareWords++;
   }
+  for(const group of grouped.values()){
+    // Historical snapshot bonuses for words no longer in the dictionary do not
+    // mean the currently playable pair has an active rare word.
+    if(group.state==='active' && group.rareWords+group.veryRareWords===0)group.state='no-rare';
+  }
   return [...grouped.values()].sort((a,b)=>a.category.localeCompare(b.category,'th')||
     a.letter.localeCompare(b.letter,'th'));
 }
