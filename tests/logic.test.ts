@@ -155,3 +155,31 @@ test('random draw can select ข ไข่ with eight supported categories',()=>
   for(const id of round.categories)assert.ok(eligibleCategories('ข').includes(id));
   assert.ok(!round.categories.includes('not-a-category'));
 });
+
+test('fairness filter excludes low-vocabulary consonants and weak letter-category pairs', async ()=>{
+  const {WORD_BANK,MIN_WORDS_PER_PAIR,MIN_CATEGORIES_PER_LETTER}=await import('../amplify/functions/game/dictionary.ts');
+  assert.equal(MIN_WORDS_PER_PAIR,5);
+  assert.equal(MIN_CATEGORIES_PER_LETTER,8);
+  assert.ok(LETTERS.includes('ข' as never));
+  assert.ok(LETTERS.includes('ด' as never));
+  for(const rare of ['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ','ง','ฉ','ซ','ถ','ฟ','ภ','ย','ล','ว','ห']){
+    assert.ok(!LETTERS.includes(rare as never),rare+' should not be offered');
+  }
+  for(const letter of LETTERS){
+    const cats=eligibleCategories(letter);
+    assert.ok(cats.length>=8,letter+' needs at least 8 eligible categories');
+    for(const category of cats){
+      const words=new Set((WORD_BANK[category]||[]).filter(word=>initialConsonant(word)===letter)
+        .map(word=>word.normalize('NFC').trim().toLocaleLowerCase('th')));
+      assert.ok(words.size>=5,letter+':'+category+' only '+words.size+' distinct answers');
+    }
+  }
+  for(const count of [3,5,8]){
+    const m=setup({rounds:1,categories:count,seconds:40});
+    for(let attempt=0;attempt<100;attempt++){
+      const round=chooseRound(m,()=>attempt/100);
+      assert.equal(round.categories.length,count);
+      for(const category of round.categories)assert.ok(eligibleCategories(round.letter).includes(category));
+    }
+  }
+});

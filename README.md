@@ -11,7 +11,7 @@
 5. แต่ละรอบสุ่มพยัญชนะและหมวดที่คลังคำรองรับ; คำถูกไม่ซ้ำ 2 คะแนน ถูกซ้ำ 1 คะแนน คำไม่รับรอง/ผิดหมวด 0 คะแนน
 6. จบครบจำนวนรอบ เจ้าของกด **เล่นใหม่** ได้; ถ้าเจ้าของออก ผู้เล่นที่ยังอยู่คนแรกจะเป็นเจ้าของแทน
 
-**ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 7 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 3 คำ **ฃ ขวด (ตัว ฃ) ถูกงดสุ่ม** ส่วน **ข ไข่ (ตัว ข) ใช้ได้ตามปกติ** และมีคลังคำรองรับอย่างน้อย 8 หมวด
+**ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 8 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 5 คำไม่ซ้ำกัน และให้โอกาสหมวดที่มีคำตอบมากถูกสุ่มมากกว่า **ฃ ขวด (ตัว ฃ) ถูกงดสุ่ม** ส่วน **ข ไข่ (ตัว ข) ใช้ได้ตามปกติ** และมีคลังคำรองรับอย่างน้อย 8 หมวด
 
 **ข้อจำกัด:** นี่เป็นคลังคำคัดเลือก ไม่ใช่พจนานุกรมภาษาไทยฉบับสมบูรณ์ คำจริงที่ไม่ได้บันทึกจะได้ 0 คะแนน (false negative) จึงควรเปิดคำขอเพิ่มคำให้ผู้ดูแลตรวจสอบก่อนปล่อยให้เล่นแข่งขันจริง และห้ามอ้างว่าตรวจคำได้ครบทุกคำ
 
@@ -105,3 +105,7 @@ In the initial deployment, `gameUpdated` used `a.subscription().handler(a.handle
 ## Thai consonant clarification
 
 The old exclusion accidentally removed **ข ไข่** because **ฃ ขวด** was confused with it. Fix: exclude only `ฃ`, never `ข`. `ข ไข่` can now be randomly selected with 3–8 categories per round. There is no manual consonant button: the server picks the letter at the start of each round. Regression tests verify the distinction and accepted words such as `ข้าวผัด`, `ขลุ่ย`, and `ขวด` (the last is the word for a bottle, not the obsolete consonant).
+
+## Avoid trivial letters and sparse categories
+
+The earlier rules admitted a letter/category pair with only 3 approved answers, making responses predictable. The current fairness gate requires **at least 5 distinct accepted words per letter/category pair** and **at least 8 qualifying categories for a consonant**; rounds still honor room settings of 3–8 categories. Category selection favors richer pools. Rare letters such as **ฎ ชฎา** and **ฮ นกฮูก** never enter the draw. **ด เด็ก** and **ข ไข่** remain eligible because their category vocabularies meet the threshold. This is a curated-answer gate, not a claim to cover every possible Thai word.

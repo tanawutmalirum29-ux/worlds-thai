@@ -19,7 +19,9 @@ export const CATEGORIES = CATEGORY_LABELS.filter(([id]) => Object.prototype.hasO
 const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
 const eligibleByLetter: Record<string,string[]> = Object.fromEntries(
   ALL_LETTERS.map(letter => [letter, CATEGORIES.map(([id]) => id).filter(category =>
-    (WORD_BANK[category] || []).filter(word => initialConsonant(word) === letter).length >= MIN_WORDS_PER_PAIR)])
+    new Set((WORD_BANK[category] || [])
+      .filter(word => initialConsonant(word) === letter)
+      .map(word => normalizeAnswer(word).toLocaleLowerCase('th'))).size >= MIN_WORDS_PER_PAIR)])
 );
 export const LETTERS = ALL_LETTERS.filter(letter =>
   !EXCLUDED_LETTERS.has(letter) && eligibleByLetter[letter].length >= MIN_CATEGORIES_PER_LETTER
@@ -99,7 +101,18 @@ export function chooseRound(match: Match, random = Math.random) {
   if (pool.length < match.settings.categories) pool = eligibleCategories(letter);
   const chosen: string[] = [];
   for (let i=0;i<match.settings.categories;i++) {
-    const index = Math.min(pool.length-1, Math.floor(random()*pool.length));
+    // Prefer categories offering more distinct valid answers, reducing easy duplicates.
+    const weights=pool.map(category=>{
+      const count=(WORD_BANK[category] || []).filter(word=>initialConsonant(word)===letter).length;
+      return Math.min(4,Math.max(1,(count-MIN_WORDS_PER_PAIR)/2+1));
+    });
+    const totalWeight=weights.reduce((sum,weight)=>sum+weight,0);
+    let roll=Math.max(0,Math.min(0.999999999,random()))*totalWeight;
+    let index=weights.length-1;
+    for(let j=0;j<weights.length;j++){
+      roll-=weights[j];
+      if(roll<0){index=j;break;}
+    }
     chosen.push(pool.splice(index,1)[0]);
   }
   return { letter, categories: chosen };
