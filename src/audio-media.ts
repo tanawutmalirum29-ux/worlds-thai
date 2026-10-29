@@ -79,3 +79,14 @@ export function synthesizeTestWav(): Blob {
       0.24 * Math.sin(TAU * 2 * frequency * t));
   });
 }
+
+
+/** Crisp short click for phones where Web Audio effects cannot start. */
+export function synthesizeClickWav(): Blob {
+  return makeWav(0.12, t => {
+    const attack = Math.min(1, t / 0.006);
+    const fade = Math.exp(-t * 27);
+    return 0.72 * attack * fade *
+      (0.72 * Math.sin(TAU * 940 * t) + 0.28 * Math.sin(TAU * 1410 * t));
+  });
+}
