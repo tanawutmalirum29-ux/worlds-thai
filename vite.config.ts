@@ -1,8 +1,24 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
+
+// Social crawlers read static HTML, so the image URL must be absolute in production.
+// Amplify supplies AWS_APP_ID/AWS_BRANCH; SOCIAL_SITE_URL overrides this for custom domains.
+const socialSiteUrl = process.env.SOCIAL_SITE_URL?.trim().replace(/\/$/, '') ||
+  (process.env.AWS_APP_ID && process.env.AWS_BRANCH
+    ? `https://${process.env.AWS_BRANCH}.${process.env.AWS_APP_ID}.amplifyapp.com`
+    : '');
 export default defineConfig({
-  plugins:[react()],
+  plugins:[
+    react(),
+    {
+      name:'absolute-social-preview-url',
+      transformIndexHtml(html){
+        if (!socialSiteUrl) return html;
+        return html.replaceAll('content="/share-card.png"', `content="${socialSiteUrl}/share-card.png"`);
+      }
+    }
+  ],
   server:{host:'0.0.0.0'},
   build:{rollupOptions:{input:{
     main:fileURLToPath(new URL('./index.html',import.meta.url)),

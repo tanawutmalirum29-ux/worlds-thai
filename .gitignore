@@ -8,3 +8,5 @@ amplify_outputs.json
 *.tsbuildinfo
 .DS_Store
 coverage/
+# Produced from the editable SVG during the production build
+public/share-card.png
