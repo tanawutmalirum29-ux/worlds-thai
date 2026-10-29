@@ -1,6 +1,6 @@
 # คำไว (Worlds Thai) — เกมคำไทยออนไลน์
 
-เกมแข่งตอบคำศัพท์ภาษาไทยแบบหลายผู้เล่นจริง ใช้ **AWS Amplify Gen 2 + AppSync Realtime + Lambda + DynamoDB + Cognito Guest** และ Vite/React
+เกมแข่งตอบคำศัพท์ภาษาไทยแบบหลายผู้เล่นจริง ใช้ **AWS Amplify Gen 2 + AppSync API + Lambda + DynamoDB + Cognito Guest** และ Vite/React
 
 ## วิธีเล่น
 
@@ -50,8 +50,8 @@ npm run build
 - Server รับ id จาก Cognito identity (`cognitoIdentityId`) แล้วแฮชเป็น player ID; client **เปลี่ยนตัวตน/คะแนนเองไม่ได้**
 - คำนวณคะแนน/จับเวลา/เปลี่ยนรอบใน Lambda; ป้องกันการส่งคำตอบหลัง deadline
 - DynamoDB ใช้ `ConditionExpression` ตรวจ version เพื่อกันแข่งแก้ state พร้อมกัน, เปิด TTL และ PAY_PER_REQUEST
-- Realtime ใช้ AppSync subscription พร้อม filter `roomId` และ polling ทุก 3.5 วินาทีเพื่อทนต่อการหลุด websocket
-- `pulse` ทุก 9 วินาที; ไม่ส่งภายใน 43 วินาทีถือว่า offline และออกจากเกม
+- อัปเดตผู้เล่นโดยอ่าน state ผ่าน AppSync query ทุก 2 วินาที และ pulse ผ่าน Lambda ทุก 5 วินาที; **ไม่มี WebSocket subscription** ในรุ่นนี้ เพื่อให้ทำงานกับ Cognito Guest ได้โดยไม่ชนข้อจำกัด Amplify Gen 2
+- `pulse` ทุก 5 วินาที; ไม่ส่งภายใน 43 วินาทีถือว่า offline และออกจากเกม
 - โควตาต่อเกม 8 ผู้เล่น/ห้อง 20 ห้อง และ 3 รอบต่อเกม เป็นเพดาน MVP ปัจจุบัน ไม่ใช่ autoscaling matchmaking ระดับใหญ่
 
 **ข้อควรทราบก่อนเปิดสาธารณะ:** ใช้ Guest จึงยังไม่ใช่ anti-cheat หรือ moderation แบบสมบูรณ์ มี curated word bank แต่ยังไม่ครอบคลุมคำทุกคำ, ยังไม่มี rate limits/WAF, ระบบรายงานคำไม่เหมาะสม และระบบแอดมิน ควรตั้ง AWS Budgets แจ้งเตือนค่าใช้จ่ายและติดตาม CloudWatch ระหว่างเปิดจริง
@@ -72,3 +72,7 @@ GitHub Actions passing means tests and TypeScript/Vite build succeeded. It **doe
 - `amplify_outputs.json` missing: the Amplify Gen 2 backend phase did not successfully produce config. Do not bypass the backend or deploy only a static frontend: multiplayer requires real backend services.
 
 Only redeploy after confirming which error occurred. Avoid creating more apps or deleting CloudFormation resources blindly.
+
+## AWS Amplify Gen 2 Guest subscription compatibility
+
+In the initial deployment, `gameUpdated` used `a.subscription().handler(a.handler.custom(...)).authorization(allow => [allow.guest()])`. AWS rejects this combination during CDK Assembly with `InvalidSchemaError: identityPool-based auth ... is not supported with a.handler.custom`. To unblock safe production deploy without exposing a public API key, the project intentionally uses Cognito Guest IAM for the query and Lambda-backed mutation, and a short polling interval for multiplayer updates. The old `amplify/data/subscription.js` file is unused by the schema. Do not re-enable that custom resolver with guest authorization. CI includes a regression test for this deployment failure. Backend deployment to AWS still needs to be verified separately.

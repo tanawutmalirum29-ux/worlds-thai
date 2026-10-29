@@ -22,11 +22,9 @@ const schema = a.schema({
     .returns(a.ref('GameEvent'))
     .authorization(allow => [allow.guest()])
     .handler(a.handler.function(game)),
-  gameUpdated: a.subscription()
-    .for(a.ref('gameAction'))
-    .arguments({ roomId: a.string().required() })
-    .handler(a.handler.custom({ entry: './subscription.js' }))
-    .authorization(allow => [allow.guest()])
+  // No custom AppSync subscription: Amplify Gen 2 disallows guest IAM
+  // authorization on a.handler.custom. Multiplayer uses guest-authorized
+  // server polling and Lambda-owned game state instead.
 });
 export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({ schema, authorizationModes: { defaultAuthorizationMode: 'iam' } });

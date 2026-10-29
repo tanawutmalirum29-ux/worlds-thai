@@ -117,24 +117,21 @@ function App(){
     const id=game.roomId;
     const api=client as any;
     let stopped=false;
-    const subscription=api.subscriptions.gameUpdated({roomId:id},{authMode:'identityPool'}).subscribe({
-      next:(event:any)=>{const received=event?.roomId?event:event?.data; if(received?.roomId===id)accept(received.snapshot);},
-      error:(e:unknown)=>{ if(!stopped)console.warn('Realtime reconnect via polling',e); }
-    });
+    // Poll server-owned state; no AppSync subscription resolver is needed.
     const refresh=async()=>{
       try {
         const result=await api.queries.getGame({roomId:id},{authMode:'identityPool'});
         if(!stopped && !result.errors?.length)accept(result.data);
       }catch(e){console.warn('Refresh failed',e);}
     };
-    const timer=window.setInterval(refresh,3500);
+    const timer=window.setInterval(refresh,2000);
     const heartbeat=window.setInterval(async()=>{
       if(stopped || workingRef.current)return;
       try {const latest=await call('pulse',id);if(!stopped)accept(latest.snapshot);}
       catch(e){if(!stopped)console.warn('Heartbeat failed',e);}
-    },9000);
+    },5000);
     refresh();
-    return()=>{stopped=true;subscription.unsubscribe();clearInterval(timer);clearInterval(heartbeat);};
+    return()=>{stopped=true;clearInterval(timer);clearInterval(heartbeat);};
   },[client,me,game?.roomId,call,accept]);
   async function send(){
     if(workingRef.current||!game||game.phase!=='playing'||submitted)return;
@@ -205,7 +202,7 @@ function App(){
           </div>:null}
           {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>ผ่านครบ 3 รอบแล้ว · เกมใหม่เริ่มอัตโนมัติใน {remaining} วินาที</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div><button className="secondary-btn" onClick={share}>⤴ ชวนเพื่อนมาแข่งรอบต่อไป</button></div>:null}
         </section>
-        <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตแบบเรียลไทม์</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
+        <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตทุก 2 วินาที</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
           <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+20</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+10</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>ครบ 3 รอบ ใครคะแนนรวมสูงสุดชนะ!</p></div>
           <button className="invite-card" onClick={share}><span>⤴</span><span><b>{copied?'คัดลอกลิงก์แล้ว':'ชวนเพื่อนมาเล่น'}</b><small>แชร์ลิงก์ ไม่ต้องใช้รหัสห้อง</small></span><span>↗</span></button>
         </aside>
