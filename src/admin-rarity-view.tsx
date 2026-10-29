@@ -80,7 +80,7 @@ export function RarityDashboard({entries,inspect}:Props){
       (a.recentUses??Number.MAX_SAFE_INTEGER)-(b.recentUses??Number.MAX_SAFE_INTEGER)||
       a.word.localeCompare(b.word,'th'));
   },[details,wordFilter,wordOrder]);
-  return <section className="panel rarity-admin" aria-label="สถิติความหายากรายหมวดและพยัญชนะ">
+  return <section id="admin-rarity-insights" className="panel rarity-admin" aria-label="สถิติความหายากรายหมวดและพยัญชนะ">
     <div className="panel-title">
       <div>
         <div className="rarity-eyebrow">RARITY OPERATIONS · LAST 30 DAYS</div>
@@ -177,7 +177,7 @@ export function RarityDashboard({entries,inspect}:Props){
                 </div>
               </div>
               <div className="rarity-word-scroll"><table>
-                <thead><tr><th>คำศัพท์</th><th>ใช้สะสม</th><th>ใช้ 30 วัน*</th><th>เริ่มเข้าคลัง</th><th>ผลประเมิน</th><th>ตรวจคำ</th></tr></thead>
+                <thead><tr><th>คำศัพท์</th><th>ใช้สะสม</th><th>ใช้ 30 วัน*</th><th>เริ่มเก็บสถิติ</th><th>ผลประเมิน</th><th>ตรวจคำ</th></tr></thead>
                 <tbody>{wordRows.slice(0,100).map((w:RarityWordRow)=><tr key={w.canonical}>
                   <td className="rarity-word">{w.word}</td>
                   <td>{fmt(w.lifetimeUses)}</td><td>{w.recentUses===null?'—':fmt(w.recentUses)}</td>
