@@ -222,7 +222,12 @@ test('new real-world word classes and corrected categorization',async()=>{
   assert.ok(!WORD_BANK.dessert.some(word=>word.startsWith('ขนม')));
 });
 
-test('country list includes commonly missed sovereign states',()=>{
+test('country list contains missing countries including ones whose initials are not selected',async()=>{
+  const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
   for(const name of ['อุรุกวัย','สหรัฐอาหรับเอมิเรตส์','กาบูเวร์ดี','ไซปรัส','สโลวาเกีย'])
-    assert.equal(validAnswer(name,initialConsonant(name),'country'),true,name);
+    assert.ok(WORD_BANK.country.includes(name),name);
+  // ซ has few qualifying categories and isn't a round letter, but Cyprus
+  // must still be present in the country dictionary for future expansion.
+  assert.ok(!LETTERS.includes('ซ' as never));
+  assert.equal(validAnswer('สโลวาเกีย','ส','country'),true);
 });
