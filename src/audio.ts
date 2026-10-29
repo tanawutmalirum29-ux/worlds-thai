@@ -3,7 +3,7 @@
  * All notes are generated with Web Audio after the first user gesture; no remote
  * tracks, audio downloads, or background autoplay permissions are required.
  */
-import { synthesizeMusicWav, synthesizeTestWav } from './audio-media.ts';
+import { synthesizeMusicWav, synthesizeTestWav, synthesizeClickWav } from './audio-media.ts';
 
 export type AudioScene = 'home' | 'lobby' | 'playing' | 'review' | 'final';
 export type AudioCue = 'tap' | 'select' | 'focus' | 'join' | 'start' | 'answer' | 'review' | 'finish' | 'timeout' | 'exit';
@@ -50,6 +50,7 @@ export class GameAudio {
   private media: HTMLAudioElement | null = null;
   private musicUrl: string | null = null;
   private testUrl: string | null = null;
+  private clickUrl: string | null = null;
   private mediaAttempt = 0;
   private scene: AudioScene = 'home';
   private remaining = 0;
@@ -196,8 +197,12 @@ export class GameAudio {
       urgent ? 1.42 : scene === 'playing' ? 1.09 : 1;
   }
 
-  /** Audible, short feedback. Text inputs are cued on tap/focus, never per keystroke. */
+  /** Short feedback, using HTML media when Web Audio cannot resume. */
   cue(name: AudioCue): void {
+    if (this.context?.state !== 'running') {
+      this.playMediaClick();
+      return;
+    }
     const at = this.readyTime();
     if (at === null) return;
     switch (name) {
@@ -247,6 +252,10 @@ export class GameAudio {
 
   countdown(second: number): void {
     if (second < 1 || second > 5) return;
+    if (this.context?.state !== 'running') {
+      this.playMediaClick();
+      return;
+    }
     const at = this.readyTime();
     if (at === null) return;
     // One distinct metronome-like "beep" on 5,4,3,2; a doubled high beep on 1.
@@ -258,6 +267,18 @@ export class GameAudio {
       this.note(83, at, 0.19, 0.30, 'triangle');
       this.note(71, at, 0.12, 0.12, 'sine');
     }
+  }
+
+  private playMediaClick(): void {
+    if (this.disposed || this.muted || this.hidden || typeof Audio === 'undefined' ||
+        typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return;
+    try {
+      if (!this.clickUrl) this.clickUrl = URL.createObjectURL(synthesizeClickWav());
+      const click = new Audio(this.clickUrl);
+      click.volume = 0.87;
+      const p = click.play();
+      if (p && typeof p.catch === 'function') void p.catch(() => {});
+    } catch { /* Audio must never prevent normal gameplay. */ }
   }
 
   private readyTime(): number | null {
@@ -346,8 +367,10 @@ export class GameAudio {
     this.media = null;
     if (this.musicUrl) URL.revokeObjectURL(this.musicUrl);
     if (this.testUrl) URL.revokeObjectURL(this.testUrl);
+    if (this.clickUrl) URL.revokeObjectURL(this.clickUrl);
     this.musicUrl = null;
     this.testUrl = null;
+    this.clickUrl = null;
     this.stopMusic();
     const context = this.context;
     this.context = null;
