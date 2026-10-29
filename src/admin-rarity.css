@@ -56,3 +56,10 @@
   .rarity-detail-head{display:block}
   .rarity-detail-controls{margin-top:12px}
 }
+
+.rarity-gates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:13px 0 7px}
+.rarity-gates>div{padding:9px;border:1px solid #516477;background:#263749;border-radius:8px;display:grid;gap:6px}
+.rarity-gates>div.ready{border-color:#517763;background:#213d34}
+.rarity-gates span{font-size:10px;color:#a9bdd0}
+.rarity-gates strong{font-size:13px;color:#f1d49e}
+@media(max-width:720px){.rarity-gates{grid-template-columns:repeat(2,minmax(0,1fr))}}
