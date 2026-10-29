@@ -148,6 +148,12 @@ test('stat deltas and CSV share the same word across prefixed fish answers',()=>
     {letter:'ป',category:'fish',word:'ปลาดุก',timesUsed:2,totalPoints:2,lastUsedAt:now-100},
     {letter:'ด',category:'fish',word:'ดุก',timesUsed:1,totalPoints:2,lastUsedAt:now}
   ]);
-  assert.match(csv,/"ด","ด เด็ก","ปลา","ปลาดุก","3","4"/);
+  // The dictionary may store bare ดุก before ปลาดุก. Either display spelling
+  // represents ONE canonical fish; the totals and corrected initial must match.
+  const lines=csv.split('\r\n').filter(line=>
+    line.startsWith('"ด","ด เด็ก","ปลา",')&&
+    (line.includes('"ดุก"')||line.includes('"ปลาดุก"'))&&
+    line.includes(',"3","4",'));
+  assert.equal(lines.length,1,'single canonical fish row with historical totals');
   assert.doesNotMatch(csv,/"ป","ป ปลา","ปลา","ปลาดุก","3","4"/);
 });

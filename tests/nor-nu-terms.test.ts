@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {NOR_NU_TERMS,FARM_SHELTER_PLACES} from '../amplify/functions/game/nor-nu-terms.ts';
 import {WORD_BANK,MIN_WORDS_PER_PAIR,MIN_CATEGORIES_PER_LETTER} from '../amplify/functions/game/dictionary.ts';
-import {CATEGORIES,LETTERS,eligibleCategories,wordInitialForCategory,canonicalAnswer,validAnswer,newMatch,applyAction,chooseRound,scoreRound} from '../amplify/functions/game/logic.ts';
+import {CATEGORIES,LETTERS,eligibleCategories,initialConsonant,wordInitialForCategory,canonicalAnswer,validAnswer,newMatch,applyAction,chooseRound,scoreRound} from '../amplify/functions/game/logic.ts';
 
 test('all new น words are NFC, category-specific and not duplicated in production lists',()=>{
   const allowedCategories=new Set<string>(CATEGORIES.map(([id])=>id));
@@ -15,10 +15,15 @@ test('all new น words are NFC, category-specific and not duplicated in product
       count++;
       assert.equal(word,word.trim().normalize('NFC'),'bad Unicode or spacing: '+word);
       assert.ok(word.length<=48,'too long '+word);
-      assert.equal(wordInitialForCategory(word,category),'น','incorrect leading consonant: '+word);
+      assert.equal(initialConsonant(word),'น','raw reviewed word must begin with น: '+word);
       assert.ok(WORD_BANK[category].includes(word),'missing '+category+' / '+word);
-      if(eligibleCategories('น').includes(category))
-        assert.equal(validAnswer(word,'น',category),true,word+' not accepted in '+category);
+      const effectiveLetter=wordInitialForCategory(word,category);
+      // New bird/fish/insect/flower category prefixes are ignored only in that category.
+      // An original น word (e.g. นกแสก) may now belong to ส เสือ when played as a bird.
+      assert.equal(validAnswer(word,effectiveLetter,category),
+        eligibleCategories(effectiveLetter).includes(category),
+        word+' must follow the current category/letter fairness pool');
+      if(effectiveLetter!=='น')assert.equal(validAnswer(word,'น',category),false,word);
     }
   }
   assert.ok(count>=400,'expected 400+ real-category entries');
@@ -64,8 +69,13 @@ test('new น vocabulary is playable in correct categories, including preposed v
     ['นวลจันทร์ทะเล','fish'],['นางเล็ด','dessert'],['นูกัต','dessert'],
     ['นาฬิกาจับเวลา','tool']
   ];
-  for(const [word,category] of examples)
-    assert.equal(validAnswer(word,'น',category),true,category+' / '+word);
+  for(const [word,category] of examples){
+    const realLetter=wordInitialForCategory(word,category);
+    assert.equal(validAnswer(word,realLetter,category),
+      eligibleCategories(realLetter).includes(category),
+      category+' / '+word+' should use '+realLetter+' rather than the label prefix');
+    if(realLetter!=='น')assert.equal(validAnswer(word,'น',category),false,category+' / '+word);
+  }
   assert.equal(validAnswer('ขนมนางเล็ด','น','dessert'),true,'optional dessert prefix');
   assert.equal(canonicalAnswer('ขนมนางเล็ด','dessert'),'นางเล็ด');
   assert.equal(validAnswer('ขนมนางเล็ด','ข','dessert'),false);
