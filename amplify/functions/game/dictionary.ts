@@ -1,4 +1,4 @@
-import { NEIGHBORING_PROVINCES } from './neighbor-provinces.ts';
+import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 
 /**
  * Curated Thai answers for category-aware scoring. All items are individually approved.
@@ -1826,7 +1826,8 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เบอร์ลิน",
     "ฮัมบูร์ก",
     // First-level administrative divisions from Thailand's neighbors (reviewed separately).
-    ...NEIGHBORING_PROVINCES
+    ...NEIGHBORING_PROVINCES,
+    ...Object.keys(NEIGHBOR_PROVINCE_ALIASES)
   ],
   "country": [
     "กรีซ",
