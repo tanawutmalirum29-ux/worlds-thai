@@ -39,11 +39,11 @@ export async function queryRarityAdmin():Promise<RarityMetaRecord[]>{
   let cursor:string|null=null;
   const seen=new Set<string>();
   for(let page=0;page<40;page++){
-    const response=await client.queries.getAdminRarity(
+    const response:{data:unknown;errors?:{message:string}[]}=await client.queries.getAdminRarity(
       cursor?{cursor}:{},{authMode:'userPool'}
     );
     if(response.errors?.length)throw new Error(response.errors.map((v:{message:string})=>v.message).join('; '));
-    const payload=typeof response.data==='string'?JSON.parse(response.data):response.data;
+    const payload:{items?:RarityMetaRecord[];nextToken?:string|null}|null=(typeof response.data==='string'?JSON.parse(response.data):response.data) as {items?:RarityMetaRecord[];nextToken?:string|null}|null;
     if(!Array.isArray(payload?.items))throw new Error('เซิร์ฟเวอร์ตอบกลับข้อมูลความหายากผิดรูปแบบ');
     for(const item of payload.items){
       if(!item||typeof item.letter!=='string'||typeof item.category!=='string')continue;
