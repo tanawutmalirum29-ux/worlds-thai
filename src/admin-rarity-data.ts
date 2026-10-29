@@ -99,6 +99,20 @@ export function buildRarityGroups(
   return [...grouped.values()].sort((a,b)=>a.category.localeCompare(b.category,'th')||
     a.letter.localeCompare(b.letter,'th'));
 }
+/** Explain only independently verifiable readiness gates; some server-only
+ * checks (active-day spread, word exposure) are intentionally not inferred. */
+export function rarityReadiness(group:RarityGroupRow,now:number=Date.now()){
+  const ageDays=group.groupStartedAt===null?null:
+    Math.max(0,Math.floor((now-group.groupStartedAt)/86400000));
+  const minimumUses=Math.max(120,8*group.totalWords);
+  return {
+    words:{value:group.totalWords,required:10},
+    uses:{value:group.observations,required:minimumUses},
+    players:{value:group.uniquePlayers,required:20},
+    rooms:{value:group.uniqueRooms,required:12},
+    days:{value:ageDays,required:7}
+  };
+}
 export function rarityGroupSummary(groups:RarityGroupRow[]){
   return {
     groups:groups.length,playable:groups.filter(g=>g.state!=='not-playable').length,
