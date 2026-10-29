@@ -5,7 +5,6 @@ import { generateClient } from 'aws-amplify/data';
 import './style.css';
 import { validAnswer,initialConsonant,normalizeAnswer } from '../amplify/functions/game/logic.ts';
 import { letterCaption } from './letters.ts';
-import { EXPORT_PROMPT_CODE,buildWordUsageCsv,type WordStatRecord } from './stats-export.ts';
 import { encodeGamePayload } from './rooms';
 
 const LABELS: Record<string,string> = {
@@ -65,7 +64,6 @@ function App(){
   const [working,setWorking] = useState(false);
   const [now,setNow] = useState(Date.now());
   const [help,setHelp] = useState(false);
-  const [exporting,setExporting] = useState(false);
   const current = useRef<Game|null>(null);
   const appClient = useRef<Api|null>(null);
   const roomRef = useRef('');
@@ -250,35 +248,6 @@ function App(){
     }catch(e){setError(e instanceof Error?e.message:'ดำเนินการไม่สำเร็จ');}
     finally{workingRef.current=false;setWorking(false);}
   }
-  async function downloadStatistics(){
-    if(exporting || status!=='ready')return;
-    const pass=window.prompt('รหัสดาวน์โหลดสถิติคำศัพท์');
-    if(pass===null)return;
-    if(pass!==EXPORT_PROMPT_CODE){setError('รหัสดาวน์โหลดไม่ถูกต้อง');return;}
-    setError('');setExporting(true);
-    try{
-      const api=appClient.current as any;
-      const records:WordStatRecord[]=[];
-      let cursor:string|null=null,complete=false;
-      for(let n=0;n<100;n++){
-        const reply=await api.queries.getWordStats({request:'stats',...(cursor?{cursor}:{})},{authMode:'identityPool'});
-        if(reply.errors?.length)throw new Error(reply.errors.map((x:{message:string})=>x.message).join('; '));
-        const data=unpack(reply.data) as {items?:WordStatRecord[];nextToken?:string|null};
-        if(!Array.isArray(data?.items))throw new Error('ข้อมูลสถิติไม่ถูกต้อง');
-        records.push(...data.items);
-        cursor=data.nextToken||null;
-        if(!cursor){complete=true;break;}
-      }
-      if(!complete)throw new Error('ข้อมูลสถิติเกินขีดจำกัดการส่งออก');
-      const blob=new Blob([buildWordUsageCsv(records)],{type:'text/csv;charset=utf-8'});
-      const url=URL.createObjectURL(blob);
-      const link=document.createElement('a');link.href=url;
-      link.download='khamwai-word-usage-'+new Date().toISOString().slice(0,10)+'.csv';
-      document.body.appendChild(link);link.click();link.remove();
-      window.setTimeout(()=>URL.revokeObjectURL(url),1500);
-    }catch(e){setError(e instanceof Error?e.message:'ดาวน์โหลดสถิติไม่สำเร็จ');}
-    finally{setExporting(false);}
-  }
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
@@ -289,7 +258,7 @@ function App(){
     <div className="ambient ambient-left"/><div className="ambient ambient-right"/>
     <header className="topbar container">
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
-      <div className="top-actions"><button className="stats-button" disabled={exporting||status!=='ready'} onClick={()=>void downloadStatistics()}>{exporting?'กำลังสร้าง CSV...':'สถิติคำ ↓'}</button><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
+      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
     <main className="container">
       {!game ? <div className="welcome-layout">

@@ -5,12 +5,12 @@ import { letterCaption } from './letters.ts';
 export const EXPORT_PROMPT_CODE='251029';
 export type WordStatRecord={letter:string;category:string;word:string;timesUsed:number;totalPoints:number;lastUsedAt?:number|null};
 const quote=(value:string|number)=>'"'+String(value).replaceAll('"','""')+'"';
-export function buildWordUsageCsv(records:WordStatRecord[]):string{
+export function buildWordUsageCsv(records:WordStatRecord[],dictionary:Record<string,readonly string[]>=WORD_BANK):string{
   const lookup=new Map<string,WordStatRecord>();
   for(const item of records)lookup.set([item.letter,item.category,normalizeAnswer(item.word).toLocaleLowerCase('th')].join('\u0000'),item);
   const labels=new Map<string,string>(CATEGORIES.map(([id,label])=>[id,label]));
   const rows:{letter:string;category:string;word:string;used:number;points:number;last:string}[]=[];
-  for(const [category,words] of Object.entries(WORD_BANK)){
+  for(const [category,words] of Object.entries(dictionary)){
     for(const raw of words){
       const word=normalizeAnswer(raw),letter=initialConsonant(word);
       const stat=lookup.get([letter,category,word.toLocaleLowerCase('th')].join('\u0000'));
