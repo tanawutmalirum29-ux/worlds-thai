@@ -19,7 +19,7 @@ const seeded:RarityMetaRecord={
 };
 test('groups keep the category+letter boundary and show true bonus and independent usage windows',()=>{
   const rows=[entry('เสือ','animal','ส',false,90),entry('สิงโต','animal','ส',false,8),
-    entry('เสือ','person','ส',false,1)];
+    entry('กระต่าย','animal','ก',false,1)];
   const groups=buildRarityGroups(rows,[seeded],now);
   const animal=groups.find(g=>g.category==='animal'&&g.letter==='ส')!;
   assert.equal(animal.state,'active');
@@ -30,7 +30,7 @@ test('groups keep the category+letter boundary and show true bonus and independe
   assert.equal(animal.recentUses,31);
   assert.equal(animal.words.find(w=>w.word==='สิงโต')?.bonus,2);
   assert.equal(animal.words.find(w=>w.word==='สิงโต')?.recentUses,2);
-  assert.equal(groups.find(g=>g.category==='person')?.state,'not-started');
+  assert.equal(groups.find(g=>g.category==='animal'&&g.letter==='ก')?.state,'not-started');
 });
 test('zero rare words is a valid evaluated state, not the same as no evidence',()=>{
   const clean={...seeded,snapshot:{...seeded.snapshot!,bonuses:{}}};
