@@ -91,7 +91,15 @@ const acceptedWords = new Map<string,Set<string>>(
 );
 export const MAX_PLAYERS = 8;
 export const DEFAULT_SETTINGS = { rounds: 3, categories: 5, seconds: 40 } as const;
-export type GameSettings = { rounds: number; categories: number; seconds: number };
+export type GameMode = 'letter' | 'category';
+export type GameSettings = { rounds: number; categories: number; seconds: number; mode?: GameMode };
+export function gameMode(settings: GameSettings): GameMode { return settings.mode === 'category' ? 'category' : 'letter'; }
+/** Category mode stores a different consonant as each answer slot; classic mode stores categories. */
+export function roundCategory(slot:string,topicCategory?:string):string {return topicCategory || slot;}
+export function roundLetter(letter:string,slot:string,topicCategory?:string):string {return topicCategory ? slot : letter;}
+export function validRoundAnswer(value:string,letter:string,slot:string,topicCategory?:string):boolean {
+  return validAnswer(value,roundLetter(letter,slot,topicCategory),roundCategory(slot,topicCategory));
+}
 export const REVIEW_SECONDS = 10;
 export const RUSH_ANIMATION_MS = 1800;
 export const IDLE_SECONDS = 43;
@@ -100,11 +108,11 @@ export const ROUNDS = DEFAULT_SETTINGS.rounds;
 export type Phase = 'lobby' | 'playing' | 'review' | 'final';
 export type Player = { id: string; name: string; score: number; lastSeen: number };
 export type RoundEntry = { id: string; name: string; answers: Record<string,string>; points: number; perCategory: Record<string,number>; rarityBonus?: Record<string,number> };
-export type History = { round: number; letter: string; categories: string[]; entries: RoundEntry[] };
+export type History = { round: number; letter: string; categories: string[]; entries: RoundEntry[]; topicCategory?:string };
 export type Match = {
   id: string; version: number; phase: Phase; players: Player[]; round: number;
   ownerId: string; settings: GameSettings; createdAt?: number;
-  letter: string; categories: string[]; deadline: number; countdown: number;
+  letter: string; categories: string[]; topicCategory?:string; deadline: number; countdown: number;
   submissions: Record<string, Record<string,string>>; history: History[];
   previousLetters: string[]; previousCategories: string[]; ttl: number;
   /** Current round's SERVER-ONLY daily rarity snapshot; never returned during play. */
@@ -127,13 +135,16 @@ export function validateSettings(raw: unknown): GameSettings {
   const rounds = value.rounds ?? DEFAULT_SETTINGS.rounds;
   const categories = value.categories ?? DEFAULT_SETTINGS.categories;
   const seconds = value.seconds ?? DEFAULT_SETTINGS.seconds;
+  const mode = value.mode;
   if (!Number.isInteger(rounds) || !Number.isInteger(categories) || !Number.isInteger(seconds)
     || (rounds as number) < 1 || (rounds as number) > 10
     || (categories as number) < 3 || (categories as number) > 8
-    || (seconds as number) < 20 || (seconds as number) > 120) {
+    || (seconds as number) < 20 || (seconds as number) > 120
+    || (mode !== undefined && mode !== 'letter' && mode !== 'category')) {
     throw new Error('ตั้งค่าไม่ถูกต้อง: รอบ 1–10 หมวด 3–8 เวลา 20–120 วินาที');
   }
-  return { rounds: rounds as number, categories: categories as number, seconds: seconds as number };
+  return { rounds: rounds as number, categories: categories as number, seconds: seconds as number,
+    ...(mode !== undefined ? {mode:mode as GameMode} : {}) };
 }
 export function normalizeAnswer(value: unknown): string {
   if (typeof value !== 'string') return '';
@@ -156,7 +167,37 @@ export function cleanAnswers(value: unknown, categories: string[]): Record<strin
   return Object.fromEntries(categories.map(id => [id, normalizeAnswer(input[id])]));
 }
 
+/** Each category-mode letter must have >=2 distinct reviewed answers and be playable. */
+export function eligibleCategoryLetters(category:string):string[] {
+  return LETTERS.filter(letter => eligibleCategories(letter).includes(category));
+}
 export function chooseRound(match: Match, random = Math.random) {
+  if(gameMode(match.settings)==='category'){
+    const supported=CATEGORIES.map(([id])=>id).filter(category=>
+      eligibleCategoryLetters(category).length>=match.settings.categories);
+    if(!supported.length)throw new Error('NO_SUPPORTED_CATEGORIES');
+    const fresh=supported.filter(category=>!match.previousCategories.slice(-2).includes(category));
+    const categories=fresh.length?fresh:supported;
+    const topicCategory=categories[Math.min(categories.length-1,Math.max(0,Math.floor(random()*categories.length)))];
+    const available=eligibleCategoryLetters(topicCategory);
+    const unrepeated=available.filter(letter=>!match.previousLetters.slice(-8).includes(letter));
+    const pool=unrepeated.length>=match.settings.categories?unrepeated:available;
+    const selected:string[]=[];
+    while(selected.length<match.settings.categories){
+      const weights=pool.map(letter=>{
+        const count=new Set((WORD_BANK[topicCategory]||[])
+          .filter(word=>wordInitialForCategory(word,topicCategory)===letter)
+          .map(word=>canonicalAnswer(word,topicCategory))).size;
+        return Math.min(5,Math.max(1,count/2));
+      });
+      const total=weights.reduce((sum,weight)=>sum+weight,0);
+      let roll=Math.max(0,Math.min(0.999999999,random()))*total;
+      let index=pool.length-1;
+      for(let i=0;i<pool.length;i++){roll-=weights[i];if(roll<0){index=i;break;}}
+      selected.push(pool.splice(index,1)[0]);
+    }
+    return {letter:'',categories:selected,topicCategory};
+  }
   const supported = LETTERS.filter(letter => eligibleCategories(letter).length >= match.settings.categories);
   if (supported.length === 0) throw new Error('NO_SUPPORTED_LETTERS');
   const candidateLetters = supported.filter(letter => !match.previousLetters.slice(-6).includes(letter));
@@ -182,7 +223,7 @@ export function chooseRound(match: Match, random = Math.random) {
     }
     chosen.push(pool.splice(index,1)[0]);
   }
-  return { letter, categories: chosen };
+  return { letter, categories: chosen, topicCategory:undefined as string|undefined };
 }
 export function scoreRound(match: Match): RoundEntry[] {
   const all = match.players.map(player => ({ player, answers: cleanAnswers(match.submissions[player.id], match.categories) }));
@@ -190,17 +231,26 @@ export function scoreRound(match: Match): RoundEntry[] {
     const perCategory: Record<string,number> = {};
     const rarityBonus: Record<string,number> = {};
     const candidates: {category:string; bonus:number}[] = [];
-    for (const category of match.categories) {
-      const answer = answers[category];
-      if (!validAnswer(answer,match.letter,category)) { perCategory[category]=0; continue; }
-      const canonical = canonicalAnswer(answer,category);
-      const duplicateCount = all.filter(entry =>
-        validAnswer(entry.answers[category],match.letter,category) &&
-        canonicalAnswer(entry.answers[category],category) === canonical).length;
-      perCategory[category] = duplicateCount > 1 ? 1 : 2;
-      if (duplicateCount === 1) {
-        const bonus = match.rarityBonuses?.[category]?.[canonical] || 0;
-        if (bonus === 1 || bonus === 2) candidates.push({category,bonus});
+    for (const [index,slot] of match.categories.entries()) {
+      const category=roundCategory(slot,match.topicCategory);
+      const answer=answers[slot];
+      if(!validRoundAnswer(answer,match.letter,slot,match.topicCategory)){
+        perCategory[slot]=0;continue;
+      }
+      const canonical=canonicalAnswer(answer,category);
+      // Duplicate words within the same player's topic are never worth extra points.
+      if(match.topicCategory && match.categories.slice(0,index).some(previous=>
+        validRoundAnswer(answers[previous],match.letter,previous,match.topicCategory) &&
+        canonicalAnswer(answers[previous],category)===canonical)){
+        perCategory[slot]=0;continue;
+      }
+      const duplicateCount=all.filter(entry=>
+        validRoundAnswer(entry.answers[slot],match.letter,slot,match.topicCategory) &&
+        canonicalAnswer(entry.answers[slot],category)===canonical).length;
+      perCategory[slot]=duplicateCount>1?1:2;
+      if(duplicateCount===1){
+        const bonus=match.rarityBonuses?.[slot]?.[canonical]||0;
+        if(bonus===1||bonus===2)candidates.push({category:slot,bonus});
       }
     }
     // The rarest word receives priority; cap bonuses at +3 per player per round.
@@ -219,7 +269,7 @@ export function scoreRound(match: Match): RoundEntry[] {
 
 function resetToLobby(match:Match) {
   // Keep room, connected players, owner and last settings; only the run resets.
-  match.phase='lobby';match.round=0;match.letter='';match.categories=[];match.deadline=0;
+  match.phase='lobby';match.round=0;match.letter='';match.categories=[];match.topicCategory=undefined;match.deadline=0;
   match.submissions={};match.history=[];match.previousLetters=[];match.previousCategories=[];
   match.rarityBonuses={};match.skipVotes={};match.rematchVotes={};match.timeRush=undefined;
   for(const p of match.players)p.score=0;
@@ -258,7 +308,7 @@ export function advance(match: Match, now: number, random = Math.random): Match 
       const player = match.players.find(player => player.id===entry.id);
       if (player) player.score += entry.points;
     }
-    match.history.push({ round:match.round, letter:match.letter, categories:[...match.categories], entries });
+    match.history.push({ round:match.round, letter:match.letter, categories:[...match.categories], topicCategory:match.topicCategory, entries });
     match.phase='review';
     match.skipVotes={};match.timeRush=undefined;
     match.deadline=now+REVIEW_SECONDS*1000;
@@ -270,9 +320,9 @@ export function advance(match: Match, now: number, random = Math.random): Match 
     } else {
       const round = chooseRound(match,random);
       match.round++;
-      match.letter=round.letter; match.categories=round.categories;
-      match.previousLetters.push(round.letter);
-      match.previousCategories.push(...round.categories);
+      match.letter=round.letter; match.categories=round.categories;match.topicCategory=round.topicCategory;
+      match.previousLetters.push(...(round.topicCategory?round.categories:[round.letter]));
+      match.previousCategories.push(...(round.topicCategory?[round.topicCategory]:round.categories));
       match.phase='playing'; match.submissions={}; match.rarityBonuses={};
       match.skipVotes={};match.timeRush=undefined;
       match.deadline=now+match.settings.seconds*1000;
@@ -283,7 +333,7 @@ export function advance(match: Match, now: number, random = Math.random): Match 
 }
 export function snapshot(match: Match) {
   return {
-    roomId:match.id, phase:match.phase, round:match.round, letter:match.letter,
+    roomId:match.id, phase:match.phase, round:match.round, letter:match.letter, topicCategory:match.topicCategory,
     categories:match.categories, deadline:match.deadline, countdown:match.countdown,
     ownerId:match.ownerId, settings:match.settings,
     players:match.players.map(({id,name,score})=>({id,name,score})),
@@ -341,8 +391,9 @@ export function applyAction(
       match.history=[];match.submissions={};match.previousLetters=[];match.previousCategories=[];
       match.skipVotes={};match.rematchVotes={};match.timeRush=undefined;
       const round=chooseRound(match);
-      match.letter=round.letter;match.categories=round.categories;
-      match.previousLetters.push(round.letter);match.previousCategories.push(...round.categories);
+      match.letter=round.letter;match.categories=round.categories;match.topicCategory=round.topicCategory;
+      match.previousLetters.push(...(round.topicCategory?round.categories:[round.letter]));
+      match.previousCategories.push(...(round.topicCategory?[round.topicCategory]:round.categories));
       match.phase='playing'; match.rarityBonuses={};
       match.deadline=now+match.settings.seconds*1000;
     } else if (action==='rematch') {

@@ -43,8 +43,8 @@ test('special-category hints render directly below each answer category title, n
   assert.doesNotMatch(header,/ขนมจรวดสายรุ้ง|ต้นประกายเมฆ|answer-category-hint/);
   assert.match(answerRows,/className="answer-category"/);
   assert.match(answerRows,/className="answer-text"/);
-  assert.match(answerRows,/id==='dessert'\?<span className="answer-category-hint"/);
-  assert.match(answerRows,/id==='tree'\?<span className="answer-category-hint"/);
+  assert.match(answerRows,/game\.topicCategory==='dessert'/);
+  assert.match(answerRows,/game\.topicCategory==='tree'/);
   assert.match(answerRows,/ขนมจรวดสายรุ้ง/);
   assert.match(answerRows,/ต้นประกายเมฆ/);
   assert.match(answerRows,/className="answer-input-wrap"/);

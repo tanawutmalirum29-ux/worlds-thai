@@ -1,4 +1,4 @@
-import { canonicalAnswer, validAnswer, type Match } from './logic.ts';
+import { canonicalAnswer, validRoundAnswer, roundCategory, roundLetter, type Match } from './logic.ts';
 
 /** Only accepted words are counted, with no player identifiers or raw invalid answers. */
 export type WordUsage = {
@@ -12,14 +12,16 @@ export function roundWordDeltas(before:Match|null, after:Match):WordUsage[] {
   if(!completed || completed.round!==before.round)return [];
   const counts=new Map<string,WordUsage>();
   for(const player of completed.entries){
-    for(const category of completed.categories){
-      const points=player.perCategory[category]||0;
-      const word=canonicalAnswer(player.answers[category],category);
-      if(points<=0 || !validAnswer(word,completed.letter,category))continue;
-      const id=`stats#${completed.letter}#${category}#${word}`;
+    for(const slot of completed.categories){
+      const category=roundCategory(slot,completed.topicCategory);
+      const letter=roundLetter(completed.letter,slot,completed.topicCategory);
+      const points=player.perCategory[slot]||0;
+      const word=canonicalAnswer(player.answers[slot],category);
+      if(points<=0 || !validRoundAnswer(word,completed.letter,slot,completed.topicCategory))continue;
+      const id=`stats#${letter}#${category}#${word}`;
       const existing=counts.get(id);
       if(existing){existing.timesUsed++;existing.totalPoints+=points;}
-      else counts.set(id,{id,letter:completed.letter,category,word,timesUsed:1,totalPoints:points});
+      else counts.set(id,{id,letter,category,word,timesUsed:1,totalPoints:points});
     }
   }
   return [...counts.values()];
