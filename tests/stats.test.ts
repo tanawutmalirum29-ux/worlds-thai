@@ -5,6 +5,7 @@ import {newMatch,applyAction,advance,scoreRound} from '../amplify/functions/game
 import {roundWordDeltas} from '../amplify/functions/game/stats.ts';
 import {letterCaption} from '../src/letters.ts';
 import {buildWordUsageCsv,EXPORT_PROMPT_CODE} from '../src/stats-export.ts';
+import {WORD_BANK} from '../amplify/functions/game/dictionary.ts';
 const now=1_700_000_000_000;
 test('small 2/1 scoring and one-time round word deltas',()=>{
   const game=newMatch('room-aabbccddeeff00112233',now);
@@ -44,6 +45,8 @@ test('export CSV includes used and zero-use reviewed dictionary words',()=>{
   assert.match(csv,/"ก","ก ไก่","สัตว์","กบ","0","0"/);
   assert.ok(csv.split('\r\n').length>1000);
   assert.equal(EXPORT_PROMPT_CODE,'251029');
+  const extended=buildWordUsageCsv([],{...WORD_BANK,fruit:[...WORD_BANK.fruit,'ผลไม้ทดสอบ']});
+  assert.match(extended,/"ผ","ผ ผึ้ง","ผลไม้","ผลไม้ทดสอบ","0","0"/);
 });
 test('transactional stats guard in backend',()=>{
   const code=readFileSync(new URL('../amplify/functions/game/handler.ts',import.meta.url),'utf8');

@@ -117,3 +117,18 @@ Answers will be autosaved to the server as the player types and scored using the
 Added missing common verbs (including **พนมมือ** and **ปรบมือ**), **อุรุกวัย** and many more countries, states/provinces from multiple countries, common drinks, dishes with eggs, and desserts beginning with ข that do **not** start with 'ขนม'. **พลับพลึง** is a flower/plant, not a commonly eaten fruit; **พลับ** and **พลัม** are fruits. International administrative subdivisions are labelled จังหวัด/รัฐทั่วโลก.
 
 Country vocabulary has 193 reviewed Thai name entries after this change (not a formal guarantee of exhaustive UN-member coverage; some names and naming conventions may differ). Added Albania, Algeria, Bahamas, Cabo Verde, Cyprus, Slovakia, Slovenia, and UAE in Thai.
+
+## Private word workspace
+
+A separate, unlinked static HTML page is built as a second Vite entry. The owner has the long URL and a casual password prompt. The player-facing game does **not** have an admin link or a CSV-download button.
+
+**Security warning:** This is obscurity only, not genuine authentication. The admin filename is in the GitHub source and the `251029` password is shipped to visitors' browsers. The existing aggregate-stats AppSync query permits guests, so it is not confidential. Do not put secrets, private user information or real money operations behind this page. A true secure admin portal needs AWS user authentication, admin roles and restricted AppSync APIs.
+
+### Workflow
+1. Open the separate admin URL and enter the existing code.
+2. Type a word, optionally selecting a category and/or Thai consonant. The page shows whether the exact word exists, which category it belongs to, and its first letter. Usage counts and points load from AWS when reachable.
+3. Choose a category and add a missing word. The change is **localStorage draft only**, not saved to the game backend. It survives reload in the same browser unless site data is cleared. Remove draft words individually if needed.
+4. Download **dictionary.ts** containing all current words plus staged additions and the existing filtering configuration. Replace `amplify/functions/game/dictionary.ts` in the GitHub repository and deploy after verifying the vocabulary.
+5. Download **CSV word-usage statistics** only from the admin page. Includes every original and locally staged word (0 uses for new staged words), with category and Thai letter.
+
+Build CI verifies that the production dist directory includes the random-filename HTML and the usual player index.
