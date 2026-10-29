@@ -35,6 +35,9 @@ async function loadRaritySnapshot(letter:string,category:string,now:number):Prom
     const readMeta=await db.send(new GetCommand({TableName:RARITY_META_TABLE,Key:{id},ConsistentRead:true}));
     const old=readMeta.Item as GroupMeta|undefined;
     const born={...(old?.firstEligibleAt||{})};
+    // Deleted words lose eligibility; reintroducing one later starts a fresh cold start.
+    const currentWords=new Set(words);
+    for(const known of Object.keys(born))if(!currentWords.has(known))delete born[known];
     for(const word of words)if(!Number.isFinite(born[word]))born[word]=now;
     if(old?.dictionarySignature===signature && old.snapshot?.day===day && old.snapshot.eligible)
       return old.snapshot.bonuses;
