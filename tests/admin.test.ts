@@ -123,3 +123,18 @@ test('tree category supports optional ต้น in lookup and prevents duplicate
   assert.throws(()=>addDraft({},'โพธิ์','tree'),/มีคำนี้/);
   assert.throws(()=>addDraft({},'ต้นโพธิ์','tree'),/มีคำนี้/);
 });
+
+test('admin search and draft dedupe resolve prefixed names in four natural categories',()=>{
+  const rows=getEntries({});
+  for(const [category,bare,full,letter] of [
+    ['flower','บัว','ดอกบัว','บ'],
+    ['bird','กระจอก','นกกระจอก','ก'],
+    ['insect','ปอ','แมลงปอ','ป'],
+    ['fish','ดุก','ปลาดุก','ด']
+  ]){
+    assert.ok(exactEntries(rows,bare).some(row=>row.category===category),bare);
+    assert.ok(exactEntries(rows,full).some(row=>row.category===category),full);
+    assert.ok(filterEntries(rows,full,category,letter).length>=1,category);
+    assert.throws(()=>addDraft({},full,category),/มีคำนี้/,category);
+  }
+});

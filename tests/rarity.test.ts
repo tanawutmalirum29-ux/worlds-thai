@@ -153,3 +153,17 @@ test('tree rarity pool deduplicates optional ต้น and assigns real consonan
   const names=wordsForGroup('พ','tree');
   assert.equal(names.filter(w=>w==='โพธิ์').length,1);
 });
+
+test('rarity pools use the real initial after fish/bird/insect/flower labels',()=>{
+  for(const [category,bare,full,letter] of [
+    ['fish','ดุก','ปลาดุก','ด'],
+    ['bird','กระจอก','นกกระจอก','ก'],
+    ['insect','ปอ','แมลงปอ','ป'],
+    ['flower','บัว','ดอกบัว','บ']
+  ]){
+    const pool=wordsForGroup(letter,category);
+    assert.ok(pool.includes(bare),category);
+    assert.equal(pool.filter(x=>x===bare).length,1,category);
+    assert.ok(!wordsForGroup(full[0],category).includes(bare),category);
+  }
+});

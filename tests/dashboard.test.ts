@@ -98,3 +98,26 @@ test('historical tree uses stay grouped under the real tree consonant in admin',
   assert.equal(dashboardFilter(all,'tree','พ').some(x=>x.word==='ต้นโพธิ์'),true);
   assert.equal(dashboardFilter(all,'tree','ต').some(x=>x.word==='ต้นโพธิ์'),false);
 });
+
+test('historic prefixed bird and fish counts regroup under the real consonant',()=>{
+  for(const [category,bare,full,letter] of [
+    ['bird','กระจอก','นกกระจอก','ก'],
+    ['fish','ดุก','ปลาดุก','ด'],
+    ['flower','บัว','ดอกบัว','บ'],
+    ['insect','ปอ','แมลงปอ','ป']
+  ]){
+    const rows=getEntries({},[
+      {category,letter:full[0],word:full,timesUsed:3,totalPoints:4,lastUsedAt:100},
+      {category,letter,word:bare,timesUsed:2,totalPoints:2,lastUsedAt:200}
+    ]);
+    const match=rows.filter(row=>row.category===category&&
+      (row.word===full||row.word===bare));
+    assert.equal(match.length,1,category);
+    assert.equal(match[0].letter,letter,category);
+    assert.equal(match[0].uses,5,category);
+    assert.equal(match[0].points,6,category);
+    const joined=mergeHistoricalStats(rows,[]);
+    assert.equal(dashboardFilter(joined,category,letter)
+      .some(row=>row.word===match[0].word),true,category);
+  }
+});

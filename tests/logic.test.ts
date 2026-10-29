@@ -358,3 +358,69 @@ test('prefixed and unprefixed trees count as one answer and one unique kind',asy
   assert.ok(unique.size<raw.length);
   assert.equal(canonicalAnswer('ต้นโพธิ์','tree'),canonicalAnswer('โพธิ์','tree'));
 });
+
+// The category noun is an optional prefix, never the answer's scored letter.
+// Accepted names must still be present in the reviewed dictionary.
+test('flower, bird, insect and fish share category-local optional prefix rules',async()=>{
+  const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
+  const samples=[
+    {category:'flower',prefix:'ดอก',name:'บัว',full:'ดอกบัว',letter:'บ'},
+    {category:'bird',prefix:'นก',name:'กระจอก',full:'นกกระจอก',letter:'ก'},
+    {category:'insect',prefix:'แมลง',name:'ปอ',full:'แมลงปอ',letter:'ป'},
+    {category:'fish',prefix:'ปลา',name:'ดุก',full:'ปลาดุก',letter:'ด'}
+  ];
+  for(const {category,prefix,name,full,letter} of samples){
+    assert.ok(WORD_BANK[category].includes(full),full);
+    assert.equal(wordInitialForCategory(full,category),letter,full);
+    assert.equal(wordInitialForCategory(name,category),letter,name);
+    assert.equal(canonicalAnswer(full,category),name);
+    assert.equal(canonicalAnswer(name,category),name);
+    assert.equal(validAnswer(full,letter,category),eligibleCategories(letter).includes(category),full);
+    assert.equal(validAnswer(name,letter,category),eligibleCategories(letter).includes(category),name);
+    for(const generic of [prefix,prefix+prefix,prefix+prefix+name,prefix+'ไม่มีจริง']){
+      assert.equal(validAnswer(generic,letter,category),false,generic);
+    }
+    assert.equal(validAnswer(full,prefix[0],category),false,'category prefix must not determine the letter');
+  }
+  assert.equal(wordInitialForCategory('ดอกไม้','flower'),'');
+  assert.equal(canonicalAnswer('ดอกไม้','flower'),'');
+  assert.equal(validAnswer('ดอกไม้','ด','flower'),false);
+  assert.equal(wordInitialForCategory('แมลง','insect'),'');
+  assert.equal(wordInitialForCategory('ปลา','fish'),'');
+  assert.equal(wordInitialForCategory('นก','bird'),'');
+});
+test('optional prefixes are not globally removed from other categories',()=>{
+  for(const [word,wrongCategory,expected] of [
+    ['ปลาดุก','food','ป'],['ดอกบัว','plant','ด'],
+    ['นกกระจอก','animal','น'],['แมลงวัน','nature','ม']
+  ]){
+    assert.equal(wordInitialForCategory(word,wrongCategory),expected);
+    assert.equal(canonicalAnswer(word,wrongCategory),word);
+  }
+  for(const [cat,answer] of [
+    ['flower','ดอกเมฆอมยิ้ม'],['bird','นกจักรวาลอมยิ้ม'],
+    ['insect','แมลงรุ้งติดจรวด'],['fish','ปลาประกายสายรุ้งวิเศษ']
+  ])assert.equal(validAnswer(answer,wordInitialForCategory(answer,cat),cat),false);
+});
+test('four category prefixes are deduplicated during pair eligibility and round scoring',async()=>{
+  const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
+  for(const {category,bare,full,letter} of [
+    {category:'flower',bare:'บัว',full:'ดอกบัว',letter:'บ'},
+    {category:'bird',bare:'กระจอก',full:'นกกระจอก',letter:'ก'},
+    {category:'insect',bare:'ด้วง',full:'แมลงด้วง',letter:'ด'},
+    {category:'fish',bare:'ดุก',full:'ปลาดุก',letter:'ด'}
+  ]){
+    const same=new Set([bare,full].map(x=>canonicalAnswer(x,category)));
+    assert.equal(same.size,1);
+    const counted=new Set(WORD_BANK[category]
+      .filter(w=>wordInitialForCategory(w,category)===letter)
+      .map(w=>canonicalAnswer(w,category)));
+    assert.ok(counted.size<=WORD_BANK[category].length);
+    const m=setup();m.phase='playing';m.letter=letter;m.categories=[category];
+    m.submissions={host:{[category]:bare},guest:{[category]:full}};
+    const scores=scoreRound(m).map(row=>row.perCategory[category]);
+    if(eligibleCategories(letter).includes(category)){
+      assert.deepEqual(scores,[1,1],category);
+    }else assert.deepEqual(scores,[0,0],category+' (sparse category pool)');
+  }
+});

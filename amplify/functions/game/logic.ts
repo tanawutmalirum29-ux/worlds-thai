@@ -18,16 +18,31 @@ const CATEGORY_LABELS = [
 export const CATEGORIES = CATEGORY_LABELS.filter(([id]) => Object.prototype.hasOwnProperty.call(WORD_BANK,id));
 // Modern ข ไข่ is a playable consonant. The obsolete ฃ ขวด is not sampled.
 const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
-/** The optional tree prefix is never part of the answer's initial consonant.
- * Reject generic "ต้น" / "ต้นไม้" and stacked prefixes. This is tree-only:
- * e.g. ต้นมะม่วง and มะม่วง resolve to the SAME tree, but foods stay untouched.
+/** Prefixes that are descriptive category words, not the answer's initial.
+ * Normalization is strictly category-local and never accepts an unlisted name.
+ * E.g. ปลาดุก / ดุก -> ด, นกกระจอก / กระจอก -> ก.
  */
-function treeNameWithoutPrefix(value:string):string {
+export const OPTIONAL_NAME_PREFIXES:Readonly<Record<string,string>>={
+  tree:'ต้น',flower:'ดอก',bird:'นก',insect:'แมลง',fish:'ปลา'
+};
+const GENERIC_NAMES:Readonly<Record<string,readonly string[]>>={
+  tree:['ต้น','ต้นไม้','ไม้'],
+  flower:['ดอก','ดอกไม้'],
+  bird:['นก'],insect:['แมลง'],fish:['ปลา']
+};
+function nameWithoutCategoryPrefix(value:unknown,category:string):string {
   const word=normalizeAnswer(value).toLocaleLowerCase('th');
-  if(!word || word==='ต้น' || word==='ต้นไม้' || word==='ไม้')return '';
-  if(word.startsWith('ต้น')){
-    const remainder=normalizeAnswer(word.slice('ต้น'.length)).toLocaleLowerCase('th');
-    return !remainder || remainder==='ไม้' || remainder.startsWith('ต้น') ? '' : remainder;
+  const prefix=OPTIONAL_NAME_PREFIXES[category];
+  if(!prefix||!word)return word;
+  if(GENERIC_NAMES[category]?.includes(word))return '';
+  if(word.startsWith(prefix)){
+    const remainder=normalizeAnswer(word.slice(prefix.length)).toLocaleLowerCase('th');
+    // A second prefix and generic nouns must not become answers.
+    if(!remainder || remainder.startsWith(prefix) ||
+       GENERIC_NAMES[category]?.includes(remainder) ||
+       (category==='tree'&&remainder==='ไม้') ||
+       (category==='flower'&&remainder==='ไม้'))return '';
+    return remainder;
   }
   return word;
 }
@@ -36,7 +51,8 @@ function treeNameWithoutPrefix(value:string):string {
  * The bare word ขนม yields no answer consonant.
  */
 export function wordInitialForCategory(value:string,category:string):string {
-  if(category==='tree')return initialConsonant(treeNameWithoutPrefix(value));
+  if(Object.prototype.hasOwnProperty.call(OPTIONAL_NAME_PREFIXES,category))
+    return initialConsonant(nameWithoutCategoryPrefix(value,category));
   const word=normalizeAnswer(value);
   if(category==='dessert' && word.startsWith('ขนม'))
     return initialConsonant(normalizeAnswer(word.slice('ขนม'.length)));
@@ -62,7 +78,8 @@ export function canonicalAnswer(value:unknown,category:string):string {
   const raw=normalizeAnswer(value).toLocaleLowerCase('th');
   // Different Thai spellings of the same neighboring region must share points/stats.
   if(category==='province')return NEIGHBOR_PROVINCE_ALIASES[raw] || raw;
-  if(category==='tree')return treeNameWithoutPrefix(raw);
+  if(Object.prototype.hasOwnProperty.call(OPTIONAL_NAME_PREFIXES,category))
+    return nameWithoutCategoryPrefix(raw,category);
   if(category!=='dessert'||!raw)return raw;
   let core=raw;
   if(raw.startsWith('ขนม')){

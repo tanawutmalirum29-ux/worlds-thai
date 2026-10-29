@@ -52,3 +52,21 @@ test('special-category hints render directly below each answer category title, n
   assert.match(styles,/grid-template-areas:"symbol category check" "input input input"/);
   assert.match(styles,/\.answer-hint-note/);
 });
+
+test('flower bird insect fish prefix hints are directly beneath the playable category',()=>{
+  const ui=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  const start=ui.indexOf('className="answer-list"');
+  const section=ui.slice(start,ui.indexOf('className="auto-save-status',start));
+  const header=ui.slice(ui.indexOf('className="answer-head"'),start);
+  for(const [category,fake] of [
+    ['flower','ดอกเมฆอมยิ้ม'],['bird','นกจักรวาลอมยิ้ม'],
+    ['insect','แมลงรุ้งติดจรวด'],['fish','ปลาประกายสายรุ้งวิเศษ']
+  ]){
+    assert.ok(ui.includes(category+":{prefix:"),category+' tip config');
+    assert.ok(ui.includes(fake),fake);
+    assert.ok(!header.includes(fake),'not displayed below current round letter');
+  }
+  assert.match(section,/CATEGORY_PREFIX_HINTS\[category\]/);
+  assert.match(section,/className="answer-category-hint"/);
+  assert.match(section,/!game\.topicCategory\|\|index===0/);
+});

@@ -129,3 +129,25 @@ test('CSV merges historical ต-prefix tree records with normalized tree identit
   assert.match(csv,/"พ","พ พาน","ต้นไม้","ต้นโพธิ์","5","7"/);
   assert.doesNotMatch(csv,/"ต","ต เต่า","ต้นไม้","ต้นโพธิ์","5","7"/);
 });
+
+test('stat deltas and CSV share the same word across prefixed fish answers',()=>{
+  const m=newMatch('room-testfish000000000000',now);
+  applyAction(m,'create','host',now,'Host');
+  applyAction(m,'join','guest',now,'Guest');
+  applyAction(m,'start','host',now+1000);
+  m.letter='ด';m.categories=['fish'];
+  applyAction(m,'draft','host',now+2000,'',{fish:'ดุก'});
+  applyAction(m,'draft','guest',now+2000,'',{fish:'ปลาดุก'});
+  const before=structuredClone(m);
+  for(const p of m.players)p.lastSeen=m.deadline;
+  advance(m,m.deadline+1);
+  const items=roundWordDeltas(before,m);
+  assert.deepEqual(items.map(x=>[x.word,x.letter,x.timesUsed,x.totalPoints]),
+    [['ดุก','ด',2,2]]);
+  const csv=buildWordUsageCsv([
+    {letter:'ป',category:'fish',word:'ปลาดุก',timesUsed:2,totalPoints:2,lastUsedAt:now-100},
+    {letter:'ด',category:'fish',word:'ดุก',timesUsed:1,totalPoints:2,lastUsedAt:now}
+  ]);
+  assert.match(csv,/"ด","ด เด็ก","ปลา","ปลาดุก","3","4"/);
+  assert.doesNotMatch(csv,/"ป","ป ปลา","ปลา","ปลาดุก","3","4"/);
+});

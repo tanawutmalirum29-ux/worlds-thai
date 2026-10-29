@@ -263,3 +263,6 @@ The `tree` category treats a leading `ต้น` as an optional prefix for any c
 
 ## Category-local hint placement
 On the gameplay answer screen, the special dessert/tree prefix hints appear directly below their own category titles inside their respective answer cards, rather than in the round letter/header region. Hint cards use a stacked, full-width input on mobile to keep the fictional sample and text readable while preserving the same scoring and autosave behavior. All other category rows remain compact.
+
+## Prefix-insensitive flower, bird, insect and fish entries
+Category-specific optional labels are now `flower=ดอก`, `bird=นก`, `insect=แมลง`, and `fish=ปลา`. Like existing `tree=ต้น`, only the name **after** the label determines the playable Thai consonant: `ดอกบัว / บัว` → บ, `นกกระจอก / กระจอก` → ก, `แมลงปอ / ปอ` → ป, `ปลาดุก / ดุก` → ด. The bare category nouns, generic `ดอกไม้`, stacked labels, and unregistered names are never valid. All variants share a single canonical ID for deduplication in game modes, round scoring, eligibility thresholds, rarity pooling, historic usage and the admin dashboard/CSV. Other categories remain unchanged. Each special-category answer field displays its own hint beneath the category title using an explicitly fictional example that does not give away a real playable word.

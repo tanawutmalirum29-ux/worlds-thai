@@ -20,6 +20,12 @@ const LABELS: Record<string,string> = {
   insect:'แมลง', bird:'นก', dessert:'ขนม', nature:'ธรรมชาติ', furniture:'เฟอร์นิเจอร์',
   material:'วัสดุ', health:'สุขภาพ', tool:'เครื่องมือ', fiction:'ตัวละครในนิยาย', transport:'การเดินทาง'
 };
+const CATEGORY_PREFIX_HINTS:Readonly<Record<string,{prefix:string;example:string;letter:string;generic:string}>>={
+  flower:{prefix:'ดอก',example:'ดอกเมฆอมยิ้ม',letter:'ม ม้า',generic:'ดอกไม้'},
+  bird:{prefix:'นก',example:'นกจักรวาลอมยิ้ม',letter:'จ จาน',generic:'นก'},
+  insect:{prefix:'แมลง',example:'แมลงรุ้งติดจรวด',letter:'ร เรือ',generic:'แมลง'},
+  fish:{prefix:'ปลา',example:'ปลาประกายสายรุ้งวิเศษ',letter:'ป ปลา',generic:'ปลา'}
+};
 const SYMBOLS: Record<string,string> = {
   animal:'🐾', sport:'🏆', job:'💼', verb:'✎', fruit:'🍋', vegetable:'🥬', food:'🥣', drink:'🥤',
   province:'📍', country:'🌎', city:'🏙', music:'♫', body:'♥', clothing:'👕', vehicle:'🚘',
@@ -551,7 +557,9 @@ function App(){
               const category=game.topicCategory||id;
               const requestedLetter=game.topicCategory?id:game.letter;
               const state=!typed?'empty':validRoundAnswer(typed,game.letter,id,game.topicCategory)?'accepted':wordInitialForCategory(typed,category)!==requestedLetter?'wrong-letter':'unknown';
-              return <label className={`answer-item answer-${state} ${(category==='dessert'||category==='tree')&&(!game.topicCategory||index===0)?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
+              const hasPrefixHint=category==='dessert'||category==='tree'||
+                Object.prototype.hasOwnProperty.call(CATEGORY_PREFIX_HINTS,category);
+              return <label className={`answer-item answer-${state} ${hasPrefixHint&&(!game.topicCategory||index===0)?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
                 <span className="answer-number">{String(index+1).padStart(2,'0')}</span>
                 <span className="answer-symbol">{game.topicCategory?requestedLetter:SYMBOLS[id]||'✦'}</span>
                 <span className="answer-category">
@@ -563,6 +571,11 @@ function App(){
                   {(id==='tree'||(game.topicCategory==='tree'&&index===0))?<span className="answer-category-hint">
                     เติม “ต้น” นำหน้าได้ แต่ให้นับอักษรของชื่อต้นไม้ที่ตามมา เช่น “ต้นประกายเมฆ” นับ ป ปลา
                     <span className="answer-hint-note">ตัวอย่างสมมติ ไม่ใช่คำตอบจริง · “ต้น” หรือ “ต้นไม้” คำเดียวใช้ไม่ได้</span>
+                  </span>:null}
+                  {CATEGORY_PREFIX_HINTS[category]&&(!game.topicCategory||index===0)?<span className="answer-category-hint">
+                    เติม “{CATEGORY_PREFIX_HINTS[category].prefix}” นำหน้าได้ แต่ไม่นับคำนำหน้าเป็นพยัญชนะต้น
+                    เช่น “{CATEGORY_PREFIX_HINTS[category].example}” นับ {CATEGORY_PREFIX_HINTS[category].letter}
+                    <span className="answer-hint-note">ตัวอย่างสมมติ ไม่ใช่คำตอบจริง · “{CATEGORY_PREFIX_HINTS[category].generic}” คำเดียวใช้ไม่ได้</span>
                   </span>:null}
                 </span>
                 <span className="answer-input-wrap">
