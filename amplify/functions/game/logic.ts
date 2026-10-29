@@ -3,7 +3,7 @@ import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LET
 const CATEGORY_LABELS = [
   ['animal', 'สัตว์'], ['sport', 'กีฬา'], ['job', 'อาชีพ'], ['verb', 'คำกริยา'],
   ['fruit', 'ผลไม้'], ['vegetable', 'ผัก'], ['food', 'อาหาร'], ['drink', 'เครื่องดื่ม'],
-  ['province', 'จังหวัด'], ['country', 'ประเทศ'], ['city', 'เมือง'], ['music', 'เครื่องดนตรี'],
+  ['province', 'จังหวัด/รัฐทั่วโลก'], ['country', 'ประเทศ'], ['city', 'เมือง'], ['music', 'เครื่องดนตรี'],
   ['body', 'อวัยวะ'], ['clothing', 'เครื่องแต่งกาย'], ['vehicle', 'ยานพาหนะ'],
   ['device', 'เครื่องใช้ไฟฟ้า'], ['school', 'ของใช้ในโรงเรียน'], ['plant', 'พืช'],
   ['flower', 'ดอกไม้'], ['tree', 'ต้นไม้'], ['object', 'สิ่งของ'], ['color', 'สี'],
@@ -230,8 +230,10 @@ export function applyAction(
       match.phase='lobby';match.round=0;match.letter='';match.categories=[];match.deadline=0;
       match.submissions={};match.history=[];match.previousLetters=[];match.previousCategories=[];
       for(const p of match.players)p.score=0;
-    } else if (action==='submit') {
-      if (match.phase!=='playing' || now>=match.deadline) throw new Error('หมดเวลาส่งคำตอบแล้ว');
+    } else if (action==='draft' || action==='submit') {
+      // The most recent server-saved input is scored at the deadline.
+      // A previous draft is fully replaced so clearing text also removes it.
+      if (match.phase!=='playing' || now>=match.deadline) throw new Error('หมดเวลาบันทึกคำตอบแล้ว');
       match.submissions[userId]=cleanAnswers(answers,match.categories);
     } else if (action!=='pulse') {
       throw new Error('UNKNOWN_ACTION');

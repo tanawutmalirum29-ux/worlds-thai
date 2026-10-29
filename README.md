@@ -109,3 +109,9 @@ The old exclusion accidentally removed **ข ไข่** because **ฃ ขวด
 ## Avoid trivial letters and sparse categories
 
 The earlier rules admitted a letter/category pair with only 3 approved answers, making responses predictable. The current fairness gate requires **at least 5 distinct accepted words per letter/category pair** and **at least 8 qualifying categories for a consonant**; rounds still honor room settings of 3–8 categories. Category selection favors richer pools. Rare letters such as **ฎ ชฎา** and **ฮ นกฮูก** never enter the draw. **ด เด็ก** and **ข ไข่** remain eligible because their category vocabularies meet the threshold. This is a curated-answer gate, not a claim to cover every possible Thai word.
+
+## Automatic answer capture and reviewed vocabulary expansion
+
+Answers will be autosaved to the server as the player types and scored using the last successfully saved draft when the round ends. No manual submission button; typing feedback still uses the same reviewed dictionary. The backend retains 'submit' for backwards compatibility but the updated client never invokes it. Debounced writes reduce requests; network loss may prevent the most recent text from reaching the server, so the UI shows save status.
+
+Added missing common verbs (including **พนมมือ** and **ปรบมือ**), **อุรุกวัย** and many more countries, states/provinces from multiple countries, common drinks, dishes with eggs, and desserts beginning with ข that do **not** start with 'ขนม'. **พลับพลึง** is a flower/plant, not a commonly eaten fruit; **พลับ** and **พลัม** are fruits. International administrative subdivisions are labelled จังหวัด/รัฐทั่วโลก.

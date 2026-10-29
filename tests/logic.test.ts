@@ -183,3 +183,41 @@ test('fairness filter excludes low-vocabulary consonants and weak letter-categor
     }
   }
 });
+
+test('automatic drafts replace prior text and score when timer expires without submit',()=>{
+  const m=setup({rounds:1,categories:3,seconds:40});
+  applyAction(m,'start','host',start+1000);
+  m.letter='พ';m.categories=['verb','fruit','tool'];
+  applyAction(m,'draft','host',start+2000,'',{verb:'พนมมือ',fruit:'พลับ',tool:''});
+  assert.equal(m.submissions.host.verb,'พนมมือ');
+  applyAction(m,'draft','host',start+2500,'',{verb:'พนมมือ',fruit:'พลับ',tool:''});
+  assert.equal(m.submissions.host.fruit,'พลับ');
+  applyAction(m,'draft','host',start+3000,'',{verb:'พนมมือ',fruit:'',tool:''});
+  assert.equal(m.submissions.host.fruit,'');
+  for(const p of m.players)p.lastSeen=m.deadline;
+  advance(m,m.deadline+1);
+  assert.equal(m.phase,'review');
+  assert.equal(m.history[0].entries.find(x=>x.id==='host')?.points,2);
+  assert.throws(()=>applyAction(m,'draft','host',m.deadline+10000,'',{verb:'พนมมือ'}),/หมดเวลา/);
+});
+test('new real-world word classes and corrected categorization',async()=>{
+  assert.equal(validAnswer('พนมมือ','พ','verb'),true);
+  assert.equal(validAnswer('ปรบมือ','ป','verb'),true);
+  assert.equal(validAnswer('อุรุกวัย','อ','country'),true);
+  assert.equal(validAnswer('พลับ','พ','fruit'),true);
+  assert.equal(validAnswer('พลัม','พ','fruit'),true);
+  assert.equal(validAnswer('พลับพลึง','พ','fruit'),false);
+  assert.equal(validAnswer('พลับพลึง','พ','flower'),true);
+  assert.equal(validAnswer('ออนแทรีโอ','อ','province'),true);
+  assert.equal(validAnswer('แคลิฟอร์เนีย','ค','province'),true);
+  assert.equal(validAnswer('โอเลี้ยง','อ','drink'),true);
+  assert.equal(validAnswer('ไข่เจียว','ข','food'),true);
+  assert.equal(validAnswer('ข้าวเหนียวแก้ว','ข','dessert'),true);
+  assert.equal(validAnswer('ประแจปอนด์','ป','tool'),true);
+  assert.equal(validAnswer('ปีนเขา','ป','sport'),true);
+  assert.equal(validAnswer('ปาเลา','ป','country'),true);
+  const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
+  assert.ok(WORD_BANK.country.length>=170);
+  assert.ok(WORD_BANK.province.length>=140);
+  assert.ok(!WORD_BANK.dessert.some(word=>word.startsWith('ขนม')));
+});
