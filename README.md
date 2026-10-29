@@ -8,7 +8,7 @@
 2. เจ้าของตั้งจำนวนรอบ **1–10**, หมวดต่อรอบ **3–8** และเวลาตอบต่อรอบ **20–120 วินาที** (ค่าเริ่มต้น 3 / 5 / 40)
 3. เพื่อนเปิด URL **หน้าเกมเดียวกัน** กด **เข้าร่วมห้อง** จะเห็นรายชื่อห้องที่ยังรอผู้เล่น แล้วกดเข้าร่วมได้ทันที **ไม่ต้องส่งลิงก์หรือกรอกรหัสใด ๆ**
 4. เมื่อมี 2 คนขึ้นไป เจ้าของกด **เริ่มเกม** ด้วยตัวเอง; ไม่เริ่มอัตโนมัติ
-5. แต่ละรอบสุ่มพยัญชนะและหมวดที่คลังคำรองรับ; คำถูกไม่ซ้ำ 20 คะแนน ถูกซ้ำ 10 คะแนน คำไม่รับรอง/ผิดหมวด 0 คะแนน
+5. แต่ละรอบสุ่มพยัญชนะและหมวดที่คลังคำรองรับ; คำถูกไม่ซ้ำ 2 คะแนน ถูกซ้ำ 1 คะแนน คำไม่รับรอง/ผิดหมวด 0 คะแนน
 6. จบครบจำนวนรอบ เจ้าของกด **เล่นใหม่** ได้; ถ้าเจ้าของออก ผู้เล่นที่ยังอยู่คนแรกจะเป็นเจ้าของแทน
 
 **ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 7 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 3 คำ **ข ขวดถูกงดสุ่มชั่วคราว** เพราะคำตอบหลายหมวดจำกัด
@@ -91,3 +91,13 @@ In the initial deployment, `gameUpdated` used `a.subscription().handler(a.handle
 - Others open the same game homepage, select **เข้าร่วมห้อง** and choose an available room. No invitation link, password, room ID or code is needed.
 - `listRooms` returns only active, joinable waiting rooms (host display name, player count, settings); it filters out full, started and inactive rooms. The list refreshes every 3 seconds and is backed by a bounded DynamoDB Scan for the MVP.
 - Only the server authorizes owner actions and validates the number of players. Opening the homepage does not automatically join any room.
+
+## Instant hints, per-word statistics, and CSV
+- Word inputs show green when accepted, orange for wrong initial consonant or words absent from the curated category dictionary. Final server scoring uses the same dictionary.
+- The letter now shows its Thai name, such as **บ ใบไม้**, **ส เสือ**, **ข ไข่**. ข is still omitted from random rounds by the prior balance rule.
+- Award **2 points** for a correct unique answer and **1** for a correct duplicated answer. Invalid/empty = 0.
+- A new separate **WordUsageStats** DynamoDB table (no TTL, RETAIN) stores totals grouped by initial letter, category, and reviewed word: usage count, cumulative awarded points, most recent usage. No player identifiers are stored.
+- The round's match state and per-word increments are committed in **one DynamoDB transaction** with optimistic match-version checking; a failed/retried transaction cannot double-count stats.
+- The top-bar **สถิติคำ ↓** export downloads UTF-8 CSV including unused dictionary words (0 uses), after prompting for **251029**, hardcoded in frontend GitHub source as requested.
+- **This code is merely a nuisance prompt, NOT security**: anyone who can inspect the public source/client bundle can find the code and directly call the guest-authorized aggregate API. Strong authorization requires accounts/backend IAM, which is not used here.
+- Data collection begins only after the successful deployment. Historical usage is unavailable. Only accepted dictionary words are aggregated; rejected entries are not stored.

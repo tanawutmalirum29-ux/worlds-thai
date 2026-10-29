@@ -80,7 +80,7 @@ test('late submissions blocked; invalid words do not score',()=>{
   m.letter='ส';m.categories=['animal','sport','food'];
   applyAction(m,'submit','host',start+2000,'',{animal:'เสือ',sport:'สนุกเกอร์',food:'ส้มตำ'});
   applyAction(m,'submit','guest',start+2000,'',{animal:'ส้มตำ',sport:'สนุกเกอร์',food:'เสือ'});
-  assert.deepEqual(scoreRound(m).map(entry=>entry.points),[50,10]);
+  assert.deepEqual(scoreRound(m).map(entry=>entry.points),[5,1]);
   assert.equal(snapshot(m).settings.seconds,40);
   for(const p of m.players)p.lastSeen=m.deadline;
   assert.throws(()=>applyAction(m,'submit','host',m.deadline+1,'',{}),/หมดเวลา/);

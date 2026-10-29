@@ -17,3 +17,9 @@ test('join flow displays public room list and does not require links or codes',(
   assert.match(ui,/ห้องที่เปิดอยู่/);
   assert.doesNotMatch(ui,/parseInviteUrl|ลิงก์เชิญ|invitation-link|\?match=|onClick=\{share\}/);
 });
+
+test('statistics query resolves explicitly and by request',async()=>{
+  const {resolveOperation}=await import('../amplify/functions/game/request.ts');
+  assert.equal(resolveOperation({fieldName:'getWordStats',arguments:{request:'stats'}}),'getWordStats');
+  assert.equal(resolveOperation({arguments:{request:'stats'}}),'getWordStats');
+});

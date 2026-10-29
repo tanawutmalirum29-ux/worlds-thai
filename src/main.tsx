@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
+import { validAnswer,initialConsonant,normalizeAnswer } from '../amplify/functions/game/logic.ts';
+import { letterCaption } from './letters.ts';
+import { EXPORT_PROMPT_CODE,buildWordUsageCsv,type WordStatRecord } from './stats-export.ts';
 import { encodeGamePayload } from './rooms';
 
 const LABELS: Record<string,string> = {
@@ -59,6 +62,7 @@ function App(){
   const [working,setWorking] = useState(false);
   const [now,setNow] = useState(Date.now());
   const [help,setHelp] = useState(false);
+  const [exporting,setExporting] = useState(false);
   const current = useRef<Game|null>(null);
   const appClient = useRef<Api|null>(null);
   const roomRef = useRef('');
@@ -183,6 +187,35 @@ function App(){
     }catch(e){setError(e instanceof Error?e.message:'ดำเนินการไม่สำเร็จ');}
     finally{workingRef.current=false;setWorking(false);}
   }
+  async function downloadStatistics(){
+    if(exporting || status!=='ready')return;
+    const pass=window.prompt('รหัสดาวน์โหลดสถิติคำศัพท์');
+    if(pass===null)return;
+    if(pass!==EXPORT_PROMPT_CODE){setError('รหัสดาวน์โหลดไม่ถูกต้อง');return;}
+    setError('');setExporting(true);
+    try{
+      const api=appClient.current as any;
+      const records:WordStatRecord[]=[];
+      let cursor:string|null=null,complete=false;
+      for(let n=0;n<100;n++){
+        const reply=await api.queries.getWordStats({request:'stats',...(cursor?{cursor}:{})},{authMode:'identityPool'});
+        if(reply.errors?.length)throw new Error(reply.errors.map((x:{message:string})=>x.message).join('; '));
+        const data=unpack(reply.data) as {items?:WordStatRecord[];nextToken?:string|null};
+        if(!Array.isArray(data?.items))throw new Error('ข้อมูลสถิติไม่ถูกต้อง');
+        records.push(...data.items);
+        cursor=data.nextToken||null;
+        if(!cursor){complete=true;break;}
+      }
+      if(!complete)throw new Error('ข้อมูลสถิติเกินขีดจำกัดการส่งออก');
+      const blob=new Blob([buildWordUsageCsv(records)],{type:'text/csv;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const link=document.createElement('a');link.href=url;
+      link.download='khamwai-word-usage-'+new Date().toISOString().slice(0,10)+'.csv';
+      document.body.appendChild(link);link.click();link.remove();
+      window.setTimeout(()=>URL.revokeObjectURL(url),1500);
+    }catch(e){setError(e instanceof Error?e.message:'ดาวน์โหลดสถิติไม่สำเร็จ');}
+    finally{setExporting(false);}
+  }
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
@@ -193,7 +226,7 @@ function App(){
     <div className="ambient ambient-left"/><div className="ambient ambient-right"/>
     <header className="topbar container">
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
-      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
+      <div className="top-actions"><button className="stats-button" disabled={exporting||status!=='ready'} onClick={()=>void downloadStatistics()}>{exporting?'กำลังสร้าง CSV...':'สถิติคำ ↓'}</button><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
     <main className="container">
       {!game ? <div className="welcome-layout">
@@ -202,7 +235,7 @@ function App(){
           <h1>คิดให้ไว <span>ตอบให้ทัน</span><br/>แล้วมาวัดกัน!</h1>
           <p className="lead">สุ่มพยัญชนะไทยแล้วแข่งตอบคำให้ตรงหมวด เจ้าของตั้งค่าห้องเอง เพื่อนเปิดหน้าเกมเดียวกันแล้วเลือกเข้าห้องที่แสดงอยู่ได้เลย คำไม่ซ้ำยิ่งได้แต้มเยอะ!</p>
           <div className="feature-chips"><span>✦ เล่นพร้อมเพื่อน</span><span>✦ ไม่ต้องสมัคร</span><span>✦ เห็นห้องและกดเข้าร่วมได้เลย</span></div>
-          <div className="floating-letters" aria-hidden="true"><div className="float-card first">ก<span>กีฬา</span></div><div className="float-card second">ส<span>สัตว์</span></div><div className="float-card third">ม<span>ผลไม้</span></div></div>
+          <div className="floating-letters" aria-hidden="true"><div className="float-card first">ก<span>ไก่</span></div><div className="float-card second">ส<span>เสือ</span></div><div className="float-card third">ม<span>ม้า</span></div></div>
         </section>
         <section className="join-card">
           <div className="card-deco"><span>✳</span><span>✿</span></div>
@@ -257,26 +290,41 @@ function App(){
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.categories} หมวด · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
-          {playing?<><div className="challenge-banner"><div><div className="banner-label">ตัวอักษรประจำรอบ</div><div className="letter-display">{game.letter}</div></div><div className="time-box"><span>เวลาที่เหลือ</span><strong className={remaining<=15?'urgent':''}>{timeLabel(remaining)}</strong><div className="time-track"><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
-            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วยตัว <b>“{game.letter}”</b></p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
-            <div className="answer-list">{game.categories.map((id,index)=><label className="answer-item" key={`${game.round}-${id}`}><span className="answer-number">{String(index+1).padStart(2,'0')}</span><span className="answer-symbol">{SYMBOLS[id]||'✦'}</span><span className="answer-text">{LABELS[id]||id}</span><input disabled={submitted||remaining===0} maxLength={48} value={answers[id]||''} onChange={e=>setAnswers(old=>({...old,[id]:e.target.value}))} placeholder="พิมพ์คำตอบ..." aria-label={`คำตอบหมวด${LABELS[id]}`}/><span className={answers[id]?.trim()?'answer-check filled':'answer-check'}>{answers[id]?.trim()?'✓':'—'}</span></label>)}</div>
+          {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span>เวลาที่เหลือ</span><strong className={remaining<=15?'urgent':''}>{timeLabel(remaining)}</strong><div className="time-track"><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
+            <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
+            <div className="answer-list">{game.categories.map((id,index)=>{
+              const typed=normalizeAnswer(answers[id]);
+              const state=!typed?'empty':validAnswer(typed,game.letter,id)?'accepted':initialConsonant(typed)!==game.letter?'wrong-letter':'unknown';
+              return <label className={`answer-item answer-${state}`} key={`${game.round}-${id}`}>
+                <span className="answer-number">{String(index+1).padStart(2,'0')}</span>
+                <span className="answer-symbol">{SYMBOLS[id]||'✦'}</span>
+                <span className="answer-text">{LABELS[id]||id}</span>
+                <span className="answer-input-wrap">
+                  <input disabled={submitted||remaining===0} maxLength={48} value={answers[id]||''}
+                    onChange={e=>setAnswers(old=>({...old,[id]:e.target.value}))}
+                    placeholder="พิมพ์คำตอบ..." aria-label={`คำตอบหมวด${LABELS[id]}`}/>
+                  <span className={`answer-feedback feedback-${state}`}>{state==='empty'?'ตรวจคำให้ทันที':state==='accepted'?'✓ คำนี้ใช้ได้':state==='wrong-letter'?'ตัวอักษรต้นไม่ตรง':'ยังไม่พบคำนี้ในหมวด'}</span>
+                </span>
+                <span className={state==='accepted'?'answer-check filled':state==='empty'?'answer-check':'answer-check invalid'}>{state==='accepted'?'✓':state==='empty'?'—':'!'}</span>
+              </label>;
+            })}</div>
             <button className="primary-btn submit-btn" onClick={send} disabled={submitted||working||remaining===0}>{submitted?'ส่งคำตอบแล้ว ✓':working?'กำลังส่ง...':'ส่งคำตอบ'} <span>↗</span></button>
             <p className="small-center">{submitted?'รอเวลาหมดเพื่อดูผลคะแนนพร้อมเพื่อน':'แก้ไขคำตอบได้ก่อนกดส่ง · ต้องส่งก่อนหมดเวลา'}</p>
           </>:null}
-          {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>พยัญชนะ <strong className="gold-text">{latest.letter}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
+          {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>พยัญชนะ <strong className="gold-text">{letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
             <div className="round-results">{latest.entries.slice().sort((a,b)=>b.points-a.points).map((e,i)=><div className="result-person" key={e.id}><span className="rank-bubble">{i+1}</span><span>{e.name} {e.id===me?'(คุณ)':''}</span><strong>+{e.points} คะแนน</strong></div>)}</div>
             <div className="review-grid">{latest.categories.map(id=><div className="review-category" key={id}><h3>{SYMBOLS[id]} {LABELS[id]}</h3>{latest.entries.map(e=><div key={e.id}><span>{e.name}: {e.answers[id]||'—'}</span><b>+{e.perCategory[id]}</b></div>)}</div>)}</div>
           </div>:null}
           {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · เจ้าของห้องเป็นผู้เริ่มเกมใหม่</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{isOwner?<button className="primary-btn" disabled={working} onClick={()=>void ownerAction('reset')}>ตั้งค่าห้องและเล่นใหม่ <span>↗</span></button>:null}<p className="small-center">เล่นใหม่ได้จากห้องเดิม เพื่อนที่ออกสามารถเลือกห้องที่เปิดอยู่ได้จากหน้าเกม</p></div>:null}
         </section>
         <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตทุก 2 วินาที</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
-          <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+20</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+10</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>แข่งครบจำนวนรอบที่ตั้งค่า ใครคะแนนรวมสูงสุดชนะ!</p></div>
+          <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+2</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+1</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>แข่งครบจำนวนรอบที่ตั้งค่า ใครคะแนนรวมสูงสุดชนะ!</p></div>
           <div className="public-room-notice">เพื่อนเปิดเว็บไซต์คำไวเดียวกัน แล้วเลือกชื่อห้องที่รอผู้เล่นได้ทันที</div>
         </aside>
       </div>}
     </main>
     <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>28 หมวดที่ตรวจรับแล้ว · เจ้าของห้องตั้งเวลา หมวด และรอบได้</span></footer>
-    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวดภายในเวลาที่เจ้าของห้องเลือก แล้วกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 20 คะแนน ซ้ำกับเพื่อนได้ 10 คะแนน</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
+    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวดภายในเวลาที่เจ้าของห้องเลือก แล้วกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode><App/></StrictMode>);
