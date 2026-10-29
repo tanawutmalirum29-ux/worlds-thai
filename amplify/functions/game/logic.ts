@@ -43,7 +43,8 @@ export function canonicalAnswer(value:unknown,category:string):string {
   let core=raw;
   if(raw.startsWith('ขนม')){
     const unprefixed=normalizeAnswer(raw.slice('ขนม'.length)).toLocaleLowerCase('th');
-    if(dessertVocabulary.has(unprefixed)||Object.prototype.hasOwnProperty.call(dessertAliases,unprefixed))
+    if(unprefixed && !unprefixed.startsWith('ขนม')
+      && (dessertVocabulary.has(unprefixed)||Object.prototype.hasOwnProperty.call(dessertAliases,unprefixed)))
       core=unprefixed;
   }
   return dessertAliases[core]||core;
