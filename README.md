@@ -228,3 +228,16 @@ The existing word workspace includes **สถิติความหายา�
 Deploy the `main` branch with Amplify Gen 2 so the updated Lambda handles the new `rarity` request. There is no Cognito group or account configuration to perform. After deployment, unlock the existing word workspace and use its **ดูสถิติความหายาก** shortcut. The panel distinguishes unavailable snapshots (`—`) from recorded zero uses, and never fabricates rarity while information is insufficient.
 
 Run `npm run check` and verify the live API and mobile admin after backend deployment. GitHub Actions success confirms source tests and build, not a successful AWS production deployment.
+
+## เพิ่ม น หนู และคำศัพท์เกี่ยวกับท้องนา
+
+เพิ่มศัพท์ **น หนู 435 รายการ** (374 รูปคำไม่ซ้ำข้ามหมวด) ใน **23 หมวด** รวมถึงนกชนิดต่าง ๆ อาชีพ คำกริยา อาหาร น้ำผลไม้ อวัยวะ พืช ดอกไม้ สถานที่ และคำไวพจน์บางส่วนที่เป็นคำตอบจริง พร้อมเพิ่มชื่อกระท่อมและอาคารในไร่นาอีก **6 คำ** ใน `amplify/functions/game/nor-nu-terms.ts` โดยไม่สร้างคำขึ้นต้น `นัก`, `นก`, `นา`, `น้ำ` หรือ `นม` จากส่วนท้ายที่ไม่อยู่ในคลัง
+
+- **หมวดสถานที่:** `นา`, `นาข้าว`, `นาขั้นบันได` มีอยู่แล้ว; เพิ่ม `นาดำ`, `นาหว่าน`, `นาปี`, `นาปรัง`, `นาดอน`, `นาลุ่ม`, `นาทาม`, `นาเกลือ`, `นาร้าง` และอีกหลายคำ
+- **สถานที่เกี่ยวกับชาวนา:** `เถียงนา` และ `เถียงไร่` เป็นคำขึ้นต้น **ถ ถุง**; `กระท่อมปลายนา` ขึ้นต้น **ก**, `โรงนา` ขึ้นต้น **ร**, `ห้างนา` ขึ้นต้น **ห**, `ขนำ` ขึ้นต้น **ข** ไม่บังคับให้คำลงท้ายว่า `นา` กลายเป็นคำขึ้นต้น น
+- **ตัวอย่างศัพท์ น เพิ่มเติม:** `นกขุนทอง`, `นักแสดง`, `นักพัฒนาเกม`, `นั่งพับเพียบ`, `นวดข้าว`, `น้ำพริกกะปิ`, `น้ำเก๊กฮวย`, `นมชมพู`, `นิ้วก้อย`, `น้อยโหน่ง`, `นางเล็ด`
+- ในหมวดขนม `นางเล็ด` และ `ขนมนางเล็ด` ถือเป็นคำตอบ **เดียวกัน** ขึ้นต้น **น** ตามกฎตัดคำนำหน้า `ขนม` เดิม
+
+เกณฑ์สุ่มยังเป็น **อย่างน้อย 5 หมวด หมวดละอย่างน้อย 2 คำจริงไม่ซ้ำกัน** และห้อง 6–8 หมวดจะสุ่มเฉพาะพยัญชนะที่มีหมวดรองรับครบ
+
+ข้อมูลอ้างอิงเกี่ยวกับคำท้องนา: [ศูนย์สารนิเทศอีสาน มหาวิทยาลัยมหาสารคาม](https://isancenter.msu.ac.th/?p=1457), [สวท. วิทยุกระจายเสียงแห่งประเทศไทย](https://radiothailand.prd.go.th/th/content/category/detail/id/1378/iid/255458), [สารานุกรมวัฒนธรรมไทย ศูนย์มานุษยวิทยาสิรินธร](https://db.sac.or.th/thailand-cultural-encyclopedia/detail.php?id=15791) และ [มาตรฐานผลิตภัณฑ์ชุมชนข้าวแตน](https://tcps.tisi.go.th/pub/tcps0036_62%28%E0%B8%9C%E0%B8%A5%E0%B8%B4%E0%B8%95%E0%B8%A0%E0%B8%B1%E0%B8%93%E0%B8%91%E0%B9%8C%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B9%81%E0%B8%95%E0%B8%99%29.pdf)
