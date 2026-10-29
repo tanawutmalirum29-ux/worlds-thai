@@ -1,4 +1,5 @@
 import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary.ts';
+import { NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 
 const CATEGORY_LABELS = [
   ['animal', 'สัตว์'], ['sport', 'กีฬา'], ['job', 'อาชีพ'], ['verb', 'คำกริยา'],
@@ -45,6 +46,8 @@ const dessertVocabulary=new Set(WORD_BANK.dessert.map(word=>normalizeAnswer(word
  */
 export function canonicalAnswer(value:unknown,category:string):string {
   const raw=normalizeAnswer(value).toLocaleLowerCase('th');
+  // Different Thai spellings of the same neighboring region must share points/stats.
+  if(category==='province')return NEIGHBOR_PROVINCE_ALIASES[raw] || raw;
   if(category!=='dessert'||!raw)return raw;
   let core=raw;
   if(raw.startsWith('ขนม')){
