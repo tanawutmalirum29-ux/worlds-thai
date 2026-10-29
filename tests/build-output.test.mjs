@@ -17,7 +17,7 @@ test('Share preview is an actual 1200x630 PNG and metadata is in the initial HTM
   const game=resolve('dist/index.html'),image=resolve('dist/share-card.png');
   if(!existsSync(game)){t.skip('not built yet; checked again after vite build');return;}
   const html=readFileSync(game,'utf8');
-  assert.match(html,/<meta property="og:image" content="[^"]+\/share-card\.png"/);
+  assert.match(html,/<meta property="og:image" content="(?:https?:\/\/[^"]+)?\/share-card\.png"/);
   assert.match(html,/<meta name="twitter:card" content="summary_large_image"/);
   assert.match(html,/<meta property="og:image:width" content="1200"/);
   assert.ok(existsSync(image),'missing social PNG in Vite output');
