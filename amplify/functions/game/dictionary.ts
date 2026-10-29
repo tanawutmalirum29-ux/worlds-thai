@@ -1,3 +1,5 @@
+import { NEIGHBORING_PROVINCES } from './neighbor-provinces.ts';
+
 /**
  * Curated Thai answers for category-aware scoring. All items are individually approved.
  * New vocabulary must be reviewed for spelling and category before inclusion.
@@ -1822,7 +1824,9 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เฮสเซิน",
     "ซัคเซิน",
     "เบอร์ลิน",
-    "ฮัมบูร์ก"
+    "ฮัมบูร์ก",
+    // First-level administrative divisions from Thailand's neighbors (reviewed separately).
+    ...NEIGHBORING_PROVINCES
   ],
   "country": [
     "กรีซ",
