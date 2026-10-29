@@ -7,11 +7,11 @@ import { CATEGORIES, LETTERS, eligibleCategories, wordInitialForCategory, canoni
 
 test('77 Thai provinces are kept while familiar overseas provinces stay limited',()=>{
   const world=Object.fromEntries(Object.entries(FAMILIAR_WORLD_REGIONS).map(([country,places])=>[country,places.length]));
-  assert.deepEqual(world,{unitedStates:10,canada:3,japan:8,australia:3,germany:2});
-  assert.equal(FAMILIAR_WORLD_PROVINCES.length,26);
+  assert.deepEqual(world,{unitedStates:12,canada:3,japan:8,australia:3,germany:2});
+  assert.equal(FAMILIAR_WORLD_PROVINCES.length,28);
   const foreign=[...NEIGHBORING_PROVINCES,...FAMILIAR_WORLD_PROVINCES];
-  assert.equal(foreign.length,64);
-  assert.equal(new Set(foreign).size,64);
+  assert.equal(foreign.length,66);
+  assert.equal(new Set(foreign).size,66);
   const aliases=Object.keys(NEIGHBOR_PROVINCE_ALIASES);
   assert.equal(WORD_BANK.province.length,77+foreign.length+aliases.length);
   assert.ok(WORD_BANK.province.length<=160,'foreign names must not become a complete atlas again');
@@ -23,7 +23,7 @@ test('77 Thai provinces are kept while familiar overseas provinces stay limited'
 });
 
 test('only recognizable overseas regions are retained; ordinary foreign cities are excluded',()=>{
-  for(const word of ['แคลิฟอร์เนีย','นิวยอร์ก','ฮาวาย','ออนแทรีโอ','ควิเบก','โตเกียว','โอซากะ','ฮอกไกโด','ควีนส์แลนด์','เบอร์ลิน']){
+  for(const word of ['แคลิฟอร์เนีย','โคโลราโด','เคนทักกี','นิวยอร์ก','ฮาวาย','ออนแทรีโอ','ควิเบก','โตเกียว','โอซากะ','ฮอกไกโด','ควีนส์แลนด์','เบอร์ลิน']){
     assert.ok(FAMILIAR_WORLD_PROVINCES.includes(word),word+' should remain');
   }
   for(const removed of ['ไวโอมิง','เนแบรสกา','มอนแทนา','ซัสแคตเชวัน','นิวฟันด์แลนด์และแลบราดอร์','ยามากาตะ','บรันเดนบูร์ก','ซัคเซิน']){
