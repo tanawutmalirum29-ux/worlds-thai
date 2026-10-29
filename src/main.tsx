@@ -98,7 +98,8 @@ function App(){
   const [exitConfirm,setExitConfirm] = useState(false);
   const [choicePopup,setChoicePopup] = useState<SettingKey|null>(null);
   const [audioMuted,setAudioMuted] = useState(readAudioMuted);
-  const [audioNotice,setAudioNotice] = useState('');
+  const [audioNotice,setAudioNotice] = useState<{message:string;sequence:number}|null>(null);
+  const audioNoticeSequenceRef=useRef(0);
   const audioRef = useRef<GameAudio|null>(null);
   const audioStateRef = useRef<{roomId:string;round:number;phase:AudioScene;remaining:number}|null>(null);
   const dialogRef = useRef<HTMLElement|null>(null);
@@ -115,6 +116,13 @@ function App(){
   const draftTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
   const draftInFlightRef=useRef(false);
   useEffect(()=>()=>{if(draftTimerRef.current)clearTimeout(draftTimerRef.current);},[]);
+  // Keep short audio feedback outside the page flow, including repeated notices.
+  useEffect(()=>{
+    if(!audioNotice)return;
+    const sequence=audioNotice.sequence;
+    const timeout=window.setTimeout(()=>setAudioNotice(current=>current?.sequence===sequence?null:current),3200);
+    return()=>window.clearTimeout(timeout);
+  },[audioNotice]);
   useEffect(()=>{
     const audio = new GameAudio(audioMuted);
     audioRef.current = audio;
@@ -465,17 +473,18 @@ function App(){
     }
     audioStateRef.current={roomId:game?.roomId||'',round:game?.round||0,phase:scene,remaining};
   },[game?.roomId,game?.phase,game?.round,remaining]);
+  function announceAudio(message:string){setAudioNotice({message,sequence:++audioNoticeSequenceRef.current});}
   function toggleAudio(){
     const next=!audioMuted;
     writeAudioMuted(next);
     setAudioMuted(next);
-    setAudioNotice(next?'ปิดเสียงเพลงและเอฟเฟกต์แล้ว':'เปิดเสียงแล้ว แตะปุ่มทดสอบเสียงเพื่อเช็กทันที');
+    announceAudio(next?'ปิดเสียงเพลงและเอฟเฟกต์แล้ว':'เปิดเสียงแล้ว แตะปุ่มทดสอบเสียงเพื่อเช็กทันที');
     audioRef.current?.setMuted(next);
     if(!next)audioRef.current?.cue('tap');
   }
   async function testSound(){
     const audio=audioRef.current;
-    if(!audio){setAudioNotice('ระบบเสียงยังไม่พร้อม ลองโหลดหน้าเกมใหม่');return;}
+    if(!audio){announceAudio('ระบบเสียงยังไม่พร้อม ลองโหลดหน้าเกมใหม่');return;}
     if(audioMuted){
       writeAudioMuted(false);
       setAudioMuted(false);
@@ -483,7 +492,7 @@ function App(){
     }
     // test() starts an audible media beep synchronously inside the tap event.
     const started=await audio.test();
-    setAudioNotice(started
+    announceAudio(started
       ? 'ส่งเสียงทดสอบ 3 ครั้งแล้ว ถ้ายังไม่ได้ยิน ให้ตรวจเสียงสื่อและอุปกรณ์ Bluetooth'
       : 'เบราว์เซอร์ยังไม่อนุญาตให้เล่นเสียง ลองแตะทดสอบเสียงอีกครั้ง');
   }
@@ -496,8 +505,8 @@ function App(){
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
       <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button type="button" className="sound-toggle" aria-label={audioMuted?'เปิดเสียงเพลงและเอฟเฟกต์':'ปิดเสียงเพลงและเอฟเฟกต์'} aria-pressed={!audioMuted} title={audioMuted?'เปิดเสียง':'ปิดเสียง'} onClick={toggleAudio}><SoundIcon muted={audioMuted}/><span className="sound-button-text">{audioMuted?'เปิดเสียง':'ปิดเสียง'}</span></button><button type="button" className="sound-test" aria-label="ทดสอบเสียงเพลงและเอฟเฟกต์" title="ทดสอบเสียง" onClick={()=>void testSound()}><span aria-hidden="true">♪</span><span className="sound-test-text">ลองเสียง</span></button><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
+    <div className="audio-toast-region" aria-live="polite" aria-atomic="true">{audioNotice?<p className="audio-notice" role="status">{audioNotice.message}</p>:null}</div>
     <main className="container">
-      {audioNotice?<p className="audio-notice" role="status" aria-live="polite">{audioNotice}</p>:null}
       {!game ? <div className="welcome-layout">
         <section className="welcome-copy">
           <div className="eyebrow"><span className="eyebrow-line"/> เกมคำศัพท์ปาร์ตี้ออนไลน์</div>
@@ -512,9 +521,10 @@ function App(){
             <button type="button" className={mode==='create'?'room-mode active':'room-mode'} aria-pressed={mode==='create'} onClick={()=>{setMode('create');setError('');}}>สร้างห้อง</button>
             <button type="button" className={mode==='join'?'room-mode active':'room-mode'} aria-pressed={mode==='join'} onClick={()=>{setMode('join');setError('');}}>เข้าร่วมห้อง</button>
           </div>
-          <h2>{mode==='join'?'ห้องที่กำลังรอผู้เล่น':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'ห้องที่เพื่อนสร้างจะปรากฏอัตโนมัติ กดเข้าร่วมได้ทันที':'ตั้งค่าจำนวนรอบ หมวด และเวลา จากนั้นรอเพื่อนเข้ามา'}</p>
+          <div className="room-intro"><h2>{mode==='join'?'ห้องที่กำลังรอผู้เล่น':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'ห้องที่เพื่อนสร้างจะปรากฏอัตโนมัติ กดเข้าร่วมได้ทันที':'ตั้งค่าจำนวนรอบ หมวด และเวลา จากนั้นรอเพื่อนเข้ามา'}</p></div>
           <label htmlFor="nickname">ชื่อเล่นของคุณ</label>
           <input id="nickname" maxLength={18} autoComplete="nickname" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&mode==='create')void join();}} placeholder="เช่น เจ้าแม่คำศัพท์" />
+          <div className="room-mode-content">
           {mode==='join'?<div className="public-room-browser">
             <div className="public-room-heading"><strong>ห้องที่เปิดอยู่</strong><span>อัปเดตทุก 3 วินาที</span></div>
             {roomsError?<p role="alert" className="error-message">โหลดห้องไม่สำเร็จ: {roomsError}</p>:null}
@@ -527,6 +537,7 @@ function App(){
           </div>:<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
             {settingsControls}</div>}
           {mode==='create'?<button className="primary-btn" disabled={working||status!=='ready'} onClick={()=>void join()}>{working?'กำลังสร้างห้อง...':'สร้างห้อง'} <span>↗</span></button>:null}
+          </div>
           {status==='loading'?<p className="notice">กำลังเชื่อมต่อเซิร์ฟเวอร์ AWS…</p>:null}
           {error?<p className="error-message" role="alert">{error}</p>:null}
           {status==='error'&&!error?<p className="error-message">ไม่สามารถเชื่อมต่อระบบออนไลน์</p>:null}

@@ -318,3 +318,37 @@
   .game-mode-option small{font-size:9px}
   .category-display{font-size:23px;max-width:170px}
 }
+
+/* Stable shell: switching join/create and showing a toast must not reflow cards. */
+html{scrollbar-gutter:stable}
+.welcome-layout{align-items:start}
+.join-card{width:100%;min-width:0}
+.room-intro{height:108px;overflow:hidden}
+.room-intro h2{margin:0 0 6px}
+.room-intro .muted{margin:0;line-height:1.6}
+.room-mode-content{height:365px;display:flex;flex-direction:column;min-width:0}
+.room-mode-content>.welcome-settings{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.room-mode-content>.primary-btn{flex:none}
+.room-mode-content>.public-room-browser{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.room-mode-content .public-room-list{flex:1;min-height:0;max-height:none;overflow-y:auto}
+.settings-grid{min-width:0}
+.settings-choice-field{min-width:0}
+.settings-choice-label{min-height:34px;display:flex;align-items:flex-end;line-height:1.35}
+.settings-choice-trigger{height:52px;min-height:52px;max-height:52px;white-space:nowrap;overflow:hidden;gap:4px;padding:7px 8px;line-height:1.2}
+.settings-choice-trigger>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(10px,1.2vw,13px)}
+.settings-choice-trigger .settings-chevron{flex:none;font-size:18px;transform:none;line-height:1}
+.audio-toast-region{position:fixed;top:calc(104px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));width:min(420px,calc(100vw - 32px));z-index:25;pointer-events:none}
+.audio-toast-region .audio-notice{margin:0;box-shadow:0 12px 30px #030b1870;animation:audio-toast-enter .18s ease-out}
+@keyframes audio-toast-enter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:720px){
+  .welcome-layout{align-items:stretch}
+  .room-intro{height:108px}
+  .audio-toast-region{top:calc(86px + env(safe-area-inset-top,0px))}
+}
+@media(max-width:510px){
+  .room-mode-content{height:360px}
+  .settings-choice-trigger{padding:7px 5px;gap:2px}
+  .settings-choice-trigger>span:first-child{font-size:clamp(10px,2.7vw,12px)}
+  .settings-choice-trigger .settings-chevron{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.audio-toast-region .audio-notice{animation:none}}

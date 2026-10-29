@@ -25,3 +25,21 @@ test('mobile introduction does not reserve an empty decorative gap', () => {
   assert.match(styles, /\.welcome-copy\{padding:0\}/);
   assert.match(styles, /\.welcome-copy \.floating-letters\{position:relative/);
 });
+
+test('room setup controls use equal-height single-line triggers and a stable mode slot', () => {
+  assert.match(source, /className="room-intro"/);
+  assert.match(source, /className="room-mode-content"/);
+  assert.match(styles, /\.room-mode-content\{height:365px;display:flex;flex-direction:column;min-width:0\}/);
+  assert.match(styles, /\.settings-choice-trigger\{height:52px;min-height:52px;max-height:52px;white-space:nowrap;/);
+  assert.match(styles, /\.settings-choice-label\{min-height:34px;/);
+  assert.match(styles, /html\{scrollbar-gutter:stable\}/);
+});
+
+test('audio messages float outside main and are dismissed without layout shift', () => {
+  assert.match(source, /className="audio-toast-region" aria-live="polite"/);
+  assert.match(source, /window\.setTimeout\(\(\)=>setAudioNotice\(/);
+  assert.match(source, /3200\)/);
+  assert.match(styles, /\.audio-toast-region\{position:fixed;/);
+  assert.match(styles, /pointer-events:none/);
+  assert.doesNotMatch(source, /<main className="container">\s*\{audioNotice/);
+});
