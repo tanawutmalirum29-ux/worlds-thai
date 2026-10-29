@@ -225,9 +225,12 @@ export function advance(match: Match, now: number, random = Math.random): Match 
   if(match.phase==='playing' && !match.timeRush && match.players.length &&
     match.players.every(p=>match.skipVotes?.[p.id]) && now<match.deadline) {
     const from=Math.ceil((match.deadline-now)/1000);
-    if(from>5) {
+    if(from>7) {
       match.timeRush={start:now,ends:now+RUSH_ANIMATION_MS,from};
       match.deadline=now+RUSH_ANIMATION_MS+5000;
+    } else if(from>5) {
+      // For an almost-finished round, never extend the original deadline.
+      match.deadline=Math.min(match.deadline,now+5000);
     }
     match.skipVotes={};
   }
@@ -337,9 +340,11 @@ export function applyAction(
       match.skipVotes??={};
       match.skipVotes[userId]=true;
     } else if (action==='reset') {
-      if (match.ownerId!==userId) throw new Error('เฉพาะเจ้าของห้องเท่านั้นที่เริ่มเกมใหม่ได้');
+      // Legacy action is a vote too: the owner must NOT bypass other players.
+      if (match.ownerId!==userId) throw new Error('เฉพาะเจ้าของห้องเท่านั้นที่ใช้ปุ่มเดิมได้');
       if (match.phase!=='final') throw new Error('เกมยังไม่จบ');
-      resetToLobby(match);
+      match.rematchVotes??={};
+      match.rematchVotes[userId]=true;
     } else if (action==='draft' || action==='submit') {
       // The most recent server-saved input is scored at the deadline.
       // A previous draft is fully replaced so clearing text also removes it.
