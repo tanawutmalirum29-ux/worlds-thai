@@ -14,7 +14,7 @@ const schema = a.schema({
   getWordStats: a.query()
     .arguments({ request: a.string().required(), cursor: a.string() })
     .returns(a.json())
-    .authorization(allow => [allow.guest()])
+    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
     .handler(a.handler.function(game)),
   // Private rarity telemetry: signed-in Cognito admins ONLY (never guest API).
   getAdminRarity: a.query()
@@ -24,12 +24,12 @@ const schema = a.schema({
     .handler(a.handler.function(game)),
   listRooms: a.query()
     .returns(a.json())
-    .authorization(allow => [allow.guest()])
+    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
     .handler(a.handler.function(game)),
   getGame: a.query()
     .arguments({ roomId: a.string().required() })
     .returns(a.json())
-    .authorization(allow => [allow.guest()])
+    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
     .handler(a.handler.function(game)),
   gameAction: a.mutation()
     .arguments({
@@ -40,7 +40,7 @@ const schema = a.schema({
       settings: a.json()
     })
     .returns(a.ref('GameEvent'))
-    .authorization(allow => [allow.guest()])
+    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
     .handler(a.handler.function(game)),
   // No custom AppSync subscription: Amplify Gen 2 disallows guest IAM
   // authorization on a.handler.custom. Multiplayer uses guest-authorized
