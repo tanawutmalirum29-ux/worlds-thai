@@ -52,11 +52,13 @@ export class GameAudio {
   private nextNoteAt = 0;
   private step = 0;
   private disposed = false;
+  private muted: boolean;
+  private readonly makeContext: () => AudioContext;
 
-  constructor(
-    private muted = false,
-    private readonly makeContext: () => AudioContext = createBrowserAudioContext,
-  ) {}
+  constructor(muted = false, makeContext: () => AudioContext = createBrowserAudioContext) {
+    this.muted = muted;
+    this.makeContext = makeContext;
+  }
 
   /** Call directly from pointerdown/keydown, for iOS and other autoplay policies. */
   unlock(): void {
