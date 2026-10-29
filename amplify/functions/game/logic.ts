@@ -232,7 +232,7 @@ export function advance(match: Match, now: number, random = Math.random): Match 
       // For an almost-finished round, never extend the original deadline.
       match.deadline=Math.min(match.deadline,now+5000);
     }
-    match.skipVotes={};
+    // Retain n/n on clients throughout the rush; cleared when round finishes.
   }
   if (!match.players.some(player => player.id === match.ownerId)) {
     match.ownerId = match.players[0]?.id || '';
