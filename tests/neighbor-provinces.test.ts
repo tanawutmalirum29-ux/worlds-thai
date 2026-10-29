@@ -4,56 +4,65 @@ import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { NEIGHBOR_PROVINCES, NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from '../amplify/functions/game/neighbor-provinces.ts';
 import { validAnswer, eligibleCategories, wordInitialForCategory, canonicalAnswer, newMatch, applyAction, scoreRound } from '../amplify/functions/game/logic.ts';
 
-test('neighboring first-level divisions have the current verified coverage', () => {
+test('neighboring regions are a recognizable, bounded Thai-language shortlist, not a full atlas', () => {
   assert.deepEqual(Object.fromEntries(Object.entries(NEIGHBOR_PROVINCES).map(([country, places]) => [country, places.length])), {
-    laos: 18, cambodia: 25, myanmar: 15, malaysia: 16, vietnam: 34
+    laos: 8, cambodia: 8, myanmar: 8, malaysia: 8, vietnam: 6
   });
-  assert.equal(NEIGHBORING_PROVINCES.length, 108);
-  assert.equal(new Set(NEIGHBORING_PROVINCES).size, NEIGHBORING_PROVINCES.length, 'no repeated place names');
-  for (const name of NEIGHBORING_PROVINCES) {
-    assert.ok(WORD_BANK.province.includes(name), name + ' missing from scoring bank');
-    assert.ok(name.length <= 48, name + ' exceeds input length');
-    assert.match(name, /^[ก-๙]+$/, name + ' should use Thai characters');
+  assert.equal(NEIGHBORING_PROVINCES.length, 38);
+  assert.equal(new Set(NEIGHBORING_PROVINCES).size, NEIGHBORING_PROVINCES.length);
+  for (const word of NEIGHBORING_PROVINCES) {
+    assert.ok(WORD_BANK.province.includes(word),word+' missing from curated province bank');
+    assert.ok(word.length <= 48);
+    assert.match(word, /^[ก-๙]+$/);
   }
-  assert.equal(new Set(WORD_BANK.province).size, WORD_BANK.province.length, 'no duplicate answers in category');
+  assert.equal(new Set(WORD_BANK.province).size,WORD_BANK.province.length,'all province entries must be unique');
+  for (const known of ['หลวงพระบาง','สะหวันนะเขต','เสียมราฐ','พนมเปญ','ย่างกุ้ง','มัณฑะเลย์','กัวลาลัมเปอร์','ปีนัง','ฮานอย','โฮจิมินห์','ดานัง']) {
+    assert.ok(NEIGHBORING_PROVINCES.includes(known),known+' is a familiar regional name');
+  }
+  for (const removed of ['ตโบงฆมุม','กำปงชนัง','ไหลเจิว','กาวบั่ง','เนกรีเซมบีลัน']) {
+    assert.ok(!WORD_BANK.province.includes(removed),removed+' should no longer be in the curated shortlist');
+  }
 });
 
-test('common Thai spellings normalize to the same province identity', () => {
-  assert.equal(Object.keys(NEIGHBOR_PROVINCE_ALIASES).length, 11);
-  for (const [variant, official] of Object.entries(NEIGHBOR_PROVINCE_ALIASES)) {
-    assert.ok(WORD_BANK.province.includes(variant), variant + ' alias missing');
-    assert.ok(WORD_BANK.province.includes(official), official + ' canonical missing');
-    assert.equal(canonicalAnswer(variant,'province'), canonicalAnswer(official,'province'));
+test('accepted alternate Thai spellings only refer to retained regions', () => {
+  assert.equal(Object.keys(NEIGHBOR_PROVINCE_ALIASES).length, 5);
+  for (const [variant,official] of Object.entries(NEIGHBOR_PROVINCE_ALIASES)) {
+    assert.ok(NEIGHBORING_PROVINCES.includes(official),official+' target must be retained');
+    assert.ok(!NEIGHBORING_PROVINCES.includes(variant));
+    assert.ok(WORD_BANK.province.includes(variant));
+    assert.equal(canonicalAnswer(variant,'province'),canonicalAnswer(official,'province'));
   }
-  assert.equal(validAnswer('เสียมเรียบ','ส','province'), true);
-  assert.equal(validAnswer('บัตตัมบอง','บ','province'), true);
+  assert.equal(validAnswer('เสียมเรียบ','ส','province'),true);
+  assert.equal(validAnswer('บัตตัมบอง','บ','province'),true);
+  assert.ok(!WORD_BANK.province.includes('กัมปงชนัง'),'removed variants do not remain in the bank');
 });
 
-test('neighboring names score in province but not in country or city categories', () => {
-  const cases: readonly [string, string][] = [
-    ['กัมปงจาม','ก'], ['กะฉิ่น','ก'], ['กลันตัน','ก'], ['กวางนิญ','ก'],
-    ['พนมเปญ','พ'], ['มาเกว','ม'], ['นครหลวงเวียงจันทน์','น'],
-    ['บ่อแก้ว','บ'], ['ตาแก้ว','ต']
+test('well-known neighboring regions are accepted when their letter/category is eligible', () => {
+  const cases: readonly [string,string][] = [
+    ['กัมปงจาม','ก'], ['กะฉิ่น','ก'], ['กลันตัน','ก'], ['กัวลาลัมเปอร์','ก'],
+    ['พนมเปญ','พ'], ['มัณฑะเลย์','ม'], ['นครหลวงเวียงจันทน์','น'],
+    ['บ่อแก้ว','บ'], ['เสียมราฐ','ส']
   ];
-  for (const [name, initial] of cases) {
-    assert.equal(wordInitialForCategory(name, 'province'), initial);
-    assert.ok(eligibleCategories(initial).includes('province'), initial + ' should support province category');
-    assert.equal(validAnswer(name, initial, 'province'), true, name);
-    assert.equal(validAnswer(name, initial, 'country'), false, name);
+  for (const [name,letter] of cases) {
+    assert.equal(wordInitialForCategory(name,'province'),letter);
+    assert.ok(eligibleCategories(letter).includes('province'),letter+' province category must be playable');
+    assert.equal(validAnswer(name,letter,'province'),true,name);
+    assert.equal(validAnswer(name,letter,'country'),false,name);
   }
-  assert.equal(validAnswer('ปอยเปต','ป','province'), false, 'town is not a province');
-  assert.equal(validAnswer('ฮอยอัน','ฮ','province'), false, 'town is not a province');
-  assert.equal(validAnswer('กำปงจาม','ข','province'), false, 'wrong starting letter');
+  assert.ok(WORD_BANK.province.includes('ฮานอย'),'capital is a valid provincial-level place');
+  assert.equal(validAnswer('ปอยเปต','ป','province'),false,'ordinary town is not a province');
+  assert.equal(validAnswer('ฮอยอัน','ฮ','province'),false,'ordinary town is not a province');
+  assert.equal(validAnswer('กำปงจาม','ข','province'),false,'wrong starting letter');
 });
 
-test('province spelling variants count as duplicate answers for both players', () => {
-  const time = 1_700_000_000_000;
-  const match = newMatch('room-neighbor-test012345', time);
+test('alternate spellings are duplicates, different provinces are distinct', () => {
+  const time=1_700_000_000_000;
+  const match=newMatch('room-neighbor-test012345',time);
   applyAction(match,'create','host',time,'Host');
   applyAction(match,'join','guest',time,'Guest');
   match.phase='playing'; match.letter='ก'; match.categories=['province'];
-  match.submissions = {host:{province:'กัมปงจาม'},guest:{province:'กำปงจาม'}};
-  assert.deepEqual(scoreRound(match).map(entry => entry.perCategory.province),[1,1]);
+  match.submissions={host:{province:'กัมปงจาม'},guest:{province:'กำปงจาม'}};
+  assert.deepEqual(scoreRound(match).map(x=>x.perCategory.province),[1,1]);
   match.submissions.guest.province='กะฉิ่น';
-  assert.deepEqual(scoreRound(match).map(entry => entry.perCategory.province),[2,2]);
+  assert.deepEqual(scoreRound(match).map(x=>x.perCategory.province),[2,2]);
 });
