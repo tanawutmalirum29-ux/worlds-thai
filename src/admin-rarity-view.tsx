@@ -3,7 +3,7 @@ import {CATEGORY_OPTIONS,LETTER_OPTIONS,type Entry} from './admin-data.ts';
 import {letterCaption} from './letters.ts';
 import {buildRarityGroups,displayRarityState,rarityGroupSummary,rarityReadiness,
   type RarityMetaRecord,type GroupState,type RarityWordRow} from './admin-rarity-data.ts';
-import {hasRarityAdminSession,loginRarityAdmin,logoutRarityAdmin,queryRarityAdmin} from './admin-rarity-api.ts';
+import {queryRarityAdmin} from './admin-rarity-api.ts';
 import './admin-rarity.css';
 
 type Props={entries:Entry[];inspect:(category:string,letter:string,word?:string)=>void};
@@ -15,12 +15,6 @@ function wordAge(timestamp:number|null){
   return new Date(timestamp).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
 }
 export function RarityDashboard({entries,inspect}:Props){
-  const [authenticated,setAuthenticated]=useState(false);
-  const [checking,setChecking]=useState(true);
-  const [email,setEmail]=useState('');
-  const [password,setPassword]=useState('');
-  const [authBusy,setAuthBusy]=useState(false);
-  const [authError,setAuthError]=useState('');
   const [records,setRecords]=useState<RarityMetaRecord[]>([]);
   const [status,setStatus]=useState<LoadState>('idle');
   const [error,setError]=useState('');
@@ -37,34 +31,8 @@ export function RarityDashboard({entries,inspect}:Props){
     try{setRecords(await queryRarityAdmin());setStatus('ready');}
     catch(e){setStatus('error');setError(e instanceof Error?e.message:'ไม่สามารถโหลดข้อมูลความหายากได้');}
   }
-  useEffect(()=>{
-    let mounted=true;
-    void (async()=>{
-      try{
-        const valid=await hasRarityAdminSession();
-        if(!mounted)return;
-        setAuthenticated(valid);
-        if(valid)void refresh();
-      }catch(e){
-        if(mounted)setAuthError(e instanceof Error?e.message:'อ่านสถานะบัญชีไม่ได้');
-      }finally{if(mounted)setChecking(false);}
-    })();
-    return ()=>{mounted=false;};
-  },[]);
-  async function login(e:React.FormEvent){
-    e.preventDefault();setAuthError('');setAuthBusy(true);
-    try{
-      await loginRarityAdmin(email,password);
-      setPassword('');setAuthenticated(true);
-      await refresh();
-    }catch(e){setAuthError(e instanceof Error?e.message:'เข้าสู่ระบบไม่สำเร็จ');setPassword('');}
-    finally{setAuthBusy(false);}
-  }
-  async function logout(){
-    setAuthBusy(true);
-    try{await logoutRarityAdmin();}
-    finally{setAuthenticated(false);setRecords([]);setStatus('idle');setSelected('');setAuthBusy(false);}
-  }
+  // The parent only renders this panel after its existing front-end unlock.
+  useEffect(()=>{void refresh();},[]);
   const groups=useMemo(()=>buildRarityGroups(entries,records),[entries,records,status]);
   const summary=useMemo(()=>rarityGroupSummary(groups),[groups]);
   const filtered=useMemo(()=>groups.filter(g=>
@@ -87,22 +55,8 @@ export function RarityDashboard({entries,inspect}:Props){
         <h2>สถิติความหายาก</h2>
         <p className="help">ดูหมวด × พยัญชนะ จำนวนคำ สถิติที่ใช้ประเมิน และระดับโบนัสจากเซิร์ฟเวอร์จริง</p>
       </div>
-      {authenticated?<button className="button ghost" type="button" onClick={()=>void logout()} disabled={authBusy}>ออกจากบัญชีผู้ดูแล</button>:null}
     </div>
-    {checking?<p role="status" className="rarity-notice">กำลังตรวจสิทธิ์ผู้ดูแล...</p>:
-      !authenticated?<div className="rarity-auth">
-        <h3>เข้าสู่ระบบสถิติส่วนผู้ดูแล</h3>
-        <p>รหัสเข้าหน้าแอดมินเดิมไม่ใช่สิทธิ์ฐานข้อมูล ส่วนนี้ต้องใช้บัญชี Cognito ที่อยู่ในกลุ่ม <code>RARITY_ADMINS</code> เท่านั้น</p>
-        <form onSubmit={e=>void login(e)} className="rarity-login">
-          <label>อีเมลผู้ดูแล<input type="email" required value={email} autoComplete="username"
-            onChange={e=>setEmail(e.target.value)} placeholder="อีเมลบัญชี Cognito"/></label>
-          <label>รหัสผ่าน<input type="password" required value={password} autoComplete="current-password"
-            onChange={e=>setPassword(e.target.value)}/></label>
-          <button className="button primary" type="submit" disabled={authBusy}>{authBusy?'กำลังยืนยัน...':'เข้าสู่ระบบและเปิดข้อมูล'}</button>
-        </form>
-        {authError?<p className="error" role="alert">{authError}</p>:null}
-        <small>ข้อมูลที่ส่งออกจากเซิร์ฟเวอร์เป็นยอดรวมเท่านั้น ไม่แสดงผู้เล่นรายบุคคล</small>
-      </div>:<>
+    <p className="rarity-notice">ใช้รหัสเข้าหน้าแอดมินเดิมเพียงครั้งเดียว ข้อมูลส่วนนี้เป็นสถิติรวม ไม่แสดงตัวตนผู้เล่น</p>
         <div className="rarity-toolbar">
           <p className="rarity-notice">สถานะความหายากเป็นข้อมูลประเมินรายวัน (เปลี่ยนวันเวลา 03:00 น. ไทย) ไม่ใช่ยอดใช้สะสมตลอดอายุเกม</p>
           <button className="button ghost" type="button" onClick={()=>void refresh()} disabled={status==='loading'}>
@@ -110,7 +64,7 @@ export function RarityDashboard({entries,inspect}:Props){
           </button>
         </div>
         {status==='loading'||status==='idle'?<p role="status" className="rarity-notice">กำลังอ่านข้อมูลจากฐานข้อมูล AWS...</p>:
-          status==='error'?<p role="alert" className="error">{error} · ตรวจว่า Amplify Backend Deploy สำเร็จและบัญชีมีสิทธิ์ RARITY_ADMINS</p>:<>
+          status==='error'?<p role="alert" className="error">{error} · ตรวจว่า AWS Amplify Deploy Backend ที่รองรับสถิติความหายากแล้ว</p>:<>
             <div className="rarity-metrics">
               <div><span>กลุ่มหมวด × อักษร</span><strong>{fmt(summary.groups)}</strong></div>
               <div><span>เปิดเล่นได้</span><strong>{fmt(summary.playable)}</strong></div>
@@ -205,6 +159,5 @@ export function RarityDashboard({entries,inspect}:Props){
             </div>:null}
             <p className="rarity-legend">* ใช้ 30 วัน = จำนวนการเลือกคำที่นับซ้ำตัวตนเดิมได้ไม่เกิน 1 ครั้งต่อคำต่อวัน (ไม่ใช่ยอดใช้ทั้งหมด) · “—” คือยังไม่มี Snapshot ที่มีข้อมูลรายคำ · คำฉบับร่างในเครื่องและคำที่ถอดจากคลังไม่ถูกจัดระดับ · คะแนนหายากจริงยึด Snapshot ที่ล็อกไว้ตอนเริ่มรอบ</p>
           </>}
-      </>}
   </section>;
 }

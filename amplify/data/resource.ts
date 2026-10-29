@@ -7,29 +7,23 @@ const schema = a.schema({
     roomId: a.string().required(),
     snapshot: a.json().required()
   }),
-  // Aggregated word usage and (on request='dessert-suggestions') anonymous
-  // repeated unknown dessert names. No names or player IDs are returned.
+  // Aggregated word usage, rarity summaries and (on request='dessert-suggestions') anonymous
+  // repeated unknown dessert names. No player identities or raw events returned.
   // Guest-accessible; client-side admin PIN is NOT real authorization.
   // The download prompt is a convenience gate, not API authentication.
   getWordStats: a.query()
     .arguments({ request: a.string().required(), cursor: a.string() })
     .returns(a.json())
-    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
-    .handler(a.handler.function(game)),
-  // Private rarity telemetry: signed-in Cognito admins ONLY (never guest API).
-  getAdminRarity: a.query()
-    .arguments({ cursor: a.string() })
-    .returns(a.json())
-    .authorization(allow => [allow.groups(['RARITY_ADMINS'])])
+    .authorization(allow => [allow.guest()])
     .handler(a.handler.function(game)),
   listRooms: a.query()
     .returns(a.json())
-    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
+    .authorization(allow => [allow.guest()])
     .handler(a.handler.function(game)),
   getGame: a.query()
     .arguments({ roomId: a.string().required() })
     .returns(a.json())
-    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
+    .authorization(allow => [allow.guest()])
     .handler(a.handler.function(game)),
   gameAction: a.mutation()
     .arguments({
@@ -40,7 +34,7 @@ const schema = a.schema({
       settings: a.json()
     })
     .returns(a.ref('GameEvent'))
-    .authorization(allow => [allow.guest(), allow.authenticated('identityPool')])
+    .authorization(allow => [allow.guest()])
     .handler(a.handler.function(game)),
   // No custom AppSync subscription: Amplify Gen 2 disallows guest IAM
   // authorization on a.handler.custom. Multiplayer uses guest-authorized

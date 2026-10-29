@@ -216,16 +216,12 @@ function isRetryableConflict(error:any):boolean {
   }
   return false;
 }
-/** Private read-only aggregate report. Authorization is enforced by AppSync AND here.
- * Never expose observation records containing pseudonymous player IDs.
+/** Aggregate-only rarity snapshot reader, shared with the existing stats API.
+ * Guest-accessible by design: the legacy front-end admin PIN is a convenience
+ * screen gate, NOT an authorization boundary. Never return round observations
+ * or pseudonymous player IDs.
  */
-async function readAdminRarity(event:any,cursor?:string) {
-  const claims=event?.identity?.claims ?? event?.context?.identity?.claims ?? {};
-  const groups=claims['cognito:groups'];
-  if (!(Array.isArray(groups) ? groups.includes('RARITY_ADMINS') :
-    typeof groups==='string' && groups.split(',').some((v:string)=>v.trim()==='RARITY_ADMINS'))) {
-    throw new Error('ADMIN_AUTH_REQUIRED');
-  }
+async function readRarityStats(cursor?:string) {
   if(cursor && (cursor.length>160 || !/^[ก-ฮ]#[a-z]+$/.test(cursor)))throw new Error('INVALID_CURSOR');
   const result=await db.send(new ScanCommand({
     TableName:RARITY_META_TABLE,Limit:100,
@@ -311,9 +307,9 @@ export const handler=async(event:any)=>{
     return typeof roomId==='string' && ROOM_ID.test(roomId) ? snapshotOrNull(await read(roomId)) : null;
   }
   if (operation==='listRooms') return availableRooms(Date.now());
-  if (operation==='getAdminRarity')return readAdminRarity(event,args.cursor);
   if (operation==='getWordStats') {
     if(args.request==='stats')return readWordStats(args.cursor);
+    if(args.request==='rarity')return readRarityStats(args.cursor);
     if(args.request==='dessert-suggestions')return readDessertSuggestions(args.cursor);
     throw new Error('INVALID_STATS_REQUEST');
   }

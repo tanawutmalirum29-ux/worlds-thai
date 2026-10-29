@@ -65,23 +65,33 @@ test('overview counts true status groups, not total entries',()=>{
   assert.equal(totals.active,1);
   assert.equal(totals.veryRare,1);
 });
-test('server offers dedicated GROUP-authenticated endpoint without leaking observations',()=>{
+test('rarity is aggregated-only via existing guest stats API, never raw player events',()=>{
   const schema=readFileSync(new URL('../amplify/data/resource.ts',import.meta.url),'utf8');
-  const head=schema.slice(schema.indexOf('getAdminRarity:'),schema.indexOf('listRooms:'));
-  assert.match(head,/allow\.groups\(\['RARITY_ADMINS'\]\)/);
-  assert.ok(!head.includes('allow.guest('));
+  assert.ok(!schema.includes('getAdminRarity:'),'second Cognito-only API must be removed');
+  assert.ok(!schema.includes('RARITY_ADMINS'),'no extra Cognito admin group');
+  assert.match(schema,/getWordStats:\s*a\.query\(\)/);
+  assert.match(schema,/\.authorization\(allow => \[allow\.guest\(\)\]\)/);
   const backend=readFileSync(new URL('../amplify/functions/game/handler.ts',import.meta.url),'utf8');
-  assert.match(backend,/ADMIN_AUTH_REQUIRED/);
-  assert.match(backend,/ProjectionExpression:'#id,#start,#born,#snapshot'/);
-  assert.ok(!backend.includes("request==='rarity'"),'Never add private rarity data to guest stats query');
-  assert.equal(resolveOperation({fieldName:'getAdminRarity'}),'getAdminRarity');
+  assert.match(backend,/if\(args\.request==='rarity'\)return readRarityStats\(args\.cursor\)/);
+  const aggregated=backend.slice(backend.indexOf('async function readRarityStats('),
+    backend.indexOf('/** Scan a separate retained stats table'));
+  assert.match(aggregated,/ProjectionExpression:'#id,#start,#born,#snapshot'/);
+  assert.ok(!aggregated.includes('RARITY_OBSERVATIONS_TABLE'),
+    'never send raw events and player pseudonyms to guest frontend');
+  assert.equal(resolveOperation({fieldName:'getWordStats'}),'getWordStats');
+  assert.equal(resolveOperation({request:'rarity'}),'getWordStats');
   const auth=readFileSync(new URL('../amplify/auth/resource.ts',import.meta.url),'utf8');
-  assert.match(auth,/groups:\s*\['RARITY_ADMINS'\]/);
+  assert.ok(!auth.includes('RARITY_ADMINS'));
 });
 test('admin dashboard is connected to the original vocabulary workspace',()=>{
   const admin=readFileSync(new URL('../src/admin.tsx',import.meta.url),'utf8');
   assert.match(admin,/\<RarityDashboard entries=\{allEntries\}/);
   const api=readFileSync(new URL('../src/admin-rarity-api.ts',import.meta.url),'utf8');
-  assert.match(api,/authMode:'userPool'/);
-  assert.match(api,/RARITY_ADMINS/);
+  assert.match(api,/authMode:'identityPool'/);
+  assert.match(api,/request:'rarity'/);
+  assert.ok(!api.includes('aws-amplify/auth'));
+  const view=readFileSync(new URL('../src/admin-rarity-view.tsx',import.meta.url),'utf8');
+  assert.ok(!view.includes('loginRarityAdmin'));
+  assert.ok(!view.includes('type="password"'));
+  assert.match(view,/useEffect\(\(\)=>\{void refresh\(\);\},\[\]\)/);
 });
