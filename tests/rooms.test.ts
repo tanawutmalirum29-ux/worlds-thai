@@ -23,3 +23,14 @@ test('statistics query resolves explicitly and by request',async()=>{
   assert.equal(resolveOperation({fieldName:'getWordStats',arguments:{request:'stats'}}),'getWordStats');
   assert.equal(resolveOperation({arguments:{request:'stats'}}),'getWordStats');
 });
+
+test('game UI autosaves drafts and has no submit control',()=>{
+  const source=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  assert.match(source,/call\('draft',roomId/);
+  assert.match(source,/onChange=\{e=>updateWord\(id,e\.target\.value\)\}/);
+  assert.match(source,/onBlur=\{\(\)=>void flushDraft\(\)\}/);
+  assert.match(source,/draftInFlightRef\.current/);
+  assert.match(source,/autosave-\$\{draftStatus\}/);
+  assert.doesNotMatch(source,/onClick=\{send\}|call\('submit'/);
+  assert.doesNotMatch(source,/ส่งคำตอบแล้ว ✓|ต้องส่งก่อนหมดเวลา/);
+});

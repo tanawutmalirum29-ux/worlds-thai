@@ -61,3 +61,7 @@
 .stats-button:disabled{opacity:.5}
 @media(max-width:720px){.top-actions{gap:5px}.stats-button{font-size:10px;padding:7px}.answer-item{gap:7px}.answer-input-wrap input{padding:10px;font-size:13px}.answer-feedback{font-size:10px}.letter-caption{font-size:14px}}
 @media(max-width:370px){.topbar .live-pill{display:none}.topbar .ghost-btn{font-size:10px}.stats-button{font-size:10px}}
+
+/* No manual submission: unobtrusive status for debounced server draft updates. */
+.auto-save-status{margin:18px auto 8px;text-align:center;min-height:23px;font-size:13px;font-weight:600;color:#b9cad7}
+.autosave-saved{color:#8fdcb0}.autosave-saving{color:#e9cc96}.autosave-error{color:#ffb59f}

@@ -42,6 +42,9 @@ function unpack(value:unknown):any {
   if(typeof value === 'string') { try { return JSON.parse(value); } catch { return value; } }
   return value;
 }
+function remainingForAutosave(game:Game,now:number){
+  return Math.max(0,Math.ceil((game.deadline-now)/1000));
+}
 function secondsUntil(when:number, now:number){return Math.max(0,Math.ceil((when-now)/1000));}
 function timeLabel(s:number){return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
 function TrophyIcon(){return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M8 21h8m-4-4v4M6 3h12v7a6 6 0 01-12 0V3zm0 2H3v3a5 5 0 004 4m11-7h3v3a5 5 0 01-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>}
@@ -58,7 +61,7 @@ function App(){
   const [game,setGame] = useState<Game|null>(null);
   const [me,setMe] = useState('');
   const [answers,setAnswers] = useState<Record<string,string>>({});
-  const [submitted,setSubmitted] = useState(false);
+  const [draftStatus,setDraftStatus] = useState<'idle'|'saving'|'saved'|'error'>('idle');
   const [working,setWorking] = useState(false);
   const [now,setNow] = useState(Date.now());
   const [help,setHelp] = useState(false);
@@ -69,6 +72,12 @@ function App(){
   const meRef = useRef('');
   const workingRef = useRef(false);
   const roundRef = useRef(0);
+  const answersRef = useRef<Record<string,string>>({});
+  const draftVersionRef=useRef(0);
+  const savedVersionRef=useRef(0);
+  const draftTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+  const draftInFlightRef=useRef(false);
+  useEffect(()=>()=>{if(draftTimerRef.current)clearTimeout(draftTimerRef.current);},[]);
   useEffect(()=>{ const id=window.setInterval(()=>setNow(Date.now()),250);return()=>clearInterval(id); },[]);
   useEffect(()=>{
     let active=true;
@@ -90,8 +99,15 @@ function App(){
     if(!next || !next.roomId) return;
     if(roomRef.current && next.roomId!==roomRef.current) return;
     if(current.current && current.current.roomId===next.roomId && next.revision<current.current.revision) return;
-    if(next.round !== roundRef.current){ setAnswers({});setSubmitted(false);roundRef.current=next.round; }
-    if(next.phase==='playing' && meRef.current) setSubmitted(next.submitted.includes(meRef.current));
+    if(next.round !== roundRef.current){
+      if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
+      draftTimerRef.current=null;
+      answersRef.current={};draftVersionRef.current=0;savedVersionRef.current=0;
+      setAnswers({});setDraftStatus('idle');roundRef.current=next.round;
+    }
+    if(next.phase!=='playing' && draftTimerRef.current){
+      clearTimeout(draftTimerRef.current);draftTimerRef.current=null;
+    }
     current.current=next;setGame(next);
   },[]);
   const call=useCallback(async(action:string,roomId?:string, nickname?:string, values?:Record<string,string>, settings?:GameSettings)=>{
@@ -125,6 +141,8 @@ function App(){
   const leave=async()=>{
     const old=roomRef.current;
     roomRef.current=''; meRef.current='';setMe('');setGame(null);current.current=null;roundRef.current=0;setAnswers({});
+    if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
+    draftTimerRef.current=null;answersRef.current={};draftVersionRef.current=0;savedVersionRef.current=0;setDraftStatus('idle');
     setMode('join');
     try {await call('leave',old);}catch {/* Guest expires automatically if offline. */}
   };
@@ -171,13 +189,58 @@ function App(){
     refresh();
     return()=>{stopped=true;clearInterval(timer);clearInterval(heartbeat);};
   },[client,me,game?.roomId,call,accept]);
-  async function send(){
-    if(workingRef.current||!game||game.phase!=='playing'||submitted)return;
-    workingRef.current=true;setWorking(true);setError('');
-    try{const latest=await call('submit',game.roomId,undefined,answers);accept(latest.snapshot);setSubmitted(true);}
-    catch(e){setError(e instanceof Error?e.message:'ส่งคำตอบไม่สำเร็จ');}
-    finally{workingRef.current=false;setWorking(false);}
+  // A single serialized queue per browser avoids late/out-of-order draft writes
+  // overwriting more recent inputs. All writes remain server-time validated.
+  async function flushDraft(){
+    const state=current.current;
+    if(!state || state.phase!=='playing' || Date.now()>=state.deadline ||
+       !roomRef.current || draftInFlightRef.current ||
+       draftVersionRef.current<=savedVersionRef.current)return;
+    const roomId=state.roomId,round=state.round,version=draftVersionRef.current;
+    const payload={...answersRef.current};
+    draftInFlightRef.current=true;
+    let failed=false;
+    try{
+      const update=await call('draft',roomId,undefined,payload);
+      if(roomRef.current===roomId && current.current?.round===round){
+        savedVersionRef.current=Math.max(savedVersionRef.current,version);
+        accept(update.snapshot);
+        if(draftVersionRef.current===version)setDraftStatus('saved');
+      }
+    }catch(e){
+      failed=true;
+      if(roomRef.current===roomId && current.current?.round===round){
+        setDraftStatus('error');
+        console.warn('Auto-save draft failed',e);
+      }
+    }finally{
+      draftInFlightRef.current=false;
+      if(roomRef.current===roomId && current.current?.round===round &&
+         current.current?.phase==='playing' && Date.now()<current.current.deadline &&
+         draftVersionRef.current>savedVersionRef.current){
+        if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
+        draftTimerRef.current=setTimeout(()=>void flushDraft(),failed?900:50);
+      }
+    }
   }
+  function updateWord(category:string,value:string){
+    const state=current.current;
+    if(!state || state.phase!=='playing' || Date.now()>=state.deadline)return;
+    const latest={...answersRef.current,[category]:value};
+    answersRef.current=latest;setAnswers(latest);draftVersionRef.current++;
+    setDraftStatus('saving');
+    if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
+    const ms=state.deadline-Date.now()<=2500?0:350;
+    draftTimerRef.current=setTimeout(()=>void flushDraft(),ms);
+  }
+  // Flush pending edits before the countdown reaches zero.
+  useEffect(()=>{
+    if(game?.phase==='playing' && remainingForAutosave(game,now)<=2 &&
+       draftVersionRef.current>savedVersionRef.current && !draftInFlightRef.current){
+      if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
+      draftTimerRef.current=setTimeout(()=>void flushDraft(),0);
+    }
+  },[game?.round,game?.phase,now]);
   async function ownerAction(action:'settings'|'start'|'reset') {
     if(!game||workingRef.current||game.ownerId!==me)return;
     workingRef.current=true;setWorking(true);setError('');
@@ -300,16 +363,22 @@ function App(){
                 <span className="answer-symbol">{SYMBOLS[id]||'✦'}</span>
                 <span className="answer-text">{LABELS[id]||id}</span>
                 <span className="answer-input-wrap">
-                  <input disabled={submitted||remaining===0} maxLength={48} value={answers[id]||''}
-                    onChange={e=>setAnswers(old=>({...old,[id]:e.target.value}))}
+                  <input disabled={remaining===0} maxLength={48} value={answers[id]||''}
+                    onChange={e=>updateWord(id,e.target.value)}
+                    onBlur={()=>void flushDraft()}
                     placeholder="พิมพ์คำตอบ..." aria-label={`คำตอบหมวด${LABELS[id]}`}/>
                   <span className={`answer-feedback feedback-${state}`}>{state==='empty'?'ตรวจคำให้ทันที':state==='accepted'?'✓ คำนี้ใช้ได้':state==='wrong-letter'?'ตัวอักษรต้นไม่ตรง':'ยังไม่พบคำนี้ในหมวด'}</span>
                 </span>
                 <span className={state==='accepted'?'answer-check filled':state==='empty'?'answer-check':'answer-check invalid'}>{state==='accepted'?'✓':state==='empty'?'—':'!'}</span>
               </label>;
             })}</div>
-            <button className="primary-btn submit-btn" onClick={send} disabled={submitted||working||remaining===0}>{submitted?'ส่งคำตอบแล้ว ✓':working?'กำลังส่ง...':'ส่งคำตอบ'} <span>↗</span></button>
-            <p className="small-center">{submitted?'รอเวลาหมดเพื่อดูผลคะแนนพร้อมเพื่อน':'แก้ไขคำตอบได้ก่อนกดส่ง · ต้องส่งก่อนหมดเวลา'}</p>
+            <div className={`auto-save-status autosave-${draftStatus}`} role="status" aria-live="polite">
+              {draftStatus==='saving'?'กำลังบันทึกคำตอบ...':
+               draftStatus==='saved'?'✓ บันทึกคำตอบแล้ว':
+               draftStatus==='error'?'การเชื่อมต่อขัดข้อง กำลังลองบันทึกใหม่':
+               'พิมพ์ได้เลย ระบบจะบันทึกคำตอบให้อัตโนมัติ'}
+            </div>
+            <p className="small-center">ไม่ต้องกดส่งคำตอบ ระบบคิดคะแนนจากคำล่าสุดที่บันทึกสำเร็จเมื่อหมดเวลา</p>
           </>:null}
           {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>พยัญชนะ <strong className="gold-text">{letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
             <div className="round-results">{latest.entries.slice().sort((a,b)=>b.points-a.points).map((e,i)=><div className="result-person" key={e.id}><span className="rank-bubble">{i+1}</span><span>{e.name} {e.id===me?'(คุณ)':''}</span><strong>+{e.points} คะแนน</strong></div>)}</div>
@@ -324,7 +393,7 @@ function App(){
       </div>}
     </main>
     <footer className="footer container"><span>คำไว — เกมคำไทยออนไลน์</span><span>28 หมวดที่ตรวจรับแล้ว · เจ้าของห้องตั้งเวลา หมวด และรอบได้</span></footer>
-    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวดภายในเวลาที่เจ้าของห้องเลือก แล้วกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
+    {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกจำนวนรอบ หมวด และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม เกมจะสุ่มตัวอักษรและหมวดตามที่ตั้งไว้</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวด ระบบตรวจและบันทึกให้ทันทีโดยไม่ต้องกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode><App/></StrictMode>);
