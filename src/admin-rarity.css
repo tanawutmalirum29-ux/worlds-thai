@@ -5,14 +5,6 @@
 .rarity-eyebrow{font-size:11px;letter-spacing:.11em;color:#eac58b;font-weight:700;margin-bottom:5px}
 .rarity-admin .panel-title{align-items:flex-start;gap:16px}
 .rarity-admin .help,.rarity-admin .rarity-notice,.rarity-legend{font-size:12px;line-height:1.7;color:#b6c8da}
-.rarity-auth{border:1px solid #41576b;border-radius:13px;background:#18273a;padding:20px;max-width:660px}
-.rarity-auth h3{font-size:18px;margin:0 0 8px}
-.rarity-auth p,.rarity-auth small{color:#c3d1de;font-size:12px;line-height:1.7}
-.rarity-auth code{color:#f3cb8c}
-.rarity-login{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:15px 0}
-.rarity-login label{display:grid;gap:7px;flex:1 1 185px;font-size:12px;color:#c7d6e6}
-.rarity-login input,.rarity-controls select,.rarity-detail-controls input,.rarity-detail-controls select{color:#eff4f8;border:1px solid #536981;background:#111d2f;padding:10px;border-radius:8px;min-width:0;font:inherit}
-.rarity-login .button{flex:1 1 185px;min-height:40px}
 .rarity-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .rarity-toolbar p{max-width:730px}
 .rarity-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
