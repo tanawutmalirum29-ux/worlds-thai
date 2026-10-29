@@ -319,3 +319,42 @@ test('synonymous Thai sweet สอดไส้ / ใส่ไส้ is one type 
   assert.equal(canonicalAnswer('ขนมจรวดสายรุ้ง','dessert'),'ขนมจรวดสายรุ้ง');
   assert.equal(validAnswer('ขนมจรวดสายรุ้ง','จ','dessert'),false);
 });
+
+test('optional ต้น applies only to tree and never to the category prefix',async()=>{
+  const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
+  assert.ok(WORD_BANK.tree.includes('ต้นโพธิ์'));
+  for(const [name,letter] of [
+    ['มะม่วง','ม'],['ต้นมะม่วง','ม'],
+    ['ต้นโพธิ์','พ'],['โพธิ์','พ'],
+    ['ตาล','ต'],['ต้นตาล','ต'],
+    ['แค','ค'],['ต้นแค','ค']
+  ]){
+    assert.equal(wordInitialForCategory(name,'tree'),letter,name);
+  }
+  assert.equal(canonicalAnswer('ต้นมะม่วง','tree'),'มะม่วง');
+  assert.equal(canonicalAnswer('มะม่วง','tree'),'มะม่วง');
+  assert.equal(canonicalAnswer('ต้นโพธิ์','tree'),'โพธิ์');
+  assert.equal(canonicalAnswer('โพธิ์','tree'),'โพธิ์');
+  assert.equal(canonicalAnswer('ต้น มะม่วง','tree'),'มะม่วง');
+  assert.equal(wordInitialForCategory('ต้น','tree'),'');
+  assert.equal(canonicalAnswer('ต้นไม้','tree'),'');
+  assert.equal(canonicalAnswer('ต้นต้นมะม่วง','tree'),'');
+  for(const bad of ['ต้น','ต้นไม้','ต้นต้นมะม่วง','ต้นประกายเมฆ'])
+    for(const letter of ['ต','ม','ป'])assert.equal(validAnswer(bad,letter,'tree'),false,bad);
+  assert.equal(validAnswer('มะม่วง','ม','tree'),validAnswer('ต้นมะม่วง','ม','tree'));
+  assert.equal(validAnswer('โพธิ์','พ','tree'),validAnswer('ต้นโพธิ์','พ','tree'));
+  assert.equal(validAnswer('ต้นมะม่วง','ต','tree'),false);
+  assert.equal(canonicalAnswer('ต้นมะม่วง','fruit'),'ต้นมะม่วง');
+  assert.equal(wordInitialForCategory('ต้นมะม่วง','fruit'),'ต');
+  assert.equal(validAnswer('ต้นมะม่วง','ม','fruit'),false);
+});
+test('prefixed and unprefixed trees count as one answer and one unique kind',async()=>{
+  const {WORD_BANK}=await import('../amplify/functions/game/dictionary.ts');
+  const m=setup();m.phase='playing';m.letter='ม';m.categories=['tree'];
+  m.submissions={host:{tree:'มะม่วง'},guest:{tree:'ต้นมะม่วง'}};
+  assert.deepEqual(scoreRound(m).map(e=>e.perCategory.tree),[1,1]);
+  const raw=[...WORD_BANK.tree,'ต้นมะม่วง','ต้นโพธิ์'];
+  const unique=new Set(raw.map(w=>canonicalAnswer(w,'tree')));
+  assert.ok(unique.size<raw.length);
+  assert.equal(canonicalAnswer('ต้นโพธิ์','tree'),canonicalAnswer('โพธิ์','tree'));
+});

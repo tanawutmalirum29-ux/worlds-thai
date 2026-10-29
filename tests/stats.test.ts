@@ -104,3 +104,28 @@ test('backend writes anonymous suggestions only after a committed match, not on 
   assert.match(resource,/timeToLiveAttribute:'ttl'/);
   assert.match(resource,/WORD_SUGGESTIONS_TABLE/);
 });
+
+test('tree prefix variants share the exact same usage-statistic key',()=>{
+  const m=newMatch('room-abcabcabcabcabcabcab',now);
+  applyAction(m,'create','host',now,'Host');
+  applyAction(m,'join','guest',now,'Guest');
+  applyAction(m,'start','host',now+1000);
+  m.letter='ม';m.categories=['tree'];
+  applyAction(m,'draft','host',now+2000,'',{tree:'มะม่วง'});
+  applyAction(m,'draft','guest',now+2000,'',{tree:'ต้นมะม่วง'});
+  const before=structuredClone(m);
+  for(const p of m.players)p.lastSeen=m.deadline;
+  advance(m,m.deadline+1);
+  const entries=roundWordDeltas(before,m);
+  assert.deepEqual(entries.map(x=>[x.word,x.letter,x.timesUsed,x.totalPoints]),
+    [['มะม่วง','ม',2,2]]);
+  assert.equal(roundWordDeltas(before,m).length,1,'one delta per completed game round');
+});
+test('CSV merges historical ต-prefix tree records with normalized tree identity',()=>{
+  const csv=buildWordUsageCsv([
+    {letter:'ต',category:'tree',word:'ต้นโพธิ์',timesUsed:2,totalPoints:4,lastUsedAt:now-1000},
+    {letter:'พ',category:'tree',word:'โพธิ์',timesUsed:3,totalPoints:3,lastUsedAt:now}
+  ]);
+  assert.match(csv,/"พ","พ พาน","ต้นไม้","ต้นโพธิ์","5","7"/);
+  assert.doesNotMatch(csv,/"ต","ต เต่า","ต้นไม้","ต้นโพธิ์","5","7"/);
+});

@@ -18,11 +18,25 @@ const CATEGORY_LABELS = [
 export const CATEGORIES = CATEGORY_LABELS.filter(([id]) => Object.prototype.hasOwnProperty.call(WORD_BANK,id));
 // Modern ข ไข่ is a playable consonant. The obsolete ฃ ขวด is not sampled.
 const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ'] as const;
+/** The optional tree prefix is never part of the answer's initial consonant.
+ * Reject generic "ต้น" / "ต้นไม้" and stacked prefixes. This is tree-only:
+ * e.g. ต้นมะม่วง and มะม่วง resolve to the SAME tree, but foods stay untouched.
+ */
+function treeNameWithoutPrefix(value:string):string {
+  const word=normalizeAnswer(value).toLocaleLowerCase('th');
+  if(!word || word==='ต้น' || word==='ต้นไม้' || word==='ไม้')return '';
+  if(word.startsWith('ต้น')){
+    const remainder=normalizeAnswer(word.slice('ต้น'.length)).toLocaleLowerCase('th');
+    return !remainder || remainder==='ไม้' || remainder.startsWith('ต้น') ? '' : remainder;
+  }
+  return word;
+}
 /** In desserts, ขนม is only a label prefix, not the first letter of the answer.
  * ขนมไข่ => ข, ขนมครก => ค. All other categories keep normal initials.
  * The bare word ขนม yields no answer consonant.
  */
 export function wordInitialForCategory(value:string,category:string):string {
+  if(category==='tree')return initialConsonant(treeNameWithoutPrefix(value));
   const word=normalizeAnswer(value);
   if(category==='dessert' && word.startsWith('ขนม'))
     return initialConsonant(normalizeAnswer(word.slice('ขนม'.length)));
@@ -48,6 +62,7 @@ export function canonicalAnswer(value:unknown,category:string):string {
   const raw=normalizeAnswer(value).toLocaleLowerCase('th');
   // Different Thai spellings of the same neighboring region must share points/stats.
   if(category==='province')return NEIGHBOR_PROVINCE_ALIASES[raw] || raw;
+  if(category==='tree')return treeNameWithoutPrefix(raw);
   if(category!=='dessert'||!raw)return raw;
   let core=raw;
   if(raw.startsWith('ขนม')){

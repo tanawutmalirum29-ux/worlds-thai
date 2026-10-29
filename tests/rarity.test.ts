@@ -144,3 +144,12 @@ test('backend atomic transaction contains match, frequency delta and rarity even
   assert.match(infrastructure,/RarityObservations/);
   assert.match(infrastructure,/RarityGroupMeta/);
 });
+
+test('tree rarity pool deduplicates optional ต้น and assigns real consonant',()=>{
+  const pool=wordsForGroup('ม','tree');
+  assert.ok(pool.includes('มะม่วง'));
+  assert.equal(pool.filter(w=>w==='มะม่วง').length,1);
+  assert.ok(!wordsForGroup('ต','tree').includes('มะม่วง'));
+  const names=wordsForGroup('พ','tree');
+  assert.equal(names.filter(w=>w==='โพธิ์').length,1);
+});

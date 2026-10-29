@@ -110,3 +110,16 @@ test('dessert alias search, subtype tag and moderated-suggestion view are admin-
   assert.match(admin,/admin-add-words/);
   assert.doesNotMatch(readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8'),/dessert-suggestions/);
 });
+
+test('tree category supports optional ต้น in lookup and prevents duplicate drafts',()=>{
+  const base=getEntries({});
+  const exact=exactEntries(base,'ต้นมะม่วง').filter(row=>row.category==='tree');
+  assert.equal(exact.length,1);
+  assert.equal(exact[0].letter,'ม');
+  const byLetter=filterEntries(base,'ต้นมะม่วง','tree','ม');
+  assert.equal(byLetter.length,1);
+  assert.ok(exactEntries(base,'โพธิ์').some(row=>row.category==='tree'&&row.letter==='พ'));
+  assert.throws(()=>addDraft({},'ต้นมะม่วง','tree'),/มีคำนี้/);
+  assert.throws(()=>addDraft({},'โพธิ์','tree'),/มีคำนี้/);
+  assert.throws(()=>addDraft({},'ต้นโพธิ์','tree'),/มีคำนี้/);
+});

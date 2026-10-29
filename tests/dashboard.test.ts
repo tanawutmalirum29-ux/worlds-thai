@@ -84,3 +84,17 @@ test('dashboard joins historical ขนม-prefixed variants without double coun
   assert.equal(all.filter(row=>row.category==='dessert'&&row.word==='ไข่หงส์').length,1);
   assert.ok(!all.some(row=>row.category==='dessert'&&row.archived&&row.word==='ขนมไข่เหี้ย'));
 });
+
+test('historical tree uses stay grouped under the real tree consonant in admin',()=>{
+  const rows=getEntries({},[
+    {letter:'ต',category:'tree',word:'ต้นโพธิ์',timesUsed:3,totalPoints:6,lastUsedAt:100},
+    {letter:'พ',category:'tree',word:'โพธิ์',timesUsed:2,totalPoints:2,lastUsedAt:200}
+  ]);
+  const item=rows.find(row=>row.category==='tree'&&row.word==='ต้นโพธิ์');
+  assert.equal(item?.letter,'พ');
+  assert.equal(item?.uses,5);
+  assert.equal(item?.points,8);
+  const all=mergeHistoricalStats(rows,[]);
+  assert.equal(dashboardFilter(all,'tree','พ').some(x=>x.word==='ต้นโพธิ์'),true);
+  assert.equal(dashboardFilter(all,'tree','ต').some(x=>x.word==='ต้นโพธิ์'),false);
+});
