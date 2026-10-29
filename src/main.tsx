@@ -551,7 +551,7 @@ function App(){
               const category=game.topicCategory||id;
               const requestedLetter=game.topicCategory?id:game.letter;
               const state=!typed?'empty':validRoundAnswer(typed,game.letter,id,game.topicCategory)?'accepted':wordInitialForCategory(typed,category)!==requestedLetter?'wrong-letter':'unknown';
-              return <label className={`answer-item answer-${state} ${category==='dessert'||category==='tree'?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
+              return <label className={`answer-item answer-${state} ${(category==='dessert'||category==='tree')&&(!game.topicCategory||index===0)?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
                 <span className="answer-number">{String(index+1).padStart(2,'0')}</span>
                 <span className="answer-symbol">{game.topicCategory?requestedLetter:SYMBOLS[id]||'✦'}</span>
                 <span className="answer-category">
