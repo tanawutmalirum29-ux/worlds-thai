@@ -12,7 +12,7 @@ function mockContext() {
     gain: {
       value: 1,
       setValueAtTime: (v: number, _t: number) => { stats.peakGains.push(v); },
-      exponentialRampToValueAtTime: (_v: number, _t: number) => {},
+      exponentialRampToValueAtTime: (v: number, _t: number) => { stats.peakGains.push(v); },
     },
     connect: (_value: unknown) => {},
     disconnect: () => {},
@@ -91,7 +91,7 @@ test('background tab is silent and resumes on visibility change', async () => {
     audio.setHidden(false);
     await Promise.resolve();
     audio.cue('tap');
-    assert.equal(stats.oscillators, 1);
+    assert.equal(stats.oscillators, 2);
   } finally { audio.dispose(); }
 });
 
