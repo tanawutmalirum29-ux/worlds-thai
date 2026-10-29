@@ -29,7 +29,7 @@ type Round = {round:number; letter:string; categories:string[]; entries:Entry[]}
 type Game = {roomId:string; phase:'lobby'|'playing'|'review'|'final'; round:number; letter:string;
   categories:string[]; deadline:number; countdown:number; players:Player[]; submitted:string[];
   history:Round[]; revision:number; you?:string};
-type Api = ReturnType<typeof generateClient>;
+type Api = any;
 function unpack(value:unknown):any {
   if(typeof value === 'string') { try { return JSON.parse(value); } catch { return value; } }
   return value;
@@ -66,7 +66,7 @@ function App(){
         const outputs=await res.json();
         if(!active) return;
         Amplify.configure(outputs);
-        const api=generateClient();
+        const api=(generateClient as any)();
         appClient.current=api;setClient(api);setStatus('ready');
       }catch(e){ if(active){setStatus('error');setError(e instanceof Error?e.message:'เชื่อมต่อ AWS ไม่สำเร็จ');} }
     })();
