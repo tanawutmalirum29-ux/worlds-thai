@@ -63,6 +63,18 @@ async function loadRaritySnapshot(letter:string,category:string,now:number):Prom
     });
     if(truncated)console.warn('Rarity observation page cap reached for',id);
     const snapshot=stabilizeRarity(result?.candidates||{},old?.snapshot,day,!!result?.eligible);
+    // A dictionary deploy mid-day must not abruptly discard already-earned tiers
+    // for existing words or count as an additional promotion day. New words never
+    // inherit a bonus. Any actual reclassification begins on the next rarity day.
+    if(result?.eligible && old?.snapshot?.eligible && old.snapshot.day===day) {
+      const liveWords=new Set(words);
+      snapshot.bonuses=Object.fromEntries(
+        Object.entries(old.snapshot.bonuses).filter(([word])=>liveWords.has(word))
+      );
+      snapshot.candidates=Object.fromEntries(
+        Object.entries(old.snapshot.candidates).filter(([word])=>liveWords.has(word))
+      );
+    }
     snapshot.observations=result?.observations||0;
     snapshot.uniquePlayers=result?.uniquePlayers||0;
     snapshot.uniqueRooms=result?.uniqueRooms||0;
