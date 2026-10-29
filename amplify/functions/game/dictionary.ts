@@ -2,6 +2,7 @@ import { FAMILIAR_WORLD_PROVINCES } from './familiar-world-provinces.ts';
 import { VOR_HOR_TERMS } from './vor-hor-terms.ts';
 import { COMMON_THAI_TERMS } from './common-thai-terms.ts';
 import { LOR_LING_TERMS } from './lor-ling-terms.ts';
+import { PHO_PHUENG_TERMS } from './pho-phueng-terms.ts';
 import { ANIMAL_SYNONYM_ADDITIONS, NATURE_TERMS } from './synonyms.ts';
 import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 
@@ -15,6 +16,7 @@ import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-pro
  */
 export const WORD_BANK: Record<string, readonly string[]> = {
   "animal": [
+    ...PHO_PHUENG_TERMS.animal,
     ...LOR_LING_TERMS.animal,
     ...COMMON_THAI_TERMS.animal,
     "กบ",
@@ -186,6 +188,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.sport
   ],
   "job": [
+    ...PHO_PHUENG_TERMS.job,
     ...LOR_LING_TERMS.job,
     "กรรมกร",
     "กัปตัน",
@@ -262,6 +265,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.job
   ],
   "verb": [
+    ...PHO_PHUENG_TERMS.verb,
     ...LOR_LING_TERMS.verb,
     ...COMMON_THAI_TERMS.verb,
     "กิน",
@@ -561,6 +565,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "พีชญี่ปุ่น"
   ],
   "vegetable": [
+    ...PHO_PHUENG_TERMS.vegetable,
     ...LOR_LING_TERMS.vegetable,
     ...COMMON_THAI_TERMS.vegetable,
     "กะหล่ำปลี",
@@ -605,6 +610,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.vegetable
   ],
   "food": [
+    ...PHO_PHUENG_TERMS.food,
     ...LOR_LING_TERMS.food,
     ...COMMON_THAI_TERMS.food,
     "ก๋วยเตี๋ยว",
@@ -688,6 +694,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.food
   ],
   "drink": [
+    ...PHO_PHUENG_TERMS.drink,
     ...LOR_LING_TERMS.drink,
     "กาแฟ",
     "โกโก้",
@@ -801,6 +808,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ทัมบูรีน"
   ],
   "body": [
+    ...PHO_PHUENG_TERMS.body,
     ...LOR_LING_TERMS.body,
     ...COMMON_THAI_TERMS.body,
     "กระดูก",
@@ -861,6 +869,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อุ้งมือ"
   ],
   "clothing": [
+    ...PHO_PHUENG_TERMS.clothing,
     ...LOR_LING_TERMS.clothing,
     ...COMMON_THAI_TERMS.clothing,
     "กางเกง",
@@ -973,6 +982,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อุปกรณ์ชาร์จ"
   ],
   "school": [
+    ...PHO_PHUENG_TERMS.school,
     ...LOR_LING_TERMS.school,
     "กระเป๋านักเรียน",
     "กรรไกร",
@@ -1019,6 +1029,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปากกาลูกลื่น"
   ],
   "plant": [
+    ...PHO_PHUENG_TERMS.plant,
     ...LOR_LING_TERMS.plant,
     ...COMMON_THAI_TERMS.plant,
     "กล้วย",
@@ -1081,6 +1092,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.plant
   ],
   "flower": [
+    ...PHO_PHUENG_TERMS.flower,
     ...LOR_LING_TERMS.flower,
     "กุหลาบ",
     "กล้วยไม้",
@@ -1139,7 +1151,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "พลับพลึงธาร",
     ...VOR_HOR_TERMS.flower
   ],
-  "nature": [...NATURE_TERMS, ...VOR_HOR_TERMS.nature, ...LOR_LING_TERMS.nature],
+  "nature": [...PHO_PHUENG_TERMS.nature, ...NATURE_TERMS, ...VOR_HOR_TERMS.nature, ...LOR_LING_TERMS.nature],
   "tree": [
     ...LOR_LING_TERMS.tree,
     ...COMMON_THAI_TERMS.tree,
@@ -1195,6 +1207,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.tree
   ],
   "object": [
+    ...PHO_PHUENG_TERMS.object,
     ...LOR_LING_TERMS.object,
     ...COMMON_THAI_TERMS.object,
     "กระจก",
@@ -1284,6 +1297,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.object
   ],
   "place": [
+    ...PHO_PHUENG_TERMS.place,
     ...LOR_LING_TERMS.place,
     ...COMMON_THAI_TERMS.place,
     "กรุงเทพมหานคร",
@@ -1451,6 +1465,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปลาช่อน"
   ],
   "insect": [
+    ...PHO_PHUENG_TERMS.insect,
     ...LOR_LING_TERMS.insect,
     ...COMMON_THAI_TERMS.insect,
     "กว่าง",
@@ -1518,6 +1533,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อีมู"
   ],
   "dessert": [
+    ...PHO_PHUENG_TERMS.dessert,
     ...LOR_LING_TERMS.dessert,
     ...COMMON_THAI_TERMS.dessert,
     "กล้วยบวชชี",
@@ -1659,6 +1675,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ออตโตมัน"
   ],
   "tool": [
+    ...PHO_PHUENG_TERMS.tool,
     ...LOR_LING_TERMS.tool,
     "กรรไกร",
     "กบไสไม้",
