@@ -155,3 +155,5 @@ A dessert with a bare registered name may also be submitted with an optional `�
 
 ## Dessert review workspace
 The admin-only word table now filters by curated dessert subtypes (traditional Thai / baked / fried / chilled / international / unreviewed). Labels are operational metadata, not new player categories; new or uncertain sweets default to unreviewed. A separate AWS-backed suggestions section lists anonymous, repeated unknown-dessert answers from completed rounds (3+ different rounds), and clicking a proposal only **pre-fills** the existing local draft form for manual verification; it never directly changes the game dictionary. This API uses the existing guest-authorized `getWordStats` resolver with request='dessert-suggestions', not an authenticated secret service.
+
+The **ส เสือ** dessert pool gained five distinct real sweets after alias deduplication to preserve the minimum 5 unique kinds rule.
