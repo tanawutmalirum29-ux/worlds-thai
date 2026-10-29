@@ -80,6 +80,7 @@ async function loadRaritySnapshot(letter:string,category:string,now:number):Prom
     }
     snapshot.recentWordUses=result?.recentWordUses||{};
     snapshot.evaluatedAt=now;
+    snapshot.suspicious=result?.suspicious||false;
     snapshot.observations=result?.observations||0;
     snapshot.uniquePlayers=result?.uniquePlayers||0;
     snapshot.uniqueRooms=result?.uniqueRooms||0;
