@@ -1497,6 +1497,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อีมู"
   ],
   "dessert": [
+    ...COMMON_THAI_TERMS.dessert,
     "กล้วยบวชชี",
     "กล้วยเชื่อม",
     "กะละแม",
