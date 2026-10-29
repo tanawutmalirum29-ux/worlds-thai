@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,initialConsonant,validAnswer,
+import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,publicRoom,initialConsonant,validAnswer,
   CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings,type GameSettings } from '../amplify/functions/game/logic.ts';
 import {resolveOperation} from '../amplify/functions/game/request.ts';
 const start=1_700_000_000_000;
@@ -113,4 +113,27 @@ test('AppSync Lambda event resolver does not assume info.fieldName exists',()=>{
   assert.equal(resolveOperation({arguments:{action:'start'}}),'gameAction');
   assert.equal(resolveOperation({arguments:{roomId:'room-x'}}),'getGame');
   assert.throws(()=>resolveOperation({}),/UNKNOWN_OPERATION/);
+});
+
+test('public lobby lists joinable waiting rooms and does not expose player IDs',()=>{
+  const m=setup();
+  const result=publicRoom(m,start+1000);
+  assert.equal(result?.hostName,'Host');
+  assert.equal(result?.playerCount,2);
+  assert.deepEqual(result?.settings,DEFAULT_SETTINGS);
+  assert.ok(!('ownerId' in (result||{})));
+  assert.ok(!('answers' in (result||{})));
+  const other=structuredClone(m);
+  other.phase='playing';
+  assert.equal(publicRoom(other,start+1000),null);
+  const full=structuredClone(m);
+  for(let i=2;i<MAX_PLAYERS;i++)full.players.push({id:String(i),name:'X',score:0,lastSeen:start});
+  assert.equal(publicRoom(full,start+1000),null);
+  assert.equal(publicRoom(m,start+45000),null);
+  assert.equal(publicRoom(newMatch('public-1',start),start),null);
+});
+test('listRooms operation resolves without requiring roomId',()=>{
+  assert.equal(resolveOperation({fieldName:'listRooms',arguments:{}}),'listRooms');
+  assert.equal(resolveOperation({arguments:{}}),'listRooms');
+  assert.equal(resolveOperation({arguments:{action:'start'}}),'gameAction');
 });

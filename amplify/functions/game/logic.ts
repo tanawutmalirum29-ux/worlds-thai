@@ -43,13 +43,13 @@ export type RoundEntry = { id: string; name: string; answers: Record<string,stri
 export type History = { round: number; letter: string; categories: string[]; entries: RoundEntry[] };
 export type Match = {
   id: string; version: number; phase: Phase; players: Player[]; round: number;
-  ownerId: string; settings: GameSettings;
+  ownerId: string; settings: GameSettings; createdAt?: number;
   letter: string; categories: string[]; deadline: number; countdown: number;
   submissions: Record<string, Record<string,string>>; history: History[];
   previousLetters: string[]; previousCategories: string[]; ttl: number;
 };
 export function newMatch(id: string, now: number): Match {
-  return { id, version: 0, phase: 'lobby', players: [], ownerId: '', settings: { ...DEFAULT_SETTINGS },
+  return { id, version: 0, phase: 'lobby', players: [], ownerId: '', createdAt: now, settings: { ...DEFAULT_SETTINGS },
     round: 0, letter: '', categories: [], deadline: 0, countdown: 0,
     submissions: {}, history: [], previousLetters: [], previousCategories: [],
     ttl: Math.floor(now / 1000) + 86400 };
@@ -224,4 +224,20 @@ export function applyAction(
     }
   }
   return advance(match,now);
+}
+
+/** Safe public lobby projection; never returns player identities, answers or invite links. */
+export type PublicRoom = {
+  roomId:string; hostName:string; playerCount:number; settings:GameSettings; createdAt:number;
+};
+export function publicRoom(match:Match,now:number):PublicRoom|null {
+  if(match.phase!=='lobby' || !/^room-[a-f0-9]{20}$/.test(match.id))return null;
+  const active=match.players.filter(player=>now-player.lastSeen<=IDLE_SECONDS*1000);
+  if(!active.length || active.length>=MAX_PLAYERS)return null;
+  const owner=active.find(player=>player.id===match.ownerId) || active[0];
+  if(!owner)return null;
+  return {
+    roomId:match.id, hostName:owner.name.slice(0,18), playerCount:active.length,
+    settings:match.settings || {...DEFAULT_SETTINGS}, createdAt:match.createdAt || 0
+  };
 }

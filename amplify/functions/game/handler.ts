@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { applyAction, newMatch, snapshot, type Match } from './logic';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { applyAction, newMatch, snapshot, publicRoom, type Match } from './logic';
 import { resolveOperation } from './request';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), { marshallOptions:{removeUndefinedValues:true} });
@@ -28,6 +28,34 @@ async function commit(roomId:string,old:Match|null,updated:Match):Promise<void> 
     ExpressionAttributeValues:old?{':prior':old.version}:undefined
   }));
 }
+/** Public waiting rooms: small, bounded scan for friends-only MVP.
+ * Only sanitized summary fields are emitted; no players IDs or answers.
+ * Pagination avoids hiding new rooms behind expired legacy records.
+ */
+async function availableRooms(now:number){
+  const collected:ReturnType<typeof publicRoom>[]=[];
+  let cursor:Record<string,unknown>|undefined;
+  for(let page=0;page<8;page++){
+    const response=await db.send(new ScanCommand({
+      TableName:TABLE,
+      Limit:100,
+      ExclusiveStartKey:cursor,
+      ProjectionExpression:'#id,#phase,#players,#owner,#settings,#created',
+      ExpressionAttributeNames:{
+        '#id':'id','#phase':'phase','#players':'players',
+        '#owner':'ownerId','#settings':'settings','#created':'createdAt'
+      }
+    }));
+    for(const item of response.Items || []){
+      const visible=publicRoom(item as Match,now);
+      if(visible)collected.push(visible);
+    }
+    cursor=response.LastEvaluatedKey;
+    if(!cursor)break;
+  }
+  return collected.filter((item):item is NonNullable<typeof item>=>item!==null)
+    .sort((a,b)=>b.createdAt-a.createdAt).slice(0,30);
+}
 const sleep=(ms:number)=>new Promise<void>(resolve=>setTimeout(resolve,ms));
 function parseJson(value:unknown):unknown {
   if(typeof value!=='string')return value;
@@ -40,6 +68,7 @@ export const handler=async(event:any)=>{
     const roomId=args.roomId;
     return typeof roomId==='string' && ROOM_ID.test(roomId) ? snapshotOrNull(await read(roomId)) : null;
   }
+  if (operation==='listRooms') return availableRooms(Date.now());
   const action=args.action;
   const now=Date.now();
   const userId=userFromEvent(event);

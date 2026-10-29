@@ -7,6 +7,10 @@ const schema = a.schema({
     roomId: a.string().required(),
     snapshot: a.json().required()
   }),
+  listRooms: a.query()
+    .returns(a.json())
+    .authorization(allow => [allow.guest()])
+    .handler(a.handler.function(game)),
   getGame: a.query()
     .arguments({ roomId: a.string().required() })
     .returns(a.json())
