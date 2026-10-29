@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StrictMode, useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
@@ -215,4 +215,4 @@ function App(){
     {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>ใส่ชื่อเล่นแล้วเข้าห้องสาธารณะ หรือแชร์ลิงก์ให้เพื่อน</li><li>เมื่อมีอย่างน้อย 2 คน เกมจะสุ่มตัวอักษรและ 5 หมวดหมู่</li><li>พิมพ์คำที่ขึ้นต้นด้วยตัวอักษรที่สุ่มให้ตรงหมวดภายใน 75 วินาที แล้วกดส่ง</li><li>คำตรงพยัญชนะและไม่ซ้ำได้ 20 คะแนน ซ้ำกับเพื่อนได้ 10 คะแนน</li><li>แข่งขัน 3 รอบ รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">เวอร์ชันนี้ตรวจพยัญชนะและคำซ้ำอัตโนมัติ แต่ยังไม่ได้ตรวจความหมายของคำตามพจนานุกรม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
   </div>;
 }
-createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<StrictMode><App/></StrictMode>);
