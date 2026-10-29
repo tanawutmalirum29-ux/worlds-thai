@@ -1,5 +1,6 @@
 import { FAMILIAR_WORLD_PROVINCES } from './familiar-world-provinces.ts';
 import { VOR_HOR_TERMS } from './vor-hor-terms.ts';
+import { COMMON_THAI_TERMS } from './common-thai-terms.ts';
 import { ANIMAL_SYNONYM_ADDITIONS, NATURE_TERMS } from './synonyms.ts';
 import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 
@@ -13,6 +14,7 @@ import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-pro
  */
 export const WORD_BANK: Record<string, readonly string[]> = {
   "animal": [
+    ...COMMON_THAI_TERMS.animal,
     "กบ",
     "กวาง",
     "กระต่าย",
@@ -256,6 +258,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.job
   ],
   "verb": [
+    ...COMMON_THAI_TERMS.verb,
     "กิน",
     "กอด",
     "กาง",
@@ -552,6 +555,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "พีชญี่ปุ่น"
   ],
   "vegetable": [
+    ...COMMON_THAI_TERMS.vegetable,
     "กะหล่ำปลี",
     "กวางตุ้ง",
     "กะหล่ำดอก",
@@ -594,6 +598,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.vegetable
   ],
   "food": [
+    ...COMMON_THAI_TERMS.food,
     "ก๋วยเตี๋ยว",
     "กะเพราไก่",
     "แกงเขียวหวาน",
@@ -786,6 +791,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ทัมบูรีน"
   ],
   "body": [
+    ...COMMON_THAI_TERMS.body,
     "กระดูก",
     "กระเพาะอาหาร",
     "กราม",
@@ -844,6 +850,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "อุ้งมือ"
   ],
   "clothing": [
+    ...COMMON_THAI_TERMS.clothing,
     "กางเกง",
     "กระโปรง",
     "กางเกงยีนส์",
@@ -998,6 +1005,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปากกาลูกลื่น"
   ],
   "plant": [
+    ...COMMON_THAI_TERMS.plant,
     "กล้วย",
     "กุหลาบ",
     "กระบองเพชร",
@@ -1117,6 +1125,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
   ],
   "nature": [...NATURE_TERMS, ...VOR_HOR_TERMS.nature],
   "tree": [
+    ...COMMON_THAI_TERMS.tree,
     "ก้ามปู",
     "กัลปพฤกษ์",
     "กฤษณา",
@@ -1169,6 +1178,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.tree
   ],
   "object": [
+    ...COMMON_THAI_TERMS.object,
     "กระจก",
     "กระเป๋า",
     "กรรไกร",
@@ -1256,6 +1266,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...VOR_HOR_TERMS.object
   ],
   "place": [
+    ...COMMON_THAI_TERMS.place,
     "กรุงเทพมหานคร",
     "กาญจนบุรี",
     "กระบี่",
@@ -1384,6 +1395,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปริศนาตัวต่อ"
   ],
   "fish": [
+    ...COMMON_THAI_TERMS.fish,
     "กระเบน",
     "กะพง",
     "กระโห้",
@@ -1419,6 +1431,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปลาช่อน"
   ],
   "insect": [
+    ...COMMON_THAI_TERMS.insect,
     "กว่าง",
     "ก้นกระดก",
     "จิ้งหรีด",
@@ -1447,6 +1460,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ด้วงมะพร้าว"
   ],
   "bird": [
+    ...COMMON_THAI_TERMS.bird,
     "กา",
     "กระจอก",
     "กางเขน",
