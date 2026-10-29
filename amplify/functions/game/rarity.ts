@@ -27,11 +27,15 @@ export type RaritySnapshot = {
   /** Deduplicated uses from the last 30 days; missing for pre-upgrade snapshots. */
   recentWordUses?: Record<string,number>;
   evaluatedAt?: number;
+  suspicious?: boolean;
 };
 export const RARITY_WINDOW_DAYS = 30;
 export const RARITY_RETENTION_DAYS = 40;
 export const RARITY_MIN_POOL = 10;
 export const RARITY_MAX_EVENTS = 5000;
+// All caps apply ONLY to analytics, never to player score or round validity.
+export const MAX_WORD_USES_PER_ROOM_DAY = 3;
+export const MAX_GROUP_USES_PER_GUEST_DAY = 8;
 
 export function wordsForGroup(letter: string, category: string): string[] {
   return [...new Set((WORD_BANK[category] || [])
@@ -96,42 +100,66 @@ export function analyzeRarity(input: {
   firstEligibleAt: Record<string, number>;
   groupStartedAt: number;
   now: number;
-}): { eligible: boolean; observations: number; uniquePlayers: number; uniqueRooms: number; candidates: Record<string, RarityTier>; recentWordUses: Record<string,number> } {
+ }): { eligible: boolean; observations: number; uniquePlayers: number; uniqueRooms: number; candidates: Record<string, RarityTier>; recentWordUses: Record<string,number>; suspicious: boolean } {
   const { words, observations, firstEligibleAt, groupStartedAt, now } = input;
   const candidates: Record<string, RarityTier> = {};
   const pool = words.length;
   const accepted = new Set(words);
   const cutoff = now - RARITY_WINDOW_DAYS * 86400000;
   const counted = new Set<string>();
+  const roomWordCounts=new Map<string,number>();
+  const guestGroupCounts=new Map<string,number>();
+  const roomContributions=new Map<string,number>();
+  const dailyContributions=new Map<string,number>();
   const events: {playerId: string;word: string;at: number}[] = [];
   const recentWordUses:Record<string,number>={};
   const users = new Set<string>();
   const rooms = new Set<string>();
   const dates = new Set<string>();
   let firstUse = Infinity, lastUse = -Infinity;
-  for (const observation of observations) {
+  // Sorting makes caps deterministic regardless of DynamoDB query page boundaries.
+  for (const observation of [...observations].sort((a,b)=>
+    a.occurredAt-b.occurredAt || a.eventId.localeCompare(b.eventId))) {
     if (observation.occurredAt < cutoff || observation.occurredAt > now || !Array.isArray(observation.entries)) continue;
     for (const entry of observation.entries) {
       if (!accepted.has(entry.word) || !entry.playerId) continue;
-      const key = groupByDay(observation.occurredAt) + '\u0000' + entry.playerId + '\u0000' + entry.word;
-      if (counted.has(key)) continue;
+      const day=groupByDay(observation.occurredAt);
+      const key = day + '\u0000' + entry.playerId + '\u0000' + entry.word;
+      if(counted.has(key))continue;
+      const roomKey=day+'\u0000'+observation.matchId+'\u0000'+entry.word;
+      const guestKey=day+'\u0000'+entry.playerId;
+      if((roomWordCounts.get(roomKey)||0)>=MAX_WORD_USES_PER_ROOM_DAY ||
+         (guestGroupCounts.get(guestKey)||0)>=MAX_GROUP_USES_PER_GUEST_DAY)continue;
       counted.add(key);
+      roomWordCounts.set(roomKey,(roomWordCounts.get(roomKey)||0)+1);
+      guestGroupCounts.set(guestKey,(guestGroupCounts.get(guestKey)||0)+1);
+      roomContributions.set(observation.matchId,(roomContributions.get(observation.matchId)||0)+1);
+      dailyContributions.set(day,(dailyContributions.get(day)||0)+1);
       recentWordUses[entry.word]=(recentWordUses[entry.word]||0)+1;
       events.push({playerId:entry.playerId, word:entry.word, at:observation.occurredAt});
       users.add(entry.playerId);
       rooms.add(observation.matchId);
-      dates.add(groupByDay(observation.occurredAt));
+      dates.add(day);
       firstUse = Math.min(firstUse, observation.occurredAt);
       lastUse = Math.max(lastUse, observation.occurredAt);
     }
   }
+  // A highly concentrated cluster can look like a large 'independent' sample
+  // when one actor rotates guest IDs. Refuse tier changes until it disperses.
+  const topRooms=[...roomContributions.values()].sort((a,b)=>b-a).slice(0,2)
+    .reduce((a,b)=>a+b,0);
+  const topDay=Math.max(0,...dailyContributions.values());
+  const suspicious=events.length>=120 && (
+    topRooms/events.length>0.60 ||
+    topDay/events.length>0.55
+  );
   const enough = pool >= RARITY_MIN_POOL &&
     events.length >= Math.max(120, 8 * pool) &&
     users.size >= 20 && rooms.size >= 12 &&
     now - groupStartedAt >= 7 * 86400000 &&
     lastUse - firstUse >= 6 * 86400000 &&
-    dates.size >= 4;
-  if (!enough) return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
+    dates.size >= 4 && !suspicious;
+  if (!enough) return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses,suspicious};
 
   const minimumExposure = Math.max(60, 4 * pool);
   const rates = new Map<string,{count:number;exposure:number;rate:number}>();
@@ -145,16 +173,16 @@ export function analyzeRarity(input: {
   }
   // If the baseline contains too few mature words, abstain rather than invent rarity.
   if (rates.size < Math.max(10, Math.ceil(pool * 0.6))) {
-    return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
+    return {eligible:false,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses,suspicious};
   }
   const baseline = median([...rates.values()].map(value => value.rate));
-  if (baseline <= 0) return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
+  if (baseline <= 0) return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses,suspicious};
   for (const [word, {count,exposure}] of rates) {
     const upper = (count + 1 + 1.65 * Math.sqrt(count + 1)) / exposure;
     if (pool >= 20 && upper < 0.25 * baseline) candidates[word] = 2;
     else if (upper < 0.6 * baseline) candidates[word] = 1;
   }
-  return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses};
+  return {eligible:true,observations:events.length,uniquePlayers:users.size,uniqueRooms:rooms.size,candidates,recentWordUses,suspicious};
 }
 
 /** Daily two-day promotion / three-day demotion; never promote twice on one day. */
