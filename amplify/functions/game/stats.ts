@@ -1,4 +1,4 @@
-import { normalizeAnswer, validAnswer, type Match } from './logic.ts';
+import { canonicalAnswer, validAnswer, type Match } from './logic.ts';
 
 /** Only accepted words are counted, with no player identifiers or raw invalid answers. */
 export type WordUsage = {
@@ -14,7 +14,7 @@ export function roundWordDeltas(before:Match|null, after:Match):WordUsage[] {
   for(const player of completed.entries){
     for(const category of completed.categories){
       const points=player.perCategory[category]||0;
-      const word=normalizeAnswer(player.answers[category]).toLocaleLowerCase('th');
+      const word=canonicalAnswer(player.answers[category],category);
       if(points<=0 || !validAnswer(word,completed.letter,category))continue;
       const id=`stats#${completed.letter}#${category}#${word}`;
       const existing=counts.get(id);

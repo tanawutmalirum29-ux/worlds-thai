@@ -324,7 +324,7 @@ function App(){
           </div>:null}
           {playing?<><div className="challenge-banner"><div><div className="banner-label">พยัญชนะประจำรอบ</div><div className="letter-display">{game.letter}</div><div className="letter-caption">{letterCaption(game.letter)}</div></div><div className="time-box"><span>เวลาที่เหลือ</span><strong className={remaining<=15?'urgent':''}>{timeLabel(remaining)}</strong><div className="time-track"><div style={{width:`${Math.min(100,remaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} หมวด</h2><p>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</p>
-              {game.categories.includes('dessert')?<p className="dessert-prefix-help">หมวดขนม: ถ้าชื่อขึ้นต้นด้วย “ขนม” ให้นับอักษรของคำที่ตามมา เช่น ขนมครก = ค ควาย</p>:null}</div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
+              {game.categories.includes('dessert')?<p className="dessert-prefix-help">หมวดขนม: ใส่ “ขนม” นำหน้าหรือไม่ก็ได้สำหรับชื่อขนมที่มีในคลัง เช่น ไข่หงส์ / ขนมไข่หงส์ นับ ข ไข่ · ขนมครก นับ ค ควาย · คำว่า “ขนม” อย่างเดียวไม่รับ</p>:null}</div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
               const typed=normalizeAnswer(answers[id]);
               const state=!typed?'empty':validAnswer(typed,game.letter,id)?'accepted':wordInitialForCategory(typed,id)!==game.letter?'wrong-letter':'unknown';

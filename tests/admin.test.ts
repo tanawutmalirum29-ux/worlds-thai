@@ -91,3 +91,9 @@ test('uncategorized word export is only on admin page',()=>{
   const view=readFileSync(new URL('../src/admin-dashboard-view.tsx',import.meta.url),'utf8');
   assert.match(view,/className="pop-word-link"/);
 });
+
+test('admin draft validation prevents redundant dessert variants',()=>{
+  assert.throws(()=>addDraft({},'ขนมไข่หงส์','dessert'),/มีคำนี้/);
+  assert.throws(()=>addDraft({},'ไข่เหี้ย','dessert'),/มีคำนี้/);
+  assert.throws(()=>addDraft({},'ขนมข้าวตู','dessert'),/มีคำนี้/);
+});

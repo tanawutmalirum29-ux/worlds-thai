@@ -27,11 +27,32 @@ export function wordInitialForCategory(value:string,category:string):string {
     return initialConsonant(normalizeAnswer(word.slice('ขนม'.length)));
   return initialConsonant(word);
 }
+// Named sweet aliases refer to the SAME dessert (not separate distinct answers).
+// ขนมไข่เหี้ย is the historical name for ขนมไข่หงส์.
+const dessertAliases:Readonly<Record<string,string>>={'ไข่เหี้ย':'ไข่หงส์'};
+const dessertVocabulary=new Set(WORD_BANK.dessert.map(word=>normalizeAnswer(word).toLocaleLowerCase('th')));
+/** Canonical identity for scoring, duplicates and word statistics.
+ * An optional leading "ขนม" is accepted ONLY when its remainder is a real
+ * registered dessert or a curated alias. Existing fully prefixed names
+ * (e.g. ขนมครก) keep their full identity if "ครก" is not a known dessert.
+ * Other categories are never altered.
+ */
+export function canonicalAnswer(value:unknown,category:string):string {
+  const raw=normalizeAnswer(value).toLocaleLowerCase('th');
+  if(category!=='dessert'||!raw)return raw;
+  let core=raw;
+  if(raw.startsWith('ขนม')){
+    const unprefixed=normalizeAnswer(raw.slice('ขนม'.length)).toLocaleLowerCase('th');
+    if(dessertVocabulary.has(unprefixed)||Object.prototype.hasOwnProperty.call(dessertAliases,unprefixed))
+      core=unprefixed;
+  }
+  return dessertAliases[core]||core;
+}
 const eligibleByLetter: Record<string,string[]> = Object.fromEntries(
   ALL_LETTERS.map(letter => [letter, CATEGORIES.map(([id]) => id).filter(category =>
     new Set((WORD_BANK[category] || [])
       .filter(word => wordInitialForCategory(word,category) === letter)
-      .map(word => normalizeAnswer(word).toLocaleLowerCase('th'))).size >= MIN_WORDS_PER_PAIR)])
+      .map(word => canonicalAnswer(word,category))).size >= MIN_WORDS_PER_PAIR)])
 );
 export const LETTERS = ALL_LETTERS.filter(letter =>
   !EXCLUDED_LETTERS.has(letter) && eligibleByLetter[letter].length >= MIN_CATEGORIES_PER_LETTER
@@ -41,7 +62,7 @@ export function eligibleCategories(letter: string): string[] {
 }
 const acceptedWords = new Map<string,Set<string>>(
   Object.entries(WORD_BANK).map(([category,words]) =>
-    [category,new Set(words.map(word => normalizeAnswer(word).toLocaleLowerCase('th')))])
+    [category,new Set(words.map(word => canonicalAnswer(word,category)))])
 );
 export const MAX_PLAYERS = 8;
 export const DEFAULT_SETTINGS = { rounds: 3, categories: 5, seconds: 40 } as const;
@@ -94,7 +115,7 @@ export function validAnswer(value: string, letter: string, category: string): bo
   return answer.length > 0
     && wordInitialForCategory(answer,category) === letter
     && eligibleCategories(letter).includes(category)
-    && (acceptedWords.get(category)?.has(answer) ?? false);
+    && (acceptedWords.get(category)?.has(canonicalAnswer(answer,category)) ?? false);
 }
 export function cleanAnswers(value: unknown, categories: string[]): Record<string,string> {
   const input = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string,unknown> : {};
@@ -113,7 +134,9 @@ export function chooseRound(match: Match, random = Math.random) {
   for (let i=0;i<match.settings.categories;i++) {
     // Prefer categories offering more distinct valid answers, reducing easy duplicates.
     const weights=pool.map(category=>{
-      const count=(WORD_BANK[category] || []).filter(word=>wordInitialForCategory(word,category)===letter).length;
+      const count=new Set((WORD_BANK[category] || [])
+        .filter(word=>wordInitialForCategory(word,category)===letter)
+        .map(word=>canonicalAnswer(word,category))).size;
       return Math.min(4,Math.max(1,(count-MIN_WORDS_PER_PAIR)/2+1));
     });
     const totalWeight=weights.reduce((sum,weight)=>sum+weight,0);
@@ -136,7 +159,7 @@ export function scoreRound(match: Match): RoundEntry[] {
       if (!validAnswer(answer,match.letter,category)) { perCategory[category]=0; continue; }
       const duplicateCount = all.filter(entry =>
         validAnswer(entry.answers[category],match.letter,category) &&
-        entry.answers[category].toLocaleLowerCase('th') === answer.toLocaleLowerCase('th')).length;
+        canonicalAnswer(entry.answers[category],category) === canonicalAnswer(answer,category)).length;
       perCategory[category] = duplicateCount > 1 ? 1 : 2;
     }
     return { id: player.id, name: player.name, answers, perCategory,

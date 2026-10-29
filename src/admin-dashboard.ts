@@ -1,4 +1,4 @@
-import {wordInitialForCategory,normalizeAnswer} from '../amplify/functions/game/logic.ts';
+import {wordInitialForCategory,canonicalAnswer} from '../amplify/functions/game/logic.ts';
 import {CATEGORY_OPTIONS,type Entry} from './admin-data.ts';
 import type {WordStatRecord} from './stats-export.ts';
 
@@ -9,8 +9,7 @@ export type DashboardEntry=Entry & {archived?:boolean};
 export type UsageGroup={key:string;category:string;letter:string;label:string;entries:number;usedEntries:number;uses:number;points:number;coverage:number};
 export type UsageTotals={entries:number;usedEntries:number;unusedEntries:number;uses:number;points:number;coverage:number};
 const labels=new Map<string,string>(CATEGORY_OPTIONS.map(c=>[c.id,c.label]));
-const normalized=(word:string)=>normalizeAnswer(word).toLocaleLowerCase('th');
-const key=(category:string,word:string)=>category+'\u0000'+normalized(word);
+const key=(category:string,word:string)=>category+'\u0000'+canonicalAnswer(word,category);
 const thaiSort=(a:string,b:string)=>a.localeCompare(b,'th');
 
 export function mergeHistoricalStats(entries:Entry[],rawStats:WordStatRecord[]):DashboardEntry[]{

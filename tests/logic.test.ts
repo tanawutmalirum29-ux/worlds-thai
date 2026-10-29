@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,publicRoom,initialConsonant,wordInitialForCategory,validAnswer,
+import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,publicRoom,initialConsonant,wordInitialForCategory,canonicalAnswer,validAnswer,
   CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings,type GameSettings } from '../amplify/functions/game/logic.ts';
 import {resolveOperation} from '../amplify/functions/game/request.ts';
 const start=1_700_000_000_000;
@@ -170,7 +170,7 @@ test('fairness filter excludes low-vocabulary consonants and weak letter-categor
     assert.ok(cats.length>=8,letter+' needs at least 8 eligible categories');
     for(const category of cats){
       const words=new Set((WORD_BANK[category]||[]).filter(word=>wordInitialForCategory(word,category)===letter)
-        .map(word=>word.normalize('NFC').trim().toLocaleLowerCase('th')));
+        .map(word=>canonicalAnswer(word,category)));
       assert.ok(words.size>=5,letter+':'+category+' only '+words.size+' distinct answers');
     }
   }
@@ -263,4 +263,41 @@ test('dessert prefix ขนม is ignored; only the named sweet determines the l
   const eligibleKh=(await import('../amplify/functions/game/dictionary.ts')).WORD_BANK.dessert
     .filter(w=>wordInitialForCategory(w,'dessert')==='ข');
   assert.equal(eligibleKh.length,24);
+});
+
+test('desserts accept an OPTIONAL leading ขนม but never arbitrary made-up words',()=>{
+  for(const [word,letter] of [
+    ['ไข่หงส์','ข'],['ขนมไข่หงส์','ข'],
+    ['ไข่เหี้ย','ข'],['ขนมไข่เหี้ย','ข'],
+    ['ข้าวตู','ข'],['ขนมข้าวตู','ข'],
+    ['ข้าวเหนียวแก้ว','ข'],['ขนมข้าวเหนียวแก้ว','ข'],
+    ['เค้ก','ค'],['ขนมเค้ก','ค'],
+    ['ขนมครก','ค']
+  ]){
+    assert.equal(wordInitialForCategory(word,'dessert'),letter,word);
+    assert.equal(validAnswer(word,letter,'dessert'),true,word);
+  }
+  assert.equal(canonicalAnswer('ขนมไข่หงส์','dessert'),'ไข่หงส์');
+  assert.equal(canonicalAnswer('ไข่เหี้ย','dessert'),'ไข่หงส์');
+  assert.equal(canonicalAnswer('ขนมไข่เหี้ย','dessert'),'ไข่หงส์');
+  assert.equal(canonicalAnswer('ขนมข้าวตู','dessert'),'ข้าวตู');
+  assert.equal(canonicalAnswer('ขนมครก','dessert'),'ขนมครก');
+  for(const word of ['ขนม','ขนมขนมครก','ขนมคำที่ไม่มี','ครก','ไข่']){
+    assert.equal(validAnswer(word,'ข','dessert'),false,word);
+    assert.equal(validAnswer(word,'ค','dessert'),false,word);
+  }
+  assert.equal(validAnswer('ขนมข้าวตู','ข','food'),false);
+  assert.equal(validAnswer('ขนมจีนน้ำยา','ข','food'),true);
+});
+test('same dessert with or without ขนม and historical alias counts as duplicate',()=>{
+  const m=setup();
+  m.phase='playing';m.letter='ข';m.categories=['dessert'];
+  m.submissions={
+    host:{dessert:'ไข่หงส์'},
+    guest:{dessert:'ขนมไข่เหี้ย'}
+  };
+  const points=scoreRound(m).map(entry=>entry.perCategory.dessert);
+  assert.deepEqual(points,[1,1]);
+  m.submissions.guest.dessert='ขนมไข่หงส์';
+  assert.deepEqual(scoreRound(m).map(x=>x.perCategory.dessert),[1,1]);
 });

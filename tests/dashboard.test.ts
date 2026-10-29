@@ -67,3 +67,20 @@ test('admin and dashboard place named desserts under the consonant AFTER ขน�
   assert.equal(dashboardFilter(mergeHistoricalStats(rows,[]),'dessert','ค')
     .some(x=>x.word==='ขนมครก'),true);
 });
+
+test('dashboard joins historical ขนม-prefixed variants without double counting rows',()=>{
+  const rows=getEntries({},[
+    {letter:'ข',category:'dessert',word:'ไข่หงส์',timesUsed:2,totalPoints:4},
+    {letter:'ข',category:'dessert',word:'ขนมไข่เหี้ย',timesUsed:1,totalPoints:1},
+    {letter:'ข',category:'dessert',word:'ขนมไข่หงส์',timesUsed:3,totalPoints:5}
+  ]);
+  const sweet=rows.filter(row=>row.category==='dessert'&&row.word==='ไข่หงส์');
+  assert.equal(sweet.length,1);
+  assert.equal(sweet[0].uses,6);
+  assert.equal(sweet[0].points,10);
+  const all=mergeHistoricalStats(rows,[
+    {letter:'ข',category:'dessert',word:'ขนมไข่เหี้ย',timesUsed:1,totalPoints:1}
+  ]);
+  assert.equal(all.filter(row=>row.category==='dessert'&&row.word==='ไข่หงส์').length,1);
+  assert.ok(!all.some(row=>row.category==='dessert'&&row.archived&&row.word==='ขนมไข่เหี้ย'));
+});

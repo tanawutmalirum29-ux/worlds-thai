@@ -1,5 +1,5 @@
 import {WORD_BANK,EXCLUDED_LETTERS,MIN_WORDS_PER_PAIR,MIN_CATEGORIES_PER_LETTER} from '../amplify/functions/game/dictionary.ts';
-import {CATEGORIES,initialConsonant,wordInitialForCategory,normalizeAnswer} from '../amplify/functions/game/logic.ts';
+import {CATEGORIES,initialConsonant,wordInitialForCategory,canonicalAnswer,normalizeAnswer} from '../amplify/functions/game/logic.ts';
 import {LETTER_NAMES,letterCaption} from './letters.ts';
 import type {WordStatRecord} from './stats-export.ts';
 
@@ -16,13 +16,14 @@ export function normalizeDrafts(input:unknown):Drafts {
   const result:Drafts={};
   for(const category of Object.keys(WORD_BANK)){
     const values=data[category];if(!Array.isArray(values))continue;
-    const seen=new Set((WORD_BANK[category]||[]).map(key));
+    const seen=new Set((WORD_BANK[category]||[]).map(word=>canonicalAnswer(word,category)));
     const words:string[]=[];
     for(const item of values){
       if(typeof item!=='string')continue;
       const value=normalizeAnswer(item);
-      if(!isAcceptableWord(value) || seen.has(key(value)))continue;
-      seen.add(key(value));words.push(value);
+      const canonical=canonicalAnswer(value,category);
+      if(!isAcceptableWord(value) || seen.has(canonical))continue;
+      seen.add(canonical);words.push(value);
     }
     if(words.length)result[category]=words;
   }
@@ -43,7 +44,8 @@ export function addDraft(drafts:Drafts,wordInput:string,category:string):Drafts 
   if(!labels.has(category))throw new Error('กรุณาเลือกหมวด');
   const word=normalizeAnswer(wordInput);
   if(!isAcceptableWord(word))throw new Error('กรุณาใส่คำภาษาไทยที่ถูกต้อง ไม่เกิน 48 ตัวอักษร');
-  if((mergedBank(drafts)[category]||[]).some(w=>key(w)===key(word)))throw new Error('มีคำนี้อยู่ในหมวดแล้ว');
+  if((mergedBank(drafts)[category]||[]).some(w=>canonicalAnswer(w,category)===canonicalAnswer(word,category)))
+    throw new Error('มีคำนี้อยู่ในหมวดแล้ว');
   return normalizeDrafts({...drafts,[category]:[...(drafts[category]||[]),word]});
 }
 export function dropDraft(drafts:Drafts,word:string,category:string):Drafts{
@@ -54,7 +56,7 @@ export function getEntries(drafts:Drafts,stats:WordStatRecord[]=[]):Entry[]{
   // Aggregate by word+category (not stored letter), preserving both old and new totals.
   const counter=new Map<string,{timesUsed:number;totalPoints:number;lastUsedAt:number|null}>();
   for(const stat of stats){
-    const id=stat.category+'\u0000'+key(stat.word);
+    const id=stat.category+'\u0000'+canonicalAnswer(stat.word,stat.category);
     const prev=counter.get(id);
     counter.set(id,{
       timesUsed:(prev?.timesUsed||0)+(stat.timesUsed||0),
@@ -63,11 +65,17 @@ export function getEntries(drafts:Drafts,stats:WordStatRecord[]=[]):Entry[]{
     });
   }
   const staged=new Set(Object.entries(normalizeDrafts(drafts)).flatMap(([category,words])=>
-    words.map(w=>category+'\u0000'+key(w))));
+    words.map(w=>category+'\u0000'+canonicalAnswer(w,category))));
   const rows:Entry[]=[];
   for(const [category,words] of Object.entries(mergedBank(drafts))){
+    const seen=new Set<string>();
     for(const word of words){
-      const id=category+'\u0000'+key(word),s=counter.get(id);
+      const canonical=canonicalAnswer(word,category),id=category+'\u0000'+canonical;
+      // Display a sweet once even when the bank contains both versions,
+      // such as ตะโก้ and ขนมตะโก้.
+      if(seen.has(id))continue;
+      seen.add(id);
+      const s=counter.get(id);
       rows.push({word,category,label:labels.get(category)||category,letter:wordInitialForCategory(word,category),
         draft:staged.has(id),uses:s?.timesUsed||0,points:s?.totalPoints||0,lastUsedAt:s?.lastUsedAt||null});
     }
