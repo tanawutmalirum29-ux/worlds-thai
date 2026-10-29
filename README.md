@@ -11,7 +11,7 @@
 5. แต่ละรอบสุ่มพยัญชนะและหมวดที่คลังคำรองรับ; คำถูกไม่ซ้ำ 2 คะแนน ถูกซ้ำ 1 คะแนน คำไม่รับรอง/ผิดหมวด 0 คะแนน
 6. จบครบจำนวนรอบ เจ้าของกด **เล่นใหม่** ได้; ถ้าเจ้าของออก ผู้เล่นที่ยังอยู่คนแรกจะเป็นเจ้าของแทน
 
-**ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 8 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 5 คำไม่ซ้ำกัน และให้โอกาสหมวดที่มีคำตอบมากถูกสุ่มมากกว่า **ฃ ขวด (ตัว ฃ) ถูกงดสุ่ม** ส่วน **ข ไข่ (ตัว ข) ใช้ได้ตามปกติ** และมีคลังคำรองรับอย่างน้อย 8 หมวด
+**ขอบเขตการตรวจคำ:** ฝั่งเซิร์ฟเวอร์ตรวจพยัญชนะต้นรวมรูปแบบสระนำ `เ แ โ ใ ไ`, ตรวจรายการคำที่ผู้ดูแลตรวจรับและจัดหมวดไว้ใน `amplify/functions/game/dictionary.ts`, ตรวจคำซ้ำและเวลา ไม่ยอมรับคำใด ๆ เพียงเพราะพยัญชนะต้นตรงอีกแล้ว เลือกสุ่มเฉพาะตัวอักษรที่มีอย่างน้อย 5 หมวด โดยแต่ละหมวดต้องมีคำที่ตรวจรับอย่างน้อย 2 คำไม่ซ้ำกัน และให้โอกาสหมวดที่มีคำตอบมากถูกสุ่มมากกว่า **ฃ ขวด (ตัว ฃ) ถูกงดสุ่ม** ส่วน **ข ไข่ (ตัว ข) ใช้ได้ตามปกติ** และมีคลังคำรองรับอย่างน้อย 5 หมวด
 
 **ข้อจำกัด:** นี่เป็นคลังคำคัดเลือก ไม่ใช่พจนานุกรมภาษาไทยฉบับสมบูรณ์ คำจริงที่ไม่ได้บันทึกจะได้ 0 คะแนน (false negative) จึงควรเปิดคำขอเพิ่มคำให้ผู้ดูแลตรวจสอบก่อนปล่อยให้เล่นแข่งขันจริง และห้ามอ้างว่าตรวจคำได้ครบทุกคำ
 
@@ -108,7 +108,7 @@ The old exclusion accidentally removed **ข ไข่** because **ฃ ขวด
 
 ## Avoid trivial letters and sparse categories
 
-The earlier rules admitted a letter/category pair with only 3 approved answers, making responses predictable. The current fairness gate requires **at least 5 distinct accepted words per letter/category pair** and **at least 8 qualifying categories for a consonant**; rounds still honor room settings of 3–8 categories. Category selection favors richer pools. Rare letters such as **ฎ ชฎา** and **ฮ นกฮูก** never enter the draw. **ด เด็ก** and **ข ไข่** remain eligible because their category vocabularies meet the threshold. This is a curated-answer gate, not a claim to cover every possible Thai word.
+The revised eligibility gate requires **at least 2 distinct, accepted words in each letter/category pair** and **at least 5 qualifying categories per consonant**. It counts canonical answers, so duplicate spellings or aliases cannot inflate the threshold. Rooms can still select 3–8 categories: rounds with 6–8 categories draw only letters with at least that many qualifying categories, and every drawn category has at least 2 distinct answers. Category selection continues to favor richer pools. Explicitly excluded obsolete/rare consonants such as **ฎ ชฎา** and **ฮ นกฮูก** remain excluded. This is a curated-answer gate, not a claim to cover every possible Thai word.
 
 ## Automatic answer capture and reviewed vocabulary expansion
 
@@ -178,7 +178,7 @@ The **ส เสือ** dessert pool gained five distinct real sweets after ali
 - รัฐ/จังหวัด/จังหวัดเทียบเท่าของประเทศอื่น **28 ชื่อหลัก**: สหรัฐอเมริกา 12, แคนาดา 3, ญี่ปุ่น 8, ออสเตรเลีย 3, เยอรมนี 2
 - รูปสะกดภาษาไทยทางเลือกอีก **5 แบบ** ที่นับเป็นสถานที่เดียวกัน (ไม่นับเป็นคำตอบใหม่)
 - รวม **143 ชื่อหลัก** (77+38+28) หรือ **148 รูปคำ** เมื่อรวมรูปสะกดทางเลือก ไม่มีการเพิ่มชื่อเมืองทั่วไปที่ไม่ได้เป็นเขตการปกครองระดับจังหวัด
-- เกณฑ์สุ่มเดิมยังใช้เหมือนเดิม: อย่างน้อย **5 คำต่อหมวด/พยัญชนะ** และ **8 หมวดต่อพยัญชนะ** จึงสุ่มได้ หากชื่อรัฐหรือจังหวัดอยู่ในคลังแต่พยัญชนะนั้นยังไม่ผ่านเกณฑ์ เกมจะยังไม่สุ่มรอบนั้น
+- เกณฑ์สุ่มใหม่: อย่างน้อย **2 คำไม่ซ้ำต่อหมวด/พยัญชนะ** และ **5 หมวดต่อพยัญชนะ** จึงสุ่มได้ (สำหรับห้องที่เลือก 6–8 หมวด จะสุ่มเฉพาะอักษรที่รองรับจำนวนหมวดนั้นได้) หากชื่อรัฐหรือจังหวัดอยู่ในคลังแต่พยัญชนะนั้นยังไม่ผ่านเกณฑ์ เกมจะยังไม่สุ่มรอบนั้น
 - แหล่งข้อมูล: `amplify/functions/game/neighbor-provinces.ts`, `amplify/functions/game/familiar-world-provinces.ts` และรายการจังหวัดไทยใน `dictionary.ts`; เปลี่ยน shortlist ได้หลังตรวจคำและเทสต์
 
 เกณฑ์คัดเลือกเป็นเกณฑ์บรรณาธิการโดยประมาณ (พบในข่าว การเรียน การท่องเที่ยว หรือประเทศเพื่อนบ้าน) **ไม่ใช่การจัดอันดับจากผลสำรวจว่าคนไทยรู้จักจังหวัดใดมากที่สุด** รายการที่ถูกตัดออกไม่ถือว่าเป็นสถานที่ไม่มีจริง เพียงแต่ไม่ได้เป็นคำตอบที่คลังเกมฉบับนี้รองรับ
