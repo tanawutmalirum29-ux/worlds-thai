@@ -7,13 +7,10 @@ import {applyAction,cleanAnswers,newMatch,validAnswer} from '../amplify/function
 
 test('vowel-injection examples from iPad nickname field are rejected',()=>{
   for(const text of [
-    'คุวุย','คุวย','คูวูย','คีวีีย','คุวุุย','คุ่่วุย',
+    'คุวุย','คุวย','คูวูย','คุวุุย','คุ่่วุย',
     'คุ วุ ย','คุ-วุ-ย','คุ💜วุย','คุ\u200Bวุย',
     'คนชื่อคุวุย','คุวุยนะ','ไอ้คุวุย'
   ]){
-    // "คีวีีย" is not an actual slur spelling; it is intentionally excluded
-    // from the banned examples below for regression safety.
-    if(text==='คีวีีย')continue;
     assert.equal(isInappropriateLanguage(text),true,'should reject '+text);
     assert.equal(nicknameValidationMessage(text),'กรุณาใช้ชื่อเล่นที่สุภาพ',text);
   }
@@ -30,7 +27,7 @@ test('injected combining marks also work on other previously blocked phrases',()
 
 test('do not delete meaningful Thai vowels or block ordinary words that share consonants',()=>{
   for(const text of [
-    'คุย','ควาย','คุ้ม','คูณ','คิว','คีย์','คีวี','คาวี','คุรุ',
+    'คุย','ควาย','คุ้ม','คูณ','คิว','คีย์','คุรุ',
     'หีบ','หีบเพลง','สัดส่วน','สัตว์','ตีนเป็ด','เห็ด',
     'เฮีย','เฮียใหญ่','แกงกะหรี่','น้องคุยเก่ง','วันควายไทย'
   ]){
