@@ -51,7 +51,7 @@ test('audio messages float outside main and are dismissed without layout shift',
 test('idle home does not update the entire React page every 250ms', () => {
   assert.doesNotMatch(source, /setInterval\(\(\)=>setNow\(Date\.now\(\)\),250\)/);
   assert.match(source, /if\(game\?\.phase!=='playing' && game\?\.phase!=='review'\)return/);
-  assert.match(source, /game\.phase==='playing'&&game\.timeRush\?100:1000/);
+  assert.match(source, /game\.phase==='playing'&&game\.timeRush\?250:1000/);
 });
 
 test('network polling skips redundant data and does not overlap requests', () => {
@@ -174,4 +174,18 @@ test('auto-scroll yields to user interaction and respects reduced motion',()=>{
   assert.match(source,/prefers-reduced-motion: reduce/);
   assert.match(source,/target\.scrollIntoView\(\{behavior:'auto',block:'start',inline:'nearest'\}\)/);
   assert.match(source,/document\.body\.style\.minHeight=priorMinHeight/);
+});
+
+test('weak clients fetch authoritative round on timer expiration and recover from stalled reads',()=>{
+  assert.match(source,/const lastDeadlineProbeRef=useRef\(''\)/);
+  assert.match(source,/refreshGameRef\.current\(\)/);
+  assert.match(source,/lastDeadlineProbeRef\.current=key/);
+  assert.match(source,/pendingNetworkRequests>=2/);
+  assert.match(source,/Promise\.race\(\[request,timeoutResult\]\)/);
+  assert.match(source,/12000\)/);
+  assert.match(source,/window\.addEventListener\('online',onResume\)/);
+  assert.match(source,/heartbeatPending/);
+  assert.match(source,/กำลังซิงค์รอบถัดไป/);
+  assert.match(source,/เครือข่ายช้า · กำลังตามรอบ/);
+  assert.doesNotMatch(source,/setInterval\(refresh,2000\)/);
 });
