@@ -99,3 +99,22 @@ td.word{color:#ffdfae;font-weight:700}.no-rows{text-align:center;color:#a6b9ca;p
   .admin-quick-grid{grid-template-columns:1fr}
   .admin-quick-link{min-height:68px;padding:12px 14px}
 }
+
+/* Admin remembered sessions and explicit, confirmed all-device sign-out. */
+.admin-auth-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+.button.danger{background:#64323b;border-color:#a45c6b;color:#ffe5e7}
+.button.danger:hover{background:#783e47}
+.admin-auth-loading{margin:22px 0;font-size:13px;color:#f0d5a8}
+.admin-confirm-backdrop{position:fixed;inset:0;background:#070e19d9;z-index:50;display:grid;
+  place-items:center;padding:15px;overscroll-behavior:contain}
+.admin-confirm-dialog{background:#1b2a3e;color:#ecf2f9;border:1px solid #647b92;border-radius:18px;
+  padding:24px;width:min(100%,465px);box-shadow:0 20px 65px #000c}
+.admin-confirm-dialog h2{font-size:21px;margin:0}
+.admin-confirm-dialog p{font-size:13px;color:#b7c9da;line-height:1.75}
+.admin-confirm-buttons{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+@media(max-width:560px){
+  .heading{flex-wrap:wrap}
+  .admin-auth-actions{width:100%;justify-content:stretch}
+  .admin-auth-actions .button{flex:1;min-width:0;font-size:11px;padding:9px 8px}
+  .admin-confirm-buttons{display:grid;grid-template-columns:1fr}
+}

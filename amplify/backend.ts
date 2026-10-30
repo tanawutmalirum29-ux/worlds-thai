@@ -53,3 +53,13 @@ wordSuggestions.grantReadWriteData(backend.game.resources.lambda);
 (backend.game.resources.lambda as LambdaFunction).addEnvironment('WORD_STATS_TABLE',wordStats.tableName);
 
 (backend.game.resources.lambda as LambdaFunction).addEnvironment('WORD_SUGGESTIONS_TABLE',wordSuggestions.tableName);
+
+/** Persisted, revocable 30-day admin login tokens and a global logout revision. */
+const adminSessions=new Table(stack,'AdminAccessSessions',{
+  partitionKey:{name:'id',type:AttributeType.STRING},
+  billingMode:BillingMode.PAY_PER_REQUEST,
+  timeToLiveAttribute:'ttl',
+  removalPolicy:RemovalPolicy.RETAIN
+});
+adminSessions.grantReadWriteData(backend.game.resources.lambda);
+(backend.game.resources.lambda as LambdaFunction).addEnvironment('ADMIN_SESSIONS_TABLE',adminSessions.tableName);
