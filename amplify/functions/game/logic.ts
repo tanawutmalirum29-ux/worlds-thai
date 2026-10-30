@@ -71,6 +71,15 @@ const dessertAliases:Readonly<Record<string,string>>={
   // Common shorthand for the same French pastry; count it once.
   'ครัวซอง':'ครัวซองต์'
 };
+// Common typed variants of specific named drinks resolve to one canonical
+// score/stat identity. This is strictly drink-category-local.
+const drinkAliases: Readonly<Record<string,string>>={
+  'สไปร์':'สไปรท์',
+  'สไปรต์':'สไปรท์',
+  'โคคาโคล่า':'โค้ก',
+  'โคคาโคลา':'โค้ก',
+  'เอสเพรสโซ':'เอสเปรสโซ'
+};
 const dessertVocabulary=new Set(WORD_BANK.dessert.map(word=>normalizeAnswer(word).toLocaleLowerCase('th')));
 /** Accepted Thai flamingo spelling variants. They are not separate rarity words. 
  * Both spellings are used by Thai-language sources; the unmarked form is canonical.
@@ -98,6 +107,7 @@ export function canonicalAnswer(value:unknown,category:string):string {
     return category==='bird' ? (flamingoAliases[name] || name) : name;
   }
   if(category==='animal')return flamingoAliases[raw] || raw;
+  if(category==='drink')return drinkAliases[raw] || raw;
   if(category!=='dessert'||!raw)return raw;
   let core=raw;
   if(raw.startsWith('ขนม')){
