@@ -478,23 +478,9 @@ function App(){
     const next=!audioMuted;
     writeAudioMuted(next);
     setAudioMuted(next);
-    announceAudio(next?'ปิดเสียงเพลงและเอฟเฟกต์แล้ว':'เปิดเสียงแล้ว แตะปุ่มทดสอบเสียงเพื่อเช็กทันที');
+    announceAudio(next?'ปิดเสียงเพลงและเอฟเฟกต์แล้ว':'เปิดเสียงเพลงและเอฟเฟกต์แล้ว');
     audioRef.current?.setMuted(next);
     if(!next)audioRef.current?.cue('tap');
-  }
-  async function testSound(){
-    const audio=audioRef.current;
-    if(!audio){announceAudio('ระบบเสียงยังไม่พร้อม ลองโหลดหน้าเกมใหม่');return;}
-    if(audioMuted){
-      writeAudioMuted(false);
-      setAudioMuted(false);
-      audio.setMuted(false);
-    }
-    // test() starts an audible media beep synchronously inside the tap event.
-    const started=await audio.test();
-    announceAudio(started
-      ? 'ส่งเสียงทดสอบ 3 ครั้งแล้ว ถ้ายังไม่ได้ยิน ให้ตรวจเสียงสื่อและอุปกรณ์ Bluetooth'
-      : 'เบราว์เซอร์ยังไม่อนุญาตให้เล่นเสียง ลองแตะทดสอบเสียงอีกครั้ง');
   }
   const ordered=(game?.players||[]).slice().sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'th'));
   const latest=game?.history.at(-1);
@@ -503,7 +489,7 @@ function App(){
     <div className="ambient ambient-left"/><div className="ambient ambient-right"/>
     <header className={playing?'topbar container topbar-playing':'topbar container'}>
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
-      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button type="button" className="sound-toggle" aria-label={audioMuted?'เปิดเสียงเพลงและเอฟเฟกต์':'ปิดเสียงเพลงและเอฟเฟกต์'} aria-pressed={!audioMuted} title={audioMuted?'เปิดเสียง':'ปิดเสียง'} onClick={toggleAudio}><SoundIcon muted={audioMuted}/><span className="sound-button-text">{audioMuted?'เปิดเสียง':'ปิดเสียง'}</span></button><button type="button" className="sound-test" aria-label="ทดสอบเสียงเพลงและเอฟเฟกต์" title="ทดสอบเสียง" onClick={()=>void testSound()}><span aria-hidden="true">♪</span><span className="sound-test-text">ลองเสียง</span></button><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
+      <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button type="button" className="sound-toggle" aria-label={audioMuted?'เปิดเสียงเพลงและเอฟเฟกต์':'ปิดเสียงเพลงและเอฟเฟกต์'} aria-pressed={!audioMuted} title={audioMuted?'เปิดเสียง':'ปิดเสียง'} onClick={toggleAudio}><SoundIcon muted={audioMuted}/><span className="sound-button-text">{audioMuted?'เปิดเสียง':'ปิดเสียง'}</span></button><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
     <div className="audio-toast-region" aria-live="polite" aria-atomic="true">{audioNotice?<p className="audio-notice" role="status">{audioNotice.message}</p>:null}</div>
     <main className="container">

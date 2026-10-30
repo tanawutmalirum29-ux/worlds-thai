@@ -49,13 +49,13 @@ test('music tries HTMLMediaElement on user gesture and falls back to oscillators
   assert.match(audio, /URL\.revokeObjectURL\(this\.musicUrl\)/);
 });
 
-test('sound test is a direct click with mobile gesture unlock and visible status', () => {
+test('header has only mute toggle, not a test sound button', () => {
   assert.match(main, /document\.addEventListener\('touchstart',unlock/);
   assert.match(main, /document\.addEventListener\('click',unlock\)/);
-  assert.match(main, /className="sound-test" aria-label="ทดสอบเสียงเพลงและเอฟเฟกต์"/);
-  assert.match(main, /onClick=\{\(\)=>void testSound\(\)\}/);
-  assert.match(main, /const started=await audio\.test\(\)/);
-  assert.match(main, /role="status" aria-live="polite"/);
-  assert.match(css, /\.sound-test\{display:inline-flex/);
-  assert.match(css, /@media\(max-width:720px\)\{/);
+  assert.match(main, /className="sound-toggle"/);
+  assert.match(main, /onClick=\{toggleAudio\}/);
+  assert.match(main, /className="audio-toast-region" aria-live="polite"/);
+  assert.doesNotMatch(main, /className="sound-test"|function testSound\(/);
+  assert.doesNotMatch(main, /ลองเสียง|แตะปุ่มทดสอบเสียง/);
+  assert.doesNotMatch(css, /\.sound-test[\s\.{:-]/);
 });
