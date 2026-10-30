@@ -5,6 +5,7 @@ import { ADDITIONAL_FISH } from './additional-fish.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { ADVANCED_ROYAL_TERMS } from './advanced-royal-terms.ts';
+import { SPORT_AND_FOLK_TERMS } from './sport-and-folk-terms.ts';
 import { POLITE_SYNONYM_TERMS } from './polite-synonym-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
 import { EXPANDED_THAI_TERMS } from './expanded-thai-terms.ts';
@@ -2112,6 +2113,10 @@ for (const [category, words] of Object.entries(FO_FAN_TERMS)) {
     throw new Error('Unknown ฟ category: '+category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
+
+// Sports and real Thai folk games share the existing sport category. Exact
+// duplicate spellings are removed before consonant eligibility and rarity pools.
+WORD_BANK.sport = [...new Set([...WORD_BANK.sport, ...SPORT_AND_FOLK_TERMS])];
 
 // Curated toys enter the live index once per spelling and category.
 WORD_BANK.toy = [...new Set([...WORD_BANK.toy, ...ADDITIONAL_TOYS])];
