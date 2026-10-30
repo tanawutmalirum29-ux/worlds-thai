@@ -28,6 +28,7 @@ import { HOURLY_VOCABULARY_20261030_C } from './hourly-vocabulary-20261030-c.ts'
 import { HOURLY_VOCABULARY_20261030_D } from './hourly-vocabulary-20261030-d.ts';
 import { HOURLY_VOCABULARY_20261030_E } from './hourly-vocabulary-20261030-e.ts';
 import { HOURLY_VOCABULARY_20261030_F } from './hourly-vocabulary-20261030-f.ts';
+import { HOURLY_VOCABULARY_20261030_G } from './hourly-vocabulary-20261030-g.ts';
 
 /**
  * Curated Thai answers for category-aware scoring. All items are individually approved.
@@ -2200,3 +2201,10 @@ for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030_F)) {
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
 export const MIN_WORDS_PER_PAIR = 2;
 export const MIN_CATEGORIES_PER_LETTER = 5;
+
+// Hourly round G: register only curated words in existing categories.
+for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030_G)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown hourly vocabulary category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
