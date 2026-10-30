@@ -134,6 +134,7 @@ function App(){
   const workingRef = useRef(false);
   const roundRef = useRef(0);
   const firstAnswerRef = useRef<HTMLLabelElement|null>(null);
+  const challengeBannerRef = useRef<HTMLDivElement|null>(null);
   const lastScrolledRoundRef = useRef('');
   const answersRef = useRef<Record<string,string>>({});
   const draftVersionRef=useRef(0);
@@ -281,7 +282,12 @@ function App(){
     if(lastScrolledRoundRef.current===key)return;
     const frame=window.requestAnimationFrame(()=>{
       const target=firstAnswerRef.current;
-      if(!target)return;
+      const banner=challengeBannerRef.current;
+      if(!target||!banner)return;
+      // The sticky banner is responsive and may grow with a long category name.
+      // Measure the real height instead of guessing an iPad/mobile breakpoint.
+      const stickyTop=Number.parseFloat(window.getComputedStyle(banner).top)||0;
+      target.style.scrollMarginTop=Math.ceil(banner.getBoundingClientRect().height+stickyTop+12)+'px';
       lastScrolledRoundRef.current=key;
       target.scrollIntoView({
         behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',
@@ -689,7 +695,7 @@ function App(){
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.mode==='category'?'โหมดหมวดใหญ่':'โหมดพยัญชนะ'} · {game.settings.categories} {game.settings.mode==='category'?'คำ':'หมวด'} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
           </div>:null}
-          {playing?<><div className="challenge-banner"><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
+          {playing?<><div className="challenge-banner" ref={challengeBannerRef}><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} {game.topicCategory?'คำ':'หมวด'}</h2><p>{game.topicCategory?<>ตอบคำหมวด <b>“{LABELS[game.topicCategory]||game.topicCategory}”</b> ให้ตรงพยัญชนะของแต่ละช่อง · ตรวจทันที</>:<>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</>}</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
               const category=game.topicCategory||id;

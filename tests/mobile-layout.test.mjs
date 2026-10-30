@@ -21,6 +21,7 @@ test('mobile letter and live countdown stay pinned while answering', () => {
   assert.match(source, /className="challenge-banner"/);
   assert.match(source, /className="time-box"/);
   assert.match(styles, /\.game-layout-playing \.challenge-banner\{position:sticky;top:env\(safe-area-inset-top,0px\);z-index:6/);
+  assert.match(source,/className="challenge-banner" ref=\{challengeBannerRef\}/);
   assert.match(styles, /\.app-shell\{overflow:clip\}/);
 });
 
@@ -103,4 +104,29 @@ test('every new round scrolls the first answer into view below the mobile sticky
   assert.match(source,/if\(game\?\.phase!=='playing'\)\{\s*lastScrolledRoundRef\.current=''/);
   assert.doesNotMatch(source,/firstAnswerRef\.current\?\.focus\(/);
   assert.match(styles,/\.game-layout-playing \.answer-item:first-child\{scroll-margin-top:calc\(130px \+ env\(safe-area-inset-top,0px\)\)\}/);
+});
+
+test('iPad portrait, landscape and desktop keep the letter/category and timer sticky',()=>{
+  // The sticky rule must exist *outside* @media(max-width:720px).
+  const allScreenRule='.game-layout-playing .challenge-banner{position:sticky;top:env(safe-area-inset-top,0px);z-index:6';
+  const mobileStart=styles.indexOf('/* Only the compact banner sizing is specific to narrow screens. */');
+  const universalStart=styles.indexOf('/* Keep the round consonant/category and timer visible on every device,');
+  const tabletStart=styles.indexOf('@media(min-width:721px) and (max-width:1180px)');
+  assert.ok(mobileStart>=0&&universalStart>mobileStart&&tabletStart>universalStart);
+  assert.ok(styles.slice(universalStart,tabletStart).includes(allScreenRule),
+    'universal sticky rule must not be inside the mobile-only media query');
+  assert.match(styles,/@media\(min-width:721px\) and \(max-width:1180px\)\{\s*\.game-layout-playing \.challenge-banner\{min-height:140px/);
+  assert.match(styles,/\.app-shell\{overflow:clip\}/);
+  assert.doesNotMatch(styles,/\.game-main\{[^}]*overflow:(?:auto|scroll|hidden)/);
+});
+
+test('new-round auto scroll measures the actual sticky banner height on every viewport',()=>{
+  assert.match(source,/const challengeBannerRef = useRef<HTMLDivElement\|null>\(null\)/);
+  assert.match(source,/const banner=challengeBannerRef\.current/);
+  assert.match(source,/window\.getComputedStyle\(banner\)\.top/);
+  assert.match(source,/banner\.getBoundingClientRect\(\)\.height\+stickyTop\+12/);
+  assert.match(source,/target\.style\.scrollMarginTop=Math\.ceil\(/);
+  assert.match(source,/lastScrolledRoundRef\.current=key/);
+  assert.match(source,/target\.scrollIntoView\(\{/);
+  assert.doesNotMatch(source,/firstAnswerRef\.current\?\.focus\(/);
 });

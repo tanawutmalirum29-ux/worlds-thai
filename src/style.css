@@ -99,7 +99,7 @@
   .join-card .muted{font-size:12px;margin-bottom:16px}
   .join-card .public-room-browser{margin:13px 0}
 
-  /* The challenge panel follows the viewport on narrow screens. */
+  /* Only the compact banner sizing is specific to narrow screens. */
   .topbar-playing{height:62px}
   .game-layout-playing{padding-top:10px}
   .game-layout-playing .game-status-row{gap:8px}
@@ -108,7 +108,7 @@
   .game-layout-playing .exit-btn{padding:7px 10px;font-size:11px}
   .game-layout-playing .game-meta{margin:7px 0 11px;gap:7px}
   .game-layout-playing .round-marker,.game-layout-playing .people-marker{padding:6px 11px;font-size:10px}
-  .game-layout-playing .challenge-banner{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;min-height:105px;padding:10px 14px;border-radius:15px;box-shadow:0 8px 24px #090f2060}
+  .game-layout-playing .challenge-banner{min-height:105px;padding:10px 14px;border-radius:15px}
   .game-layout-playing .challenge-banner:before{font-size:115px;top:-62px;left:36px}
   .game-layout-playing .banner-label{font-size:10px}
   .game-layout-playing .letter-display{font-size:64px;line-height:.96}
@@ -133,6 +133,19 @@
 /* overflow:hidden creates a scroll ancestor which breaks position:sticky.
    overflow:clip retains ambient clipping without swallowing viewport scrolling. */
 .app-shell{overflow:clip}
+/* Keep the round consonant/category and timer visible on every device,
+   including iPad portrait/landscape, desktop and mobile. Native sticky
+   scrolling engages only when the panel would otherwise leave the viewport. */
+.game-layout-playing .challenge-banner{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;box-shadow:0 8px 24px #090f2060}
+/* Tablet game screens share the desktop two-column layout: use a shorter panel
+   so the sticky timer doesn't take up too much of an iPad's viewport. */
+@media(min-width:721px) and (max-width:1180px){
+  .game-layout-playing .challenge-banner{min-height:140px;padding:12px 20px}
+  .game-layout-playing .letter-display{font-size:clamp(64px,6.9vw,82px);line-height:1.03}
+  .game-layout-playing .time-box{width:130px;min-width:112px}
+  .game-layout-playing .time-box strong{font-size:34px}
+  .game-layout-playing .category-display{font-size:clamp(24px,3.6vw,39px);line-height:1.2}
+}
 
 /* Server-confirmed rarity is shown only in the round result, never during drafting. */
 .review-category .rarity-bonus{display:inline-block;color:#f4d39a;font-weight:600;font-size:10px;line-height:1.45;margin-left:3px}
