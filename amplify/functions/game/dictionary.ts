@@ -949,7 +949,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เอี๊ยม",
     "ชุดพละ",
     "บ็อกเซอร์",
-    "บอดี้สูท"
+    "บอดี้สูท",
+    "ชุดไทย",
+    "ชุดหมี",
+    "เสื้อคอเต่า",
+    "ผ้าคาดเอว"
   ],
   "vehicle": [
     "เก๋ง",
@@ -982,7 +986,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สกู๊ตเตอร์",
     "สโนว์โมบิล",
     "อากาศยาน",
-    "ออโต้ริกชอว์"
+    "ออโต้ริกชอว์",
+    "รถโม่ปูน",
+    "รถยก",
+    "บอลลูนลมร้อน",
+    "เลื่อนหิมะ"
   ],
   "device": [
     ...NOR_NU_TERMS.device,
@@ -1022,7 +1030,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สมาร์ตโฟน",
     "สมาร์ตวอตช์",
     "หูฟัง",
-    "อุปกรณ์ชาร์จ"
+    "อุปกรณ์ชาร์จ",
+    "เครื่องทำน้ำอุ่น",
+    "เครื่องซีลถุง",
+    "กระทะไฟฟ้า",
+    "หม้อหุงข้าวไฟฟ้า"
   ],
   "school": [
     ...NOR_NU_TERMS.school,
@@ -1431,7 +1443,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "เมืองเก่า",
     "อุโมงค์",
     "อุทยานแห่งชาติ",
-    ...VOR_HOR_TERMS.place
+    ...VOR_HOR_TERMS.place,
+    "ที่ว่าการอำเภอ",
+    "สถานีอนามัย",
+    "โรงภาพยนตร์",
+    "โรงยิม"
   ],
   "toy": [
     ...NOR_NU_TERMS.toy,
@@ -1792,7 +1808,11 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ปากกาทดสอบไฟ",
     "ปั๊มลม",
     "ปืนกาว",
-    "ปั๊มน้ำ"
+    "ปั๊มน้ำ",
+    "เหล็กส่ง",
+    "สว่านมือ",
+    "สว่านแท่น",
+    "ประแจจับท่อ"
   ],
   "province": [
     "กระบี่",
