@@ -1,4 +1,4 @@
-import { StrictMode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { StrictMode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
@@ -140,6 +140,8 @@ function App(){
   const firstAnswerRef = useRef<HTMLLabelElement|null>(null);
   const challengeBannerRef = useRef<HTMLDivElement|null>(null);
   const lastScrolledRoundRef = useRef('');
+  const roundScrollHoldRef=useRef<{key:string;restore:()=>void}|null>(null);
+  const roundScrollAnimationRef=useRef<{key:string;cancel:()=>void}|null>(null);
   const answersRef = useRef<Record<string,string>>({});
   const draftVersionRef=useRef(0);
   const savedVersionRef=useRef(0);
@@ -274,31 +276,88 @@ function App(){
     document.addEventListener('keydown',keyDown);
     return()=>{document.removeEventListener('keydown',keyDown);document.body.style.overflow=previousOverflow;};
   },[exitConfirm,choicePopup]);
-  // Each new consonant/category round starts at the first answer field.
-  // Scroll the card into view without focusing its input (which would open
-  // the mobile keyboard and obscure the round header or countdown).
-  useEffect(()=>{
+  // A round replaces the taller results view with a shorter answer form.
+  // Reserve the previous document height in accept() *before* React commits it,
+  // so Safari/Chrome cannot clamp or anchor the current scroll position first.
+  // Animate the window from where the player actually is, not from the page top.
+  useLayoutEffect(()=>{
     if(game?.phase!=='playing'){
       lastScrolledRoundRef.current='';
       return;
     }
     const key=game.roomId+':'+game.round;
     if(lastScrolledRoundRef.current===key)return;
+    const releaseHold=()=>{
+      const hold=roundScrollHoldRef.current;
+      if(hold?.key===key){
+        roundScrollHoldRef.current=null;
+        hold.restore();
+      }
+    };
     const frame=window.requestAnimationFrame(()=>{
       const target=firstAnswerRef.current;
       const banner=challengeBannerRef.current;
-      if(!target||!banner)return;
-      // The sticky banner is responsive and may grow with a long category name.
-      // Measure the real height instead of guessing an iPad/mobile breakpoint.
+      if(!target||!banner){releaseHold();return;}
+      // Sticky header height varies on iPad, small phones and long categories.
       const stickyTop=Number.parseFloat(window.getComputedStyle(banner).top)||0;
-      target.style.scrollMarginTop=Math.ceil(banner.getBoundingClientRect().height+stickyTop+12)+'px';
+      const marginTop=Math.ceil(banner.getBoundingClientRect().height+stickyTop+12);
+      target.style.scrollMarginTop=marginTop+'px';
       lastScrolledRoundRef.current=key;
-      target.scrollIntoView({
-        behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',
-        block:'start',inline:'nearest'
-      });
+      if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        target.scrollIntoView({behavior:'auto',block:'start',inline:'nearest'});
+        releaseHold();
+        return;
+      }
+      const startY=window.scrollY;
+      // Clamp to the *new* page's real content, not the temporary height hold.
+      // Otherwise the final frame could snap upward when that hold is removed.
+      const pageBottom=document.querySelector('.app-shell')?.getBoundingClientRect().bottom;
+      const naturalMaximum=Math.max(0,
+        startY+(pageBottom??(document.documentElement.scrollHeight-startY))-window.innerHeight);
+      const maximum=Math.min(naturalMaximum,
+        Math.max(0,document.documentElement.scrollHeight-window.innerHeight));
+      const destination=Math.max(0,Math.min(maximum,
+        startY+target.getBoundingClientRect().top-marginTop));
+      const distance=destination-startY;
+      if(Math.abs(distance)<2){releaseHold();return;}
+      const duration=Math.min(850,Math.max(360,Math.abs(distance)*0.5));
+      let activeFrame=0;
+      let startedAt:number|null=null;
+      let stopped=false;
+      const userInterrupt=()=>finish();
+      const finish=()=>{
+        if(stopped)return;
+        stopped=true;
+        window.cancelAnimationFrame(activeFrame);
+        window.removeEventListener('wheel',userInterrupt);
+        window.removeEventListener('touchstart',userInterrupt);
+        window.removeEventListener('pointerdown',userInterrupt);
+        window.removeEventListener('keydown',userInterrupt);
+        if(roundScrollAnimationRef.current?.key===key)roundScrollAnimationRef.current=null;
+        releaseHold();
+      };
+      const step=(timestamp:number)=>{
+        if(stopped)return;
+        if(startedAt===null)startedAt=timestamp;
+        const t=Math.min(1,(timestamp-startedAt)/duration);
+        const eased=1-Math.pow(1-t,3);
+        window.scrollTo(0,startY+distance*eased);
+        if(t<1)activeFrame=window.requestAnimationFrame(step);
+        else finish();
+      };
+      roundScrollAnimationRef.current={key,cancel:finish};
+      // Never fight a player who starts swiping, scrolling or typing.
+      window.addEventListener('wheel',userInterrupt,{passive:true});
+      window.addEventListener('touchstart',userInterrupt,{passive:true});
+      window.addEventListener('pointerdown',userInterrupt,{passive:true});
+      window.addEventListener('keydown',userInterrupt);
+      activeFrame=window.requestAnimationFrame(step);
     });
-    return()=>window.cancelAnimationFrame(frame);
+    return()=>{
+      window.cancelAnimationFrame(frame);
+      if(roundScrollAnimationRef.current?.key===key)roundScrollAnimationRef.current.cancel();
+      releaseHold();
+    };
   },[game?.roomId,game?.round,game?.phase,game?.categories?.[0]]);
   // Update only timed screens; preserve quick ticks during the skip animation.
   useEffect(()=>{
@@ -330,6 +389,27 @@ function App(){
     if(!next || !next.roomId) return;
     if(roomRef.current && next.roomId!==roomRef.current) return;
     if(current.current && current.current.roomId===next.roomId && next.revision<=current.current.revision) return;
+    // Keep the old scroll range alive while the new round is rendered. Without
+    // this, a long review disappearing causes an instant viewport jump before
+    // scrollIntoView/smooth scrolling can even begin (especially on iOS).
+    if(next.phase==='playing' &&
+      (current.current?.phase!=='playing'||current.current?.round!==next.round)){
+      roundScrollAnimationRef.current?.cancel();
+      roundScrollHoldRef.current?.restore();
+      const priorMinHeight=document.body.style.minHeight;
+      const priorOverflowAnchor=document.documentElement.style.overflowAnchor;
+      document.body.style.minHeight=Math.ceil(Math.max(
+        document.body.scrollHeight,document.documentElement.scrollHeight,
+        window.scrollY+window.innerHeight))+'px';
+      document.documentElement.style.overflowAnchor='none';
+      roundScrollHoldRef.current={
+        key:next.roomId+':'+next.round,
+        restore:()=>{
+          document.body.style.minHeight=priorMinHeight;
+          document.documentElement.style.overflowAnchor=priorOverflowAnchor;
+        }
+      };
+    }
     if(next.round !== roundRef.current){
       if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
       draftTimerRef.current=null;

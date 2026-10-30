@@ -100,7 +100,7 @@ test('every new round scrolls the first answer into view below the mobile sticky
   assert.match(source,/target\.scrollIntoView\(\{/);
   assert.match(source,/block:'start',inline:'nearest'/);
   assert.match(source,/window\.requestAnimationFrame\(\(\)=>\{/);
-  assert.match(source,/return\(\)=>window\.cancelAnimationFrame\(frame\)/);
+  assert.match(source,/window\.cancelAnimationFrame\(frame\)/);
   assert.match(source,/if\(game\?\.phase!=='playing'\)\{\s*lastScrolledRoundRef\.current=''/);
   assert.doesNotMatch(source,/firstAnswerRef\.current\?\.focus\(/);
   assert.match(styles,/\.game-layout-playing \.answer-item:first-child\{scroll-margin-top:calc\(130px \+ env\(safe-area-inset-top,0px\)\)\}/);
@@ -125,7 +125,8 @@ test('new-round auto scroll measures the actual sticky banner height on every vi
   assert.match(source,/const banner=challengeBannerRef\.current/);
   assert.match(source,/window\.getComputedStyle\(banner\)\.top/);
   assert.match(source,/banner\.getBoundingClientRect\(\)\.height\+stickyTop\+12/);
-  assert.match(source,/target\.style\.scrollMarginTop=Math\.ceil\(/);
+  assert.match(source,/const marginTop=Math\.ceil\(/);
+  assert.match(source,/target\.style\.scrollMarginTop=marginTop\+'px'/);
   assert.match(source,/lastScrolledRoundRef\.current=key/);
   assert.match(source,/target\.scrollIntoView\(\{/);
   assert.doesNotMatch(source,/firstAnswerRef\.current\?\.focus\(/);
@@ -145,4 +146,32 @@ test('room owner setting choices autosave immediately, without a separate save b
   assert.doesNotMatch(source,/>บันทึกการตั้งค่า<\/button>/);
   assert.match(source,/บันทึกการตั้งค่าอัตโนมัติ/);
   assert.match(styles,/\.settings-auto-save\{min-height:30px;/);
+});
+
+test('new round preserves current viewport before React replaces the review and then animates smoothly',()=>{
+  const acceptStart=source.indexOf('const accept=useCallback(');
+  const setGame=source.indexOf('current.current=next;setGame(next)',acceptStart);
+  const reserve=source.indexOf("document.body.style.minHeight=Math.ceil(",acceptStart);
+  assert.ok(acceptStart>=0&&reserve>acceptStart&&reserve<setGame,
+    'reserve old document height before committing the next round');
+  assert.match(source,/document\.documentElement\.style\.overflowAnchor='none'/);
+  assert.match(source,/useLayoutEffect\(\(\)=>\{/);
+  assert.match(source,/const startY=window\.scrollY/);
+  assert.match(source,/const destination=Math\.max\(0,Math\.min\(maximum,/);
+  assert.match(source,/const pageBottom=document\.querySelector\('\.app-shell'\)/);
+  assert.match(source,/const eased=1-Math\.pow\(1-t,3\)/);
+  assert.match(source,/window\.scrollTo\(0,startY\+distance\*eased\)/);
+  assert.match(source,/window\.requestAnimationFrame\(step\)/);
+  assert.doesNotMatch(source,/window\.scrollTo\(\{top:0/);
+});
+
+test('auto-scroll yields to user interaction and respects reduced motion',()=>{
+  assert.match(source,/window\.addEventListener\('touchstart',userInterrupt/);
+  assert.match(source,/window\.addEventListener\('wheel',userInterrupt/);
+  assert.match(source,/window\.addEventListener\('pointerdown',userInterrupt/);
+  assert.match(source,/window\.removeEventListener\('wheel',userInterrupt\)/);
+  assert.match(source,/roundScrollAnimationRef\.current\?\.cancel\(\)/);
+  assert.match(source,/prefers-reduced-motion: reduce/);
+  assert.match(source,/target\.scrollIntoView\(\{behavior:'auto',block:'start',inline:'nearest'\}\)/);
+  assert.match(source,/document\.body\.style\.minHeight=priorMinHeight/);
 });
