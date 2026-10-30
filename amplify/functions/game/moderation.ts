@@ -67,17 +67,16 @@ export const DISALLOWED_ROMAN_RULES=[
  */
 const EXTRA_THAI_MARKS=String.raw`[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{0,4}`;
 function withInsertedThaiMarks(word:string,contains:boolean):RegExp {
-  // In addition to stray marks, allow bounded repetitions of a consonant
-  // separated by vowel/tone marks: คุวุวีย์ has two ว letters with a vowel
-  // between them, so a simple /(.)\\1+/ collapse never sees the repeat.
-  // Preserve the actual vowel characters in every banned spelling, however:
-  // stripping them globally would accidentally reject ควาย and หีบ.
+  // Repeat consonants up to three times even if combining vowels separate
+  // them; keep all original vowels in the matched word to prevent false bans.
   const pattern=[...word].map(letter=>
     /[ก-ฮ]/u.test(letter)
       ?letter+'(?:'+EXTRA_THAI_MARKS+letter+'){0,3}'
       :letter
   ).join(EXTRA_THAI_MARKS);
-  return new RegExp(contains?pattern:'^(?:'+pattern+')
+  const anchored='^(?:'+pattern+')'+String.fromCharCode(36);
+  return new RegExp(contains?pattern:anchored,'u');
+}
 const STRETCHED_PHRASES=[
   ...DISALLOWED_PHRASES,...DISALLOWED_THAI_PHRASE_VARIANTS
 ].map(word=>withInsertedThaiMarks(word,true));
