@@ -2,7 +2,7 @@ import {
   OPTIONAL_NAME_PREFIXES,canonicalAnswer,normalizeAnswer,
   validAnswer,wordInitialForCategory
 } from '../amplify/functions/game/logic.ts';
-import {isInappropriateLanguage} from '../amplify/functions/game/moderation.ts';
+import {isInappropriateLanguage,isBlockedStandaloneAnswer} from '../amplify/functions/game/moderation.ts';
 import {letterCaption} from './letters.ts';
 
 export type AnswerFeedbackStatus =
@@ -13,6 +13,7 @@ export type AnswerFeedback={status:AnswerFeedbackStatus;message:string};
 export function checkAnswerFeedback(input:string,requiredLetter:string,category:string):AnswerFeedback {
   const answer=normalizeAnswer(input);
   if(!answer)return {status:'empty',message:'ตรวจคำให้ทันที'};
+  if(isBlockedStandaloneAnswer(answer))return {status:'forbidden',message:'ห้ามใช้คำว่า “วี” เป็นคำตอบ'};
   if(isInappropriateLanguage(answer))return {status:'inappropriate',message:
     category==='body'?'ห้ามใช้คำไม่สุภาพ · ใช้คำทางกายวิภาคแทน':'ห้ามใช้คำหยาบ กรุณาใช้คำสุภาพ'};
 

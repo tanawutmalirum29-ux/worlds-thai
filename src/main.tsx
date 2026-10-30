@@ -6,6 +6,7 @@ import './style.css';
 import { GameAudio, readAudioMuted, writeAudioMuted, type AudioScene } from './audio.ts';
 import { validRoundAnswer,normalizeAnswer } from '../amplify/functions/game/logic.ts';
 import {checkAnswerFeedback,type AnswerFeedback} from './answer-feedback.ts';
+import {nicknameValidationMessage} from '../amplify/functions/game/moderation.ts';
 import { letterCaption } from './letters.ts';
 import { synonymExamplesForRound } from './word-insights.ts';
 import { encodeGamePayload } from './rooms';
@@ -258,6 +259,8 @@ function App(){
     if(workingRef.current || !client)return;
     const trimmed=name.trim().slice(0,18);
     if(!trimmed){setError('กรุณาใส่ชื่อเล่นก่อนเริ่มเกม');return;}
+    const invalidNickname=nicknameValidationMessage(trimmed);
+    if(invalidNickname){setError(invalidNickname);return;}
     setError('');setWorking(true);workingRef.current=true;
     try{
       // A room is selected from the live public directory; no code or URL needed.
@@ -525,6 +528,7 @@ function App(){
     audioRef.current?.setMuted(next);
     if(!next)audioRef.current?.cue('tap');
   }
+  const invalidNicknameMessage=nicknameValidationMessage(name.trim().slice(0,18));
   const ordered=(game?.players||[]).slice().sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'th'));
   const latest=game?.history.at(-1);
   const leaders=ordered.filter(p=>p.score===ordered[0]?.score);
@@ -552,7 +556,8 @@ function App(){
           </div>
           <div className="room-intro"><h2>{mode==='join'?'ห้องที่กำลังรอผู้เล่น':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'ห้องที่เพื่อนสร้างจะปรากฏอัตโนมัติ กดเข้าร่วมได้ทันที':'ตั้งค่าจำนวนรอบ หมวด และเวลา จากนั้นรอเพื่อนเข้ามา'}</p></div>
           <label htmlFor="nickname">ชื่อเล่นของคุณ</label>
-          <input id="nickname" maxLength={18} autoComplete="nickname" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&mode==='create')void join();}} placeholder="เช่น เจ้าแม่คำศัพท์" />
+          <input id="nickname" maxLength={18} autoComplete="nickname" aria-invalid={Boolean(invalidNicknameMessage)} aria-describedby="nickname-validation" value={name} onChange={e=>{setName(e.target.value);setError('');}} onKeyDown={e=>{if(e.key==='Enter'&&mode==='create')void join();}} placeholder="เช่น เจ้าแม่คำศัพท์" />
+          <p id="nickname-validation" className="nickname-validation-slot" role={invalidNicknameMessage?'alert':undefined}>{invalidNicknameMessage}</p>
           <div className="room-mode-content">
           {mode==='join'?<div className="public-room-browser">
             <div className="public-room-heading"><strong>ห้องที่เปิดอยู่</strong><span>อัปเดตทุก 3 วินาที</span></div>
@@ -561,11 +566,11 @@ function App(){
             rooms.length===0?<div className="empty-rooms"><strong>ยังไม่มีห้องที่รอผู้เล่น</strong><p>ให้เพื่อนคนหนึ่งกดสร้างห้องก่อน ห้องจะปรากฏที่นี่อัตโนมัติ</p><button type="button" className="secondary-btn" onClick={()=>setMode('create')}>สร้างห้องใหม่</button></div>:
             <div className="public-room-list">{rooms.map(room=><div className="public-room-card" key={room.roomId}>
               <div className="public-room-description"><strong>ห้องของ {room.hostName}</strong><span>● {room.playerCount}/8 คน · {room.settings.rounds} รอบ · {room.settings.mode==='category'?'หมวดใหญ่':'พยัญชนะ'} · {room.settings.categories} {room.settings.mode==='category'?'คำ':'หมวด'} · {room.settings.seconds} วินาที</span></div>
-              <button type="button" className="public-room-join" disabled={working||status!=='ready'} onClick={()=>void join(room.roomId)}>{working?'กำลังเข้า...':'เข้าร่วม'}</button>
+              <button type="button" className="public-room-join" disabled={working||status!=='ready'||Boolean(invalidNicknameMessage)} onClick={()=>void join(room.roomId)}>{working?'กำลังเข้า...':'เข้าร่วม'}</button>
             </div>)}</div>}
           </div>:<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
             {settingsControls}</div>}
-          {mode==='create'?<button className="primary-btn" disabled={working||status!=='ready'} onClick={()=>void join()}>{working?'กำลังสร้างห้อง...':'สร้างห้อง'} <span>↗</span></button>:null}
+          {mode==='create'?<button className="primary-btn" disabled={working||status!=='ready'||Boolean(invalidNicknameMessage)} onClick={()=>void join()}>{working?'กำลังสร้างห้อง...':'สร้างห้อง'} <span>↗</span></button>:null}
           </div>
           {status==='loading'?<p className="notice">กำลังเชื่อมต่อเซิร์ฟเวอร์ AWS…</p>:null}
           {error?<p className="error-message" role="alert">{error}</p>:null}
