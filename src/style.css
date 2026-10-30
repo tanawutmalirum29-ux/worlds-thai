@@ -349,3 +349,19 @@ html{scrollbar-gutter:stable}
 .answer-forbidden{border-color:#9c5c55}
 .answer-prefix-not-counted{border-color:#9b7a4a}
 .answer-item .answer-feedback{overflow-wrap:anywhere;word-break:normal}
+
+/* Fixed-width, server-masked answer progress. Never shows peers' draft text. */
+.feedback-inappropriate{color:#ffad9d;font-weight:600}
+.answer-inappropriate{border-color:#ad6260}
+.masked-answer-panel{margin-top:17px;padding:14px 15px;border:1px solid #40556a;border-radius:13px;background:#1c2a3d;min-width:0}
+.masked-answer-title{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px 12px;margin-bottom:10px}
+.masked-answer-title b{font:500 15px Kanit,sans-serif;color:#edcf98}
+.masked-answer-title small{font-size:10px;color:#b4c4d4}
+.masked-answer-scroll{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;min-width:0}
+.masked-answer-row{display:grid;align-items:center;gap:6px;min-width:max-content;margin:5px 0}
+.masked-answer-row>span{min-width:0;text-align:center;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.masked-answer-row .masked-answer-name{text-align:left;color:#d8e1e9;font-weight:600}
+.masked-answer-header{color:#91a7bf}
+.masked-answer-header span:not(:first-child){font-size:10px}
+.mask-token{display:grid;place-items:center;min-height:27px;border-radius:6px;border:1px solid #39495a;background:#263347;color:#879bb1;font-variant-numeric:tabular-nums}
+.mask-token.mask-filled{background:#30485a;border-color:#5d8296;color:#f1d49c;font-weight:700;letter-spacing:.5px}
