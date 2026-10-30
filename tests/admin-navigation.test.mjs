@@ -5,11 +5,11 @@ import {readFileSync} from 'node:fs';
 test('admin displays independent top-level navigation for every tool group',()=>{
   const src=readFileSync(new URL('../src/admin.tsx',import.meta.url),'utf8');
   const css=readFileSync(new URL('../src/admin.css',import.meta.url),'utf8');
-  for(const name of ['ภาพรวม','คำยอดนิยม','ความหายาก','คำเสนอแนะ','ค้นคำศัพท์','เพิ่ม / จัดคำ','ดาวน์โหลด'])
+  for(const name of ['ภาพรวม','คำยอดนิยม','ความหายาก','คำเสนอแนะ','คำที่ถูกแบน','ค้นคำศัพท์','เพิ่ม / จัดคำ','ดาวน์โหลด'])
     assert.ok(src.includes("label:'"+name+"'"),'missing tab '+name);
   assert.match(src,/className="admin-tabs"/);
   assert.match(src,/aria-current=\{activeTab===tab.id\?'page':undefined\}/);
-  for(const id of ['overview','popularity','rarity','suggestions','search','edit','export']){
+  for(const id of ['overview','popularity','rarity','suggestions','blocked','search','edit','export']){
     assert.ok(src.includes("visitedTabs.includes('"+id+"')"),'unvisited tab mounted: '+id);
     assert.ok(src.includes("hidden={activeTab!=='"+id+"'}"),'tab not hidden: '+id);
   }
@@ -18,4 +18,16 @@ test('admin displays independent top-level navigation for every tool group',()=>
   assert.match(src,/openTab\('edit','admin-add-words'\)/);
   assert.match(src,/setVisitedTabs\(current=>current.includes\(tab\)/);
   assert.doesNotMatch(src,/className="admin-shortcuts"/);
+});
+
+test('blocked terms have their own top-level admin view and persistent panel',()=>{
+  const src=readFileSync(new URL('../src/admin.tsx',import.meta.url),'utf8');
+  const view=readFileSync(new URL('../src/admin-blocklist-view.tsx',import.meta.url),'utf8');
+  assert.match(src,/\{id:'blocked',label:'คำที่ถูกแบน'/);
+  assert.match(src,/<AdminBlocklistView\/>/);
+  assert.match(src,/id="admin-panel-blocked"/);
+  assert.match(view,/filterBlockedEntries\(search,kind\)/);
+  assert.match(view,/BLOCKED_ENTRIES/);
+  assert.match(view,/รายการนี้ดูได้อย่างเดียว/);
+  assert.doesNotMatch(view,/fetch\(|getWordStats|onClick=\{.*delete/i);
 });
