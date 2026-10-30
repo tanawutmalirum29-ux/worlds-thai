@@ -309,7 +309,13 @@ function App(){
         return;
       }
       const startY=window.scrollY;
-      const maximum=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+      // Clamp to the *new* page's real content, not the temporary height hold.
+      // Otherwise the final frame could snap upward when that hold is removed.
+      const pageBottom=document.querySelector('.app-shell')?.getBoundingClientRect().bottom;
+      const naturalMaximum=Math.max(0,
+        startY+(pageBottom??(document.documentElement.scrollHeight-startY))-window.innerHeight);
+      const maximum=Math.min(naturalMaximum,
+        Math.max(0,document.documentElement.scrollHeight-window.innerHeight));
       const destination=Math.max(0,Math.min(maximum,
         startY+target.getBoundingClientRect().top-marginTop));
       const distance=destination-startY;
