@@ -18,7 +18,8 @@ test('guest game schema avoids unsupported AppSync custom subscription handler',
 test('multiplayer UI has a live polling path without a subscription', () => {
   const ui = readFileSync(new URL('../src/main.tsx', import.meta.url), 'utf8');
   assert.match(ui, /api\.queries\.getGame\(\{roomId:id\}/);
-  assert.match(ui, /setInterval\(refresh,2000\)/);
+  assert.match(ui, /scheduleRefresh\(\)/);
+  assert.match(ui, /Promise\.race\(\[request,timeoutResult\]\)/);
   assert.match(ui, /call\('pulse',id\)/);
   assert.ok(!ui.includes('api.subscriptions.gameUpdated'));
 });
