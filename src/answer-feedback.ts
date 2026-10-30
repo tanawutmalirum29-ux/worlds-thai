@@ -13,7 +13,9 @@ export type AnswerFeedback={status:AnswerFeedbackStatus;message:string};
 export function checkAnswerFeedback(input:string,requiredLetter:string,category:string):AnswerFeedback {
   const answer=normalizeAnswer(input);
   if(!answer)return {status:'empty',message:'ตรวจคำให้ทันที'};
-  if(isBlockedStandaloneAnswer(answer))return {status:'forbidden',message:'ห้ามใช้คำว่า “วี” เป็นคำตอบ'};
+  if(isBlockedStandaloneAnswer(answer))return {status:'forbidden',message:
+    /[a-z]/i.test(answer)?'ห้ามใช้ตัว V หรือคำภาษาอังกฤษที่อ่านว่า “วี” เป็นคำตอบ':
+      'ห้ามใช้คำว่า “วี” เป็นคำตอบ'};
   if(isInappropriateLanguage(answer))return {status:'inappropriate',message:
     category==='body'?'ห้ามใช้คำไม่สุภาพ · ใช้คำทางกายวิภาคแทน':'ห้ามใช้คำหยาบ กรุณาใช้คำสุภาพ'};
 
