@@ -64,7 +64,7 @@ test('job shorthand is an explicitly approved alternative, not a blanket prefix 
     assert.equal(validAnswer(verb,wordInitialForCategory(verb,'job'),'job'),false,
       'standalone generic activity is not an occupation: '+verb);
   }
-  assert.equal(validAnswer('ออกแบบ','อ','verb'),false,
+  assert.equal(validAnswer('ออกแบบ','อ','food'),false,
     'short jobs must not automatically bleed into unrelated categories');
 });
 
