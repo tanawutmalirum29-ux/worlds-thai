@@ -87,14 +87,14 @@ export function filterEntries(rows:Entry[],search='',category='',letter=''):Entr
   return rows.filter(row=>(!category||row.category===category)&&(!letter||row.letter===letter)
     &&(!q||key(row.word).includes(q)||
       ((row.category==='dessert'||row.category==='tree'||row.category==='province'||
-        row.category==='flower'||row.category==='bird'||row.category==='insect'||row.category==='fish') &&
+        row.category==='flower'||row.category==='bird'||row.category==='insect'||row.category==='fish'||row.category==='vegetable') &&
         canonicalAnswer(row.word,row.category)===canonicalAnswer(search,row.category))));
 }
 export function exactEntries(rows:Entry[],search:string):Entry[]{
   const q=key(search);
   return q?rows.filter(row=>key(row.word)===q||
     ((row.category==='dessert'||row.category==='tree'||row.category==='province'||
-      row.category==='flower'||row.category==='bird'||row.category==='insect'||row.category==='fish') &&
+      row.category==='flower'||row.category==='bird'||row.category==='insect'||row.category==='fish'||row.category==='vegetable') &&
       canonicalAnswer(row.word,row.category)===canonicalAnswer(search,row.category))):[];
 }
 export function exportDictionary(drafts:Drafts):string{

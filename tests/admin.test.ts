@@ -138,3 +138,15 @@ test('admin search and draft dedupe resolve prefixed names in four natural categ
     assert.throws(()=>addDraft({},full,category),/มีคำนี้/,category);
   }
 });
+
+test('vegetable admin search accepts optional ผัก and rejects duplicate drafts',()=>{
+  const rows=getEntries({});
+  const matches=exactEntries(rows,'บุ้ง').filter(row=>row.category==='vegetable');
+  assert.equal(matches.length,1);
+  assert.equal(matches[0].letter,'บ');
+  assert.ok(exactEntries(rows,'ผักบุ้ง').some(row=>row.category==='vegetable'));
+  assert.ok(filterEntries(rows,'บุ้ง','vegetable','บ').length>=1);
+  assert.ok(filterEntries(rows,'ผักบุ้ง','vegetable','บ').length>=1);
+  assert.throws(()=>addDraft({},'บุ้ง','vegetable'),/มีคำนี้/);
+  assert.throws(()=>addDraft({},'ผักบุ้ง','vegetable'),/มีคำนี้/);
+});

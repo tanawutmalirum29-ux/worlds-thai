@@ -121,3 +121,19 @@ test('historic prefixed bird and fish counts regroup under the real consonant',(
       .some(row=>row.word===match[0].word),true,category);
   }
 });
+
+test('historical vegetable-prefixed usage is grouped under the actual consonant',()=>{
+  const rows=getEntries({},[
+    {category:'vegetable',letter:'ผ',word:'ผักบุ้ง',timesUsed:3,totalPoints:6,lastUsedAt:100},
+    {category:'vegetable',letter:'บ',word:'บุ้ง',timesUsed:2,totalPoints:2,lastUsedAt:200}
+  ]);
+  const match=rows.filter(row=>row.category==='vegetable'&&
+    (row.word==='ผักบุ้ง'||row.word==='บุ้ง'));
+  assert.equal(match.length,1);
+  assert.equal(match[0].letter,'บ');
+  assert.equal(match[0].uses,5);
+  assert.equal(match[0].points,8);
+  const merged=mergeHistoricalStats(rows,[]);
+  assert.equal(dashboardFilter(merged,'vegetable','บ').some(x=>x.word===match[0].word),true);
+  assert.equal(dashboardFilter(merged,'vegetable','ผ').some(x=>x.word===match[0].word),false);
+});

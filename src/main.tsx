@@ -31,7 +31,8 @@ const CATEGORY_PREFIX_HINTS:Readonly<Record<string,{prefix:string;example:string
   flower:{prefix:'ดอก',example:'ดอกเมฆอมยิ้ม',letter:'ม ม้า',generic:'ดอกไม้'},
   bird:{prefix:'นก',example:'นกจักรวาลอมยิ้ม',letter:'จ จาน',generic:'นก'},
   insect:{prefix:'แมลง',example:'แมลงรุ้งติดจรวด',letter:'ร เรือ',generic:'แมลง'},
-  fish:{prefix:'ปลา',example:'ปลาประกายสายรุ้งวิเศษ',letter:'ป ปลา',generic:'ปลา'}
+  fish:{prefix:'ปลา',example:'ปลาประกายสายรุ้งวิเศษ',letter:'ป ปลา',generic:'ปลา'},
+  vegetable:{prefix:'ผัก',example:'ผักจรวดนุ่มนิ่ม',letter:'จ จาน',generic:'ผัก'}
 };
 const SYMBOLS: Record<string,string> = {
   animal:'🐾', sport:'🏆', job:'💼', verb:'✎', fruit:'🍋', vegetable:'🥬', food:'🥣', drink:'🥤',

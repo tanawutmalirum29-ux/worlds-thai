@@ -10,7 +10,8 @@ test('single category nouns and repeated prefixes are forbidden, not unknown',()
     ['tree','ต้นต้นมะม่วง','ม'],
     ['flower','ดอก','ด'],['flower','ดอกไม้','ด'],
     ['bird','นก','น'],['insect','แมลง','ม'],
-    ['fish','ปลา','ป'],['fish','ปลาปลาดุก','ด']
+    ['fish','ปลา','ป'],['fish','ปลาปลาดุก','ด'],
+    ['vegetable','ผัก','ผ'],['vegetable','ผักผักบุ้ง','บ']
   ];
   for(const [category,word,letter] of examples){
     const feedback=checkAnswerFeedback(word,letter,category);
@@ -32,7 +33,8 @@ test('prefix leading letter is explicitly not counted',()=>{
     ['flower','ดอกบัว','ด','บ','ดอก'],
     ['tree','ต้นมะม่วง','ต','ม','ต้น'],
     ['insect','แมลงปอ','ม','ป','แมลง'],
-    ['dessert','ขนมครก','ข','ค','ขนม']
+    ['dessert','ขนมครก','ข','ค','ขนม'],
+    ['vegetable','ผักบุ้ง','ผ','บ','ผัก']
   ]){
     const result=checkAnswerFeedback(word,typedLetter,category);
     assert.equal(result.status,'prefix-not-counted',category+' / '+word);
@@ -46,6 +48,10 @@ test('correct, empty, unknown and ordinary wrong-letter retain distinct feedback
     {status:'empty',message:'ตรวจคำให้ทันที'});
   assert.equal(checkAnswerFeedback('ขนมไข่','ข','dessert').status,'accepted');
   assert.equal(checkAnswerFeedback('มะม่วง','ม','tree').status,'accepted');
+  assert.equal(checkAnswerFeedback('ผักบุ้ง','บ','vegetable').status,'accepted');
+  assert.equal(checkAnswerFeedback('บุ้ง','บ','vegetable').status,'accepted');
+  assert.equal(checkAnswerFeedback('ผักจรวดนุ่มนิ่ม','จ','vegetable').status,'unknown');
+  assert.notEqual(checkAnswerFeedback('ผัก','ผ','plant').status,'forbidden');
   assert.equal(checkAnswerFeedback('ขนมจรวดสายรุ้ง','จ','dessert').status,'unknown');
   assert.equal(checkAnswerFeedback('ปลาหมอกดาวอังคาร','ห','fish').status,'unknown');
   assert.equal(checkAnswerFeedback('มะม่วง','ข','tree').status,'wrong-letter');

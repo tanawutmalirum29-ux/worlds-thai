@@ -158,3 +158,29 @@ test('stat deltas and CSV share the same word across prefixed fish answers',()=>
   assert.equal(lines.length,1,'single canonical fish row with historical totals');
   assert.doesNotMatch(csv,/"ป","ป ปลา","ปลา","ปลาดุก","3","4"/);
 });
+
+test('vegetable prefixed answers share a single usage stat and historical CSV row',()=>{
+  const m=newMatch('room-vegetable-prefix-001',now);
+  applyAction(m,'create','host',now,'Host');
+  applyAction(m,'join','guest',now,'Guest');
+  applyAction(m,'start','host',now+1000);
+  m.letter='บ';m.categories=['vegetable'];
+  applyAction(m,'draft','host',now+2000,'',{vegetable:'บุ้ง'});
+  applyAction(m,'draft','guest',now+2000,'',{vegetable:'ผักบุ้ง'});
+  const before=structuredClone(m);
+  for(const p of m.players)p.lastSeen=m.deadline;
+  advance(m,m.deadline+1);
+  const deltas=roundWordDeltas(before,m);
+  assert.deepEqual(deltas.map(row=>[row.word,row.letter,row.timesUsed,row.totalPoints]),
+    [['บุ้ง','บ',2,2]]);
+  const csv=buildWordUsageCsv([
+    {letter:'ผ',category:'vegetable',word:'ผักบุ้ง',timesUsed:3,totalPoints:4,lastUsedAt:now-100},
+    {letter:'บ',category:'vegetable',word:'บุ้ง',timesUsed:2,totalPoints:2,lastUsedAt:now}
+  ]);
+  const lines=csv.split('\r\n').filter(line=>
+    line.startsWith('"บ","บ ใบไม้","ผัก",')&&
+    (line.includes('"ผักบุ้ง"')||line.includes('"บุ้ง"'))&&
+    line.includes(',"5","6",'));
+  assert.equal(lines.length,1,'one canonical vegetable row with the combined historic total');
+  assert.doesNotMatch(csv,/"ผ","ผ ผึ้ง","ผัก","ผักบุ้ง","5","6"/);
+});

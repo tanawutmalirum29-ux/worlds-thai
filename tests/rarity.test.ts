@@ -167,3 +167,10 @@ test('rarity pools use the real initial after fish/bird/insect/flower labels',()
     assert.ok(!wordsForGroup(full[0],category).includes(bare),category);
   }
 });
+
+test('vegetable rarity pool uses the consonant after ผัก and deduplicates spelling variants',()=>{
+  const pool=wordsForGroup('บ','vegetable');
+  assert.ok(pool.includes('บุ้ง'));
+  assert.equal(pool.filter(word=>word==='บุ้ง').length,1);
+  assert.ok(!wordsForGroup('ผ','vegetable').includes('บุ้ง'));
+});

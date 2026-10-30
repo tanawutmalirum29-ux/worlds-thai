@@ -25,12 +25,12 @@ const ALL_LETTERS = [...'กขคงจฉชซดตถทนบปผพฟ�
  * E.g. ปลาดุก / ดุก -> ด, นกกระจอก / กระจอก -> ก.
  */
 export const OPTIONAL_NAME_PREFIXES:Readonly<Record<string,string>>={
-  tree:'ต้น',flower:'ดอก',bird:'นก',insect:'แมลง',fish:'ปลา'
+  tree:'ต้น',flower:'ดอก',bird:'นก',insect:'แมลง',fish:'ปลา',vegetable:'ผัก'
 };
 const GENERIC_NAMES:Readonly<Record<string,readonly string[]>>={
   tree:['ต้น','ต้นไม้','ไม้'],
   flower:['ดอก','ดอกไม้'],
-  bird:['นก'],insect:['แมลง'],fish:['ปลา']
+  bird:['นก'],insect:['แมลง'],fish:['ปลา'],vegetable:['ผัก']
 };
 function nameWithoutCategoryPrefix(value:unknown,category:string):string {
   const word=normalizeAnswer(value).toLocaleLowerCase('th');

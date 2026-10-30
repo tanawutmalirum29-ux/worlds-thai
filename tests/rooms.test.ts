@@ -81,3 +81,14 @@ test('live answer feedback distinguishes banned labels from unknown words',()=>{
   assert.match(styles,/\.feedback-forbidden/);
   assert.match(styles,/\.feedback-prefix-not-counted/);
 });
+
+test('vegetable prefix has an invented example beneath its own answer category',()=>{
+  const ui=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  const head=ui.slice(ui.indexOf('className="answer-head"'),ui.indexOf('className="answer-list"'));
+  const answers=ui.slice(ui.indexOf('className="answer-list"'),ui.indexOf('className="auto-save-status'));
+  assert.ok(ui.includes("vegetable:{prefix:'ผัก',example:'ผักจรวดนุ่มนิ่ม'"));
+  assert.ok(!head.includes('ผักจรวดนุ่มนิ่ม'));
+  assert.match(answers,/CATEGORY_PREFIX_HINTS\[category\]/);
+  assert.match(answers,/className="answer-category-hint"/);
+  assert.match(answers,/!game\.topicCategory\|\|index===0/);
+});

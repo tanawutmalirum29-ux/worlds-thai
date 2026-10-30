@@ -454,3 +454,39 @@ test('server queries may transition only an expired play/review deadline',()=>{
   assert.equal(m.phase,'final');
   assert.equal(timedTransitionDue(m,Date.now()),false);
 });
+
+test('ผัก is an optional prefix only in vegetable category; actual plant names decide the consonant',()=>{
+  const examples=[
+    {name:'ผักบุ้ง',short:'บุ้ง',letter:'บ'},
+    {name:'ผักกาด',short:'กาด',letter:'ก'},
+    {name:'ผักชี',short:'ชี',letter:'ช'},
+    {name:'ผักโขม',short:'โขม',letter:'ข'},
+    {name:'คะน้า',short:'คะน้า',letter:'ค'}
+  ];
+  for(const {name,short,letter} of examples){
+    assert.equal(wordInitialForCategory(name,'vegetable'),letter,name);
+    assert.equal(wordInitialForCategory(short,'vegetable'),letter,short);
+    assert.equal(canonicalAnswer(name,'vegetable'),short,name);
+    assert.equal(canonicalAnswer(short,'vegetable'),short,short);
+    assert.equal(validAnswer(name,letter,'vegetable'),eligibleCategories(letter).includes('vegetable'),name);
+    assert.equal(validAnswer(short,letter,'vegetable'),eligibleCategories(letter).includes('vegetable'),short);
+    if(letter!=='ผ')assert.equal(validAnswer(name,'ผ','vegetable'),false,name);
+  }
+  assert.equal(wordInitialForCategory('ผัก','vegetable'),'');
+  assert.equal(canonicalAnswer('ผัก','vegetable'),'');
+  assert.equal(canonicalAnswer('ผักผักบุ้ง','vegetable'),'');
+  for(const word of ['ผัก','ผักผักบุ้ง','ผักจรวดนุ่มนิ่ม','ผักของที่ไม่มีอยู่จริง']){
+    for(const letter of ['ผ','จ','บ'])assert.equal(validAnswer(word,letter,'vegetable'),false,word);
+  }
+  assert.equal(wordInitialForCategory('ผักบุ้ง','plant'),'ผ');
+  assert.equal(canonicalAnswer('ผักบุ้ง','plant'),'ผักบุ้ง');
+  assert.equal(wordInitialForCategory('ผักชี','food'),'ผ');
+  assert.equal(canonicalAnswer('ผักชี','food'),'ผักชี');
+});
+test('prefixed and short vegetable answers are a single type in either game mode',()=>{
+  const match=setup();
+  match.phase='playing';match.letter='บ';match.categories=['vegetable'];
+  match.submissions={host:{vegetable:'ผักบุ้ง'},guest:{vegetable:'บุ้ง'}};
+  assert.deepEqual(scoreRound(match).map(row=>row.perCategory.vegetable),[1,1]);
+  assert.equal(new Set(['ผักบุ้ง','บุ้ง'].map(word=>canonicalAnswer(word,'vegetable'))).size,1);
+});
