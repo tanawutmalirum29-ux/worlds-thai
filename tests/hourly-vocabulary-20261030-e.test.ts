@@ -9,10 +9,10 @@ import { isInappropriateLanguage, isBlockedStandaloneAnswer }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  science: ['อ', 'น', 'จ', 'ฟ'],
-  material: ['ซ', 'ฟ', 'ม', 'ผ'],
-  adjective: ['ฉ', 'ข', 'ท', 'ฟ'],
-  technology: ['ร', 'ค', 'ม', 'ค'],
+  object: ['ต', 'ฟ', 'ต', 'ค'],
+  vehicle: ['ย', 'ก', 'พ', 'ร'],
+  toy: ['ส', 'ต', 'ช', 'ล'],
+  place: ['ร', 'ส', 'ร', 'ร'],
 };
 
 test('hourly round E registers 16 reviewed words without canonical duplicates', () => {
