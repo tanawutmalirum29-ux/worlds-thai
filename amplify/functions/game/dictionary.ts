@@ -1,6 +1,7 @@
 import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { AI1_NATURE_TERMS } from './ai1-nature-terms.ts';
 import { AI3_ACTIVITY_TERMS } from './ai3-activity-terms-20261031.ts';
+import { AI2_FOOD_HOME_TERMS } from './ai2-food-home-terms.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
@@ -2259,5 +2260,12 @@ for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
 for (const [category, words] of Object.entries(AI3_ACTIVITY_TERMS)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-3 vocabulary category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// AI-2: household object and furniture vocabulary only; no rule changes.
+for (const [category, words] of Object.entries(AI2_FOOD_HOME_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown AI-2 home category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
