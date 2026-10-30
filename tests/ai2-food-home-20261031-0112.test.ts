@@ -22,7 +22,7 @@ const AI2_WORDS = {
     'น้ำส้มจี๊ด', 'น้ำมะนาวดอง'
   ],
   vegetable: [
-    'ตั้งโอ๋', 'จิงจูฉ่าย', 'ผักชะคราม', 'ผักหูเสือ', 'ผักสันตะวา'
+    'ตั้งโอ๋', 'จิงจูฉ่าย', 'ผักปู่ย่า', 'ผักหูเสือ', 'ผักสันตะวา'
   ]
 } as const;
 
@@ -37,6 +37,12 @@ test('AI-2 registers exactly 20 distinct, clean words in owned categories', () =
       assert.ok(word.length >= 2 && word.length <= 48, 'invalid length: ' + word);
       assert.equal(isInappropriateLanguage(word), false, 'inappropriate word: ' + word);
       assert.ok(WORD_BANK[category].includes(word), 'not registered: ' + word);
+      const identity = canonicalAnswer(word, category);
+      const canonicalCount = WORD_BANK[category].filter(
+        candidate => canonicalAnswer(candidate, category) === identity
+      ).length;
+      assert.equal(canonicalCount, 1,
+        'duplicate canonical identity across full live bank: ' + category + '/' + word);
       const initial = wordInitialForCategory(word, category);
       assert.match(initial, /^[ก-ฮ]$/, 'invalid initial: ' + word);
       if (eligibleCategories(initial).includes(category))
@@ -58,9 +64,9 @@ test('dessert ขนม and vegetable ผัก prefixes retain the existing con
   assert.equal(wordInitialForCategory('ขนมลืมกลืน', 'dessert'), 'ล');
   assert.equal(wordInitialForCategory('ขนมหม้อแกงเผือก', 'dessert'), 'ห');
   assert.equal(wordInitialForCategory('ขนมเทียนไส้เค็ม', 'dessert'), 'ท');
-  assert.equal(wordInitialForCategory('ผักชะคราม', 'vegetable'), 'ช');
+  assert.equal(wordInitialForCategory('ผักปู่ย่า', 'vegetable'), 'ป');
   assert.equal(wordInitialForCategory('ผักหูเสือ', 'vegetable'), 'ห');
   assert.equal(wordInitialForCategory('ผักสันตะวา', 'vegetable'), 'ส');
-  assert.equal(canonicalAnswer('ผักชะคราม', 'vegetable'), 'ชะคราม');
+  assert.equal(canonicalAnswer('ผักปู่ย่า', 'vegetable'), 'ปู่ย่า');
   assert.equal(canonicalAnswer('ขนมลืมกลืน', 'dessert'), 'ขนมลืมกลืน');
 });
