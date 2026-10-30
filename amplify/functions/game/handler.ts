@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, ScanCommand, TransactWriteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { applyAction, newMatch, snapshot, publicRoom, type Match } from './logic';
+import { advance, applyAction, newMatch, snapshot, publicRoom, timedTransitionDue, type Match } from './logic';
 import {handleAdminSession} from './admin-sessions';
 import { resolveOperation } from './request';
 import { roundWordDeltas } from './stats';
@@ -298,6 +298,31 @@ async function availableRooms(now:number){
   return collected.filter((item):item is NonNullable<typeof item>=>item!==null)
     .sort((a,b)=>b.createdAt-a.createdAt).slice(0,30);
 }
+/** A weak/offline player's polling request must be able to move a timed phase.
+ * Only expired phase transitions write; ordinary polls remain a single read.
+ * The same CAS and accounting transaction as gameAction prevents double scores.
+ */
+async function readAndAdvanceGame(roomId:string):Promise<Match|null>{
+  for(let attempt=0;attempt<6;attempt++){
+    const before=await read(roomId);
+    if(!before)return null;
+    const now=Date.now();
+    if(!timedTransitionDue(before,now))return before;
+    const state=structuredClone(before);
+    advance(state,now);
+    await assignRaritySnapshot(before,state,now);
+    try{
+      await commit(roomId,before,state);
+      await persistDessertSuggestions(before,state);
+      return state;
+    }catch(error:any){
+      if(!isRetryableConflict(error))throw error;
+      await sleep((attempt+1)*20);
+    }
+  }
+  // Another poll/pulse won the race: return its current durable snapshot.
+  return read(roomId);
+}
 const sleep=(ms:number)=>new Promise<void>(resolve=>setTimeout(resolve,ms));
 function parseJson(value:unknown):unknown {
   if(typeof value!=='string')return value;
@@ -311,7 +336,8 @@ export const handler=async(event:any)=>{
   );
   if (operation==='getGame') {
     const roomId=args.roomId;
-    return typeof roomId==='string' && ROOM_ID.test(roomId) ? snapshotOrNull(await read(roomId)) : null;
+    return typeof roomId==='string' && ROOM_ID.test(roomId)
+      ? snapshotOrNull(await readAndAdvanceGame(roomId)) : null;
   }
   if (operation==='listRooms') return availableRooms(Date.now());
   if (operation==='getWordStats') {
@@ -330,7 +356,7 @@ export const handler=async(event:any)=>{
       applyAction(state,'create',userId,now,args.name||'',undefined,parseJson(args.settings));
       try {
         await commit(id,null,state);
-        return {roomId:id,snapshot:{...snapshot(state),you:userId}};
+        return {roomId:id,snapshot:{...snapshot(state),you:userId,serverNow:Date.now()}};
       }catch(error:any) {
         if(!isRetryableConflict(error))throw error;
       }
@@ -348,7 +374,7 @@ export const handler=async(event:any)=>{
     try{
       await commit(roomId,before,state);
       await persistDessertSuggestions(before,state);
-      return {roomId,snapshot:{...snapshot(state),you:userId}};
+      return {roomId,snapshot:{...snapshot(state),you:userId,serverNow:Date.now()}};
     }catch(error:any){
       if(!isRetryableConflict(error))throw error;
       await sleep((attempt+1)*20);
@@ -356,4 +382,4 @@ export const handler=async(event:any)=>{
   }
   throw new Error('มีผู้เล่นดำเนินการพร้อมกัน กรุณาลองใหม่');
 };
-function snapshotOrNull(value:Match|null){return value?snapshot(value):null;}
+function snapshotOrNull(value:Match|null){return value?{...snapshot(value),serverNow:Date.now()}:null;}

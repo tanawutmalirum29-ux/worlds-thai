@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { newMatch,applyAction,advance,chooseRound,scoreRound,snapshot,publicRoom,initialConsonant,wordInitialForCategory,canonicalAnswer,validAnswer,
-  CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings,type GameSettings } from '../amplify/functions/game/logic.ts';
+  CATEGORIES,LETTERS,eligibleCategories,DEFAULT_SETTINGS,MAX_PLAYERS,validateSettings,IDLE_SECONDS,timedTransitionDue,type GameSettings } from '../amplify/functions/game/logic.ts';
 import {resolveOperation} from '../amplify/functions/game/request.ts';
 const start=1_700_000_000_000;
 const room=()=>newMatch('room-aabbccddeeff00112233',start);
@@ -104,8 +104,8 @@ test('owner transfer after explicit exit and timeout',()=>{
   assert.equal(m.settings.rounds,4);
   const other=setup();
   other.players[0].lastSeen=start;
-  other.players[1].lastSeen=start+30000;
-  advance(other,start+44000);
+  other.players[1].lastSeen=start+IDLE_SECONDS*1000;
+  advance(other,start+IDLE_SECONDS*1000+1000);
   assert.equal(other.ownerId,'guest');
 });
 test('8-player capacity and rejoin',()=>{
@@ -138,7 +138,7 @@ test('public lobby lists joinable waiting rooms and does not expose player IDs',
   const full=structuredClone(m);
   for(let i=2;i<MAX_PLAYERS;i++)full.players.push({id:String(i),name:'X',score:0,lastSeen:start});
   assert.equal(publicRoom(full,start+1000),null);
-  assert.equal(publicRoom(m,start+45000),null);
+  assert.equal(publicRoom(m,start+IDLE_SECONDS*1000+1000),null);
   assert.equal(publicRoom(newMatch('public-1',start),start),null);
 });
 test('listRooms operation resolves without requiring roomId',()=>{
@@ -422,4 +422,35 @@ test('four category prefixes are deduplicated during pair eligibility and round 
       assert.deepEqual(scores,[1,1],category);
     }else assert.deepEqual(scores,[0,0],category+' (sparse category pool)');
   }
+});
+
+test('weak mobile links keep a player slot across a short outage',()=>{
+  const m=setup();
+  advance(m,start+100000);
+  assert.equal(m.players.length,2,'temporary 100-second outage must not remove a participant');
+  assert.equal(m.ownerId,'host');
+  advance(m,start+IDLE_SECONDS*1000+1);
+  assert.equal(m.players.length,0,'expired sessions are eventually cleaned up');
+});
+
+test('server queries may transition only an expired play/review deadline',()=>{
+  const m=setup({rounds:2,categories:3,seconds:20});
+  applyAction(m,'start','host',start+1000);
+  assert.equal(timedTransitionDue(m,m.deadline-1),false);
+  const playDeadline=m.deadline;
+  assert.equal(timedTransitionDue(m,playDeadline),true);
+  advance(m,playDeadline);
+  assert.equal(m.phase,'review');
+  assert.equal(timedTransitionDue(m,m.deadline-1),false);
+  const reviewDeadline=m.deadline;
+  assert.equal(timedTransitionDue(m,reviewDeadline),true);
+  advance(m,reviewDeadline);
+  assert.equal(m.phase,'playing');
+  assert.equal(m.round,2);
+  assert.equal(timedTransitionDue(m,reviewDeadline),false);
+  const finalDeadline=m.deadline;
+  advance(m,finalDeadline);
+  advance(m,m.deadline);
+  assert.equal(m.phase,'final');
+  assert.equal(timedTransitionDue(m,Date.now()),false);
 });
