@@ -54,3 +54,47 @@ test('server rejects injected-vowel nicknames before joining and discards offens
     {body:'',animal:'ควาย'});
   assert.equal(validAnswer('คุวุย','ค','body'),false);
 });
+
+test('repeated consonants with interleaved vowels cannot disguise a banned Thai spelling',()=>{
+  const bypasses=[
+    'คุวุวีย์',
+    'คุวุวุย',
+    'คุวุวุย์',
+    'คุคุวุย',
+    'คุวุวียี',
+    'คุวุวีย์์',
+    'คุ-วุ-วีย์',
+    'ชื่อคุวุวีย์',
+    'คุวุวีย์ครับ',
+    'คุวุวุยนะ'
+  ];
+  for(const name of bypasses){
+    assert.equal(isInappropriateLanguage(name),true,name);
+    // Some spellings also contain the separately banned fragment วี, which
+    // takes priority in nickname errors. Both reasons must block the name.
+    assert.notEqual(nicknameValidationMessage(name),'',name);
+  }
+  assert.deepEqual(cleanAnswers({body:'คุวุวีย์'},['body']),{body:''});
+});
+
+test('interleaved repetition rule must not cause consonant skeleton false positives',()=>{
+  const ordinary=[
+    'คุย','ควาย','คุยเก่ง','ควายไทย','คุ้มครอง','คูณ','คิว','คุรุ',
+    'คีรี','คะน้า','วุ่นวาย','วุฒิ','ขนม','หีบเพลง','สัดส่วน',
+    'ตีนเป็ด','เห็ดฟาง','เฮีย','แกงกะหรี่'
+  ];
+  for(const word of ordinary){
+    assert.equal(isInappropriateLanguage(word),false,word);
+    assert.equal(nicknameValidationMessage(word),'',word);
+  }
+});
+
+test('server create and join enforce interleaved vowel rejection even when client validation is bypassed',()=>{
+  const t=1_700_000_000_000;
+  for(const name of ['คุวุวุย','ชื่อคุวุวุย','คุคุวุย']){
+    const game=newMatch('room-abababababababababab',t);
+    assert.throws(()=>applyAction(game,'create','creator',t,name),/ชื่อเล่นที่สุภาพ/,name);
+    applyAction(game,'create','creator',t,'ผู้สร้าง');
+    assert.throws(()=>applyAction(game,'join','guest',t,name),/ชื่อเล่นที่สุภาพ/,name);
+  }
+});

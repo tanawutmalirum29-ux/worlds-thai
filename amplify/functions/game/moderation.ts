@@ -67,8 +67,15 @@ export const DISALLOWED_ROMAN_RULES=[
  */
 const EXTRA_THAI_MARKS=String.raw`[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{0,4}`;
 function withInsertedThaiMarks(word:string,contains:boolean):RegExp {
-  const pattern=[...word].join(EXTRA_THAI_MARKS);
-  return new RegExp(contains?pattern:'^(?:'+pattern+')$','u');
+  // Allow bounded consonant repetitions with combining marks between each
+  // copy, while retaining original meaningful vowels in ordinary words.
+  const pattern=[...word].map(letter=>
+    /[ก-ฮ]/u.test(letter)
+      ?letter+'(?:'+EXTRA_THAI_MARKS+letter+'){0,3}'
+      :letter
+  ).join(EXTRA_THAI_MARKS);
+  const anchored='^(?:'+pattern+')'+String.fromCharCode(36);
+  return new RegExp(contains?pattern:anchored,'u');
 }
 const STRETCHED_PHRASES=[
   ...DISALLOWED_PHRASES,...DISALLOWED_THAI_PHRASE_VARIANTS
