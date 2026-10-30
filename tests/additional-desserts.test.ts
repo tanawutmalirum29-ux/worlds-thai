@@ -33,7 +33,7 @@ test('frequently requested dessert names are valid with correct consonants',()=>
     ['ครีมชีส','ค'],['โดรายากิ','ด'],['โดรายากิถั่วแดง','ด'],
     ['จันอับ','จ'],['ขนมจันอับ','จ'],['ขนมเสน่ห์จันทน์','ส'],
     ['โมจิ','ม'],['ไดฟูกุ','ด'],['บิงซูมะม่วง','บ'],
-    ['ชีสทาร์ต','ช'],['ขนมพระพาย','พ'],['ฝอยทอง','ฝ']
+    ['ชีสทาร์ต','ช'],['ขนมพระพาย','พ'],['ฟักเชื่อม','ฟ']
   ] as const){
     assert.equal(wordInitialForCategory(name,'dessert'),initial,name);
     assert.equal(validAnswer(name,initial,'dessert'),true,name);
