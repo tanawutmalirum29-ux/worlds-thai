@@ -67,7 +67,7 @@ test('CSV remaps the dessert-prefix letter and preserves historical stats',()=>{
   assert.match(csv,/"ข","ข ไข่","ขนม","ขนมไข่","1","2"/);
 });
 
-test('stats aggregate prefixed and bare desserts into one canonical key',()=>{
+test('new stats exclude rude answers while retaining valid dessert scoring',()=>{
   const game=newMatch('room-abcdefabcdefabcdefab',now);
   applyAction(game,'create','host',now,'Host');
   applyAction(game,'join','guest',now,'Guest');
@@ -75,12 +75,13 @@ test('stats aggregate prefixed and bare desserts into one canonical key',()=>{
   game.letter='ข';game.categories=['dessert'];
   applyAction(game,'draft','host',now+2000,'',{dessert:'ไข่หงส์'});
   applyAction(game,'draft','guest',now+2000,'',{dessert:'ขนมไข่เหี้ย'});
+  assert.equal(game.submissions.guest.dessert,'','rude answers are not persisted');
   const before=structuredClone(game);
   for(const p of game.players)p.lastSeen=game.deadline;
   advance(game,game.deadline+1);
   const rows=roundWordDeltas(before,game);
   assert.deepEqual(rows.map(r=>({word:r.word,count:r.timesUsed,points:r.totalPoints})),
-    [{word:'ไข่หงส์',count:2,points:2}]);
+    [{word:'ไข่หงส์',count:1,points:2}]);
 });
 test('CSV joins prefixed historical statistics with bare canonical word',()=>{
   const csv=buildWordUsageCsv([
