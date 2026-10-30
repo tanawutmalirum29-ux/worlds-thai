@@ -6,12 +6,15 @@
 export const DISALLOWED_EXACT = new Set([
   'ควย','หี','หำ','จู๋','จิ๋ม','เจี๊ยว','จ้อน','แตด','กระดอ','กระเจี๊ยว',
   'ตีน','ตูด','ดาก','สัส','สัด','เหี้ย','เชี่ย','เชี้ย','ห่า',
-  'เย็ด','เงี่ยน','ชิบหาย','ฉิบหาย','ดอกทอง'
+  'เย็ด','เงี่ยน','ชิบหาย','ฉิบหาย','ดอกทอง',
+  'แม่ง','แม่ม','มึง','กู','จัญไร','ระยำ','สถุน','อัปรีย์','สารเลว','สวะ'
 ]);
 export const DISALLOWED_PHRASES = [
   'ควย','จิ๋ม','เจี๊ยว','กระดอ','กระเจี๊ยว','แตด','เย็ด','สัส','เหี้ย','เงี่ยน','หำ',
   'ส้นตีน','ไอ้เหี้ย','ไอเหี้ย','ไข่เหี้ย','ไอ้สัส','ไอสัส',
-  'ชิบหาย','ฉิบหาย'
+  'ชิบหาย','ฉิบหาย',
+  'ไอ้เวร','อีเวร','ไอ้สัตว์','อีสัตว์','ไอ้โง่','อีโง่',
+  'อีดอก','อีห่า','แม่มึง','พ่อมึง','ไอ้ระยำ','ปัญญาอ่อน'
 ] as const;
 
 /**
@@ -24,7 +27,8 @@ export const DISALLOWED_THAI_EXACT_VARIANTS=[
 ] as const;
 export const DISALLOWED_THAI_PHRASE_VARIANTS=[
   'คุวย','คูวย','เยด','เย้ด','เย๊ด','เหี๊ย','เฮี้ย',
-  'เชี๊ย','เชี๋ย','ชิ้บหาย','ฉิ้บหาย','ไอ้สาส','ไอสาส','อีสาส'
+  'เชี๊ย','เชี๋ย','ชิ้บหาย','ฉิ้บหาย','ไอ้สาส','ไอสาส','อีสาส',
+  'ไอ้สาด','ไอสาด','ไอ้แสรด','อีแสรด'
 ] as const;
 
 /**
@@ -58,6 +62,11 @@ export const DISALLOWED_ROMAN_RULES=[
   {word:'sud',scope:'exact',pattern:/^sud$/u,examples:'sud'},
   {word:'tud',scope:'exact',pattern:/^tud$/u,examples:'tud'},
   {word:'tood',scope:'exact',pattern:/^tod$/u,examples:'tood'},
+  {word:'slut',scope:'exact',pattern:/^slut$/u,examples:'slut, s.l.u.t'},
+  {word:'whore',scope:'exact',pattern:/^whore$/u,examples:'whore, w.h.o.r.e'},
+  {word:'bastard',scope:'exact',pattern:/^bastard$/u,examples:'bastard'},
+  {word:'nigga',scope:'exact',pattern:/^nigga$/u,examples:'nigga'},
+  {word:'retard',scope:'exact',pattern:/^retard$/u,examples:'retard'},
 ] as const;
 
 /**
@@ -97,7 +106,9 @@ function compactThai(value:unknown):string {
 
 /** Profanity-only folding; keep historic standalone วี spelling exact. */
 function compactModeration(value:unknown):string {
-  return compactThai(value).replace(/\u0E4C/gu,'').replace(REPEATED_SYMBOL,'$1');
+  return compactThai(value)
+    .replace(/[0-9\u0E50-\u0E59]/gu,'')
+    .replace(/\u0E4C/gu,'').replace(REPEATED_SYMBOL,'$1');
 }
 
 /**
@@ -127,6 +138,10 @@ function romanizedCandidates(value:unknown):string[] {
 export function isInappropriateLanguage(value:unknown):boolean {
   const compact=compactModeration(value);
   if(!compact)return false;
+  const original=compactThai(value);
+  if(DISALLOWED_EXACT.has(original)||THAI_EXACT_VARIANTS.has(original)||
+    STRETCHED_EXACT.some(pattern=>pattern.test(original))||
+    STRETCHED_PHRASES.some(pattern=>pattern.test(original)))return true;
   if(DISALLOWED_EXACT.has(compact)||THAI_EXACT_VARIANTS.has(compact)||
     DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase))||
     DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase))||
@@ -157,11 +172,38 @@ export const BLOCKED_VEE_ROMAN_RULES=[
   }
 ] as const;
 
+/**
+ * Detect the specifically banned "วี" when typed with inserted numbers,
+ * incompatible Thai vowel marks, or tone marks (as shown on iPad).
+ * Only fold marks that cannot change another word into a real "วี":
+ * ordinary วิ, วิน, วุฒิ, หวีด and สาวอีสาน must not be broadly banned.
+ * Keep answer-only suffix restrictions (วีร์, วี์, วีนัส) intact.
+ */
+const VEE_ANSWER_NOISE=/[0-9\u0E50-\u0E59\u0E31\u0E34\u0E36-\u0E3A\u0E47-\u0E4B\u0E4D\u0E4E]/gu;
+const VEE_NAME_NOISE=/[0-9\u0E50-\u0E59\u0E31\u0E34\u0E36-\u0E3A\u0E47-\u0E4E]/gu;
+function veeAnswerCore(value:unknown):string {
+  return compactThai(value).replace(VEE_ANSWER_NOISE,'');
+}
+function veeNicknameCore(value:unknown):string {
+  return compactThai(value).replace(VEE_NAME_NOISE,'');
+}
+function isNicknameVee(value:unknown):boolean {
+  const original=compactThai(value);
+  const folded=veeNicknameCore(value);
+  // "วอี" is a phonetic spelling only when used as a standalone name
+  // (rather than inside normal words such as สาวอีสาน).
+  return folded.includes(BLOCKED_NICKNAME_FRAGMENT) ||
+    folded=== 'วอี' ||
+    /ว[0-9\u0E50-\u0E59]+อี/u.test(original);
+}
+
 /** Game answers: block bare วี and its standalone Roman replacements only. */
 export const BLOCKED_STANDALONE_ANSWER='วี';
 export function isBlockedStandaloneAnswer(value:unknown):boolean {
   const compact=compactThai(value);
+  const vee=veeAnswerCore(value);
   return compact===BLOCKED_STANDALONE_ANSWER ||
+    vee===BLOCKED_STANDALONE_ANSWER || vee==='วอี' ||
     BLOCKED_VEE_ROMAN_RULES.some(rule=>rule.answerPattern.test(compact));
 }
 
@@ -169,7 +211,7 @@ export function isBlockedStandaloneAnswer(value:unknown):boolean {
 export const BLOCKED_NICKNAME_FRAGMENT='วี';
 export function nicknameValidationMessage(value:unknown):string {
   const compact=compactThai(value);
-  if(compact.includes(BLOCKED_NICKNAME_FRAGMENT) ||
+  if(isNicknameVee(value) ||
     BLOCKED_VEE_ROMAN_RULES.some(rule=>rule.nicknamePattern.test(compact)))
     return 'ใช้ชื่อนี้ไม่ได้';
   if(isInappropriateLanguage(value))return 'กรุณาใช้ชื่อเล่นที่สุภาพ';

@@ -29,5 +29,8 @@
     "aws-cdk-lib": "^2.200.0",
     "yaml": "^2.8.1",
     "sharp": "^0.34.4"
+  },
+  "overrides": {
+    "@aws-cdk/cloud-assembly-schema": "55.2.0"
   }
 }
