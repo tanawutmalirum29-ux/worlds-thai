@@ -1,4 +1,4 @@
-import {StrictMode,useEffect,useMemo,useState} from 'react';
+import {StrictMode,useEffect,useMemo,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Amplify} from 'aws-amplify';
 import {generateClient} from 'aws-amplify/data';
@@ -8,7 +8,11 @@ import {letterCaption} from './letters.ts';
 import {
   INBOX_STORAGE_KEY,normalizeInbox,addInboxWords,removeInboxWord,exportPendingWords
 } from './admin-inbox.ts';
-import {EXPORT_PROMPT_CODE,buildWordUsageCsv,type WordStatRecord} from './stats-export.ts';
+import {buildWordUsageCsv,type WordStatRecord} from './stats-export.ts';
+import {
+  ADMIN_SESSION_STORAGE_KEY,adminSessionRequest,readAdminSession,saveAdminSession,clearAdminSession,
+  type SavedAdminSession
+} from './admin-session-client.ts';
 import {
   STORAGE_KEY,CATEGORY_OPTIONS,LETTER_OPTIONS,addDraft,dropDraft,normalizeDrafts,
   mergedBank,getEntries,filterEntries,exactEntries,exportDictionary,type Drafts
@@ -94,6 +98,12 @@ async function querySuggestions():Promise<DessertSuggestionRow[]>{
 
 function WordAdmin(){
   const [authorized,setAuthorized]=useState(false);
+  const authorizedRef=useRef(false);
+  const activeSession=useRef<SavedAdminSession|null>(readAdminSession());
+  const [sessionChecking,setSessionChecking]=useState(Boolean(activeSession.current));
+  const [authBusy,setAuthBusy]=useState(false);
+  const [confirmLogoutAll,setConfirmLogoutAll]=useState(false);
+  const [logoutAllBusy,setLogoutAllBusy]=useState(false);
   const [activeTab,setActiveTab]=useState<AdminTab>('overview');
   const [visitedTabs,setVisitedTabs]=useState<AdminTab[]>(['overview']);
   const [jumpTarget,setJumpTarget]=useState('');
@@ -165,11 +175,92 @@ function WordAdmin(){
     catch(error){setSuggestionState('error');
       setSuggestionError(error instanceof Error?error.message:'อ่านคำเสนอแนะไม่ได้');}
   }
-  function login(){
-    if(pin!==EXPORT_PROMPT_CODE){setPinError('รหัสไม่ถูกต้อง');return;}
-    setAuthorized(true);setPin('');setPinError('');
-    void refreshStats();
-    void refreshSuggestions();
+  function closeSession(message=''){
+    authorizedRef.current=false;
+    activeSession.current=null;
+    clearAdminSession();
+    setAuthorized(false);setSessionChecking(false);setConfirmLogoutAll(false);
+    setPin('');setPinError(message);
+  }
+  // Restore the 30-day token only after cloud validation. Re-check periodically
+  // so the all-device revocation invalidates other online screens promptly.
+  useEffect(()=>{
+    let cancelled=false,polling=false;
+    const restore=async()=>{
+      const saved=activeSession.current;
+      if(!saved){setSessionChecking(false);return;}
+      try{
+        const checked=await adminSessionRequest('check',saved.token);
+        if(cancelled)return;
+        if(!checked.valid){closeSession('เซสชันหมดอายุหรือถูกออกจากระบบทุกเครื่อง กรุณาใส่รหัสใหม่');return;}
+        authorizedRef.current=true;setAuthorized(true);setPinError('');
+        void refreshStats();void refreshSuggestions();
+      }catch(error){
+        if(!cancelled)setPinError('ตรวจสอบการเข้าสู่ระบบไม่ได้ กรุณาโหลดหน้าใหม่');
+      }finally{if(!cancelled)setSessionChecking(false);}
+    };
+    void restore();
+    const verify=async()=>{
+      if(cancelled||polling||!authorizedRef.current||!activeSession.current)return;
+      polling=true;
+      const checkedToken=activeSession.current.token;
+      try{
+        const checked=await adminSessionRequest('check',checkedToken);
+        if(!cancelled&&activeSession.current?.token===checkedToken&&!checked.valid)
+          closeSession('มีการออกจากระบบทุกเครื่อง หรือเซสชันหมดอายุ กรุณาใส่รหัสใหม่');
+      }catch{/* An offline device must revalidate after reconnecting. */}
+      finally{polling=false;}
+    };
+    const timer=window.setInterval(()=>void verify(),15000);
+    const onFocus=()=>void verify();
+    const onVisibility=()=>{if(!document.hidden)void verify();};
+    const onStorage=(event:StorageEvent)=>{
+      if(event.key===ADMIN_SESSION_STORAGE_KEY&&event.oldValue!==event.newValue)
+        window.location.reload();
+    };
+    window.addEventListener('focus',onFocus);
+    document.addEventListener('visibilitychange',onVisibility);
+    window.addEventListener('storage',onStorage);
+    return ()=>{
+      cancelled=true;window.clearInterval(timer);
+      window.removeEventListener('focus',onFocus);
+      document.removeEventListener('visibilitychange',onVisibility);
+      window.removeEventListener('storage',onStorage);
+    };
+  },[]);
+
+  async function login(){
+    if(authBusy||sessionChecking)return;
+    setAuthBusy(true);setPinError('');
+    try{
+      const result=await adminSessionRequest('login',undefined,pin);
+      if(!result.valid||!result.token||!result.expiresAt)
+        throw new Error('เซิร์ฟเวอร์ไม่สามารถสร้างเซสชันได้');
+      const saved:SavedAdminSession={token:result.token,expiresAt:result.expiresAt};
+      activeSession.current=saved;saveAdminSession(saved);
+      authorizedRef.current=true;setAuthorized(true);setPin('');setPinError('');
+      void refreshStats();void refreshSuggestions();
+    }catch(error){setPinError(error instanceof Error?error.message:'เข้าสู่ระบบไม่สำเร็จ');}
+    finally{setAuthBusy(false);}
+  }
+  async function logoutThisDevice(){
+    const session=activeSession.current;
+    closeSession();
+    if(session)try{await adminSessionRequest('logout',session.token);}
+    catch{/* Clearing local authentication is sufficient to leave this device. */}
+  }
+  async function logoutAllDevices(){
+    const session=activeSession.current;
+    if(!session||logoutAllBusy)return;
+    setLogoutAllBusy(true);
+    try{
+      const result=await adminSessionRequest('logoutAll',session.token);
+      if(!result.revokedAll)throw new Error('เซิร์ฟเวอร์ยังไม่ยืนยันการออกจากทุกเครื่อง');
+      closeSession('ออกจากระบบทุกเครื่องแล้ว กรุณาใส่รหัสใหม่');
+    }catch(error){
+      setMessage(error instanceof Error?error.message:'ออกจากระบบทุกเครื่องไม่สำเร็จ');
+      setConfirmLogoutAll(false);
+    }finally{setLogoutAllBusy(false);}
   }
   function insert(){
     try{
@@ -205,20 +296,35 @@ function WordAdmin(){
     <div className="overline">KHAMWAI · PRIVATE WORKSPACE</div>
     <h1>จัดการคลังคำศัพท์</h1>
     <p>ตรวจคำ เพิ่มคำฉบับร่าง และดาวน์โหลดไฟล์สำหรับ GitHub</p>
-    <form onSubmit={e=>{e.preventDefault();login();}}>
+    {sessionChecking?<p className="admin-auth-loading" role="status">กำลังตรวจสอบเซสชันที่จดจำไว้…</p>:
+    <form onSubmit={e=>{e.preventDefault();void login();}}>
       <label>รหัสเข้าใช้งาน<input type="password" value={pin} onChange={e=>setPin(e.target.value)}
-        placeholder="••••••" autoComplete="off" required/></label>
+        placeholder="••••••" autoComplete="off" disabled={authBusy} required/></label>
       {pinError?<span className="error" role="alert">{pinError}</span>:null}
-      <button className="button primary" type="submit">เข้าสู่หน้าจัดการ</button>
-    </form>
-    <small>ชื่อหน้าและรหัสใช้ป้องกันการกดเล่นทั่วไป ไม่ใช่การยืนยันสิทธิ์จากเซิร์ฟเวอร์</small>
+      <button className="button primary" type="submit" disabled={authBusy}>{authBusy?'กำลังเข้าสู่ระบบ…':'เข้าสู่หน้าจัดการ'}</button>
+    </form>}
+    <small>จำการเข้าใช้ในเบราว์เซอร์นี้ 30 วัน · ใช้ปุ่มออกจากระบบทุกเครื่องเพื่อยกเลิกเซสชันทั้งหมด</small>
+    <small>รหัสเดิมเป็นรหัสสาธารณะในโค้ด ไม่ใช่ระบบยืนยันตัวตนแอดมินที่ปลอดภัยเต็มรูปแบบ</small>
   </div></div>;
   return <main className="workspace">
     <header className="heading"><div>
       <div className="overline">KHAMWAI · VOCABULARY OPERATIONS</div>
       <h1>คลังคำศัพท์</h1>
       <p>เลือกหัวข้องานด้านบนเพื่อเปิดเฉพาะเครื่องมือที่ต้องการ</p>
-    </div><button className="button ghost" onClick={()=>setAuthorized(false)}>ล็อกหน้าจอ</button></header>
+    </div><div className="admin-auth-actions">
+      <button className="button ghost" type="button" onClick={()=>void logoutThisDevice()}>ออกจากเครื่องนี้</button>
+      <button className="button danger" type="button" onClick={()=>setConfirmLogoutAll(true)}>ออกจากระบบทุกเครื่อง</button>
+    </div></header>
+    {confirmLogoutAll?<div className="admin-confirm-backdrop" role="presentation">
+      <section className="admin-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-revoke-title">
+        <h2 id="admin-revoke-title">ออกจากระบบทุกเครื่อง?</h2>
+        <p>เซสชันที่เคยจดจำไว้ทั้งหมดจะใช้ไม่ได้ทันทีเมื่อเซิร์ฟเวอร์ยืนยัน เครื่องอื่นที่กำลังเปิดหน้าแอดมินอยู่จะถูกให้ออกเมื่อเช็กเซสชันใหม่ (ปกติภายใน 15 วินาทีหากออนไลน์)</p>
+        <div className="admin-confirm-buttons">
+          <button className="button ghost" type="button" disabled={logoutAllBusy} onClick={()=>setConfirmLogoutAll(false)}>ยกเลิก</button>
+          <button className="button danger" type="button" disabled={logoutAllBusy} onClick={()=>void logoutAllDevices()}>{logoutAllBusy?'กำลังยกเลิกเซสชัน…':'ยืนยันออกจากทุกเครื่อง'}</button>
+        </div>
+      </section>
+    </div>:null}
     <nav className="admin-tabs" aria-label="หมวดเครื่องมือแอดมิน">
       {ADMIN_SECTIONS.map(tab=><button key={tab.id} type="button"
         className={activeTab===tab.id?'admin-tab-button active':'admin-tab-button'}
