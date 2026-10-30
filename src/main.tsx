@@ -10,6 +10,7 @@ import {nicknameValidationMessage} from '../amplify/functions/game/moderation.ts
 import { letterCaption } from './letters.ts';
 import { synonymExamplesForRound } from './word-insights.ts';
 import { encodeGamePayload } from './rooms';
+import {createRoomSettingsSaver,type RoomSettingsSaver,type RoomSettingSaveStatus} from './room-settings-saver.ts';
 import {
   CURRENT_BUILD_ID,BUILD_CHECK_INTERVAL_MS,VERSION_QUERY_KEY,
   parseDeployedBuild,isNewerBuild,safeToAutoUpdate,buildRefreshUrl
@@ -107,6 +108,9 @@ function App(){
   const [roomsLoading,setRoomsLoading]=useState(true);
   const [roomsError,setRoomsError]=useState('');
   const [draftSettings,setDraftSettings]=useState<GameSettings>({...DEFAULT_SETTINGS});
+  const draftSettingsRef=useRef<GameSettings>({...DEFAULT_SETTINGS});
+  const roomSettingsSaverRef=useRef<{roomId:string;saver:RoomSettingsSaver<GameSettings>}|null>(null);
+  const [roomSettingsStatus,setRoomSettingsStatus]=useState<RoomSettingSaveStatus>('idle');
   const [game,setGame] = useState<Game|null>(null);
   const [pendingBuild,setPendingBuild]=useState<string|null>(null);
   const pendingBuildRef=useRef<string|null>(null);
@@ -335,7 +339,15 @@ function App(){
     if(next.phase!=='playing' && draftTimerRef.current){
       clearTimeout(draftTimerRef.current);draftTimerRef.current=null;
     }
-    if(next.phase==='lobby' && current.current?.phase!=='lobby')setDraftSettings(next.settings);
+    if(next.phase==='lobby' && current.current?.phase!=='lobby'){
+      draftSettingsRef.current=next.settings;
+      setDraftSettings(next.settings);
+      setRoomSettingsStatus('idle');
+    }
+    if(next.phase!=='lobby'&&roomSettingsSaverRef.current?.roomId===next.roomId){
+      roomSettingsSaverRef.current.saver.close();
+      roomSettingsSaverRef.current=null;
+    }
     current.current=next;setGame(next);
   },[]);
   const call=useCallback(async(action:string,roomId?:string, nickname?:string, values?:Record<string,string>, settings?:GameSettings)=>{
@@ -346,6 +358,41 @@ function App(){
     const event=response.data;
     if(!event?.roomId) throw new Error('เซิร์ฟเวอร์ไม่ได้ตอบกลับ');
     return { roomId:event.roomId as string, snapshot:unpack(event.snapshot) as Game };
+  },[]);
+  function updateRoomSetting(field:SettingKey,value:GameSettings[SettingKey]){
+    const currentRoom=current.current;
+    if(currentRoom?.phase==='lobby'&&workingRef.current)return;
+    const next={...draftSettingsRef.current,[field]:value} as GameSettings;
+    if(draftSettingsRef.current[field]===value)return;
+    draftSettingsRef.current=next;
+    setDraftSettings(next);
+    if(!currentRoom||currentRoom.phase!=='lobby'||currentRoom.ownerId!==meRef.current)return;
+    const roomId=currentRoom.roomId;
+    if(roomSettingsSaverRef.current?.roomId!==roomId){
+      roomSettingsSaverRef.current?.saver.close();
+      const saver=createRoomSettingsSaver<GameSettings>(
+        async value=>{
+          const result=await call('settings',roomId,undefined,undefined,value);
+          // Do not restore a left or started match with a late settings response.
+          if(roomRef.current===roomId&&current.current?.phase==='lobby')accept(result.snapshot);
+        },
+        status=>{if(roomRef.current===roomId)setRoomSettingsStatus(status);}
+      );
+      roomSettingsSaverRef.current={roomId,saver};
+    }
+    roomSettingsSaverRef.current.saver.update(next);
+  }
+  // Recover a failed setting update automatically after reconnecting.
+  useEffect(()=>{
+    const retry=()=>{if(!document.hidden)roomSettingsSaverRef.current?.saver.retry();};
+    window.addEventListener('online',retry);
+    window.addEventListener('focus',retry);
+    document.addEventListener('visibilitychange',retry);
+    return()=>{
+      window.removeEventListener('online',retry);
+      window.removeEventListener('focus',retry);
+      document.removeEventListener('visibilitychange',retry);
+    };
   },[]);
   const join=async(targetRoomId?:string)=>{
     if(workingRef.current || !client)return;
@@ -371,6 +418,9 @@ function App(){
     finally{setWorking(false);workingRef.current=false;}
   };
   const leave=async()=>{
+    roomSettingsSaverRef.current?.saver.close();
+    roomSettingsSaverRef.current=null;
+    setRoomSettingsStatus('idle');
     leavingRef.current=true;
     audioRef.current?.cue('exit');
     const old=roomRef.current;
@@ -531,11 +581,16 @@ function App(){
     }catch(e){setError(e instanceof Error?e.message:'โหวตไม่สำเร็จ');}
     finally{workingRef.current=false;setWorking(false);}
   }
-  async function ownerAction(action:'settings'|'start') {
+  async function ownerAction(action:'start') {
     if(!game||workingRef.current||game.ownerId!==me)return;
     workingRef.current=true;setWorking(true);setError('');
     try {
-      const next=await call(action,game.roomId,undefined,undefined,(action==='settings'||action==='start')?draftSettings:undefined);
+      // Wait for any in-flight auto-save first. Starting the match also sends
+      // the latest selection atomically, even after an offline save failure.
+      if(roomSettingsSaverRef.current?.roomId===game.roomId)
+        await roomSettingsSaverRef.current.saver.waitForIdle();
+      if(roomRef.current!==game.roomId||current.current?.phase!=='lobby')return;
+      const next=await call(action,game.roomId,undefined,undefined,draftSettingsRef.current);
       accept(next.snapshot);
     }catch(e){setError(e instanceof Error?e.message:'ดำเนินการไม่สำเร็จ');}
     finally{workingRef.current=false;setWorking(false);}
@@ -570,10 +625,10 @@ function App(){
     <div className="game-mode-picker" role="group" aria-label="เลือกโหมดเกม">
       <button type="button" className={draftSettings.mode!=='category'?'game-mode-option active':'game-mode-option'}
         aria-pressed={draftSettings.mode!=='category'}
-        onClick={()=>setDraftSettings(s=>({...s,mode:'letter'}))}><strong>โหมดพยัญชนะ</strong><small>อักษรเดียว หลายหมวด</small></button>
+        onClick={()=>updateRoomSetting('mode','letter')}><strong>โหมดพยัญชนะ</strong><small>อักษรเดียว หลายหมวด</small></button>
       <button type="button" className={draftSettings.mode==='category'?'game-mode-option active':'game-mode-option'}
         aria-pressed={draftSettings.mode==='category'}
-        onClick={()=>setDraftSettings(s=>({...s,mode:'category'}))}><strong>โหมดหมวดใหญ่</strong><small>หมวดเดียว หลายอักษร</small></button>
+        onClick={()=>updateRoomSetting('mode','category')}><strong>โหมดหมวดใหญ่</strong><small>หมวดเดียว หลายอักษร</small></button>
     </div>
     <div className="settings-grid">{SETTINGS_CHOICES.map(choice=><div className="settings-choice-field" key={choice.field}>
       <span className="settings-choice-label">{choice.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':choice.label}</span>
@@ -690,7 +745,12 @@ function App(){
             <div className="public-room-notice">{isOwner?'ห้องของคุณแสดงอยู่ในหน้าเข้าร่วมห้องของทุกคนโดยอัตโนมัติ':'อยู่ในห้องแล้ว รอเจ้าของห้องเริ่มเกมได้เลย'}</div>
             {isOwner?<div className="settings-panel lobby-settings"><h3>ตั้งค่าห้อง</h3>
               {settingsControls}
-              <button className="secondary-btn settings-save" disabled={working} onClick={()=>void ownerAction('settings')}>บันทึกการตั้งค่า</button>
+              <div className={`settings-auto-save settings-auto-save-${roomSettingsStatus}`} role="status" aria-live="polite">
+                {roomSettingsStatus==='saving'?'กำลังบันทึกการตั้งค่าอัตโนมัติ…':
+                 roomSettingsStatus==='saved'?'✓ บันทึกการตั้งค่าแล้ว':
+                 roomSettingsStatus==='error'?'บันทึกไม่สำเร็จ ระบบจะลองใหม่เมื่อเชื่อมต่ออีกครั้ง':
+                 'เลือกค่าได้เลย ระบบจะบันทึกให้อัตโนมัติ'}
+              </div>
               <button className="primary-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span>→</span></button>
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.mode==='category'?'โหมดหมวดใหญ่':'โหมดพยัญชนะ'} · {game.settings.categories} {game.settings.mode==='category'?'คำ':'หมวด'} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
@@ -810,11 +870,11 @@ function App(){
           {activeChoice.options.map(value=><button key={value} type="button" data-initial-focus={value===draftSettings[activeChoice.field]?'':undefined}
             className={value===draftSettings[activeChoice.field]?'custom-popup-option selected':'custom-popup-option'}
             aria-pressed={value===draftSettings[activeChoice.field]}
-            onClick={()=>{setDraftSettings(s=>({...s,[activeChoice.field]:value}));closeCustomDialog();}}>
+            onClick={()=>{updateRoomSetting(activeChoice.field,value);closeCustomDialog();}}>
             <span>{value} {activeChoice.field==='categories'&&draftSettings.mode==='category'?'คำ':activeChoice.unit}</span><span className="option-check" aria-hidden="true">{value===draftSettings[activeChoice.field]?'✓':''}</span>
           </button>)}
         </div>
-        <p className="custom-popup-footnote">การตั้งค่าจะมีผลเมื่อสร้างห้องหรือบันทึกการตั้งค่า</p>
+        <p className="custom-popup-footnote">เปลี่ยนแล้วมีผลทันที ระบบจะบันทึกให้อัตโนมัติ</p>
       </section>
     </div>:null}
     {help?<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHelp(false);}} role="presentation"><section className="help-modal" role="dialog" aria-modal="true" aria-label="วิธีเล่น"><button onClick={()=>setHelp(false)} className="modal-close" aria-label="ปิด">×</button><div className="eyebrow tiny">HOW TO PLAY</div><h2>วิธีเล่นคำไว</h2><ol><li>คนหนึ่งกดสร้างห้อง เลือกโหมด จำนวนรอบ จำนวนหมวดหรือคำ และเวลา ส่วนเพื่อนเปิดเกมเดียวกันแล้วเลือกห้องจากรายการ</li><li>เมื่อมีอย่างน้อย 2 คน เจ้าของห้องกดเริ่ม โหมดพยัญชนะจะสุ่มอักษรเดียวกับหลายหมวด ส่วนโหมดหมวดใหญ่จะสุ่มหนึ่งหมวดและพยัญชนะไม่ซ้ำกันหลายตัว</li><li>พิมพ์คำที่ขึ้นต้นตามอักษรในโจทย์และตรงหมวดของช่องนั้น ระบบตรวจและบันทึกให้ทันทีโดยไม่ต้องกดส่ง</li><li>คำถูกต้องตรงหมวดและพยัญชนะต้น ไม่ซ้ำได้ 2 คะแนน ซ้ำกับเพื่อนได้ 1 คะแนน; คำหายากที่ไม่ซ้ำอาจได้โบนัส +1 ถึง +2 หลังระบบมีข้อมูลเพียงพอ (รวมโบนัสไม่เกิน +3 ต่อรอบ)</li><li>แข่งขันตามจำนวนรอบที่เลือก รวมคะแนนทั้งหมดเพื่อหาผู้ชนะ</li></ol><p className="help-note">ระบบตรวจคำตรงหมวดและพยัญชนะต้นจากคลังคำที่ตรวจรับแล้ว คำจริงที่ยังไม่อยู่ในคลังจะไม่ได้คะแนนจนกว่าจะเพิ่มคำ กรุณาแจ้งผู้ดูแลเพื่อพิจารณาเพิ่ม</p><button className="primary-btn" onClick={()=>setHelp(false)}>เข้าใจแล้ว <span>✓</span></button></section></div>:null}
