@@ -42,12 +42,12 @@ export function AdminBlocklistView(){
       <table className="blocklist-table">
         <thead><tr><th scope="col">คำ / ข้อความ</th><th scope="col">ประเภท</th><th scope="col">เงื่อนไขการแบน</th></tr></thead>
         <tbody>{rows.map((row,index)=><tr key={row.kind+'-'+row.word+'-'+index}>
-          <td className="blocklist-word">{row.word}</td>
+          <td className="blocklist-word">{row.word}{row.examples?<small className="blocklist-examples">เช่น {row.examples}</small>:null}</td>
           <td><span className={'blocklist-tag kind-'+row.kind}>{BLOCK_KIND_LABELS[row.kind]}</span></td>
           <td>{row.kind==='exact'?'ต้องตรงกับคำที่พิมพ์ (ตัดช่องว่างและเครื่องหมายบางชนิด)':
             row.kind==='contains'?'มีวลีนี้อยู่ส่วนใดของข้อความก็ไม่ผ่าน':
-            row.kind==='nickname'?'ชื่อมีคำนี้อยู่ตรงไหนก็ห้ามตั้ง รวมคำที่มีอักษร/การันต์ต่อท้าย':
-            'ห้ามใช้เป็นคำตอบเดี่ยว ๆ เท่านั้น ไม่แบนคำอื่นที่มีคำนี้อยู่ภายใน'}</td>
+            row.kind==='nickname'?'ชื่อมีคำนี้อยู่ตรงไหนก็ห้ามตั้ง รวมการลากตัวอักษร เว้นวรรคและผสมภาษา':
+            'ห้ามใช้เป็นคำตอบเดี่ยว ๆ (รวมรูปแบบลากตัวอักษร) ไม่แบนคำอื่นที่มีคำนี้อยู่ภายใน'}</td>
         </tr>)}
         {!rows.length?<tr><td className="blocklist-empty" colSpan={3}>ไม่พบคำแบนตามที่ค้นหา</td></tr>:null}
         </tbody>
