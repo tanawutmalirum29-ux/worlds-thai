@@ -6,7 +6,7 @@ import {CATEGORIES,LETTERS,canonicalAnswer,eligibleCategories,validAnswer,wordIn
 import {isInappropriateLanguage} from '../amplify/functions/game/moderation.ts';
 
 test('expanded Thai vocabulary is reviewed, normalized, category-bound and available in the live bank',()=>{
-  const supported=new Set(CATEGORIES.map(([id])=>id));
+  const supported=new Set<string>(CATEGORIES.map(([id])=>id));
   let entries=0;
   for(const [category,words] of Object.entries(EXPANDED_THAI_TERMS)){
     assert.ok(supported.has(category),'unknown category '+category);
