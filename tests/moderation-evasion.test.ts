@@ -31,7 +31,7 @@ test('curated Thai phonetic variants reject swear spellings without banning ordi
 test('Romanized Thai insults, English swears, disguised punctuation and ASCII leetspeak',()=>{
   for(const word of [
     'kuy','KUUUUAY','kuai','K.U.Y','k_u_a_y','kuaykung','kวย','คuวย',
-    'yed','yeet','hia','hiiiia','hee','sus','suss','tud','ham',
+    'yed','yeet','hia','hiiiia','hee','sus','suss','tud',
     'fuck','fuuuuuck','f.u.c.k','F*CK','FÜCK','shiiit','Sh1t',
     'bitch','Biiiitch','cunt','pussy','p_u_s_s_y','ass','dick',
     'ไอ hia','อีsus'
@@ -43,7 +43,7 @@ test('no broad substring or spelling-distance bans on ordinary Thai/English word
   for(const word of [
     'หีบ','ต้นตีนเป็ด','สัตว์','สัดส่วน','น้องห่าง','กะหรี่',
     'class','passion','assistant','shitake','shiitake','fukuoka',
-    'sheep','shipping','yet another','employed','Jim','sweet','review','sassy','Fukuyama'
+    'sheep','shipping','yet another','employed','Jim','sweet','review','sassy','Fukuyama','ham','tin','teen','sat','jew'
   ])assert.equal(isInappropriateLanguage(word),false,'false positive '+word);
 });
 
