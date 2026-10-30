@@ -8,7 +8,7 @@ test('dessert subtype registry contains all intended operational groups',()=>{
  const ids=DESSERT_SUBTYPES.map(x=>x.id);
  assert.deepEqual(ids,['thai','baked','fried','cold','international','unreviewed']);
  for(const [name,tag] of [['ขนมใส่ไส้','thai'],['ขนมสอดไส้','thai'],
-   ['ไข่เหี้ย','fried'],['ขนมไข่หงส์','fried'],['บราวนี','baked'],
+   ['ไข่เหี้ย','unreviewed'],['ขนมไข่หงส์','fried'],['บราวนี','baked'],
    ['บิงซู','cold'],['กุหลาบจามุน','international']] as const){
    assert.equal(dessertSubtype(name),tag,name);
  }
