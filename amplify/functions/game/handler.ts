@@ -2,6 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, ScanCommand, TransactWriteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { applyAction, newMatch, snapshot, publicRoom, type Match } from './logic';
+import {handleAdminSession} from './admin-sessions';
 import { resolveOperation } from './request';
 import { roundWordDeltas } from './stats';
 import { analyzeRarity, rarityDay, rarityGroup, roundRarityObservations, stabilizeRarity, wordsForGroup,
@@ -305,6 +306,9 @@ function parseJson(value:unknown):unknown {
 export const handler=async(event:any)=>{
   const args=event?.arguments ?? event ?? {};
   const operation=resolveOperation(event);
+  if (operation==='adminSession')return handleAdminSession(
+    args,userFromEvent(event),db,process.env.ADMIN_SESSIONS_TABLE||''
+  );
   if (operation==='getGame') {
     const roomId=args.roomId;
     return typeof roomId==='string' && ROOM_ID.test(roomId) ? snapshotOrNull(await read(roomId)) : null;
