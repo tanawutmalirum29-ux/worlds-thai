@@ -5,19 +5,20 @@ import {
 } from '../src/admin-blocklist-data.ts';
 import {
   DISALLOWED_EXACT,DISALLOWED_PHRASES,BLOCKED_NICKNAME_FRAGMENT,BLOCKED_STANDALONE_ANSWER,
+  BLOCKED_VEE_ROMAN_RULES,
   isInappropriateLanguage,isBlockedStandaloneAnswer,nicknameValidationMessage
 } from '../amplify/functions/game/moderation.ts';
 
 test('admin banned list is derived from every active gameplay rule',()=>{
-  assert.equal(BLOCKED_ENTRIES.length,DISALLOWED_EXACT.size+DISALLOWED_PHRASES.length+2);
+  assert.equal(BLOCKED_ENTRIES.length,DISALLOWED_EXACT.size+DISALLOWED_PHRASES.length+2+2*BLOCKED_VEE_ROMAN_RULES.length);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='exact').map(entry=>entry.word),
     [...DISALLOWED_EXACT]);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='contains').map(entry=>entry.word),
     [...DISALLOWED_PHRASES]);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='nickname').map(entry=>entry.word),
-    [BLOCKED_NICKNAME_FRAGMENT]);
+    [BLOCKED_NICKNAME_FRAGMENT,...BLOCKED_VEE_ROMAN_RULES.map(rule=>rule.word)]);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='answer').map(entry=>entry.word),
-    [BLOCKED_STANDALONE_ANSWER]);
+    [BLOCKED_STANDALONE_ANSWER,...BLOCKED_VEE_ROMAN_RULES.map(rule=>rule.word)]);
   assert.equal(BLOCK_KIND_LABELS.nickname.includes('ชื่อผู้เล่น'),true);
 });
 
@@ -49,4 +50,17 @@ test('admin list search and type filtering preserve all groups and special rules
   assert.deepEqual(filterBlockedEntries('  วี  ','all').map(row=>row.kind),['nickname','answer']);
   assert.equal(filterBlockedEntries('หี','exact').some(row=>row.word==='หี'),true);
   assert.ok(filterBlockedEntries('ไอ้เหี้ย','contains').length>=1);
+});
+
+test('roman V/wee admin entries include real live examples, not a separate hard-coded list',()=>{
+  for(const rule of BLOCKED_VEE_ROMAN_RULES){
+    const nickname=BLOCKED_ENTRIES.find(row=>row.kind==='nickname'&&row.word===rule.word);
+    const answer=BLOCKED_ENTRIES.find(row=>row.kind==='answer'&&row.word===rule.word);
+    assert.equal(nickname?.examples,rule.examples);
+    assert.equal(answer?.examples,rule.examples);
+    assert.equal(nicknameValidationMessage('คนชื่อ'+rule.word+'ทดสอบ'),'ใช้ชื่อนี้ไม่ได้');
+    assert.equal(isBlockedStandaloneAnswer(rule.word),true);
+  }
+  assert.equal(filterBlockedEntries('v','nickname').length,1);
+  assert.equal(filterBlockedEntries('we','answer').length,1);
 });
