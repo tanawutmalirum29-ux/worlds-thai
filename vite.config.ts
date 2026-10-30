@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
+// One identity per production build, shared by the compiled app and version.json.
+const buildId=randomUUID().replaceAll('-','');
 
 // Social crawlers read static HTML, so the image URL must be absolute in production.
 // Amplify supplies AWS_APP_ID/AWS_BRANCH; SOCIAL_SITE_URL overrides this for custom domains.
@@ -9,8 +13,16 @@ const socialSiteUrl = process.env.SOCIAL_SITE_URL?.trim().replace(/\/$/, '') ||
     ? `https://${process.env.AWS_BRANCH}.${process.env.AWS_APP_ID}.amplifyapp.com`
     : '');
 export default defineConfig({
+  define:{__KHAMWAI_BUILD_ID__:JSON.stringify(buildId)},
   plugins:[
     react(),
+    {
+      name:'deployed-build-version',
+      apply:'build',
+      generateBundle(){
+        this.emitFile({type:'asset',fileName:'version.json',source:JSON.stringify({build:buildId})+'\n'});
+      }
+    },
     {
       name:'absolute-social-preview-url',
       transformIndexHtml(html){
