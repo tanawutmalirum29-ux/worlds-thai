@@ -273,7 +273,6 @@ test('dessert prefix ขนม is ignored; only the named sweet determines the l
 test('desserts accept an OPTIONAL leading ขนม but never arbitrary made-up words',()=>{
   for(const [word,letter] of [
     ['ไข่หงส์','ข'],['ขนมไข่หงส์','ข'],
-    ['ไข่เหี้ย','ข'],['ขนมไข่เหี้ย','ข'],
     ['ข้าวตู','ข'],['ขนมข้าวตู','ข'],
     ['ข้าวเหนียวแก้ว','ข'],['ขนมข้าวเหนียวแก้ว','ข'],
     ['เค้ก','ค'],['ขนมเค้ก','ค'],
@@ -283,8 +282,8 @@ test('desserts accept an OPTIONAL leading ขนม but never arbitrary made-up 
     assert.equal(validAnswer(word,letter,'dessert'),true,word);
   }
   assert.equal(canonicalAnswer('ขนมไข่หงส์','dessert'),'ไข่หงส์');
-  assert.equal(canonicalAnswer('ไข่เหี้ย','dessert'),'ไข่หงส์');
-  assert.equal(canonicalAnswer('ขนมไข่เหี้ย','dessert'),'ไข่หงส์');
+  assert.equal(validAnswer('ไข่เหี้ย','ข','dessert'),false);
+  assert.equal(validAnswer('ขนมไข่เหี้ย','ข','dessert'),false);
   assert.equal(canonicalAnswer('ขนมข้าวตู','dessert'),'ข้าวตู');
   assert.equal(canonicalAnswer('ขนมครก','dessert'),'ขนมครก');
   for(const word of ['ขนม','ขนมขนมครก','ขนมคำที่ไม่มี','ครก','ไข่']){
@@ -294,7 +293,7 @@ test('desserts accept an OPTIONAL leading ขนม but never arbitrary made-up 
   assert.equal(validAnswer('ขนมข้าวตู','ข','food'),false);
   assert.equal(validAnswer('ขนมจีนน้ำยา','ข','food'),true);
 });
-test('same dessert with or without ขนม and historical alias counts as duplicate',()=>{
+test('same polite dessert with or without ขนม counts as duplicate; rude aliases score zero',()=>{
   const m=setup();
   m.phase='playing';m.letter='ข';m.categories=['dessert'];
   m.submissions={
@@ -302,7 +301,7 @@ test('same dessert with or without ขนม and historical alias counts as dupl
     guest:{dessert:'ขนมไข่เหี้ย'}
   };
   const points=scoreRound(m).map(entry=>entry.perCategory.dessert);
-  assert.deepEqual(points,[1,1]);
+  assert.deepEqual(points,[2,0]);
   m.submissions.guest.dessert='ขนมไข่หงส์';
   assert.deepEqual(scoreRound(m).map(x=>x.perCategory.dessert),[1,1]);
 });
