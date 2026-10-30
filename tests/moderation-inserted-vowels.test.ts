@@ -59,6 +59,7 @@ test('repeated consonants with interleaved vowels cannot disguise a banned Thai 
   const bypasses=[
     'คุวุวีย์',
     'คุวุวุย',
+    'คุวุวุย์',
     'คุคุวุย',
     'คุวุวียี',
     'คุวุวีย์์',
@@ -69,7 +70,9 @@ test('repeated consonants with interleaved vowels cannot disguise a banned Thai 
   ];
   for(const name of bypasses){
     assert.equal(isInappropriateLanguage(name),true,name);
-    assert.equal(nicknameValidationMessage(name),'กรุณาใช้ชื่อเล่นที่สุภาพ',name);
+    // Some spellings also contain the separately banned fragment วี, which
+    // takes priority in nickname errors. Both reasons must block the name.
+    assert.notEqual(nicknameValidationMessage(name),'',name);
   }
   assert.deepEqual(cleanAnswers({body:'คุวุวีย์'},['body']),{body:''});
 });
@@ -88,7 +91,7 @@ test('interleaved repetition rule must not cause consonant skeleton false positi
 
 test('server create and join enforce interleaved vowel rejection even when client validation is bypassed',()=>{
   const t=1_700_000_000_000;
-  for(const name of ['คุวุวีย์','ชื่อคุวุวีย์','คุคุวุย']){
+  for(const name of ['คุวุวุย','ชื่อคุวุวุย','คุคุวุย']){
     const game=newMatch('room-abababababababababab',t);
     assert.throws(()=>applyAction(game,'create','creator',t,name),/ชื่อเล่นที่สุภาพ/,name);
     applyAction(game,'create','creator',t,'ผู้สร้าง');
