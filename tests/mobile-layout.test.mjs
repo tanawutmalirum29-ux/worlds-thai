@@ -58,7 +58,7 @@ test('network polling skips redundant data and does not overlap requests', () =>
   assert.match(source, /next\.revision<=current\.current\.revision/);
   assert.match(source, /sameRoomListings\(previous,value as PublicRoom\[\]\)/);
   assert.match(source, /if\(!client \|\| game \|\| mode!=='join'\)return/);
-  assert.match(source, /if\(stopped \|\| refreshing \|\| document\.hidden\)return/);
+  assert.match(source, /if\(stopped \|\| refreshing \|\| document\.hidden \|\| !navigator\.onLine \|\|/);
   assert.match(source, /const answerStates=useMemo\(/);
 });
 
