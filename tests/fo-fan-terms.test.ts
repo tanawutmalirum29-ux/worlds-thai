@@ -7,7 +7,7 @@ import { wordsForGroup } from '../amplify/functions/game/rarity.ts';
 import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/functions/game/moderation.ts';
 
 test('curated ฟ answers are unique, correctly spelled, categorized, and registered once', () => {
-  const known = new Set(CATEGORIES.map(([id]) => id));
+  const known = new Set<string>(CATEGORIES.map(([id]) => id));
   let total = 0;
   for (const [category, words] of Object.entries(FO_FAN_TERMS)) {
     assert.ok(known.has(category), 'unknown category '+category);
