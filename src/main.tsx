@@ -140,6 +140,9 @@ function App(){
   const firstAnswerRef = useRef<HTMLLabelElement|null>(null);
   const challengeBannerRef = useRef<HTMLDivElement|null>(null);
   const lastScrolledRoundRef = useRef('');
+  const latestGameSyncRef=useRef(Date.now());
+  const refreshGameRef=useRef<()=>void>(()=>{});
+  const lastDeadlineProbeRef=useRef('');
   const roundScrollHoldRef=useRef<{key:string;restore:()=>void}|null>(null);
   const roundScrollAnimationRef=useRef<{key:string;cancel:()=>void}|null>(null);
   const answersRef = useRef<Record<string,string>>({});
@@ -365,7 +368,7 @@ function App(){
     const tick=()=>{if(!document.hidden)setNow(Date.now());};
     const onVisibility=()=>{if(!document.hidden)tick();};
     tick();
-    const id=window.setInterval(tick,game.phase==='playing'&&game.timeRush?100:1000);
+    const id=window.setInterval(tick,game.phase==='playing'&&game.timeRush?250:1000);
     document.addEventListener('visibilitychange',onVisibility);
     return()=>{window.clearInterval(id);document.removeEventListener('visibilitychange',onVisibility);};
   },[game?.roomId,game?.phase,game?.timeRush?.start]);
@@ -570,27 +573,104 @@ function App(){
     const api=client as any;
     let stopped=false;
     let refreshing=false;
-    // Avoid concurrent server reads; refresh immediately when the tab resumes.
+    let heartbeatPending=false;
+    let pendingNetworkRequests=0;
+    let failures=0;
+    let refreshTimer=0;
+    // A hung mobile connection must not block all subsequent attempts forever.
+    // Cap stale network requests and cancel the Amplify operation if supported.
     const refresh=async()=>{
-      if(stopped || refreshing || document.hidden)return;
+      if(stopped || refreshing || document.hidden || !navigator.onLine ||
+        pendingNetworkRequests>=2)return;
       refreshing=true;
+      pendingNetworkRequests++;
+      let timeout=0;
+      let expired=false;
+      const request=api.queries.getGame({roomId:id},{authMode:'identityPool'});
+      void Promise.resolve(request).then(
+        ()=>{pendingNetworkRequests--;},
+        ()=>{pendingNetworkRequests--;}
+      );
       try {
-        const result=await api.queries.getGame({roomId:id},{authMode:'identityPool'});
-        if(!stopped && !result.errors?.length)accept(result.data);
-      }catch(e){if(!stopped)console.warn('Refresh failed',e);}
-      finally{refreshing=false;}
+        const timeoutResult=new Promise<null>(resolve=>{
+          timeout=window.setTimeout(()=>{
+            expired=true;
+            if(typeof api.cancel==='function'){
+              try{api.cancel(request,'Game status request timed out');}catch{/* optional cancellation */}
+            }
+            resolve(null);
+          },12000);
+        });
+        const result=await Promise.race([request,timeoutResult]);
+        if(stopped||expired||!result||result.errors?.length) {
+          failures++;
+          return;
+        }
+        failures=0;
+        latestGameSyncRef.current=Date.now();
+        accept(result.data);
+      }catch{
+        failures++;
+      }finally{
+        window.clearTimeout(timeout);
+        refreshing=false;
+      }
     };
-    const timer=window.setInterval(refresh,2000);
+    // Modest polling while healthy; prioritize imminent/expired round changes.
+    // No overlapping refreshes, and network errors use bounded backoff.
+    const scheduleRefresh=()=>{
+      if(stopped)return;
+      const state=current.current;
+      const nearBoundary=Boolean(state && (state.phase==='playing'||state.phase==='review')
+        && state.deadline && state.deadline-Date.now()<2500);
+      const delay=!navigator.onLine?5000:
+        nearBoundary?1300:failures?Math.min(9000,2700+failures*1200):2700;
+      refreshTimer=window.setTimeout(async()=>{
+        await refresh();
+        scheduleRefresh();
+      },delay);
+    };
+    let pulseFailures=0;
     const heartbeat=window.setInterval(async()=>{
-      if(stopped || workingRef.current)return;
-      try {const latest=await call('pulse',id);if(!stopped)accept(latest.snapshot);}
-      catch(e){if(!stopped)console.warn('Heartbeat failed',e);}
-    },5000);
+      if(stopped || heartbeatPending || workingRef.current ||
+        document.hidden || !navigator.onLine)return;
+      heartbeatPending=true;
+      try{
+        const latest=await call('pulse',id);
+        if(!stopped){pulseFailures=0;latestGameSyncRef.current=Date.now();accept(latest.snapshot);}
+      }catch{
+        // Pulse writes are opportunistic: read-side advancement handles deadlines.
+        pulseFailures++;
+        if(pulseFailures===1)console.warn('Connection interrupted; retrying game presence');
+      }finally{heartbeatPending=false;}
+    },12000);
+    const onResume=()=>{if(!document.hidden){void refresh();}};
+    refreshGameRef.current=()=>void refresh();
     void refresh();
-    const onVisibility=()=>{if(!document.hidden)void refresh();};
-    document.addEventListener('visibilitychange',onVisibility);
-    return()=>{stopped=true;clearInterval(timer);clearInterval(heartbeat);document.removeEventListener('visibilitychange',onVisibility);};
+    scheduleRefresh();
+    document.addEventListener('visibilitychange',onResume);
+    window.addEventListener('online',onResume);
+    window.addEventListener('focus',onResume);
+    return()=>{
+      stopped=true;
+      refreshGameRef.current=()=>{};
+      window.clearTimeout(refreshTimer);
+      window.clearInterval(heartbeat);
+      document.removeEventListener('visibilitychange',onResume);
+      window.removeEventListener('online',onResume);
+      window.removeEventListener('focus',onResume);
+    };
   },[client,me,game?.roomId,call,accept]);
+  // Do not wait for the next background poll when a local timer reaches zero.
+  // Every client recovers the current authoritative phase from the server.
+  useEffect(()=>{
+    if(!game || (game.phase!=='playing' && game.phase!=='review') ||
+      !game.deadline || now<game.deadline)return;
+    const key=game.roomId+':'+game.round+':'+game.phase+':'+game.deadline;
+    if(lastDeadlineProbeRef.current===key)return;
+    lastDeadlineProbeRef.current=key;
+    refreshGameRef.current();
+  },[game?.roomId,game?.round,game?.phase,game?.deadline,now]);
   // A single serialized queue per browser avoids late/out-of-order draft writes
   // overwriting more recent inputs. All writes remain server-time validated.
   async function flushDraft(){
@@ -719,6 +799,8 @@ function App(){
   const playing=game?.phase==='playing';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
+  const awaitingRound=Boolean(game && (game.phase==='playing'||game.phase==='review') && remaining===0);
+  const slowConnection=Boolean(game && now-latestGameSyncRef.current>10000);
   const rushing=Boolean(playing && game?.timeRush && now<game.timeRush.ends);
   const displayedRemaining=rushing && game?.timeRush
     ?Math.max(5,Math.ceil(game.timeRush.from-
@@ -835,7 +917,7 @@ function App(){
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.mode==='category'?'โหมดหมวดใหญ่':'โหมดพยัญชนะ'} · {game.settings.categories} {game.settings.mode==='category'?'คำ':'หมวด'} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             {isOwner?<div className="lobby-start-dock"><button type="button" className="primary-btn lobby-start-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span aria-hidden="true">→</span></button></div>:null}
           </div>:null}
-          {playing?<><div className="challenge-banner" ref={challengeBannerRef}><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
+          {playing?<><div className="challenge-banner" ref={challengeBannerRef}><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':awaitingRound?(navigator.onLine?(slowConnection?'เครือข่ายช้า · กำลังตามรอบ':'กำลังซิงค์รอบถัดไป'):'ออฟไลน์ · รอเชื่อมต่อ'):displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} {game.topicCategory?'คำ':'หมวด'}</h2><p>{game.topicCategory?<>ตอบคำหมวด <b>“{LABELS[game.topicCategory]||game.topicCategory}”</b> ให้ตรงพยัญชนะของแต่ละช่อง · ตรวจทันที</>:<>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</>}</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
               const category=game.topicCategory||id;
@@ -896,7 +978,7 @@ function App(){
             </div>
             <p className="small-center">คำตอบที่พิมพ์จะเห็นเฉพาะคุณระหว่างเล่น · ไม่ต้องกดส่ง ระบบคิดคะแนนจากคำล่าสุดที่บันทึกสำเร็จเมื่อหมดเวลา</p>
           </>:null}
-          {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>{latest.topicCategory?'หมวดใหญ่':'พยัญชนะ'} <strong className="gold-text">{latest.topicCategory?LABELS[latest.topicCategory]||latest.topicCategory:letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
+          {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>{latest.topicCategory?'หมวดใหญ่':'พยัญชนะ'} <strong className="gold-text">{latest.topicCategory?LABELS[latest.topicCategory]||latest.topicCategory:letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':remaining===0?'กำลังซิงค์รอบถัดไป':`รอบถัดไปใน ${remaining} วินาที`}</p>
             <div className="round-results">{latest.entries.slice().sort((a,b)=>b.points-a.points).map((e,i)=><div className="result-person" key={e.id}><span className="rank-bubble">{i+1}</span><span>{e.name} {e.id===me?'(คุณ)':''}</span><strong>+{e.points} คะแนน</strong></div>)}</div>
             <div className="review-grid">{latest.categories.map(id=><div className="review-category" key={id}><h3>{latest.topicCategory?letterCaption(id):SYMBOLS[id]+' '+LABELS[id]}</h3>{latest.entries.map(e=><div key={e.id}><span>{e.name}: {e.answers[id]||'—'}{e.rarityBonus?.[id]?<small className="rarity-bonus"> · คำหายาก +{e.rarityBonus[id]}</small>:null}</span><b>+{e.perCategory[id]}</b></div>)}</div>)}</div>
             {latest.topicCategory?latest.categories.slice(0,3).map(id=><SynonymLearn key={id} letter={id} categories={[latest.topicCategory!]}/>):<SynonymLearn letter={latest.letter} categories={latest.categories}/>}
