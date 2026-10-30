@@ -6,9 +6,9 @@ import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategor
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
 
-test('AI-1 adds 75 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 95 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 75);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 95);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -45,6 +45,10 @@ test('nature nouns keep existing bird, fish, insect, tree, and flower prefix ide
     ['fish', 'ปลาไหลมอเรย์', 'ไหลมอเรย์', 'ห'],
     ['insect', 'แมลงทับ', 'ทับ', 'ท'],
     ['insect', 'แมลงหางหนีบ', 'หางหนีบ', 'ห'],
+    ['bird', 'นกพญาไฟเล็ก', 'พญาไฟเล็ก', 'พ'],
+    ['bird', 'นกแซงแซวหางปลา', 'แซงแซวหางปลา', 'ซ'],
+    ['fish', 'ปลาหมอสีคางดำ', 'หมอสีคางดำ', 'ห'],
+    ['fish', 'ปลาโมง', 'โมง', 'ม'],
   ];
   for (const [category, word, canonical, initial] of examples) {
     assert.equal(canonicalAnswer(word, category), canonical);
