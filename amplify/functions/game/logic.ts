@@ -60,8 +60,10 @@ export function wordInitialForCategory(value:string,category:string):string {
   return initialConsonant(word);
 }
 // Named sweet aliases refer to the SAME dessert (not separate distinct answers).
-// The historical vulgar name for ไข่หงส์ is intentionally not accepted.
+// Historical vulgar spellings are canonicalized ONLY for legacy analytics;
+// validAnswer() and cleanAnswers() reject them for all new gameplay.
 const dessertAliases:Readonly<Record<string,string>>={
+  'ไข่เหี้ย':'ไข่หงส์',
   // Both Thai names describe the same traditional sweet.
   'สอดไส้':'ขนมสอดไส้',
   'ใส่ไส้':'ขนมสอดไส้',
