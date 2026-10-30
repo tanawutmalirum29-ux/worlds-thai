@@ -1,5 +1,6 @@
 import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary.ts';
 import { NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
+import { isInappropriateLanguage } from './moderation.ts';
 
 const CATEGORY_LABELS = [
   ['animal', 'สัตว์'], ['sport', 'กีฬา'], ['job', 'อาชีพ'], ['verb', 'คำกริยา'],
@@ -59,9 +60,8 @@ export function wordInitialForCategory(value:string,category:string):string {
   return initialConsonant(word);
 }
 // Named sweet aliases refer to the SAME dessert (not separate distinct answers).
-// ขนมไข่เหี้ย is the historical name for ขนมไข่หงส์.
+// The historical vulgar name for ไข่หงส์ is intentionally not accepted.
 const dessertAliases:Readonly<Record<string,string>>={
-  'ไข่เหี้ย':'ไข่หงส์',
   // Both Thai names describe the same traditional sweet.
   'สอดไส้':'ขนมสอดไส้',
   'ใส่ไส้':'ขนมสอดไส้',
@@ -175,13 +175,17 @@ export function initialConsonant(value: string): string {
 export function validAnswer(value: string, letter: string, category: string): boolean {
   const answer = normalizeAnswer(value).toLocaleLowerCase('th');
   return answer.length > 0
+    && !isInappropriateLanguage(answer)
     && wordInitialForCategory(answer,category) === letter
     && eligibleCategories(letter).includes(category)
     && (acceptedWords.get(category)?.has(canonicalAnswer(answer,category)) ?? false);
 }
 export function cleanAnswers(value: unknown, categories: string[]): Record<string,string> {
   const input = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string,unknown> : {};
-  return Object.fromEntries(categories.map(id => [id, normalizeAnswer(input[id])]));
+  return Object.fromEntries(categories.map(id => {
+    const answer=normalizeAnswer(input[id]);
+    return [id,isInappropriateLanguage(answer)?'':answer];
+  }));
 }
 
 /** Each category-mode letter must have >=2 distinct reviewed answers and be playable. */
@@ -355,6 +359,14 @@ export function snapshot(match: Match) {
     ownerId:match.ownerId, settings:match.settings,
     players:match.players.map(({id,name,score})=>({id,name,score})),
     submitted:match.phase==='playing' ? Object.keys(match.submissions) : [],
+    // The server never exposes raw in-progress guesses, even to room members.
+    // Other players see fixed-width markers; each player's actual input stays local.
+    maskedAnswers:match.phase==='playing' ? Object.fromEntries(match.players.map(player=>[
+      player.id,Object.fromEntries(match.categories.filter(slot=>{
+        const answer=match.submissions[player.id]?.[slot];
+        return Boolean(normalizeAnswer(answer)) && !isInappropriateLanguage(answer);
+      }).map(slot=>[slot,'1234']))
+    ])) : {},
     skipVotes:match.phase==='playing'?Object.keys(match.skipVotes||{}):[],
     rematchVotes:match.phase==='final'?Object.keys(match.rematchVotes||{}):[],
     timeRush:match.phase==='playing'?match.timeRush:undefined,
@@ -373,6 +385,7 @@ export function applyAction(
     if (match.players.length!==0) throw new Error('ROOM_UNAVAILABLE');
     const nickname=name.trim().replace(/[<>]/g,'').slice(0,18);
     if (!nickname) throw new Error('กรุณาใส่ชื่อเล่น');
+    if (isInappropriateLanguage(nickname)) throw new Error('กรุณาใช้ชื่อเล่นที่สุภาพ');
     match.ownerId=userId;
     match.settings=validateSettings(rawSettings);
     match.players.push({id:userId,name:nickname,score:0,lastSeen:now});
@@ -384,6 +397,7 @@ export function applyAction(
         throw new Error('ห้องนี้เริ่มเกมแล้วหรือเต็มแล้ว');
       const nickname=name.trim().replace(/[<>]/g,'').slice(0,18);
       if (!nickname) throw new Error('กรุณาใส่ชื่อเล่น');
+    if (isInappropriateLanguage(nickname)) throw new Error('กรุณาใช้ชื่อเล่นที่สุภาพ');
       match.players.push({id:userId,name:nickname,score:0,lastSeen:now});
     }
   } else if (action==='leave') {
