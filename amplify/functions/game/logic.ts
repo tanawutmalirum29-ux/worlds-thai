@@ -70,6 +70,17 @@ const dessertAliases:Readonly<Record<string,string>>={
   'ขนมใส่ไส้':'ขนมสอดไส้'
 };
 const dessertVocabulary=new Set(WORD_BANK.dessert.map(word=>normalizeAnswer(word).toLocaleLowerCase('th')));
+/** Accepted Thai flamingo spelling variants. They are not separate rarity words. 
+ * Both spellings are used by Thai-language sources; the unmarked form is canonical.
+ * A bird-category leading นก is normally removed, whereas animal keeps that
+ * leading นก in its own น-letter identity so stats retain the correct round key.
+ */
+const flamingoAliases: Readonly<Record<string,string>> = {
+  'ฟลามิงโก้':'ฟลามิงโก',
+  'ฟลามิงโก้ใหญ่':'ฟลามิงโกใหญ่',
+  'ฟลามิงโก้เล็ก':'ฟลามิงโกเล็ก',
+  'นกฟลามิงโก้':'นกฟลามิงโก'
+};
 /** Canonical identity for scoring, duplicates and word statistics.
  * An optional leading "ขนม" is accepted ONLY when its remainder is a real
  * registered dessert or a curated alias. Existing fully prefixed names
@@ -80,8 +91,11 @@ export function canonicalAnswer(value:unknown,category:string):string {
   const raw=normalizeAnswer(value).toLocaleLowerCase('th');
   // Different Thai spellings of the same neighboring region must share points/stats.
   if(category==='province')return NEIGHBOR_PROVINCE_ALIASES[raw] || raw;
-  if(Object.prototype.hasOwnProperty.call(OPTIONAL_NAME_PREFIXES,category))
-    return nameWithoutCategoryPrefix(raw,category);
+  if(Object.prototype.hasOwnProperty.call(OPTIONAL_NAME_PREFIXES,category)){
+    const name=nameWithoutCategoryPrefix(raw,category);
+    return category==='bird' ? (flamingoAliases[name] || name) : name;
+  }
+  if(category==='animal')return flamingoAliases[raw] || raw;
   if(category!=='dessert'||!raw)return raw;
   let core=raw;
   if(raw.startsWith('ขนม')){
