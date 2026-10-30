@@ -37,7 +37,7 @@ test('frequently requested dessert names are valid with correct consonants',()=>
   ] as const){
     assert.equal(wordInitialForCategory(name,'dessert'),initial,name);
     assert.equal(validAnswer(name,initial,'dessert'),true,name);
-    assert.equal(validAnswer(name,'ก','dessert'),initial==='ก',name+' wrong initial');
+    assert.equal(validAnswer(name,'ก','dessert'),false,name+' wrong initial');
   }
 });
 
