@@ -1,3 +1,4 @@
+import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
 import { EXPANDED_THAI_TERMS } from './expanded-thai-terms.ts';
 import { FAMILIAR_WORLD_PROVINCES } from './familiar-world-provinces.ts';
@@ -2057,6 +2058,14 @@ for (const [category, additions] of Object.entries(EXPANDED_THAI_TERMS)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK,category))
     throw new Error('Unknown expanded vocabulary category: '+category);
   WORD_BANK[category]=[...new Set([...WORD_BANK[category],...additions])];
+}
+
+// Royal register terms share the same category and canonical scoring rules.
+// De-duplicate before eligibility and rarity pools are computed.
+for (const [category, words] of Object.entries(ROYAL_THAI_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown royal vocabulary category: '+category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
