@@ -1,5 +1,6 @@
 import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary.ts';
 import { NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
+import { JOB_CANONICAL_ALIASES } from './additional-jobs.ts';
 import { isInappropriateLanguage, isBlockedStandaloneAnswer, nicknameValidationMessage } from './moderation.ts';
 
 const CATEGORY_LABELS = [
@@ -107,6 +108,9 @@ export function canonicalAnswer(value:unknown,category:string):string {
     return category==='bird' ? (flamingoAliases[name] || name) : name;
   }
   if(category==='animal')return flamingoAliases[raw] || raw;
+  // Only explicitly approved alternatives share an occupation identity.
+  // Do not strip นัก globally: บิน is not a synonym for นักบิน.
+  if(category==='job')return JOB_CANONICAL_ALIASES[raw] || raw;
   if(category==='drink')return drinkAliases[raw] || raw;
   if(category!=='dessert'||!raw)return raw;
   let core=raw;
