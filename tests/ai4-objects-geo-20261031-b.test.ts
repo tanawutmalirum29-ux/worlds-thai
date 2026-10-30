@@ -11,7 +11,7 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ก', 'ส', 'ส', 'ส'],
   vehicle: ['ร', 'ร', 'ร', 'จ'],
   device: ['ค', 'ค', 'ค', 'ต'],
-  tool: ['ค', 'ส', 'ป', 'ป'],
+  tool: ['ค', 'ด', 'ป', 'ป'],
   place: ['ร', 'พ', 'ส', 'ต']
 };
 
