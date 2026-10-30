@@ -29,17 +29,42 @@ export function isInappropriateLanguage(value:unknown):boolean {
     DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase));
 }
 
-/** Only the standalone game answer วี is forbidden, not longer valid words. */
+/**
+ * Roman spellings used to evade the nickname ban on วี. Keep the examples
+ * alongside their actual matchers so the admin can display the same rules.
+ * Normalization first strips spaces, punctuation, zero-width chars and
+ * folds full-width Latin characters to their ASCII equivalents.
+ */
+export const BLOCKED_VEE_ROMAN_RULES=[
+  {
+    word:'v',
+    nicknamePattern:/v/u,
+    answerPattern:/^v+(?:e+|ี+)?$/u,
+    examples:'V, v, vvvvv, ve, vee, veeeee, vี'
+  },
+  {
+    word:'we',
+    nicknamePattern:/w+e+/u,
+    answerPattern:/^w+e+$/u,
+    examples:'we, wee, weeeee, wwweee'
+  }
+] as const;
+
+/** Game answers: block bare วี and its standalone Roman replacements only. */
 export const BLOCKED_STANDALONE_ANSWER='วี';
 export function isBlockedStandaloneAnswer(value:unknown):boolean {
-  return compactThai(value)===BLOCKED_STANDALONE_ANSWER;
+  const compact=compactThai(value);
+  return compact===BLOCKED_STANDALONE_ANSWER ||
+    BLOCKED_VEE_ROMAN_RULES.some(rule=>rule.answerPattern.test(compact));
 }
 
-/** Any occurrence of วี in a player nickname is blocked, including วีร์/วีว์/วี์. */
+/** Nicknames: block วี anywhere, Roman V anywhere, and stretched we/wee. */
 export const BLOCKED_NICKNAME_FRAGMENT='วี';
 export function nicknameValidationMessage(value:unknown):string {
   const compact=compactThai(value);
-  if(compact.includes(BLOCKED_NICKNAME_FRAGMENT))return 'ใช้ชื่อนี้ไม่ได้';
+  if(compact.includes(BLOCKED_NICKNAME_FRAGMENT) ||
+    BLOCKED_VEE_ROMAN_RULES.some(rule=>rule.nicknamePattern.test(compact)))
+    return 'ใช้ชื่อนี้ไม่ได้';
   if(isInappropriateLanguage(value))return 'กรุณาใช้ชื่อเล่นที่สุภาพ';
   return '';
 }
