@@ -348,7 +348,7 @@ function App(){
       }catch(e){if(!stopped)console.warn('Refresh failed',e);}
       finally{refreshing=false;}
     };
-    const timer=window.setInterval(()=>void refresh(),2000);
+    const timer=window.setInterval(refresh,2000);
     const heartbeat=window.setInterval(async()=>{
       if(stopped || workingRef.current)return;
       try {const latest=await call('pulse',id);if(!stopped)accept(latest.snapshot);}
