@@ -16,6 +16,7 @@ import {
 import './admin.css';
 import {PopularityDashboard} from './admin-dashboard-view.tsx';
 import {RarityDashboard} from './admin-rarity-view.tsx';
+import {AdminBlocklistView} from './admin-blocklist-view.tsx';
 
 function loadDrafts():Drafts{
   try{return normalizeDrafts(JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));}
@@ -56,12 +57,13 @@ async function queryStats():Promise<WordStatRecord[]>{
   if(!completed)throw new Error('ข้อมูลสถิติเกินขนาดที่ส่งออกได้');
   return rows;
 }
-type AdminTab='overview'|'popularity'|'rarity'|'suggestions'|'search'|'edit'|'export';
+type AdminTab='overview'|'popularity'|'rarity'|'suggestions'|'blocked'|'search'|'edit'|'export';
 const ADMIN_SECTIONS:{id:AdminTab;label:string;description:string}[]=[
   {id:'overview',label:'ภาพรวม',description:'ตัวเลขสำคัญและทางลัดไปยังเครื่องมือจัดการ'},
   {id:'popularity',label:'คำยอดนิยม',description:'สถิติการใช้งานคำศัพท์และคะแนนสะสม'},
   {id:'rarity',label:'ความหายาก',description:'ตรวจระดับโบนัสและข้อมูลความหายากรายหมวด'},
   {id:'suggestions',label:'คำเสนอแนะ',description:'ตรวจคำขนมที่ผู้เล่นเสนอเข้ามา'},
+  {id:'blocked',label:'คำที่ถูกแบน',description:'ดูรายการคำหยาบ คำต้องห้าม และกฎชื่อผู้เล่น'},
   {id:'search',label:'ค้นคำศัพท์',description:'ค้นหาและกรองคำทั้งหมดในคลัง'},
   {id:'edit',label:'เพิ่ม / จัดคำ',description:'เพิ่มคำฉบับร่างและเก็บคำที่ยังไม่รู้หมวด'},
   {id:'export',label:'ดาวน์โหลด',description:'ส่งออกคลังคำ รายการคำใหม่ และสถิติ'}
@@ -285,6 +287,9 @@ function WordAdmin(){
         </table></div>:null}
       <p className="help">คำที่ไม่รู้จักอาจเป็นคำพิมพ์ผิดหรือคำแกล้งพิมพ์ แม้มีคนใช้บ่อยก็ยังไม่ใช่คำที่ผ่านการตรวจ ต้องตรวจชื่อขนมจริงก่อนเพิ่มฉบับร่าง และคำในหน้านี้ไม่ใช่สถิติผู้เล่นที่ไม่ซ้ำกัน</p>
     </section>
+    </div>:null}
+    {visitedTabs.includes('blocked')?<div className="admin-tab-content" id="admin-panel-blocked" hidden={activeTab!=='blocked'}>
+      <AdminBlocklistView/>
     </div>:null}
     {visitedTabs.includes('search')?<div className="admin-tab-content" id="admin-panel-search" hidden={activeTab!=='search'}>
     <section className="panel" id="admin-vocabulary-search">
