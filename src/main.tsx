@@ -59,7 +59,7 @@ type Game = {roomId:string; phase:'lobby'|'playing'|'review'|'final'; round:numb
   maskedAnswers?:Record<string,Record<string,string>>;
   history:Round[]; revision:number; ownerId:string; settings:GameSettings; you?:string;
   skipVotes?:string[]; rematchVotes?:string[];
-  timeRush?:{start:number;ends:number;from:number};
+  timeRush?:{start:number;ends:number;from:number}; serverNow?:number;
 };
 type Api = any;
 function unpack(value:unknown):any {
@@ -141,6 +141,7 @@ function App(){
   const challengeBannerRef = useRef<HTMLDivElement|null>(null);
   const lastScrolledRoundRef = useRef('');
   const latestGameSyncRef=useRef(Date.now());
+  const serverClockOffsetRef=useRef(0);
   const refreshGameRef=useRef<()=>void>(()=>{});
   const lastDeadlineProbeRef=useRef('');
   const roundScrollHoldRef=useRef<{key:string;restore:()=>void}|null>(null);
@@ -365,7 +366,7 @@ function App(){
   // Update only timed screens; preserve quick ticks during the skip animation.
   useEffect(()=>{
     if(game?.phase!=='playing' && game?.phase!=='review')return;
-    const tick=()=>{if(!document.hidden)setNow(Date.now());};
+    const tick=()=>{if(!document.hidden)setNow(Date.now()+serverClockOffsetRef.current);};
     const onVisibility=()=>{if(!document.hidden)tick();};
     tick();
     const id=window.setInterval(tick,game.phase==='playing'&&game.timeRush?250:1000);
@@ -391,6 +392,12 @@ function App(){
     const next=unpack(state) as Game|null;
     if(!next || !next.roomId) return;
     if(roomRef.current && next.roomId!==roomRef.current) return;
+    // Device clocks are not authoritative. Correct countdown drift whenever a
+    // server snapshot arrives, including unchanged revisions from getGame.
+    if(typeof next.serverNow==='number' && Number.isFinite(next.serverNow)){
+      serverClockOffsetRef.current=next.serverNow-Date.now();
+      setNow(Date.now()+serverClockOffsetRef.current);
+    }
     if(current.current && current.current.roomId===next.roomId && next.revision<=current.current.revision) return;
     // Keep the old scroll range alive while the new round is rendered. Without
     // this, a long review disappearing causes an instant viewport jump before
@@ -622,7 +629,7 @@ function App(){
       if(stopped)return;
       const state=current.current;
       const nearBoundary=Boolean(state && (state.phase==='playing'||state.phase==='review')
-        && state.deadline && state.deadline-Date.now()<2500);
+        && state.deadline && state.deadline-(Date.now()+serverClockOffsetRef.current)<2500);
       const delay=!navigator.onLine?5000:
         nearBoundary?1300:failures?Math.min(9000,2700+failures*1200):2700;
       refreshTimer=window.setTimeout(async()=>{
@@ -675,7 +682,7 @@ function App(){
   // overwriting more recent inputs. All writes remain server-time validated.
   async function flushDraft(){
     const state=current.current;
-    if(!state || state.phase!=='playing' || Date.now()>=state.deadline ||
+    if(!state || state.phase!=='playing' || Date.now()+serverClockOffsetRef.current>=state.deadline ||
        !roomRef.current || draftInFlightRef.current ||
        draftVersionRef.current<=savedVersionRef.current)return;
     const roomId=state.roomId,round=state.round,version=draftVersionRef.current;
@@ -698,7 +705,7 @@ function App(){
     }finally{
       draftInFlightRef.current=false;
       if(roomRef.current===roomId && current.current?.round===round &&
-         current.current?.phase==='playing' && Date.now()<current.current.deadline &&
+         current.current?.phase==='playing' && Date.now()+serverClockOffsetRef.current<current.current.deadline &&
          draftVersionRef.current>savedVersionRef.current){
         if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
         draftTimerRef.current=setTimeout(()=>void flushDraft(),failed?900:50);
@@ -707,7 +714,7 @@ function App(){
   }
   function updateWord(category:string,value:string){
     const state=current.current;
-    if(!state || state.phase!=='playing' || Date.now()>=state.deadline)return;
+    if(!state || state.phase!=='playing' || Date.now()+serverClockOffsetRef.current>=state.deadline)return;
     const previousWord=answersRef.current[category]||'';
     if(value.trim() && !validRoundAnswer(normalizeAnswer(previousWord),state.letter,category,state.topicCategory) &&
        validRoundAnswer(normalizeAnswer(value),state.letter,category,state.topicCategory))audioRef.current?.cue('answer');
@@ -715,7 +722,7 @@ function App(){
     answersRef.current=latest;setAnswers(latest);draftVersionRef.current++;
     setDraftStatus('saving');
     if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
-    const ms=state.deadline-Date.now()<=2500?0:350;
+    const ms=state.deadline-(Date.now()+serverClockOffsetRef.current)<=2500?0:350;
     draftTimerRef.current=setTimeout(()=>void flushDraft(),ms);
   }
   // Flush pending edits before the countdown reaches zero.
