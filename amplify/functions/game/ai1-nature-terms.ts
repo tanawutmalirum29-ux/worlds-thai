@@ -43,14 +43,11 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
   tree: [
     'ประดู่ป่า',
     'ยมหอม',
-    'เสลา',
     'แสมทะเล',
-    'แคนา',
   ],
   flower: [
     'บัวดิน',
     'ชมนาด',
-    'พุดตาน',
     'กระดุมทอง',
   ],
   nature: [
