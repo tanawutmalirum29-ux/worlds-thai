@@ -130,3 +130,19 @@ test('new-round auto scroll measures the actual sticky banner height on every vi
   assert.match(source,/target\.scrollIntoView\(\{/);
   assert.doesNotMatch(source,/firstAnswerRef\.current\?\.focus\(/);
 });
+
+
+test('room owner setting choices autosave immediately, without a separate save button',()=>{
+  assert.match(source,/function updateRoomSetting\(field:SettingKey,value:GameSettings\[SettingKey\]\)/);
+  assert.match(source,/onClick=\{\(\)=>updateRoomSetting\('mode','letter'\)\}/);
+  assert.match(source,/onClick=\{\(\)=>updateRoomSetting\('mode','category'\)\}/);
+  assert.match(source,/onClick=\{\(\)=>\{updateRoomSetting\(activeChoice.field,value\);closeCustomDialog\(\);\}\}/);
+  assert.match(source,/const saver=createRoomSettingsSaver<GameSettings>\(/);
+  assert.match(source,/const result=await call\('settings',roomId,undefined,undefined,value\)/);
+  assert.match(source,/await roomSettingsSaverRef.current.saver.waitForIdle\(\)/);
+  assert.match(source,/const next=await call\(action,game.roomId,undefined,undefined,draftSettingsRef.current\)/);
+  assert.doesNotMatch(source,/ownerAction\('settings'\)/);
+  assert.doesNotMatch(source,/>บันทึกการตั้งค่า<\/button>/);
+  assert.match(source,/บันทึกการตั้งค่าอัตโนมัติ/);
+  assert.match(styles,/\.settings-auto-save\{min-height:30px;/);
+});

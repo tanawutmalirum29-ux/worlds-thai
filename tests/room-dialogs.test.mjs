@@ -24,7 +24,7 @@ test('both room screens use the same CSS selection popup, not OS select',()=>{
   assert.match(source,/SETTINGS_CHOICES\.map/);
   assert.match(source,/activeChoice\.options\.map/);
   assert.match(source,/aria-pressed=\{value===draftSettings\[activeChoice.field\]\}/);
-  assert.match(source,/setDraftSettings\(s=>\(\{\.\.\.s,\[activeChoice.field\]:value\}\)\)/);
+  assert.match(source,/updateRoomSetting\(activeChoice.field,value\)/);
   assert.match(css,/\.custom-popup-backdrop\{position:fixed/);
   assert.match(css,/\.custom-popup-options\{display:grid/);
 });
