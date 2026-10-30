@@ -1,5 +1,6 @@
 import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { AI1_NATURE_TERMS } from './ai1-nature-terms.ts';
+import { AI4_OBJECTS_GEO_TERMS } from './ai4-objects-geo-terms-20261031-b.ts';
 import { AI3_ACTIVITY_TERMS } from './ai3-activity-terms-20261031.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
@@ -2244,6 +2245,13 @@ for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261031)) {
 for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261031_I)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown hourly vocabulary category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// AI-4: reviewed objects and place types only; preserve all gameplay rules.
+for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown AI-4 vocabulary category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
