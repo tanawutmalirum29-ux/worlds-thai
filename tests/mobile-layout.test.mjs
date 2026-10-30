@@ -125,7 +125,8 @@ test('new-round auto scroll measures the actual sticky banner height on every vi
   assert.match(source,/const banner=challengeBannerRef\.current/);
   assert.match(source,/window\.getComputedStyle\(banner\)\.top/);
   assert.match(source,/banner\.getBoundingClientRect\(\)\.height\+stickyTop\+12/);
-  assert.match(source,/target\.style\.scrollMarginTop=Math\.ceil\(/);
+  assert.match(source,/const marginTop=Math\.ceil\(/);
+  assert.match(source,/target\.style\.scrollMarginTop=marginTop\+'px'/);
   assert.match(source,/lastScrolledRoundRef\.current=key/);
   assert.match(source,/target\.scrollIntoView\(\{/);
   assert.doesNotMatch(source,/firstAnswerRef\.current\?\.focus\(/);
