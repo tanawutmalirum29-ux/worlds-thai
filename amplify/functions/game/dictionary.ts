@@ -4,6 +4,7 @@ import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
+import { ADVANCED_ROYAL_TERMS } from './advanced-royal-terms.ts';
 import { POLITE_SYNONYM_TERMS } from './polite-synonym-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
 import { EXPANDED_THAI_TERMS } from './expanded-thai-terms.ts';
@@ -2079,6 +2080,15 @@ for (const [category, words] of Object.entries(ROYAL_THAI_TERMS)) {
 for (const [category, words] of Object.entries(POLITE_SYNONYM_TERMS)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown polite/synonym category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// Add source-reviewed advanced royal and historical terms into their real
+// categories BEFORE generating eligible pairs, canonical answers, and rarity.
+// Never turn vague meanings into automatic accepted variations.
+for (const [category, words] of Object.entries(ADVANCED_ROYAL_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown advanced royal vocabulary category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
