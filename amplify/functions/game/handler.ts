@@ -356,7 +356,7 @@ export const handler=async(event:any)=>{
       applyAction(state,'create',userId,now,args.name||'',undefined,parseJson(args.settings));
       try {
         await commit(id,null,state);
-        return {roomId:id,snapshot:{...snapshot(state),you:userId}};
+        return {roomId:id,snapshot:{...snapshot(state),you:userId,serverNow:Date.now()}};
       }catch(error:any) {
         if(!isRetryableConflict(error))throw error;
       }
@@ -374,7 +374,7 @@ export const handler=async(event:any)=>{
     try{
       await commit(roomId,before,state);
       await persistDessertSuggestions(before,state);
-      return {roomId,snapshot:{...snapshot(state),you:userId}};
+      return {roomId,snapshot:{...snapshot(state),you:userId,serverNow:Date.now()}};
     }catch(error:any){
       if(!isRetryableConflict(error))throw error;
       await sleep((attempt+1)*20);
@@ -382,4 +382,4 @@ export const handler=async(event:any)=>{
   }
   throw new Error('มีผู้เล่นดำเนินการพร้อมกัน กรุณาลองใหม่');
 };
-function snapshotOrNull(value:Match|null){return value?snapshot(value):null;}
+function snapshotOrNull(value:Match|null){return value?{...snapshot(value),serverNow:Date.now()}:null;}
