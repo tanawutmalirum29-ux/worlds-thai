@@ -18,7 +18,9 @@ export function isInappropriateLanguage(value:unknown):boolean {
   if(typeof value!=='string')return false;
   // Disguised spacing/punctuation cannot evade exact and phrase checks.
   const compact=value.normalize('NFKC').toLocaleLowerCase('th')
-    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF]/gu,'');
+    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF]/gu,'')
+    // NFKC decomposes Thai Sara Am; fold it back for exact matches.
+    .replace(/\u0E4D\u0E32/g,'\u0E33');
   if(!compact)return false;
   return DISALLOWED_EXACT.has(compact) ||
     DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase));
