@@ -54,7 +54,7 @@ test('additional familiar birds use existing category rules and reject fabricate
     }
   }
   for (const [word,letter] of [['เพนกวินจักรพรรดิ','พ'],['ค็อกคาเทล','ค'],
-    ['เลิฟเบิร์ด','ล'],['ไก่งวง','ก'],['เป็ดแมนดาริน','ป'],
+    ['เลิฟเบิร์ด','ล'],['ลอรี่','ล'],['ไก่งวง','ก'],['เป็ดแมนดาริน','ป'],
     ['นกกระสาปากพลั่ว','ก'],['หงส์ดำ','ห']] as const){
     assert.equal(validAnswer(word,letter,'bird'),true,word+' should be accepted');
   }
