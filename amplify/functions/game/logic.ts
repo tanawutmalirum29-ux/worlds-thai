@@ -67,7 +67,9 @@ const dessertAliases:Readonly<Record<string,string>>={
   // Both Thai names describe the same traditional sweet.
   'สอดไส้':'ขนมสอดไส้',
   'ใส่ไส้':'ขนมสอดไส้',
-  'ขนมใส่ไส้':'ขนมสอดไส้'
+  'ขนมใส่ไส้':'ขนมสอดไส้',
+  // Common shorthand for the same French pastry; count it once.
+  'ครัวซอง':'ครัวซองต์'
 };
 const dessertVocabulary=new Set(WORD_BANK.dessert.map(word=>normalizeAnswer(word).toLocaleLowerCase('th')));
 /** Accepted Thai flamingo spelling variants. They are not separate rarity words. 
