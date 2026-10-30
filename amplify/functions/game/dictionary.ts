@@ -1,3 +1,4 @@
+import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
 import { EXPANDED_THAI_TERMS } from './expanded-thai-terms.ts';
 import { FAMILIAR_WORLD_PROVINCES } from './familiar-world-provinces.ts';
 import { VOR_HOR_TERMS } from './vor-hor-terms.ts';
@@ -822,6 +823,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...PHO_PHUENG_TERMS.body,
     ...LOR_LING_TERMS.body,
     ...COMMON_THAI_TERMS.body,
+    ...EXTERNAL_BODY_TERMS,
     "กระดูก",
     "กระเพาะอาหาร",
     "กราม",
