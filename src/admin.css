@@ -64,3 +64,38 @@ td.word{color:#ffdfae;font-weight:700}.no-rows{text-align:center;color:#a6b9ca;p
 .suggestion-scroll .button{font-size:11px;padding:6px 9px;min-height:32px}
 @media(max-width:900px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.filter-grid{grid-template-columns:1fr}.suggestion-panel .panel-title{align-items:flex-start}}
+
+/* Single-section admin navigation. Only the chosen panel is visible. */
+.admin-tabs{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:7px;padding:9px;margin:0 0 14px;background:#131f30;border:1px solid #40566f;
+  border-radius:15px;box-shadow:0 9px 24px #08132165;max-width:100%}
+.admin-tab-button{min-width:0;min-height:45px;padding:9px 5px;border-radius:10px;
+  border:1px solid transparent;background:#25364a;color:#c9d7e7;font-size:12px;font-weight:650;
+  line-height:1.35;white-space:normal}
+.admin-tab-button:hover{background:#30465f;color:#fff}
+.admin-tab-button.active{background:#ecc58d;color:#162638;border-color:#f7dfa9;
+  box-shadow:inset 0 -2px 0 #b8894d}
+.admin-section-heading{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin:0 0 18px;
+  padding:0 3px;color:#b4c7d9;font-size:12px}
+.admin-section-heading strong{font-family:Kanit,sans-serif;color:#f2d4a1;font-size:18px}
+.admin-tab-content{min-width:0}
+.admin-tab-content[hidden]{display:none!important}
+.admin-tab-content>.panel:first-child{margin-top:0}
+.admin-welcome h2{margin-bottom:13px}
+.admin-quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.admin-quick-link{text-align:left;min-width:0;padding:18px;min-height:95px;
+  border:1px solid #465d76;border-radius:13px;background:#1c3047;color:#f2d4a1;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.admin-quick-link:hover{background:#29435d}
+.admin-quick-link strong{font-size:15px}
+.admin-quick-link span{font-size:12px;line-height:1.5;color:#afc1d5}
+@media(max-width:900px){
+  .admin-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .admin-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .admin-tabs{position:static;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:7px}
+  .admin-tab-button{min-height:42px;font-size:11px;padding:7px 3px}
+  .admin-quick-grid{grid-template-columns:1fr}
+  .admin-quick-link{min-height:68px;padding:12px 14px}
+}
