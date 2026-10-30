@@ -1,0 +1,36 @@
+/* Read-only moderation rules inspector; responsive without horizontal layout shift. */
+.blocklist-panel{min-width:0}
+.blocklist-panel .panel-title .help{margin:6px 0 0}
+.blocklist-totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
+.blocklist-totals>div{min-width:0;border:1px solid #41566d;background:#203147;border-radius:12px;padding:13px}
+.blocklist-totals span{display:block;font-size:11px;color:#b5c4d6;line-height:1.5}
+.blocklist-totals strong{display:block;margin-top:5px;color:#f2d4a1;font:600 23px Kanit,sans-serif}
+.blocklist-controls{display:grid;grid-template-columns:minmax(0,2fr) minmax(180px,1fr);gap:12px;align-items:end}
+.blocklist-controls label{display:flex;flex-direction:column;gap:7px;min-width:0;font-size:12px;color:#c6d4e1}
+.blocklist-controls input,.blocklist-controls select{width:100%;min-width:0;min-height:42px;border:1px solid #50657b;border-radius:10px;background:#122034;color:#f4f6fa;padding:9px 12px;font:inherit}
+.blocklist-controls input:focus-visible,.blocklist-controls select:focus-visible{outline:2px solid #f2d4a1;outline-offset:2px}
+.blocklist-count{font-size:12px;color:#c0cfdd;margin:13px 0 10px}
+.blocklist-table-wrap{max-height:520px;overflow:auto;border:1px solid #40576c;border-radius:12px;min-width:0}
+.blocklist-table{border-collapse:collapse;width:100%;min-width:520px;font-size:12px}
+.blocklist-table th,.blocklist-table td{text-align:left;border-bottom:1px solid #30475c;padding:12px;vertical-align:top}
+.blocklist-table th{background:#263a51;color:#e8d1a9;position:sticky;top:0}
+.blocklist-table td{color:#c1cede;line-height:1.55}
+.blocklist-table .blocklist-word{font:500 15px Kanit,sans-serif;color:#f1e8d9;white-space:normal;overflow-wrap:anywhere}
+.blocklist-tag{display:inline-block;padding:4px 9px;border:1px solid #6b6272;border-radius:20px;color:#ded1e1;background:#343043;white-space:normal}
+.blocklist-tag.kind-nickname{background:#3b354e;border-color:#74618b}
+.blocklist-tag.kind-answer{background:#2d4752;border-color:#56808b}
+.blocklist-empty{text-align:center!important;color:#aebdd0!important;padding:22px!important}
+.blocklist-note{font-size:11px;color:#9fb3c8;line-height:1.8;margin:13px 0 0}
+.blocklist-note code{overflow-wrap:anywhere}
+@media(max-width:700px){
+  .blocklist-controls{grid-template-columns:minmax(0,1fr)}
+  .blocklist-totals{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .blocklist-table-wrap{overflow-x:hidden}
+  .blocklist-table{min-width:0;table-layout:fixed}
+  .blocklist-table th,.blocklist-table td{overflow-wrap:anywhere;padding:9px 6px;font-size:11px}
+  .blocklist-table th:nth-child(1){width:24%}
+  .blocklist-table th:nth-child(2){width:29%}
+  .blocklist-table th:nth-child(3){width:47%}
+  .blocklist-table .blocklist-word{font-size:13px}
+}
+@media(max-width:370px){.blocklist-totals{grid-template-columns:1fr}.blocklist-tag{padding:3px 5px;font-size:10px}}
