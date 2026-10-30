@@ -1,3 +1,4 @@
+import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
 import { EXPANDED_THAI_TERMS } from './expanded-thai-terms.ts';
@@ -2066,6 +2067,13 @@ for (const [category, words] of Object.entries(ROYAL_THAI_TERMS)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown royal vocabulary category: '+category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// ซ โซ่ additions remain category-local; no duplicate words inflate rarity or scoring.
+for (const [category, words] of Object.entries(SO_SO_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK,category))
+    throw new Error('Unknown ซ category: '+category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category],...words])];
 }
 
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
