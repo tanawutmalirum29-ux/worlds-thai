@@ -60,3 +60,13 @@ test('network polling skips redundant data and does not overlap requests', () =>
   assert.match(source, /if\(stopped \|\| refreshing \|\| document\.hidden\)return/);
   assert.match(source, /const answerStates=useMemo\(/);
 });
+
+test('create and join tabs remain fully tappable on small screens', () => {
+  assert.match(source, /onClick=\{\(\)=>\{setMode\('create'\);setError\(''\);\}\}/);
+  assert.match(source, /onClick=\{\(\)=>\{setMode\('join'\);setError\(''\);\}\}/);
+  assert.match(styles, /\.card-deco\{[^}]*pointer-events:none;/);
+  assert.match(styles, /\.floating-letters\{[^}]*pointer-events:none;/);
+  assert.match(styles, /\.room-mode-switch\{position:relative;z-index:2;isolation:isolate;/);
+  assert.match(styles, /\.room-mode\{[^}]*min-height:52px;[^}]*touch-action:manipulation;/);
+  assert.match(styles, /\.join-card \.room-mode\{min-height:50px;/);
+});
