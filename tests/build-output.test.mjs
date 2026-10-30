@@ -53,3 +53,19 @@ test('Production output includes real browser favicons and iOS/Android icons',(t
   assert.equal(manifest.icons.length,2);
   assert.match(readFileSync(resolve('dist/khw-admin-14c2a0bd51d3fb0266f2ce0c9beb67c16dbf1e4700c5efaa0842e1a5.html'),'utf8'),/favicon-32\.png/);
 });
+
+test('Each production build contains its own matching version manifest and build identifier',(t)=>{
+  const manifest=resolve('dist/version.json');
+  if(!existsSync(resolve('dist/index.html'))){
+    t.skip('not built yet; checked again after vite build');return;
+  }
+  assert.ok(existsSync(manifest),'missing deploy version manifest');
+  const version=JSON.parse(readFileSync(manifest,'utf8'));
+  assert.match(version.build,/^[a-f0-9]{32}$/);
+  const script=readFileSync(resolve('dist/index.html'),'utf8');
+  const assets=[...script.matchAll(/src="(\/assets\/[^"]+\.js)"/g)].map(item=>resolve('dist',item[1].slice(1)));
+  assert.ok(assets.length>0,'missing built game entry');
+  // Vite substitutes the same build identity into bundled JavaScript.
+  assert.ok(assets.some(asset=>existsSync(asset)&&readFileSync(asset,'utf8').includes(version.build)),
+    'compiled app build identity differs from manifest');
+});

@@ -10,6 +10,10 @@ import {nicknameValidationMessage} from '../amplify/functions/game/moderation.ts
 import { letterCaption } from './letters.ts';
 import { synonymExamplesForRound } from './word-insights.ts';
 import { encodeGamePayload } from './rooms';
+import {
+  CURRENT_BUILD_ID,BUILD_CHECK_INTERVAL_MS,VERSION_QUERY_KEY,
+  parseDeployedBuild,isNewerBuild,safeToAutoUpdate,buildRefreshUrl
+} from './auto-update.ts';
 
 const LABELS: Record<string,string> = {
   animal:'สัตว์', sport:'กีฬา', job:'อาชีพ', verb:'คำกริยา', fruit:'ผลไม้',
@@ -104,6 +108,10 @@ function App(){
   const [roomsError,setRoomsError]=useState('');
   const [draftSettings,setDraftSettings]=useState<GameSettings>({...DEFAULT_SETTINGS});
   const [game,setGame] = useState<Game|null>(null);
+  const [pendingBuild,setPendingBuild]=useState<string|null>(null);
+  const pendingBuildRef=useRef<string|null>(null);
+  const navigatingToBuildRef=useRef(false);
+  const leavingRef=useRef(false);
   const [me,setMe] = useState('');
   const [answers,setAnswers] = useState<Record<string,string>>({});
   const [draftStatus,setDraftStatus] = useState<'idle'|'saving'|'saved'|'error'>('idle');
@@ -131,6 +139,61 @@ function App(){
   const draftTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
   const draftInFlightRef=useRef(false);
   useEffect(()=>()=>{if(draftTimerRef.current)clearTimeout(draftTimerRef.current);},[]);
+  // Remove the one-time HTML-cache bypass query after the refreshed page boots.
+  useEffect(()=>{
+    const url=new URL(window.location.href);
+    if(!url.searchParams.has(VERSION_QUERY_KEY))return;
+    url.searchParams.delete(VERSION_QUERY_KEY);
+    window.history.replaceState(window.history.state,'',url.pathname+url.search+url.hash);
+  },[]);
+  const applyGameUpdate=useCallback((build:string)=>{
+    if(navigatingToBuildRef.current || document.hidden ||
+      !safeToAutoUpdate(roomRef.current,localStorage.getItem('khamwai-active-room'),
+        workingRef.current||leavingRef.current||draftInFlightRef.current))return false;
+    try{
+      if(sessionStorage.getItem('khamwai-last-auto-update')===build)return false;
+      sessionStorage.setItem('khamwai-last-auto-update',build);
+    }catch{/* Safari private mode may block storage. */}
+    navigatingToBuildRef.current=true;
+    window.location.replace(buildRefreshUrl(window.location.href,build));
+    return true;
+  },[]);
+  // Check the static manifest directly, not the multiplayer game state.
+  // Resume immediately after a backgrounded mobile tab is brought forward.
+  useEffect(()=>{
+    if(!CURRENT_BUILD_ID)return;
+    let disposed=false,inFlight=false;
+    const check=async()=>{
+      if(disposed||inFlight||document.hidden||navigatingToBuildRef.current)return;
+      inFlight=true;
+      try{
+        const response=await fetch('/version.json?checked='+Date.now(),{cache:'no-store'});
+        if(!response.ok)return;
+        const deployed=parseDeployedBuild(await response.json());
+        if(!disposed&&isNewerBuild(CURRENT_BUILD_ID,deployed)){
+          pendingBuildRef.current=deployed;
+          setPendingBuild(deployed);
+          applyGameUpdate(deployed!);
+        }
+      }catch{/* Offline clients retain the running game and retry later. */}
+      finally{inFlight=false;}
+    };
+    void check();
+    const interval=window.setInterval(()=>void check(),BUILD_CHECK_INTERVAL_MS);
+    const onResume=()=>{if(!document.hidden)void check();};
+    document.addEventListener('visibilitychange',onResume);
+    window.addEventListener('focus',onResume);
+    window.addEventListener('online',onResume);
+    return()=>{
+      disposed=true;window.clearInterval(interval);
+      document.removeEventListener('visibilitychange',onResume);
+      window.removeEventListener('focus',onResume);
+      window.removeEventListener('online',onResume);
+    };
+  },[applyGameUpdate]);
+  useEffect(()=>{
+    if(!game&&pendingBuild)applyGameUpdate(pendingBuild);
+  },[game,pendingBuild,applyGameUpdate]);
   // Keep short audio feedback outside the page flow, including repeated notices.
   useEffect(()=>{
     if(!audioNotice)return;
@@ -279,6 +342,7 @@ function App(){
     finally{setWorking(false);workingRef.current=false;}
   };
   const leave=async()=>{
+    leavingRef.current=true;
     audioRef.current?.cue('exit');
     const old=roomRef.current;
     roomRef.current=''; meRef.current='';setMe('');setGame(null);current.current=null;roundRef.current=0;setAnswers({});
@@ -287,6 +351,10 @@ function App(){
     draftTimerRef.current=null;answersRef.current={};draftVersionRef.current=0;savedVersionRef.current=0;setDraftStatus('idle');
     setMode('join');
     try {await call('leave',old);}catch {/* Guest expires automatically if offline. */}
+    finally{
+      leavingRef.current=false;
+      if(pendingBuildRef.current)applyGameUpdate(pendingBuildRef.current);
+    }
   };
   // The same Cognito guest credentials are reused across tabs in one browser
   // profile. Restore the room by server re-join: the same guest ID cannot
@@ -538,6 +606,11 @@ function App(){
       <a href="/" className="logo" aria-label="คำไว หน้าหลัก"><span className="logo-mark">ค</span><span>คำ<span className="logo-accent">ไว</span><small>THAI WORD PARTY</small></span></a>
       <div className="top-actions"><span className="live-pill"><span className="live-dot"/>{status==='ready'?'เล่นออนไลน์':'AWS CLOUD'}</span><button type="button" className="sound-toggle" aria-label={audioMuted?'เปิดเสียงเพลงและเอฟเฟกต์':'ปิดเสียงเพลงและเอฟเฟกต์'} aria-pressed={!audioMuted} title={audioMuted?'เปิดเสียง':'ปิดเสียง'} onClick={toggleAudio}><SoundIcon muted={audioMuted}/><span className="sound-button-text">{audioMuted?'เปิดเสียง':'ปิดเสียง'}</span></button><button className="ghost-btn" onClick={()=>setHelp(true)}><span className="help-dot">?</span> วิธีเล่น</button></div>
     </header>
+    {pendingBuild?<div className="game-update-notice" role="status" aria-live="polite">
+      <span className="game-update-mark" aria-hidden="true">↻</span>
+      <span>{game?'เกมมีเวอร์ชันใหม่ · จะอัปเดตอัตโนมัติหลังออกจากห้อง':'พบเกมเวอร์ชันใหม่ · กำลังอัปเดตอัตโนมัติ'}</span>
+      {!game?<button type="button" onClick={()=>applyGameUpdate(pendingBuild)}>อัปเดตตอนนี้</button>:null}
+    </div>:null}
     <div className="audio-toast-region" aria-live="polite" aria-atomic="true">{audioNotice?<p className="audio-notice" role="status">{audioNotice.message}</p>:null}</div>
     <main className="container">
       {!game ? <div className="welcome-layout">
