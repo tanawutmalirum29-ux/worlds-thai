@@ -733,16 +733,16 @@ function App(){
           {error?<p className="error-message" role="alert">{error}</p>:null}
           {status==='error'&&!error?<p className="error-message">ไม่สามารถเชื่อมต่อระบบออนไลน์</p>:null}
         </section>
-      </div> : <div className={playing?'game-layout game-layout-playing':'game-layout'}>
+      </div> : <div className={playing?'game-layout game-layout-playing':isOwner&&game.phase==='lobby'?'game-layout game-layout-owner-lobby':'game-layout'}>
         <section className="game-main">
           <div className="game-status-row"><div><span className="eyebrow tiny">LIVE MATCH <span className="gold-dot">●</span></span><h1 className="game-heading">{game.phase==='lobby'?'รอเพื่อนมาร่วมสนุก':game.phase==='playing'?'ได้เวลาประลองคำ!':game.phase==='review'?'เฉลยคำตอบรอบนี้':'จบเกมแล้ว!'}</h1></div><button type="button" className="exit-btn" onClick={e=>{openerRef.current=e.currentTarget;setExitConfirm(true);}}>ออกจากเกม ×</button></div>
           {error?<p className="error-message" role="alert">{error}</p>:null}
-          <div className="game-meta"><span className="round-marker">{game.round?`รอบ ${game.round} / ${game.settings.rounds}`:'ห้องของเพื่อน'}</span><span className="people-marker">◉ {game.players.length} / 8 คน</span></div>
+          <div className="game-meta"><span className="round-marker">{game.round?`รอบ ${game.round} / ${game.settings.rounds}`:isOwner?'ห้องของเรา':'ห้องของเพื่อน'}</span><span className="people-marker">◉ {game.players.length} / 8 คน</span></div>
           {game.phase==='lobby'?<div className="lobby-view">
             <div className="lobby-visual"><div className="lobby-ring one"/><div className="lobby-ring two"/><span className="lobby-letter">{isOwner?'จ':'ร'}<span>◈</span></span></div>
             <h2>{isOwner?'เจ้าของห้อง':'รอเจ้าของห้องเริ่มเกม'}</h2>
-            <p>{isOwner?(game.players.length<2?'รอเพื่อนกดเข้าร่วมห้องจากหน้าเกม':'ทุกคนพร้อมแล้ว กดเริ่มเกมได้เลย'):'เจ้าของห้องจะเริ่มเกมเมื่อพร้อม'}</p>
-            <div className="public-room-notice">{isOwner?'ห้องของคุณแสดงอยู่ในหน้าเข้าร่วมห้องของทุกคนโดยอัตโนมัติ':'อยู่ในห้องแล้ว รอเจ้าของห้องเริ่มเกมได้เลย'}</div>
+            {!isOwner?<p>เจ้าของห้องจะเริ่มเกมเมื่อพร้อม</p>:null}
+            {!isOwner?<div className="public-room-notice">อยู่ในห้องแล้ว รอเจ้าของห้องเริ่มเกมได้เลย</div>:null}
             {isOwner?<div className="settings-panel lobby-settings"><h3>ตั้งค่าห้อง</h3>
               {settingsControls}
               <div className={`settings-auto-save settings-auto-save-${roomSettingsStatus}`} role="status" aria-live="polite">
@@ -751,9 +751,9 @@ function App(){
                  roomSettingsStatus==='error'?'บันทึกไม่สำเร็จ ระบบจะลองใหม่เมื่อเชื่อมต่ออีกครั้ง':
                  'เลือกค่าได้เลย ระบบจะบันทึกให้อัตโนมัติ'}
               </div>
-              <button className="primary-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span>→</span></button>
+              
             </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.mode==='category'?'โหมดหมวดใหญ่':'โหมดพยัญชนะ'} · {game.settings.categories} {game.settings.mode==='category'?'คำ':'หมวด'} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
-            <div className="lobby-tip">ทุกคนเปิดหน้าเว็บเกมเดียวกันแล้วกดเข้าร่วมได้ทันที · เจ้าของห้องเป็นคนกดเริ่มเกม</div>
+            {isOwner?<div className="lobby-start-dock"><button type="button" className="primary-btn lobby-start-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span aria-hidden="true">→</span></button></div>:null}
           </div>:null}
           {playing?<><div className="challenge-banner" ref={challengeBannerRef}><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} {game.topicCategory?'คำ':'หมวด'}</h2><p>{game.topicCategory?<>ตอบคำหมวด <b>“{LABELS[game.topicCategory]||game.topicCategory}”</b> ให้ตรงพยัญชนะของแต่ละช่อง · ตรวจทันที</>:<>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</>}</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
@@ -845,7 +845,7 @@ function App(){
         </button>:null}
         <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตทุก 2 วินาที</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
           <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+2</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+1</strong></div><div><span>คำหายากที่ไม่ซ้ำ (เมื่อมีข้อมูลเพียงพอ)</span><strong>+1 ถึง +2</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>โบนัสคำหายากรวมสูงสุด +3 ต่อรอบ · หมวดและอักษรที่ข้อมูลไม่พอหรือไม่มีคำหายากยังเล่นตามคะแนนปกติ</p><p>แข่งครบจำนวนรอบที่ตั้งค่า ใครคะแนนรวมสูงสุดชนะ!</p></div>
-          <div className="public-room-notice">เพื่อนเปิดเว็บไซต์คำไวเดียวกัน แล้วเลือกชื่อห้องที่รอผู้เล่นได้ทันที</div>
+          
         </aside>
       </div>}
     </main>
