@@ -1,4 +1,5 @@
 import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
+import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
@@ -2080,6 +2081,14 @@ for (const [category, words] of Object.entries(SO_SO_TERMS)) {
 // Familiar bird names are valid both in bird and (where listed) animal categories.
 // De-duplicate exact registered names before the game builds word/rarity indexes.
 for (const [category, words] of Object.entries(FAMILIAR_BIRD_TERMS)) {
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// Curated ฟ ฟัน vocabulary. Deduplicate in the live bank before rarity,
+// eligibility and canonical answer indexes are built.
+for (const [category, words] of Object.entries(FO_FAN_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK,category))
+    throw new Error('Unknown ฟ category: '+category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
