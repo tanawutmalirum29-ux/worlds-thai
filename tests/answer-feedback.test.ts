@@ -63,3 +63,13 @@ test('profane anatomy is forbidden while proper medical names remain acceptable'
   assert.equal(checkAnswerFeedback('หีบ','ห','object').status,'accepted');
   assert.notEqual(checkAnswerFeedback('แกงกะหรี่','ก','food').status,'inappropriate');
 });
+
+test('bare วี gives explicit banned-answer feedback, never an unknown-word hint',()=>{
+  for(const typed of ['วี',' วี ','ว ี']){
+    const value=checkAnswerFeedback(typed,'ว','body');
+    assert.equal(value.status,'forbidden',typed);
+    assert.equal(value.message,'ห้ามใช้คำว่า “วี” เป็นคำตอบ');
+  }
+  assert.notEqual(checkAnswerFeedback('วีร์','ว','body').status,'forbidden');
+  assert.notEqual(checkAnswerFeedback('วีว์','ว','body').status,'forbidden');
+});
