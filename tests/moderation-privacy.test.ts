@@ -65,12 +65,12 @@ test('only player-controlled input can be visible locally; server also blocks ru
 
 test('nickname restriction detects วี anywhere, including tone-free garan suffixes',()=>{
   for(const nickname of [
-    'วี','วีร์','วีว์','วี์','วีร','น้องวี','สวัสดีวีนะ','มีวีในชื่อ',
+    'วี','วีร์','วีว์','วี์','วีร','น้องวี','สวัสดีวีนะ','มีวีในชื่อ','หวี',
     'คุณ วี ครับ','ว ี','ว\u200Bี','ชื่อวีร์ทดลอง','เราเป็นวีว์'
   ]){
     assert.equal(nicknameValidationMessage(nickname),'ใช้ชื่อนี้ไม่ได้',nickname);
   }
-  for(const nickname of ['วิ','วิน','น้องวิ','น้องบี','ชื่อเพื่อน','ชื่อไทย','หวี','วี'.replace('ี','ิ')]){
+  for(const nickname of ['วิ','วิน','น้องวิ','น้องบี','ชื่อเพื่อน','ชื่อไทย','วี'.replace('ี','ิ')]){
     assert.equal(nicknameValidationMessage(nickname),'',nickname);
   }
   assert.equal(nicknameValidationMessage('ไอ้เหี้ย'),'กรุณาใช้ชื่อเล่นที่สุภาพ');
