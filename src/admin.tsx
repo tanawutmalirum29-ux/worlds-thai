@@ -56,6 +56,16 @@ async function queryStats():Promise<WordStatRecord[]>{
   if(!completed)throw new Error('ข้อมูลสถิติเกินขนาดที่ส่งออกได้');
   return rows;
 }
+type AdminTab='overview'|'popularity'|'rarity'|'suggestions'|'search'|'edit'|'export';
+const ADMIN_SECTIONS:{id:AdminTab;label:string;description:string}[]=[
+  {id:'overview',label:'ภาพรวม',description:'ตัวเลขสำคัญและทางลัดไปยังเครื่องมือจัดการ'},
+  {id:'popularity',label:'คำยอดนิยม',description:'สถิติการใช้งานคำศัพท์และคะแนนสะสม'},
+  {id:'rarity',label:'ความหายาก',description:'ตรวจระดับโบนัสและข้อมูลความหายากรายหมวด'},
+  {id:'suggestions',label:'คำเสนอแนะ',description:'ตรวจคำขนมที่ผู้เล่นเสนอเข้ามา'},
+  {id:'search',label:'ค้นคำศัพท์',description:'ค้นหาและกรองคำทั้งหมดในคลัง'},
+  {id:'edit',label:'เพิ่ม / จัดคำ',description:'เพิ่มคำฉบับร่างและเก็บคำที่ยังไม่รู้หมวด'},
+  {id:'export',label:'ดาวน์โหลด',description:'ส่งออกคลังคำ รายการคำใหม่ และสถิติ'}
+];
 type StatsState='idle'|'loading'|'ready'|'error';
 type DessertSuggestionRow={category:'dessert';word:string;letter:string;timesSuggested:number;lastSeenAt:number|null};
 async function querySuggestions():Promise<DessertSuggestionRow[]>{
@@ -82,6 +92,9 @@ async function querySuggestions():Promise<DessertSuggestionRow[]>{
 
 function WordAdmin(){
   const [authorized,setAuthorized]=useState(false);
+  const [activeTab,setActiveTab]=useState<AdminTab>('overview');
+  const [visitedTabs,setVisitedTabs]=useState<AdminTab[]>(['overview']);
+  const [jumpTarget,setJumpTarget]=useState('');
   const [pin,setPin]=useState('');
   const [pinError,setPinError]=useState('');
   const [drafts,setDrafts]=useState<Drafts>(loadDrafts);
@@ -124,6 +137,21 @@ function WordAdmin(){
     try{localStorage.setItem(INBOX_STORAGE_KEY,JSON.stringify(inbox));}
     catch{setMessage('เก็บคำรอจัดหมวดในเบราว์เซอร์ไม่ได้ กรุณาดาวน์โหลดไฟล์ TXT สำรอง');}
   },[inbox]);
+  // Keep visited panels mounted so filters and unsaved form input survive navigation.
+  useEffect(()=>{
+    if(!jumpTarget)return;
+    document.getElementById(jumpTarget)?.scrollIntoView({behavior:'smooth',block:'start'});
+    setJumpTarget('');
+  },[activeTab,jumpTarget]);
+  function openTab(tab:AdminTab,target?:string){
+    setVisitedTabs(current=>current.includes(tab)?current:[...current,tab]);
+    setActiveTab(tab);
+    if(target)setJumpTarget(target);
+    else{
+      setJumpTarget('');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  }
   async function refreshStats(){
     setStatsState('loading');setStatsError('');
     try{const rows=await queryStats();setStats(rows);setStatsState('ready');}
@@ -187,29 +215,51 @@ function WordAdmin(){
     <header className="heading"><div>
       <div className="overline">KHAMWAI · VOCABULARY OPERATIONS</div>
       <h1>คลังคำศัพท์</h1>
-      <p>ค้นหาทุกหมวดและทุกพยัญชนะ · เพิ่มคำฉบับร่าง · ส่งออกข้อมูล</p>
+      <p>เลือกหัวข้องานด้านบนเพื่อเปิดเฉพาะเครื่องมือที่ต้องการ</p>
     </div><button className="button ghost" onClick={()=>setAuthorized(false)}>ล็อกหน้าจอ</button></header>
-    <nav className="admin-shortcuts" aria-label="ทางลัดหน้าแอดมิน">
-      <a href="#admin-rarity-insights">ดูสถิติความหายาก</a>
-      <a href="#admin-vocabulary-search">ค้นคำศัพท์</a>
+    <nav className="admin-tabs" aria-label="หมวดเครื่องมือแอดมิน">
+      {ADMIN_SECTIONS.map(tab=><button key={tab.id} type="button"
+        className={activeTab===tab.id?'admin-tab-button active':'admin-tab-button'}
+        aria-current={activeTab===tab.id?'page':undefined}
+        onClick={()=>openTab(tab.id)}>{tab.label}</button>)}
     </nav>
+    <div className="admin-section-heading">
+      <strong>{ADMIN_SECTIONS.find(tab=>tab.id===activeTab)?.label}</strong>
+      <span>{ADMIN_SECTIONS.find(tab=>tab.id===activeTab)?.description}</span>
+    </div>
+    {visitedTabs.includes('overview')?<div className="admin-tab-content" id="admin-panel-overview" hidden={activeTab!=='overview'}>
     <section className="metrics">
       <div><span>รายการคำทั้งหมด</span><strong>{totalCount.toLocaleString('th-TH')}</strong></div>
       <div><span>จำนวนหมวด</span><strong>{CATEGORY_OPTIONS.length}</strong></div>
       <div><span>คำเพิ่มใหม่ในเครื่อง</span><strong>{draftCount}</strong></div>
       <div><span>สถิติออนไลน์</span><strong>{statsState==='ready'?'พร้อม':statsState==='loading'?'กำลังโหลด':'ยังไม่พร้อม'}</strong></div>
     </section>
+    <section className="panel admin-welcome" aria-label="ทางลัดงานแอดมิน">
+      <h2>เปิดเครื่องมือที่ต้องการ</h2>
+      <div className="admin-quick-grid">
+        {ADMIN_SECTIONS.filter(tab=>tab.id!=='overview').map(tab=>
+          <button type="button" key={tab.id} className="admin-quick-link" onClick={()=>openTab(tab.id)}>
+            <strong>{tab.label}</strong><span>{tab.description}</span>
+          </button>)}
+      </div>
+    </section>
+    </div>:null}
+    {visitedTabs.includes('popularity')?<div className="admin-tab-content" id="admin-panel-popularity" hidden={activeTab!=='popularity'}>
     <PopularityDashboard rows={allEntries} stats={stats} status={statsState} error={statsError}
       refresh={()=>{void refreshStats();}}
       inspect={(categoryId,consonant,word)=>{
         setFilterCategory(categoryId);setFilterLetter(consonant);setQuery(word||'');setShowAll(false);
-        document.getElementById('admin-vocabulary-search')?.scrollIntoView({behavior:'smooth'});
+        openTab('search','admin-vocabulary-search');
       }}/>
+    </div>:null}
+    {visitedTabs.includes('rarity')?<div className="admin-tab-content" id="admin-panel-rarity" hidden={activeTab!=='rarity'}>
     <RarityDashboard entries={allEntries}
       inspect={(categoryId,consonant,word)=>{
         setFilterCategory(categoryId);setFilterLetter(consonant);setQuery(word||'');setShowAll(false);
-        document.getElementById('admin-vocabulary-search')?.scrollIntoView({behavior:'smooth'});
+        openTab('search','admin-vocabulary-search');
       }}/>
+    </div>:null}
+    {visitedTabs.includes('suggestions')?<div className="admin-tab-content" id="admin-panel-suggestions" hidden={activeTab!=='suggestions'}>
     <section className="panel suggestion-panel">
       <div className="panel-title">
         <div><h2>ขนมที่ผู้เล่นเสนอให้ตรวจ</h2>
@@ -229,12 +279,14 @@ function WordAdmin(){
             <td><button type="button" className="button ghost" onClick={()=>{
               setAddText(row.word);setAddCategory('dessert');setFilterCategory('dessert');
               setQuery(row.word);setDessertType('');
-              document.getElementById('admin-add-words')?.scrollIntoView({behavior:'smooth'});
+              openTab('edit','admin-add-words');
             }}>ตรวจแล้วเพิ่มเอง</button></td>
           </tr>)}</tbody>
         </table></div>:null}
       <p className="help">คำที่ไม่รู้จักอาจเป็นคำพิมพ์ผิดหรือคำแกล้งพิมพ์ แม้มีคนใช้บ่อยก็ยังไม่ใช่คำที่ผ่านการตรวจ ต้องตรวจชื่อขนมจริงก่อนเพิ่มฉบับร่าง และคำในหน้านี้ไม่ใช่สถิติผู้เล่นที่ไม่ซ้ำกัน</p>
     </section>
+    </div>:null}
+    {visitedTabs.includes('search')?<div className="admin-tab-content" id="admin-panel-search" hidden={activeTab!=='search'}>
     <section className="panel" id="admin-vocabulary-search">
       <div className="panel-title"><h2>ค้นหาคำศัพท์</h2><span>เลือกหมวด ตัวอักษร หรือไม่เลือกอะไรเลยก็ได้</span></div>
       <div className="filter-grid">
@@ -283,6 +335,8 @@ function WordAdmin(){
       {!showAll&&shown.length>100?<button className="button ghost" onClick={()=>setShowAll(true)}>
         แสดงครบ {shown.length.toLocaleString('th-TH')} รายการ</button>:null}
     </section>
+    </div>:null}
+    {visitedTabs.includes('edit')?<div className="admin-tab-content" id="admin-panel-edit" hidden={activeTab!=='edit'}>
     <section className="panel inbox-panel">
       <div className="panel-title"><h2>จดคำที่ยังไม่รู้หมวด</h2><span>เอาไว้ให้ AI ช่วยตรวจและจัดหมวดภายหลัง</span></div>
       <form onSubmit={e=>{e.preventDefault();saveUncategorized();}}>
@@ -326,6 +380,8 @@ function WordAdmin(){
         </div>)}
       </div>:null}
     </section>
+    </div>:null}
+    {visitedTabs.includes('export')?<div className="admin-tab-content" id="admin-panel-export" hidden={activeTab!=='export'}>
     <section className="panel"><div className="panel-title"><h2>ดาวน์โหลดข้อมูล</h2>
       <span>นำไฟล์คลังคำไปวางใน GitHub เอง</span></div>
       <div className="download-grid">
@@ -347,6 +403,7 @@ function WordAdmin(){
       {statsState==='error'?<p className="error" role="alert">{statsError}</p>:null}
       <p className="help">สถิติออนไลน์ไม่มีสิทธิ์แก้ข้อมูลในหน้านี้ คำศัพท์ที่เพิ่มในเครื่องจะเริ่มมีสถิติจริงเมื่ออัปเดต GitHub และมีคนเล่นใช้คำนั้น</p>
     </section>
+    </div>:null}
     {message?<div className="toast" role="status">{message}<button onClick={()=>setMessage('')} aria-label="ปิด">×</button></div>:null}
     <footer>หน้าและรหัสที่ซ่อนไว้ไม่ใช่ระบบความปลอดภัยของผู้ดูแลจริง</footer>
   </main>;
