@@ -78,7 +78,7 @@ function romanizedCandidates(value:unknown):string[] {
     .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
   return [...new Set([plain,leet].map(t=>t.replace(REPEATED_SYMBOL,'$1')))];
 }
-const ROMAN_STRONG=/(?:fuck|fck|bitch|cunt|pusy|kuy|kuay|kuai)/u;
+const ROMAN_STRONG=/(?:fuck|fck|bitch|cunt|pusy|kuy|kuay|kuai|คuวย|kuวย|kวย|(?:ไอ้?|อี)(?:hia|sus|yed|kuy))/u;
 const ROMAN_WHOLE=/^(?:shit|shits|shitty|shitting|fuk|ass|dick|cock|yed|yet|yeet|hia|hee|sus|sud|sat|ham|hum|tud|tood|teen|tin|joo|jew)$/u;
 export function isInappropriateLanguage(value:unknown):boolean {
   const compact=compactThai(value);
