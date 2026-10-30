@@ -79,3 +79,28 @@ test('name field flags invalid nicknames immediately and blocks room actions',()
   assert.match(source,/disabled=\{working\|\|status!=='ready'\|\|Boolean\(invalidNicknameMessage\)\}/);
   assert.match(styles,/\.nickname-validation-slot\{min-height:19px;/);
 });
+
+
+test('final rematch vote floats at exactly the skip-time location and keeps live vote count',()=>{
+  assert.match(source,/game\.phase==='final'\?<button type="button" className="skip-time-floating rematch-floating"/);
+  assert.match(source,/onClick=\{\(\)=>void vote\('rematch'\)\}/);
+  assert.match(source,/<strong>\{rematchCount\}\/\{game\.players\.length\}<\/strong>/);
+  assert.match(source,/disabled=\{hasRematched\|\|working\}/);
+  assert.doesNotMatch(source,/className="primary-btn rematch-vote"/);
+  assert.match(styles,/\.rematch-floating\{border-color:/);
+  assert.match(styles,/\.skip-time-floating\{position:fixed;right:max\(15px,env\(safe-area-inset-right\)\);bottom:max\(15px,env\(safe-area-inset-bottom\)\)/);
+});
+
+test('every new round scrolls the first answer into view below the mobile sticky banner',()=>{
+  assert.match(source,/const firstAnswerRef = useRef<HTMLLabelElement\|null>\(null\)/);
+  assert.match(source,/const lastScrolledRoundRef = useRef\(''\)/);
+  assert.match(source,/const key=game\.roomId\+':'\+game\.round/);
+  assert.match(source,/ref=\{index===0\?firstAnswerRef:undefined\}/);
+  assert.match(source,/target\.scrollIntoView\(\{/);
+  assert.match(source,/block:'start',inline:'nearest'/);
+  assert.match(source,/window\.requestAnimationFrame\(\(\)=>\{/);
+  assert.match(source,/return\(\)=>window\.cancelAnimationFrame\(frame\)/);
+  assert.match(source,/if\(game\?\.phase!=='playing'\)\{\s*lastScrolledRoundRef\.current=''/);
+  assert.doesNotMatch(source,/firstAnswerRef\.current\?\.focus\(/);
+  assert.match(styles,/\.game-layout-playing \.answer-item:first-child\{scroll-margin-top:calc\(130px \+ env\(safe-area-inset-top,0px\)\)\}/);
+});
