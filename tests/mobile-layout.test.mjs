@@ -10,6 +10,9 @@ test('homepage keeps room controls and removes redundant feature pills', () => {
   assert.match(source, /สร้างห้อง<\/button>/);
   assert.match(source, /เข้าร่วมห้อง<\/button>/);
   assert.doesNotMatch(source, /className="feature-chips"/);
+  assert.doesNotMatch(source, /className="divider-word"|className="join-benefits"/);
+  assert.doesNotMatch(source, /เล่นง่าย ๆ|เพื่อนเห็นห้องและกดเข้าร่วม/);
+  assert.doesNotMatch(styles, /\.join-benefits|\.divider-word/);
 });
 
 test('mobile letter and live countdown stay pinned while answering', () => {
@@ -42,4 +45,18 @@ test('audio messages float outside main and are dismissed without layout shift',
   assert.match(styles, /\.audio-toast-region\{position:fixed;/);
   assert.match(styles, /pointer-events:none/);
   assert.doesNotMatch(source, /<main className="container">\s*\{audioNotice/);
+});
+
+test('idle home does not update the entire React page every 250ms', () => {
+  assert.doesNotMatch(source, /setInterval\(\(\)=>setNow\(Date\.now\(\)\),250\)/);
+  assert.match(source, /if\(game\?\.phase!=='playing' && game\?\.phase!=='review'\)return/);
+  assert.match(source, /game\.phase==='playing'&&game\.timeRush\?100:1000/);
+});
+
+test('network polling skips redundant data and does not overlap requests', () => {
+  assert.match(source, /next\.revision<=current\.current\.revision/);
+  assert.match(source, /sameRoomListings\(previous,value as PublicRoom\[\]\)/);
+  assert.match(source, /if\(!client \|\| game \|\| mode!=='join'\)return/);
+  assert.match(source, /if\(stopped \|\| refreshing \|\| document\.hidden\)return/);
+  assert.match(source, /const answerStates=useMemo\(/);
 });

@@ -1,4 +1,4 @@
-import { StrictMode, useCallback, useEffect, useRef, useState } from 'react';
+import { StrictMode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
@@ -57,6 +57,18 @@ type Api = any;
 function unpack(value:unknown):any {
   if(typeof value === 'string') { try { return JSON.parse(value); } catch { return value; } }
   return value;
+}
+/** Ignore public-directory polls whose visible content has not changed. */
+function sameRoomListings(before:readonly PublicRoom[],after:readonly PublicRoom[]):boolean {
+  return before.length===after.length && before.every((room,i)=>{
+    const next=after[i];
+    return room.roomId===next.roomId && room.hostName===next.hostName &&
+      room.playerCount===next.playerCount && room.createdAt===next.createdAt &&
+      room.settings.rounds===next.settings.rounds &&
+      room.settings.categories===next.settings.categories &&
+      room.settings.seconds===next.settings.seconds &&
+      room.settings.mode===next.settings.mode;
+  });
 }
 function remainingForAutosave(game:Game,now:number){
   return Math.max(0,Math.ceil((game.deadline-now)/1000));
@@ -189,7 +201,16 @@ function App(){
     document.addEventListener('keydown',keyDown);
     return()=>{document.removeEventListener('keydown',keyDown);document.body.style.overflow=previousOverflow;};
   },[exitConfirm,choicePopup]);
-  useEffect(()=>{ const id=window.setInterval(()=>setNow(Date.now()),250);return()=>clearInterval(id); },[]);
+  // Update only timed screens; preserve quick ticks during the skip animation.
+  useEffect(()=>{
+    if(game?.phase!=='playing' && game?.phase!=='review')return;
+    const tick=()=>{if(!document.hidden)setNow(Date.now());};
+    const onVisibility=()=>{if(!document.hidden)tick();};
+    tick();
+    const id=window.setInterval(tick,game.phase==='playing'&&game.timeRush?100:1000);
+    document.addEventListener('visibilitychange',onVisibility);
+    return()=>{window.clearInterval(id);document.removeEventListener('visibilitychange',onVisibility);};
+  },[game?.roomId,game?.phase,game?.timeRush?.start]);
   useEffect(()=>{
     let active=true;
     (async()=>{
@@ -209,7 +230,7 @@ function App(){
     const next=unpack(state) as Game|null;
     if(!next || !next.roomId) return;
     if(roomRef.current && next.roomId!==roomRef.current) return;
-    if(current.current && current.current.roomId===next.roomId && next.revision<current.current.revision) return;
+    if(current.current && current.current.roomId===next.roomId && next.revision<=current.current.revision) return;
     if(next.round !== roundRef.current){
       if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
       draftTimerRef.current=null;
@@ -288,47 +309,55 @@ function App(){
     return()=>{stopped=true;};
   },[client,call,accept]);
   useEffect(()=>{
-    if(!client || game)return;
+    if(!client || game || mode!=='join')return;
     const api=client as any;
     let stopped=false;
     let updating=false;
     const refreshRooms=async()=>{
-      if(updating)return;
+      if(updating || stopped || document.hidden)return;
       updating=true;
       try {
         const response=await api.queries.listRooms({}, {authMode:'identityPool'});
         if(response.errors?.length)throw new Error(response.errors.map((entry:{message:string})=>entry.message).join('; '));
         const value=unpack(response.data);
         if(!Array.isArray(value))throw new Error('รูปแบบรายการห้องไม่ถูกต้อง');
-        if(!stopped){setRooms(value as PublicRoom[]);setRoomsError('');}
+        if(!stopped){setRooms(previous=>sameRoomListings(previous,value as PublicRoom[])?previous:value as PublicRoom[]);setRoomsError('');}
       }catch(err){
         if(!stopped)setRoomsError(err instanceof Error?err.message:'โหลดรายชื่อห้องไม่สำเร็จ');
       }finally{updating=false;if(!stopped)setRoomsLoading(false);}
     };
     void refreshRooms();
     const interval=window.setInterval(()=>void refreshRooms(),3000);
-    return()=>{stopped=true;clearInterval(interval);};
-  },[client,game?.roomId]);
+    const onVisibility=()=>{if(!document.hidden)void refreshRooms();};
+    document.addEventListener('visibilitychange',onVisibility);
+    return()=>{stopped=true;clearInterval(interval);document.removeEventListener('visibilitychange',onVisibility);};
+  },[client,game?.roomId,mode]);
   useEffect(()=>{
     if(!client||!me||!game?.roomId)return;
     const id=game.roomId;
     const api=client as any;
     let stopped=false;
-    // Poll server-owned state; no AppSync subscription resolver is needed.
+    let refreshing=false;
+    // Avoid concurrent server reads; refresh immediately when the tab resumes.
     const refresh=async()=>{
+      if(stopped || refreshing || document.hidden)return;
+      refreshing=true;
       try {
         const result=await api.queries.getGame({roomId:id},{authMode:'identityPool'});
         if(!stopped && !result.errors?.length)accept(result.data);
-      }catch(e){console.warn('Refresh failed',e);}
+      }catch(e){if(!stopped)console.warn('Refresh failed',e);}
+      finally{refreshing=false;}
     };
-    const timer=window.setInterval(refresh,2000);
+    const timer=window.setInterval(()=>void refresh(),2000);
     const heartbeat=window.setInterval(async()=>{
       if(stopped || workingRef.current)return;
       try {const latest=await call('pulse',id);if(!stopped)accept(latest.snapshot);}
       catch(e){if(!stopped)console.warn('Heartbeat failed',e);}
     },5000);
-    refresh();
-    return()=>{stopped=true;clearInterval(timer);clearInterval(heartbeat);};
+    void refresh();
+    const onVisibility=()=>{if(!document.hidden)void refresh();};
+    document.addEventListener('visibilitychange',onVisibility);
+    return()=>{stopped=true;clearInterval(timer);clearInterval(heartbeat);document.removeEventListener('visibilitychange',onVisibility);};
   },[client,me,game?.roomId,call,accept]);
   // A single serialized queue per browser avoids late/out-of-order draft writes
   // overwriting more recent inputs. All writes remain server-time validated.
@@ -421,6 +450,19 @@ function App(){
     setExitConfirm(false);
     void leave();
   }
+  // Word checks do not depend on the timer or the latest server heartbeat.
+  const answerStates=useMemo(()=>{
+    const states:Record<string,'empty'|'accepted'|'wrong-letter'|'unknown'>={};
+    if(!game || game.phase!=='playing')return states;
+    for(const id of game.categories){
+      const typed=normalizeAnswer(answers[id]);
+      const category=game.topicCategory||id;
+      const requestedLetter=game.topicCategory?id:game.letter;
+      states[id]=!typed?'empty':validRoundAnswer(typed,game.letter,id,game.topicCategory)
+        ?'accepted':wordInitialForCategory(typed,category)!==requestedLetter?'wrong-letter':'unknown';
+    }
+    return states;
+  },[answers,game?.phase,game?.round,game?.letter,game?.topicCategory,game?.categories]);
   const activeChoice=SETTINGS_CHOICES.find(choice=>choice.field===choicePopup);
   const activeChoiceLabel=activeChoice?.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':activeChoice?.label;
   const settingsControls=<>
@@ -527,8 +569,6 @@ function App(){
           {status==='loading'?<p className="notice">กำลังเชื่อมต่อเซิร์ฟเวอร์ AWS…</p>:null}
           {error?<p className="error-message" role="alert">{error}</p>:null}
           {status==='error'&&!error?<p className="error-message">ไม่สามารถเชื่อมต่อระบบออนไลน์</p>:null}
-          <div className="divider-word"><span>เล่นง่าย ๆ</span></div>
-          <div className="join-benefits"><div><strong>01</strong> เจ้าของสร้างห้อง</div><div><strong>02</strong> เพื่อนเห็นห้องและกดเข้าร่วม</div><div><strong>03</strong> เจ้าของกดเริ่มเกม</div></div>
         </section>
       </div> : <div className={playing?'game-layout game-layout-playing':'game-layout'}>
         <section className="game-main">
@@ -550,10 +590,9 @@ function App(){
           {playing?<><div className="challenge-banner"><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
             <div className="answer-head"><div><h2>ตอบให้ครบ {game.categories.length} {game.topicCategory?'คำ':'หมวด'}</h2><p>{game.topicCategory?<>ตอบคำหมวด <b>“{LABELS[game.topicCategory]||game.topicCategory}”</b> ให้ตรงพยัญชนะของแต่ละช่อง · ตรวจทันที</>:<>ทุกคำต้องขึ้นต้นด้วย <b>“{letterCaption(game.letter)}”</b> · ตรวจคำขณะพิมพ์</>}</p></div><span className="progress-tag">{game.categories.filter(id=>answers[id]?.trim()).length}/{game.categories.length} คำ</span></div>
             <div className="answer-list">{game.categories.map((id,index)=>{
-              const typed=normalizeAnswer(answers[id]);
               const category=game.topicCategory||id;
               const requestedLetter=game.topicCategory?id:game.letter;
-              const state=!typed?'empty':validRoundAnswer(typed,game.letter,id,game.topicCategory)?'accepted':wordInitialForCategory(typed,category)!==requestedLetter?'wrong-letter':'unknown';
+              const state=answerStates[id]||'empty';
               const hasPrefixHint=category==='dessert'||category==='tree'||
                 Object.prototype.hasOwnProperty.call(CATEGORY_PREFIX_HINTS,category);
               return <label className={`answer-item answer-${state} ${hasPrefixHint&&(!game.topicCategory||index===0)?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
