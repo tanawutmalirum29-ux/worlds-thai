@@ -32,7 +32,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกขมิ้นท้ายทอยดำ',
     'นกพญาไฟเล็ก',
     'นกตีนเทียน',
-    'นกแซงแซวหางปลา',
+    'นกเด้าดินทุ่งเล็ก',
   ],
   fish: [
     'ปลาสิงโต',
