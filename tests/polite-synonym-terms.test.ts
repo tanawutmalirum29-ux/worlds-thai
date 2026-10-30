@@ -6,7 +6,7 @@ import { CATEGORIES, LETTERS, eligibleCategories, wordInitialForCategory, canoni
 import { isInappropriateLanguage } from '../amplify/functions/game/moderation.ts';
 
 test('polite terms and literary synonyms have meanings, valid categories and distinct spellings', () => {
-  const categories=new Set(CATEGORIES.map(([id]) => id));
+  const categories=new Set<string>(CATEGORIES.map(([id]) => id));
   let count=0;
   for (const [category, entries] of Object.entries(POLITE_SYNONYM_GLOSSARY)) {
     assert.ok(categories.has(category), 'unknown category '+category);
