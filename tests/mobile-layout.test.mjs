@@ -70,3 +70,12 @@ test('create and join tabs remain fully tappable on small screens', () => {
   assert.match(styles, /\.room-mode\{[^}]*min-height:52px;[^}]*touch-action:manipulation;/);
   assert.match(styles, /\.join-card \.room-mode\{min-height:50px;/);
 });
+
+test('name field flags invalid nicknames immediately and blocks room actions',()=>{
+  assert.match(source,/nicknameValidationMessage\(name\.trim\(\)\.slice\(0,18\)\)/);
+  assert.match(source,/aria-invalid=\{Boolean\(invalidNicknameMessage\)\}/);
+  assert.match(source,/id="nickname-validation"/);
+  assert.match(source,/className="nickname-validation-slot"/);
+  assert.match(source,/disabled=\{working\|\|status!=='ready'\|\|Boolean\(invalidNicknameMessage\)\}/);
+  assert.match(styles,/\.nickname-validation-slot\{min-height:19px;/);
+});
