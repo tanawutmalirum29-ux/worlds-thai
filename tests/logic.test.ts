@@ -138,7 +138,7 @@ test('public lobby lists joinable waiting rooms and does not expose player IDs',
   const full=structuredClone(m);
   for(let i=2;i<MAX_PLAYERS;i++)full.players.push({id:String(i),name:'X',score:0,lastSeen:start});
   assert.equal(publicRoom(full,start+1000),null);
-  assert.equal(publicRoom(m,start+45000),null);
+  assert.equal(publicRoom(m,start+IDLE_SECONDS*1000+1000),null);
   assert.equal(publicRoom(newMatch('public-1',start),start),null);
 });
 test('listRooms operation resolves without requiring roomId',()=>{
