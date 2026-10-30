@@ -25,7 +25,7 @@ test('familiar external body terms are normalized, distinct and included exactly
 
 test('common external parts are playable using their actual first consonant',()=>{
   const examples: ReadonlyArray<readonly [string,string]>=[
-    ['ก้น','ก'],['กระหม่อม','ก'],['ขน','ข'],['ข้อนิ้ว','ข'],
+    ['ก้น','ก'],['กระหม่อม','ก'],['ขน','ข'],['ข้อนิ้ว','ข'],['เข่า','ข'],
     ['ดั้งจมูก','ด'],['ติ่งหู','ต'],['ตาดำ','ต'],['ต้นแขน','ต'],
     ['ท้ายทอย','ท'],['ใบหู','บ'],['หน้าแข้ง','ห'],['หน้าอก','ห'],
     ['หน้าท้อง','ห'],['หลัง','ห'],['หลังมือ','ห'],['หลังเท้า','ห'],
