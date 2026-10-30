@@ -70,3 +70,14 @@ test('flower bird insect fish prefix hints are directly beneath the playable cat
   assert.match(section,/className="answer-category-hint"/);
   assert.match(section,/!game\.topicCategory\|\|index===0/);
 });
+
+test('live answer feedback distinguishes banned labels from unknown words',()=>{
+  const ui=readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8');
+  const styles=readFileSync(new URL('../src/style.css',import.meta.url),'utf8');
+  assert.match(ui,/checkAnswerFeedback\(typed,requestedLetter,category\)/);
+  assert.match(ui,/feedback.message/);
+  assert.match(ui,/feedback.status/);
+  assert.doesNotMatch(ui,/state==='wrong-letter'\?'ตัวอักษรต้นไม่ตรง'/);
+  assert.match(styles,/\.feedback-forbidden/);
+  assert.match(styles,/\.feedback-prefix-not-counted/);
+});

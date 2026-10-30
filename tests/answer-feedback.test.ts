@@ -1,0 +1,52 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {checkAnswerFeedback} from '../src/answer-feedback.ts';
+import {eligibleCategories} from '../amplify/functions/game/logic.ts';
+
+test('single category nouns and repeated prefixes are forbidden, not unknown',()=>{
+  const examples:[string,string,string][]=[
+    ['dessert','ขนม','ข'],['dessert','ขนมขนมไข่','ข'],
+    ['tree','ต้น','ต'],['tree','ต้นไม้','ต'],['tree','ไม้','ม'],
+    ['tree','ต้นต้นมะม่วง','ม'],
+    ['flower','ดอก','ด'],['flower','ดอกไม้','ด'],
+    ['bird','นก','น'],['insect','แมลง','ม'],
+    ['fish','ปลา','ป'],['fish','ปลาปลาดุก','ด']
+  ];
+  for(const [category,word,letter] of examples){
+    const feedback=checkAnswerFeedback(word,letter,category);
+    assert.equal(feedback.status,'forbidden',category+' / '+word);
+    assert.match(feedback.message,/ห้ามใช้/,word);
+    assert.doesNotMatch(feedback.message,/ไม่พบคำ/,word);
+  }
+});
+test('category-specific forbidden labels do not invalidate other categories',()=>{
+  if(eligibleCategories('น').includes('animal'))
+    assert.equal(checkAnswerFeedback('นก','น','animal').status,'accepted');
+  assert.notEqual(checkAnswerFeedback('ปลา','ป','food').status,'forbidden');
+  assert.notEqual(checkAnswerFeedback('ดอกไม้','ด','object').status,'forbidden');
+});
+test('prefix leading letter is explicitly not counted',()=>{
+  for(const [category,word,typedLetter,realLetter,prefix] of [
+    ['bird','นกกระจอก','น','ก','นก'],
+    ['fish','ปลาดุก','ป','ด','ปลา'],
+    ['flower','ดอกบัว','ด','บ','ดอก'],
+    ['tree','ต้นมะม่วง','ต','ม','ต้น'],
+    ['insect','แมลงปอ','ม','ป','แมลง'],
+    ['dessert','ขนมครก','ข','ค','ขนม']
+  ]){
+    const result=checkAnswerFeedback(word,typedLetter,category);
+    assert.equal(result.status,'prefix-not-counted',category+' / '+word);
+    assert.ok(result.message.includes('ไม่นับ “'+prefix+'”'),word);
+    assert.ok(result.message.includes(realLetter+' '),word);
+    assert.doesNotMatch(result.message,/ไม่พบคำ/,word);
+  }
+});
+test('correct, empty, unknown and ordinary wrong-letter retain distinct feedback',()=>{
+  assert.deepEqual(checkAnswerFeedback('','ข','dessert'),
+    {status:'empty',message:'ตรวจคำให้ทันที'});
+  assert.equal(checkAnswerFeedback('ขนมไข่','ข','dessert').status,'accepted');
+  assert.equal(checkAnswerFeedback('มะม่วง','ม','tree').status,'accepted');
+  assert.equal(checkAnswerFeedback('ขนมจรวดสายรุ้ง','จ','dessert').status,'unknown');
+  assert.equal(checkAnswerFeedback('ปลาหมอกดาวอังคาร','ห','fish').status,'unknown');
+  assert.equal(checkAnswerFeedback('มะม่วง','ข','tree').status,'wrong-letter');
+});

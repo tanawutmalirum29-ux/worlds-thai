@@ -4,7 +4,8 @@ import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
 import { GameAudio, readAudioMuted, writeAudioMuted, type AudioScene } from './audio.ts';
-import { validRoundAnswer,wordInitialForCategory,normalizeAnswer } from '../amplify/functions/game/logic.ts';
+import { validRoundAnswer,normalizeAnswer } from '../amplify/functions/game/logic.ts';
+import {checkAnswerFeedback,type AnswerFeedback} from './answer-feedback.ts';
 import { letterCaption } from './letters.ts';
 import { synonymExamplesForRound } from './word-insights.ts';
 import { encodeGamePayload } from './rooms';
@@ -452,14 +453,13 @@ function App(){
   }
   // Word checks do not depend on the timer or the latest server heartbeat.
   const answerStates=useMemo(()=>{
-    const states:Record<string,'empty'|'accepted'|'wrong-letter'|'unknown'>={};
+    const states:Record<string,AnswerFeedback>={};
     if(!game || game.phase!=='playing')return states;
     for(const id of game.categories){
       const typed=normalizeAnswer(answers[id]);
       const category=game.topicCategory||id;
       const requestedLetter=game.topicCategory?id:game.letter;
-      states[id]=!typed?'empty':validRoundAnswer(typed,game.letter,id,game.topicCategory)
-        ?'accepted':wordInitialForCategory(typed,category)!==requestedLetter?'wrong-letter':'unknown';
+      states[id]=checkAnswerFeedback(typed,requestedLetter,category);
     }
     return states;
   },[answers,game?.phase,game?.round,game?.letter,game?.topicCategory,game?.categories]);
@@ -592,7 +592,8 @@ function App(){
             <div className="answer-list">{game.categories.map((id,index)=>{
               const category=game.topicCategory||id;
               const requestedLetter=game.topicCategory?id:game.letter;
-              const state=answerStates[id]||'empty';
+              const feedback=answerStates[id]||checkAnswerFeedback('',requestedLetter,category);
+              const state=feedback.status;
               const hasPrefixHint=category==='dessert'||category==='tree'||
                 Object.prototype.hasOwnProperty.call(CATEGORY_PREFIX_HINTS,category);
               return <label className={`answer-item answer-${state} ${hasPrefixHint&&(!game.topicCategory||index===0)?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
@@ -619,7 +620,7 @@ function App(){
                     onChange={e=>updateWord(id,e.target.value)}
                     onBlur={()=>void flushDraft()}
                     placeholder={game.topicCategory?`คำขึ้นต้นด้วย ${letterCaption(id)}...`:'พิมพ์คำตอบ...'} aria-label={game.topicCategory?`คำหมวด${LABELS[game.topicCategory]} ขึ้นต้นด้วย ${letterCaption(id)}`:`คำตอบหมวด${LABELS[id]}`}/>
-                  <span className={`answer-feedback feedback-${state}`}>{state==='empty'?'ตรวจคำให้ทันที':state==='accepted'?'✓ คำนี้ใช้ได้':state==='wrong-letter'?'ตัวอักษรต้นไม่ตรง':'ยังไม่พบคำนี้ในหมวด'}</span>
+                  <span className={`answer-feedback feedback-${state}`}>{feedback.message}</span>
                 </span>
                 <span className={state==='accepted'?'answer-check filled':state==='empty'?'answer-check':'answer-check invalid'}>{state==='accepted'?'✓':state==='empty'?'—':'!'}</span>
               </label>;

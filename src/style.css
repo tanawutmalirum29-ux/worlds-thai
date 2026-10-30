@@ -342,3 +342,10 @@ html{scrollbar-gutter:stable}
   .settings-choice-trigger .settings-chevron{font-size:16px}
 }
 @media(prefers-reduced-motion:reduce){.audio-toast-region .audio-notice{animation:none}}
+
+/* Explicitly banned category nouns and ignored prefix letter: stable input layout. */
+.feedback-forbidden{color:#ffb2a4;font-weight:700}
+.feedback-prefix-not-counted{color:#f2c68b;font-weight:600}
+.answer-forbidden{border-color:#9c5c55}
+.answer-prefix-not-counted{border-color:#9b7a4a}
+.answer-item .answer-feedback{overflow-wrap:anywhere;word-break:normal}

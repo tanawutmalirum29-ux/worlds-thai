@@ -269,3 +269,6 @@ Category-specific optional labels are now `flower=ดอก`, `bird=นก`, `in
 
 ### Correct initial for previously reviewed น หนู vocabulary
 Existing NOR_NU_TERMS records retain their raw Thai names as written. In the `bird` category a historical spelling beginning `นก...` now uses the leading consonant of its species name for gameplay (e.g. `นกแสก` becomes ส). Tests distinguish dictionary-raw spelling from the category-specific playable letter. Rarity/fairness still prevents any category-letter pair with insufficient unique species from being played.
+
+## Live feedback for disallowed category-only words
+The gameplay answer input now explicitly says **ห้ามใช้คำนี้เป็นคำตอบในหมวดนี้** for standalone category nouns such as `ขนม`, `ต้น`, `ต้นไม้`, `ดอกไม้`, `นก`, `แมลง`, `ปลา`, and repeated invalid prefixes, only in their associated categories. If a player types `นกกระจอก` in a bird round expecting น, the message is **ไม่นับ “นก” นำหน้า · นับ ก ไก่** instead of a generic unknown-word message. Unknown dictionary words still show the original not-found wording. Scoring, autosave and both game modes remain unchanged.
