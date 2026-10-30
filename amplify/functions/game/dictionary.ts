@@ -27,6 +27,7 @@ import { HOURLY_VOCABULARY_20261030_B } from './hourly-vocabulary-20261030-b.ts'
 import { HOURLY_VOCABULARY_20261030_C } from './hourly-vocabulary-20261030-c.ts';
 import { HOURLY_VOCABULARY_20261030_D } from './hourly-vocabulary-20261030-d.ts';
 import { HOURLY_VOCABULARY_20261030_E } from './hourly-vocabulary-20261030-e.ts';
+import { HOURLY_VOCABULARY_20261030_F } from './hourly-vocabulary-20261030-f.ts';
 
 /**
  * Curated Thai answers for category-aware scoring. All items are individually approved.
@@ -2184,6 +2185,13 @@ for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030_D)) {
 
 // Hourly round E: vocabulary-only additions; preserve category canonicalization.
 for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030_E)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown hourly vocabulary category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// Hourly round F: vocabulary-only additions; retain all existing gameplay rules.
+for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030_F)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown hourly vocabulary category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
