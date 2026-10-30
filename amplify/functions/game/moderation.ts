@@ -60,6 +60,93 @@ export const DISALLOWED_ROMAN_RULES=[
   {word:'tood',scope:'exact',pattern:/^tod$/u,examples:'tood'},
 ] as const;
 
+/**
+ * A common evasion inserts Thai combining vowels/tone marks between the
+ * characters of an already banned spelling (e.g. คุวุย for ควย).
+ * Match the ORIGINAL ordered spelling with only a few extra combining marks.
+ * Do not strip all Thai vowels or compare consonant-only skeletons: that
+ * would incorrectly ban legitimate words such as ควาย and หีบเพลง.
+ *
+ * Preserve the original policy distinction: phrases may appear inside a
+ * longer nickname; exact-only words must occupy the whole normalized input.
+ */
+const INSERTED_THAI_MARKS=String.raw`[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{0,4}`;
+function insertedMarkVariant(word:string,contains:boolean):RegExp {
+  const letters=[...word];
+  const pattern=letters.join(INSERTED_THAI_MARKS);
+  return new RegExp(contains?pattern:`^(?:${pattern})/**
+ * Family-friendly terms for the word game. Check only clear profanity and
+ * colloquial sexual anatomy; do not ban ordinary Thai substrings (หีบ, กะหรี่).
+ * This is a gameplay vocabulary policy, not a generic text classifier.
+ */
+export const DISALLOWED_EXACT = new Set([
+  'ควย','หี','หำ','จู๋','จิ๋ม','เจี๊ยว','จ้อน','แตด','กระดอ','กระเจี๊ยว',
+  'ตีน','ตูด','ดาก','สัส','สัด','เหี้ย','เชี่ย','เชี้ย','ห่า',
+  'เย็ด','เงี่ยน','ชิบหาย','ฉิบหาย','ดอกทอง'
+]);
+export const DISALLOWED_PHRASES = [
+  'ควย','จิ๋ม','เจี๊ยว','กระดอ','กระเจี๊ยว','แตด','เย็ด','สัส','เหี้ย','เงี่ยน','หำ',
+  'ส้นตีน','ไอ้เหี้ย','ไอเหี้ย','ไข่เหี้ย','ไอ้สัส','ไอสัส',
+  'ชิบหาย','ฉิบหาย'
+] as const;
+
+/**
+ * These are curated *pronunciation* exceptions, not a general spell-corrector.
+ * Preserve the established exact-vs-contains distinction: common words such as
+ * หีบ, สัดส่วน, ตีนเป็ด and legitimate English names must not be swept up.
+ */
+export const DISALLOWED_THAI_EXACT_VARIANTS=[
+  'สาส','ส๊าส','เหีย','เชีย','หี๊','หี้','เงียน'
+] as const;
+export const DISALLOWED_THAI_PHRASE_VARIANTS=[
+  'คุวย','คูวย','เยด','เย้ด','เย๊ด','เหี๊ย','เฮี้ย',
+  'เชี๊ย','เชี๋ย','ชิ้บหาย','ฉิ้บหาย','ไอ้สาส','ไอสาส','อีสาส'
+] as const;
+
+/**
+ * English swear words and Romanized Thai profanity. Common English syllables
+ * (e.g. hee or an English person's name Jim) require a whole
+ * token rather than substring detection to avoid false positives.
+ */
+export const DISALLOWED_ROMAN_RULES=[
+  {word:'fuck',scope:'contains',pattern:/fuck/u,examples:'fuck, fuuuck, f.u.c.k, fück'},
+  {word:'fck',scope:'contains',pattern:/fck/u,examples:'fck, f*ck'},
+  {word:'bitch',scope:'contains',pattern:/bitch/u,examples:'bitch, biiitch'},
+  {word:'cunt',scope:'contains',pattern:/cunt/u,examples:'cunt'},
+  {word:'pussy',scope:'contains',pattern:/pusy|pussy/u,examples:'pussy, p_u_s_s_y'},
+  {word:'kuy',scope:'contains',pattern:/(?:^|[^a-z])kuy/u,examples:'kuy, K.U.Y, kuyKung'},
+  {word:'kuay',scope:'contains',pattern:/(?:^|[^a-z])kuay/u,examples:'kuay, KUUUAY, k_u_a_y'},
+  {word:'kuai',scope:'contains',pattern:/(?:^|[^a-z])kuai/u,examples:'kuai'},
+  {word:'คuวย',scope:'contains',pattern:/คuวย/u,examples:'คuวย'},
+  {word:'kuวย',scope:'contains',pattern:/kuวย/u,examples:'kuวย'},
+  {word:'kวย',scope:'contains',pattern:/kวย/u,examples:'kวย'},
+  {word:'ไอhia',scope:'contains',pattern:/(?:ไอ้?|อี)(?:hia|sus|yed|kuy)/u,examples:'ไอ hia, อีsus'},
+  {word:'shit',scope:'exact',pattern:/^shit(?:s|y|ing)?$/u,examples:'shit, shiiit, sh1t'},
+  {word:'fuk',scope:'exact',pattern:/^fuk$/u,examples:'fuk'},
+  {word:'ass',scope:'exact',pattern:/^ass$/u,examples:'ass'},
+  {word:'dick',scope:'exact',pattern:/^dick$/u,examples:'dick'},
+  {word:'cock',scope:'exact',pattern:/^cock$/u,examples:'cock'},
+  {word:'yed',scope:'exact',pattern:/^yed$/u,examples:'yed'},
+  {word:'yeet',scope:'exact',pattern:/^ye{2,}t$/u,examples:'yeet, yeeet'},
+  {word:'hia',scope:'exact',pattern:/^hia$/u,examples:'hia, hiiiia'},
+  {word:'hee',scope:'exact',pattern:/^he{2,}$/u,examples:'hee, heeee'},
+  {word:'sus',scope:'exact',pattern:/^sus$/u,examples:'sus, suss'},
+  {word:'sud',scope:'exact',pattern:/^sud$/u,examples:'sud'},
+  {word:'tud',scope:'exact',pattern:/^tud$/u,examples:'tud'},
+  {word:'tood',scope:'exact',pattern:/^tod$/u,examples:'tood'},
+] as const;
+
+,'u');
+}
+const EXTENDED_PHRASE_PATTERNS=[
+  ...DISALLOWED_PHRASES,
+  ...DISALLOWED_THAI_PHRASE_VARIANTS
+].map(word=>insertedMarkVariant(word,true));
+const EXTENDED_EXACT_PATTERNS=[
+  ...DISALLOWED_EXACT,
+  ...DISALLOWED_THAI_EXACT_VARIANTS
+].map(word=>insertedMarkVariant(word,false));
+
 const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
 const REPEATED_SYMBOL=/([\p{L}\p{M}])\1+/gu;
 /** Only checks get this lossy representation; never change stored game answers. */
@@ -105,7 +192,10 @@ export function isInappropriateLanguage(value:unknown):boolean {
   if(!compact)return false;
   if(DISALLOWED_EXACT.has(compact)||THAI_EXACT_VARIANTS.has(compact)||
     DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase))||
-    DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase)))return true;
+    DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase))||
+    // Check inserted combining marks without changing actual answer text.
+    EXTENDED_PHRASE_PATTERNS.some(pattern=>pattern.test(compact))||
+    EXTENDED_EXACT_PATTERNS.some(pattern=>pattern.test(compact)))return true;
   return romanizedCandidates(value).some(roman=>
     DISALLOWED_ROMAN_RULES.some(rule=>rule.pattern.test(roman)));
 }
