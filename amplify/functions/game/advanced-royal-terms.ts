@@ -159,7 +159,7 @@ export const ADVANCED_ROYAL_GLOSSARY: Readonly<Record<string, readonly (readonly
       "ครรภ์"
     ],
     [
-      "กล่องพระสกุล",
+      "กล่องพระสกุน",
       "มดลูก"
     ],
     [
