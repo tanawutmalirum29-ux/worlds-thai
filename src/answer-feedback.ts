@@ -2,16 +2,19 @@ import {
   OPTIONAL_NAME_PREFIXES,canonicalAnswer,normalizeAnswer,
   validAnswer,wordInitialForCategory
 } from '../amplify/functions/game/logic.ts';
+import {isInappropriateLanguage} from '../amplify/functions/game/moderation.ts';
 import {letterCaption} from './letters.ts';
 
 export type AnswerFeedbackStatus =
-  'empty'|'accepted'|'forbidden'|'prefix-not-counted'|'wrong-letter'|'unknown';
+  'empty'|'accepted'|'forbidden'|'inappropriate'|'prefix-not-counted'|'wrong-letter'|'unknown';
 export type AnswerFeedback={status:AnswerFeedbackStatus;message:string};
 
 /** UI-only reason for a rejected answer; never overrides server scoring. */
 export function checkAnswerFeedback(input:string,requiredLetter:string,category:string):AnswerFeedback {
   const answer=normalizeAnswer(input);
   if(!answer)return {status:'empty',message:'ตรวจคำให้ทันที'};
+  if(isInappropriateLanguage(answer))return {status:'inappropriate',message:
+    category==='body'?'ห้ามใช้คำไม่สุภาพ · ใช้คำทางกายวิภาคแทน':'ห้ามใช้คำหยาบ กรุณาใช้คำสุภาพ'};
 
   const prefix=category==='dessert'?'ขนม':OPTIONAL_NAME_PREFIXES[category];
   const bare=answer.toLocaleLowerCase('th');

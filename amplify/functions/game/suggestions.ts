@@ -1,4 +1,5 @@
 import {canonicalAnswer,normalizeAnswer,validAnswer,wordInitialForCategory,roundLetter,type Match} from './logic.ts';
+import {isInappropriateLanguage} from './moderation.ts';
 
 /** One anonymous candidate count per finished round; no player identifiers saved. */
 export type DessertSuggestion={
@@ -19,7 +20,7 @@ export function roundDessertSuggestions(before:Match|null,after:Match):DessertSu
       if((round.topicCategory||slot)!=='dessert'||(entry.perCategory[slot]||0)>0)continue;
       const letter=roundLetter(round.letter,slot,round.topicCategory);
       const text=normalizeAnswer(entry.answers[slot]).toLocaleLowerCase('th');
-      if(text.length<3||text.length>36||!REJECTION_CHARS.test(text)||
+      if(text.length<3||text.length>36||isInappropriateLanguage(text)||!REJECTION_CHARS.test(text)||
         text==='ขนม'||text.startsWith('ขนมขนม'))continue;
       if(wordInitialForCategory(text,'dessert')!==letter||
         validAnswer(text,letter,'dessert'))continue;

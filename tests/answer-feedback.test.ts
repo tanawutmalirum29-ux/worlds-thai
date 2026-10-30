@@ -50,3 +50,16 @@ test('correct, empty, unknown and ordinary wrong-letter retain distinct feedback
   assert.equal(checkAnswerFeedback('ปลาหมอกดาวอังคาร','ห','fish').status,'unknown');
   assert.equal(checkAnswerFeedback('มะม่วง','ข','tree').status,'wrong-letter');
 });
+
+test('profane anatomy is forbidden while proper medical names remain acceptable',()=>{
+  for(const term of ['ควย','หี','หำ','จู๋','จิ๋ม','เจี๊ยว','แตด','ตีน','ขนมไข่เหี้ย']){
+    const category=term.includes('ไข่')?'dessert':'body';
+    const status=checkAnswerFeedback(term,'อ',category);
+    assert.equal(status.status,'inappropriate',term);
+    assert.match(status.message,/ห้ามใช้/,term);
+  }
+  assert.equal(checkAnswerFeedback('อวัยวะเพศ','อ','body').status,'accepted');
+  assert.equal(checkAnswerFeedback('องคชาต','อ','body').status,'accepted');
+  assert.equal(checkAnswerFeedback('หีบ','ห','object').status,'accepted');
+  assert.notEqual(checkAnswerFeedback('แกงกะหรี่','ก','food').status,'inappropriate');
+});
