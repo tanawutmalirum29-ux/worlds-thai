@@ -138,6 +138,10 @@ function romanizedCandidates(value:unknown):string[] {
 export function isInappropriateLanguage(value:unknown):boolean {
   const compact=compactModeration(value);
   if(!compact)return false;
+  const original=compactThai(value);
+  if(DISALLOWED_EXACT.has(original)||THAI_EXACT_VARIANTS.has(original)||
+    STRETCHED_EXACT.some(pattern=>pattern.test(original))||
+    STRETCHED_PHRASES.some(pattern=>pattern.test(original)))return true;
   if(DISALLOWED_EXACT.has(compact)||THAI_EXACT_VARIANTS.has(compact)||
     DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase))||
     DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase))||
