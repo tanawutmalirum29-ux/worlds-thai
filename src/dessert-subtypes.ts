@@ -1,4 +1,5 @@
 import {canonicalAnswer} from '../amplify/functions/game/logic.ts';
+import {ADDITIONAL_DESSERT_GROUPS} from '../amplify/functions/game/additional-desserts.ts';
 
 /** Curated operational tags; not new playable categories. */
 export const DESSERT_SUBTYPES=[
@@ -24,22 +25,26 @@ const tags:Record<Exclude<DessertSubtype,'unreviewed'>,readonly string[]>={
   'ขนมกล้วย','ขนมฟักทอง','ขนมสอดไส้','ขนมเบื้อง','ขนมต้ม','ขนมผิง',
   'ขนมถังแตก','ขนมดอกลำดวน','ขนมเทียน','ขนมเข่ง','ขนมถั่วแปบ',
   'ขนมด้วง','ขนมฝักบัว','ขนมกรวย','ขนมขี้หนู','ขนมตะโก้',
+  ...ADDITIONAL_DESSERT_GROUPS.thai,
   'ขนมถ้วยฟู','ขนมข้าวโพด','โรตีสายไหม',
   'สังขยาฟักทอง','สาคูเปียก','สาคูเปียกลำไย','สาคูเปียกมะพร้าวอ่อน','ขนมสาลี่'
  ],
  baked:[
   'คุกกี้','เค้ก','คัพเค้ก','ชีสเค้ก','ชูครีม','ดาคัวส์',
   'บราวนี','พายแอปเปิล','พายฟักทอง','มาการอง','ราสป์เบอร์รีทาร์ต',
-  'สตรอว์เบอร์รีชีสเค้ก','เอแคลร์','บัตเตอร์เค้ก','ขนมไข่'
+  'สตรอว์เบอร์รีชีสเค้ก','เอแคลร์','บัตเตอร์เค้ก','ขนมไข่',
+  ...ADDITIONAL_DESSERT_GROUPS.baked
  ],
  fried:[
   'โดนัท','นมสดทอด','ปาท่องโก๋','ข้าวเม่าทอด','ไข่หงส์',
-  'ขนมดอกจอก','ขนมกง','ขนมไข่นกกระทา'
+  'ขนมดอกจอก','ขนมกง','ขนมไข่นกกระทา',
+  ...ADDITIONAL_DESSERT_GROUPS.fried
  ],
- cold:['น้ำแข็งไส','บิงซู','ไอศกรีม','อัฟโฟกาโต'],
+ cold:['น้ำแข็งไส','บิงซู','ไอศกรีม','อัฟโฟกาโต',...ADDITIONAL_DESSERT_GROUPS.cold],
  international:[
   'กุหลาบจามุน','ช็อกโกแลต','คัสตาร์ด','พุดดิ้ง','มูส',
-  'มาร์ชเมลโลว์','โรตี'
+  'มาร์ชเมลโลว์','โรตี',
+  ...ADDITIONAL_DESSERT_GROUPS.international
  ]
 };
 const types=new Map<string,DessertSubtype>();
