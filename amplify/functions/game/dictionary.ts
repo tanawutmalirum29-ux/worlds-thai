@@ -1,5 +1,6 @@
 import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
+import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
@@ -2091,6 +2092,9 @@ for (const [category, words] of Object.entries(FO_FAN_TERMS)) {
     throw new Error('Unknown ฟ category: '+category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
+
+// Curated toys enter the live index once per spelling and category.
+WORD_BANK.toy = [...new Set([...WORD_BANK.toy, ...ADDITIONAL_TOYS])];
 
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
 export const MIN_WORDS_PER_PAIR = 2;
