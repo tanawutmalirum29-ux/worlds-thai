@@ -23,6 +23,7 @@ import { NOR_NU_TERMS, FARM_SHELTER_PLACES } from './nor-nu-terms.ts';
 import { ANIMAL_SYNONYM_ADDITIONS, NATURE_TERMS } from './synonyms.ts';
 import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 import { HOURLY_VOCABULARY_20261030 } from './hourly-vocabulary-20261030.ts';
+import { HOURLY_VOCABULARY_20261030_B } from './hourly-vocabulary-20261030-b.ts';
 
 /**
  * Curated Thai answers for category-aware scoring. All items are individually approved.
@@ -2152,6 +2153,13 @@ WORD_BANK.vegetable = [...new Set([...WORD_BANK.vegetable, ...ADDITIONAL_VEGETAB
 
 // Manually reviewed hourly additions, deduplicated before gameplay indexes are built.
 for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown hourly vocabulary category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// Hourly round B: preserve the same exact-word deduplication and category rules.
+for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030_B)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown hourly vocabulary category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
