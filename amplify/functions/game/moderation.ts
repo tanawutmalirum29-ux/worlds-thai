@@ -67,8 +67,8 @@ export const DISALLOWED_ROMAN_RULES=[
  */
 const EXTRA_THAI_MARKS=String.raw`[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{0,4}`;
 function withInsertedThaiMarks(word:string,contains:boolean):RegExp {
-  // Repeat consonants up to three times even if combining vowels separate
-  // them; keep all original vowels in the matched word to prevent false bans.
+  // Allow bounded consonant repetitions with combining marks between each
+  // copy, while retaining original meaningful vowels in ordinary words.
   const pattern=[...word].map(letter=>
     /[ก-ฮ]/u.test(letter)
       ?letter+'(?:'+EXTRA_THAI_MARKS+letter+'){0,3}'
@@ -76,106 +76,6 @@ function withInsertedThaiMarks(word:string,contains:boolean):RegExp {
   ).join(EXTRA_THAI_MARKS);
   const anchored='^(?:'+pattern+')'+String.fromCharCode(36);
   return new RegExp(contains?pattern:anchored,'u');
-}
-const STRETCHED_PHRASES=[
-  ...DISALLOWED_PHRASES,...DISALLOWED_THAI_PHRASE_VARIANTS
-].map(word=>withInsertedThaiMarks(word,true));
-const STRETCHED_EXACT=[
-  ...DISALLOWED_EXACT,...DISALLOWED_THAI_EXACT_VARIANTS
-].map(word=>withInsertedThaiMarks(word,false));
-
-const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
-const REPEATED_SYMBOL=/([\p{L}\p{M}])\1+/gu;
-/** Only checks get this lossy representation; never change stored game answers. */
-function compactThai(value:unknown):string {
-  if(typeof value!=='string')return '';
-  return value.normalize('NFKC').toLocaleLowerCase('th')
-    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'')
-    // NFKC decomposes Thai Sara Am; fold it back for exact matches.
-    .replace(/\u0E4D\u0E32/g,'\u0E33');
-}
-
-/** Profanity-only folding; keep historic standalone วี spelling exact. */
-function compactModeration(value:unknown):string {
-  return compactThai(value).replace(/\u0E4C/gu,'').replace(REPEATED_SYMBOL,'$1');
-}
-
-/**
- * Latin/Thai Roman spelling checks only. Handle Latin diacritics, select
- * confusables, text separators and common 1337 substitutions. Keep the
- * original Thai check independent so English transformations cannot modify
- * ordinary Thai category words or vocabulary scoring.
- */
-function romanizedCandidates(value:unknown):string[] {
-  if(typeof value!=='string')return [];
-  const latin=value.normalize('NFKD').toLowerCase()
-    .replace(/[\u0300-\u036F]/g,'')
-    .replace(/[аΑΑɑ]/gu,'a')
-    .replace(/[сϲ]/gu,'c')
-    .replace(/[еε]/gu,'e')
-    .replace(/[іΙı]/gu,'i')
-    .replace(/[οо]/gu,'o')
-    .replace(/[υս]/gu,'u')
-    .replace(/[р]/gu,'p')
-    .replace(/[х]/gu,'x');
-  const plain=latin.replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
-  const leet=latin.replace(/[@4]/g,'a').replace(/[!1]/g,'i')
-    .replace(/3/g,'e').replace(/0/g,'o').replace(/5/g,'s').replace(/7/g,'t').replace(/\$/g,'s')
-    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
-  return [...new Set([plain,leet,plain.replace(REPEATED_SYMBOL,'$1'),leet.replace(REPEATED_SYMBOL,'$1')])];
-}
-export function isInappropriateLanguage(value:unknown):boolean {
-  const compact=compactModeration(value);
-  if(!compact)return false;
-  if(DISALLOWED_EXACT.has(compact)||THAI_EXACT_VARIANTS.has(compact)||
-    DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase))||
-    DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase))||
-    STRETCHED_PHRASES.some(pattern=>pattern.test(compact))||
-    STRETCHED_EXACT.some(pattern=>pattern.test(compact)))return true;
-  return romanizedCandidates(value).some(roman=>
-    DISALLOWED_ROMAN_RULES.some(rule=>rule.pattern.test(roman)));
-}
-
-/**
- * Roman spellings used to evade the nickname ban on วี. Keep the examples
- * alongside their actual matchers so the admin can display the same rules.
- * Normalization first strips spaces, punctuation, zero-width chars and
- * folds full-width Latin characters to their ASCII equivalents.
- */
-export const BLOCKED_VEE_ROMAN_RULES=[
-  {
-    word:'v',
-    nicknamePattern:/v/u,
-    answerPattern:/^v+(?:e+|ี+)?$/u,
-    examples:'V, v, vvvvv, ve, vee, veeeee, vี'
-  },
-  {
-    word:'we',
-    nicknamePattern:/w+e+/u,
-    answerPattern:/^w+e+$/u,
-    examples:'we, wee, weeeee, wwweee'
-  }
-] as const;
-
-/** Game answers: block bare วี and its standalone Roman replacements only. */
-export const BLOCKED_STANDALONE_ANSWER='วี';
-export function isBlockedStandaloneAnswer(value:unknown):boolean {
-  const compact=compactThai(value);
-  return compact===BLOCKED_STANDALONE_ANSWER ||
-    BLOCKED_VEE_ROMAN_RULES.some(rule=>rule.answerPattern.test(compact));
-}
-
-/** Nicknames: block วี anywhere, Roman V anywhere, and stretched we/wee. */
-export const BLOCKED_NICKNAME_FRAGMENT='วี';
-export function nicknameValidationMessage(value:unknown):string {
-  const compact=compactThai(value);
-  if(compact.includes(BLOCKED_NICKNAME_FRAGMENT) ||
-    BLOCKED_VEE_ROMAN_RULES.some(rule=>rule.nicknamePattern.test(compact)))
-    return 'ใช้ชื่อนี้ไม่ได้';
-  if(isInappropriateLanguage(value))return 'กรุณาใช้ชื่อเล่นที่สุภาพ';
-  return '';
-}
-,'u');
 }
 const STRETCHED_PHRASES=[
   ...DISALLOWED_PHRASES,...DISALLOWED_THAI_PHRASE_VARIANTS
