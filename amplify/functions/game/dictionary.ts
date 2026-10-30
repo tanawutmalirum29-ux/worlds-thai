@@ -22,6 +22,7 @@ import { PHO_PHUENG_TERMS } from './pho-phueng-terms.ts';
 import { NOR_NU_TERMS, FARM_SHELTER_PLACES } from './nor-nu-terms.ts';
 import { ANIMAL_SYNONYM_ADDITIONS, NATURE_TERMS } from './synonyms.ts';
 import { NEIGHBORING_PROVINCES, NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
+import { HOURLY_VOCABULARY_20261030 } from './hourly-vocabulary-20261030.ts';
 
 /**
  * Curated Thai answers for category-aware scoring. All items are individually approved.
@@ -2148,6 +2149,13 @@ WORD_BANK.job = [...new Set([...WORD_BANK.job, ...ADDITIONAL_JOBS])];
 
 // Vocabulary-only vegetable expansion. Leave every ผัก-prefix rule unchanged.
 WORD_BANK.vegetable = [...new Set([...WORD_BANK.vegetable, ...ADDITIONAL_VEGETABLES])];
+
+// Manually reviewed hourly additions, deduplicated before gameplay indexes are built.
+for (const [category, words] of Object.entries(HOURLY_VOCABULARY_20261030)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown hourly vocabulary category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
 
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
 export const MIN_WORDS_PER_PAIR = 2;
