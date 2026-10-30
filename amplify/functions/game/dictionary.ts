@@ -4,6 +4,7 @@ import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
 import { ADDITIONAL_DESSERTS } from './additional-desserts.ts';
 import { ADDITIONAL_DRINKS } from './additional-drinks.ts';
+import { ADDITIONAL_FRUITS } from './additional-fruits.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { ADVANCED_ROYAL_TERMS } from './advanced-royal-terms.ts';
@@ -2126,6 +2127,10 @@ WORD_BANK.toy = [...new Set([...WORD_BANK.toy, ...ADDITIONAL_TOYS])];
 // Register real fish names before eligibility, scoring and rarity indexes are built.
 // Existing generic ปลา prefix normalization remains server-authoritative.
 WORD_BANK.fish = [...new Set([...WORD_BANK.fish, ...ADDITIONAL_FISH])];
+
+// Register curated Thai fruit names, varieties and international fruit names.
+// Keep the exact approved words and dedupe before game letter/rarity indexing.
+WORD_BANK.fruit = [...new Set([...WORD_BANK.fruit, ...ADDITIONAL_FRUITS])];
 
 // Reviewed sweets share the existing dessert category and canonical scoring.
 // Deduplicate before eligible letters and rarity statistics are computed.
