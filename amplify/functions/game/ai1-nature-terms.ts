@@ -56,6 +56,6 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
   nature: [
     'น้ำขึ้นน้ำลง',
     'สันทราย',
-    'ธารน้ำแข็ง',
+    'โคลนตม',
   ],
 };
