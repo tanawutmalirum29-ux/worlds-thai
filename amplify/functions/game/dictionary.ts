@@ -1,3 +1,4 @@
+import { EXPANDED_THAI_TERMS } from './expanded-thai-terms.ts';
 import { FAMILIAR_WORLD_PROVINCES } from './familiar-world-provinces.ts';
 import { VOR_HOR_TERMS } from './vor-hor-terms.ts';
 import { COMMON_THAI_TERMS } from './common-thai-terms.ts';
@@ -2047,6 +2048,15 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "สหรัฐอาหรับเอมิเรตส์"
   ]
 };
+
+// Merge curated expansions before logic.ts derives accepted words and eligible letters.
+// Keep existing entries first; Set also protects scoring from duplicate spellings.
+for (const [category, additions] of Object.entries(EXPANDED_THAI_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK,category))
+    throw new Error('Unknown expanded vocabulary category: '+category);
+  WORD_BANK[category]=[...new Set([...WORD_BANK[category],...additions])];
+}
+
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
 export const MIN_WORDS_PER_PAIR = 2;
 export const MIN_CATEGORIES_PER_LETTER = 5;

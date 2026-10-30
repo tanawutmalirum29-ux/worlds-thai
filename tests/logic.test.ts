@@ -267,7 +267,7 @@ test('dessert prefix ขนม is ignored; only the named sweet determines the l
   assert.ok(eligibleCategories('ข').includes('dessert'),'24 real ข desserts allow this category');
   const eligibleKh=(await import('../amplify/functions/game/dictionary.ts')).WORD_BANK.dessert
     .filter(w=>wordInitialForCategory(w,'dessert')==='ข');
-  assert.equal(eligibleKh.length,24);
+  assert.ok(eligibleKh.length>=24,'expanded dictionary must retain at least 24 real ข desserts');
 });
 
 test('desserts accept an OPTIONAL leading ขนม but never arbitrary made-up words',()=>{
