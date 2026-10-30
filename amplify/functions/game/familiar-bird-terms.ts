@@ -18,6 +18,7 @@ export const FAMILIAR_BIRD_TERMS: Readonly<Record<'bird'|'animal', readonly stri
     "เพนกวินฮัมโบลต์",
     "เพนกวินแมกเจลแลน",
     "เลิฟเบิร์ด",
+    "ลอรี่",
     "ฟอพัส",
     "ค็อกคาเทล",
     "คอนัวร์",
