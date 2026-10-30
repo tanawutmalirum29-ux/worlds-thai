@@ -4,6 +4,7 @@ import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
+import { POLITE_SYNONYM_TERMS } from './polite-synonym-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
 import { EXPANDED_THAI_TERMS } from './expanded-thai-terms.ts';
 import { FAMILIAR_WORLD_PROVINCES } from './familiar-world-provinces.ts';
@@ -2070,6 +2071,14 @@ for (const [category, additions] of Object.entries(EXPANDED_THAI_TERMS)) {
 for (const [category, words] of Object.entries(ROYAL_THAI_TERMS)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown royal vocabulary category: '+category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// Add manually reviewed literary synonyms and polite forms by actual meaning.
+// Re-use category canonicalization; duplicates are removed before scoring/rarity.
+for (const [category, words] of Object.entries(POLITE_SYNONYM_TERMS)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown polite/synonym category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
