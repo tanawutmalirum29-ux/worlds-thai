@@ -27,7 +27,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
   ],
   tool: [
     'คีมปอกสายไฟ',
-    'สกัดปูน',
+    'ดอกสกัดปูน',
     'ปืนยิงซิลิโคน',
     'แปรงลวด'
   ],
