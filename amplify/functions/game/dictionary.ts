@@ -6,6 +6,7 @@ import { ADDITIONAL_DESSERTS } from './additional-desserts.ts';
 import { ADDITIONAL_DRINKS } from './additional-drinks.ts';
 import { ADDITIONAL_FRUITS } from './additional-fruits.ts';
 import { ADDITIONAL_JOBS } from './additional-jobs.ts';
+import { ADDITIONAL_VEGETABLES } from './additional-vegetables.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { ADVANCED_ROYAL_TERMS } from './advanced-royal-terms.ts';
@@ -2144,6 +2145,9 @@ WORD_BANK.drink = [...new Set([...WORD_BANK.drink, ...ADDITIONAL_DRINKS])];
 // Curated occupational names and shortened labels count once per literal word.
 // All are registered before initial-letter availability and rarity indexes.
 WORD_BANK.job = [...new Set([...WORD_BANK.job, ...ADDITIONAL_JOBS])];
+
+// Vocabulary-only vegetable expansion. Leave every ผัก-prefix rule unchanged.
+WORD_BANK.vegetable = [...new Set([...WORD_BANK.vegetable, ...ADDITIONAL_VEGETABLES])];
 
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
 export const MIN_WORDS_PER_PAIR = 2;
