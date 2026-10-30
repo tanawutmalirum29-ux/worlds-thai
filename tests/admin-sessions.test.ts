@@ -44,7 +44,7 @@ test('30-day opaque admin tokens are bound to a device identity and expire exact
   assert.equal(auth.valid,true);
   assert.equal(auth.expiresAt,now+ADMIN_SESSION_LIFETIME_MS);
   assert.ok(validAdminToken(auth.token));
-  assert.equal(await check(client,'device-1',auth.token),Object.assign({valid:true},{expiresAt:auth.expiresAt}));
+  assert.deepEqual(await check(client,'device-1',auth.token),{valid:true,expiresAt:auth.expiresAt});
   assert.deepEqual(await check(client,'device-2',auth.token),{valid:false,expiresAt:null});
   assert.equal((await check(client,'device-1',auth.token,auth.expiresAt-1)).valid,true);
   assert.equal((await check(client,'device-1',auth.token,auth.expiresAt)).valid,false);
