@@ -8,19 +8,19 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น'],
-  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข'],
-  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร'],
-  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก'],
-  toy: ['ห', 'ห', 'ก', 'ค', 'ช'],
-  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ'],
-  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น'],
+  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป'],
+  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค'],
+  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ'],
+  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท'],
+  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย'],
 };
 
-test('AI-3 registers 55 reviewed activity terms without duplicate canonical identities', () => {
+test('AI-3 registers 75 reviewed activity terms without duplicate canonical identities', () => {
   assert.deepEqual(Object.keys(AI3_ACTIVITY_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI3_ACTIVITY_TERMS).flat();
-  assert.equal(all.length, 55);
+  assert.equal(all.length, 75);
   assert.equal(new Set(all).size, all.length);
   let playable = 0;
   for (const [category, words] of Object.entries(AI3_ACTIVITY_TERMS)) {
