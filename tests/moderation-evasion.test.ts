@@ -43,7 +43,7 @@ test('no broad substring or spelling-distance bans on ordinary Thai/English word
   for(const word of [
     'หีบ','ต้นตีนเป็ด','สัตว์','สัดส่วน','น้องห่าง','กะหรี่',
     'class','passion','assistant','shitake','shiitake','fukuoka',
-    'sheep','shipping','yet another','employed','Jim','sweet','review','sassy'
+    'sheep','shipping','yet another','employed','Jim','sweet','review','sassy','Fukuyama'
   ])assert.equal(isInappropriateLanguage(word),false,'false positive '+word);
 });
 
