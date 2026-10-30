@@ -1,6 +1,6 @@
 import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary.ts';
 import { NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
-import { isInappropriateLanguage } from './moderation.ts';
+import { isInappropriateLanguage, isBlockedStandaloneAnswer, nicknameValidationMessage } from './moderation.ts';
 
 const CATEGORY_LABELS = [
   ['animal', 'สัตว์'], ['sport', 'กีฬา'], ['job', 'อาชีพ'], ['verb', 'คำกริยา'],
@@ -178,6 +178,7 @@ export function validAnswer(value: string, letter: string, category: string): bo
   const answer = normalizeAnswer(value).toLocaleLowerCase('th');
   return answer.length > 0
     && !isInappropriateLanguage(answer)
+    && !isBlockedStandaloneAnswer(answer)
     && wordInitialForCategory(answer,category) === letter
     && eligibleCategories(letter).includes(category)
     && (acceptedWords.get(category)?.has(canonicalAnswer(answer,category)) ?? false);
@@ -186,7 +187,7 @@ export function cleanAnswers(value: unknown, categories: string[]): Record<strin
   const input = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string,unknown> : {};
   return Object.fromEntries(categories.map(id => {
     const answer=normalizeAnswer(input[id]);
-    return [id,isInappropriateLanguage(answer)?'':answer];
+    return [id,isInappropriateLanguage(answer)||isBlockedStandaloneAnswer(answer)?'':answer];
   }));
 }
 
@@ -366,7 +367,7 @@ export function snapshot(match: Match) {
     maskedAnswers:match.phase==='playing' ? Object.fromEntries(match.players.map(player=>[
       player.id,Object.fromEntries(match.categories.filter(slot=>{
         const answer=match.submissions[player.id]?.[slot];
-        return Boolean(normalizeAnswer(answer)) && !isInappropriateLanguage(answer);
+        return Boolean(normalizeAnswer(answer)) && !isInappropriateLanguage(answer) && !isBlockedStandaloneAnswer(answer);
       }).map(slot=>[slot,'1234']))
     ])) : {},
     skipVotes:match.phase==='playing'?Object.keys(match.skipVotes||{}):[],
@@ -387,7 +388,8 @@ export function applyAction(
     if (match.players.length!==0) throw new Error('ROOM_UNAVAILABLE');
     const nickname=name.trim().replace(/[<>]/g,'').slice(0,18);
     if (!nickname) throw new Error('กรุณาใส่ชื่อเล่น');
-    if (isInappropriateLanguage(nickname)) throw new Error('กรุณาใช้ชื่อเล่นที่สุภาพ');
+    const nicknameError=nicknameValidationMessage(nickname);
+    if (nicknameError) throw new Error(nicknameError);
     match.ownerId=userId;
     match.settings=validateSettings(rawSettings);
     match.players.push({id:userId,name:nickname,score:0,lastSeen:now});
@@ -399,7 +401,8 @@ export function applyAction(
         throw new Error('ห้องนี้เริ่มเกมแล้วหรือเต็มแล้ว');
       const nickname=name.trim().replace(/[<>]/g,'').slice(0,18);
       if (!nickname) throw new Error('กรุณาใส่ชื่อเล่น');
-    if (isInappropriateLanguage(nickname)) throw new Error('กรุณาใช้ชื่อเล่นที่สุภาพ');
+      const nicknameError=nicknameValidationMessage(nickname);
+      if (nicknameError) throw new Error(nicknameError);
       match.players.push({id:userId,name:nickname,score:0,lastSeen:now});
     }
   } else if (action==='leave') {
