@@ -29,7 +29,7 @@ export const DISALLOWED_THAI_PHRASE_VARIANTS=[
 
 /**
  * English swear words and Romanized Thai profanity. Common English syllables
- * (e.g. hee, sat, yet, tin or an English person's name Jim) require a whole
+ * (e.g. hee or an English person's name Jim) require a whole
  * token rather than substring detection to avoid false positives.
  */
 export const DISALLOWED_ROMAN_RULES=[
@@ -56,15 +56,8 @@ export const DISALLOWED_ROMAN_RULES=[
   {word:'hee',scope:'exact',pattern:/^he{2,}$/u,examples:'hee, heeee'},
   {word:'sus',scope:'exact',pattern:/^sus$/u,examples:'sus, suss'},
   {word:'sud',scope:'exact',pattern:/^sud$/u,examples:'sud'},
-  {word:'sat',scope:'exact',pattern:/^sat$/u,examples:'sat'},
-  {word:'ham',scope:'exact',pattern:/^ham$/u,examples:'ham'},
-  {word:'hum',scope:'exact',pattern:/^hum$/u,examples:'hum'},
   {word:'tud',scope:'exact',pattern:/^tud$/u,examples:'tud'},
   {word:'tood',scope:'exact',pattern:/^tod$/u,examples:'tood'},
-  {word:'teen',scope:'exact',pattern:/^ten$/u,examples:'teen, teeeen'},
-  {word:'tin',scope:'exact',pattern:/^tin$/u,examples:'tin'},
-  {word:'joo',scope:'exact',pattern:/^jo$/u,examples:'joo'},
-  {word:'jew',scope:'exact',pattern:/^jew$/u,examples:'jew'}
 ] as const;
 
 const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
