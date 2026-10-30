@@ -1,30 +1,30 @@
 /** Curated Thai vocabulary, hourly round E (30 October 2026).
- * Verified distinct against existing category vocabulary and aliases.
+ * Names are distinct from the existing bank and category-local canonical forms.
  * No changes to scoring, prefix normalization or letter eligibility rules.
  */
 export const HOURLY_VOCABULARY_20261030_E: Readonly<Record<string, readonly string[]>> = {
-  science: [
-    'อุทกวิทยา',
-    'นิเวศวิทยา',
-    'จุลชีววิทยา',
-    'ฟิสิกส์นิวเคลียร์',
+  object: [
+    'ตะกร้าผ้า',
+    'ฟิล์มถนอมอาหาร',
+    'ตะเกียง',
+    'โคมกระดาษ',
   ],
-  material: [
-    'ซิลิโคน',
-    'ไฟเบอร์กลาส',
-    'ไม้อัด',
-    'ผ้าสักหลาด',
+  vehicle: [
+    'ยานอวกาศ',
+    'กระเช้าลอยฟ้า',
+    'แพยาง',
+    'รถราง',
   ],
-  adjective: [
-    'ฉลาดเฉลียว',
-    'ขยันขันแข็ง',
-    'ทะมัดทะแมง',
-    'ฟุ่มเฟือย',
+  toy: [
+    'สปินเนอร์',
+    'ตุ๊กตาหุ่นมือ',
+    'ชุดรถไฟจำลอง',
+    'ลูกดอกแม่เหล็ก',
   ],
-  technology: [
-    'ระบบปฏิบัติการ',
-    'เครือข่ายไร้สาย',
-    'ไมโครคอนโทรลเลอร์',
-    'คิวอาร์โค้ด',
+  place: [
+    'โรงละคร',
+    'สถานีดับเพลิง',
+    'เรือนจำ',
+    'โรงเพาะชำ',
   ],
 };
