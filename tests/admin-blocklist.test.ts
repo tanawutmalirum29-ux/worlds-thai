@@ -5,16 +5,20 @@ import {
 } from '../src/admin-blocklist-data.ts';
 import {
   DISALLOWED_EXACT,DISALLOWED_PHRASES,BLOCKED_NICKNAME_FRAGMENT,BLOCKED_STANDALONE_ANSWER,
-  BLOCKED_VEE_ROMAN_RULES,
+  BLOCKED_VEE_ROMAN_RULES,DISALLOWED_THAI_EXACT_VARIANTS,DISALLOWED_THAI_PHRASE_VARIANTS,DISALLOWED_ROMAN_RULES,
   isInappropriateLanguage,isBlockedStandaloneAnswer,nicknameValidationMessage
 } from '../amplify/functions/game/moderation.ts';
 
 test('admin banned list is derived from every active gameplay rule',()=>{
-  assert.equal(BLOCKED_ENTRIES.length,DISALLOWED_EXACT.size+DISALLOWED_PHRASES.length+2+2*BLOCKED_VEE_ROMAN_RULES.length);
+  assert.equal(BLOCKED_ENTRIES.length,DISALLOWED_EXACT.size+DISALLOWED_PHRASES.length+
+    DISALLOWED_THAI_EXACT_VARIANTS.length+DISALLOWED_THAI_PHRASE_VARIANTS.length+
+    DISALLOWED_ROMAN_RULES.length+2+2*BLOCKED_VEE_ROMAN_RULES.length);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='exact').map(entry=>entry.word),
-    [...DISALLOWED_EXACT]);
+    [...DISALLOWED_EXACT,...DISALLOWED_THAI_EXACT_VARIANTS,
+      ...DISALLOWED_ROMAN_RULES.filter(rule=>rule.scope==='exact').map(rule=>rule.word)]);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='contains').map(entry=>entry.word),
-    [...DISALLOWED_PHRASES]);
+    [...DISALLOWED_PHRASES,...DISALLOWED_THAI_PHRASE_VARIANTS,
+      ...DISALLOWED_ROMAN_RULES.filter(rule=>rule.scope==='contains').map(rule=>rule.word)]);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='nickname').map(entry=>entry.word),
     [BLOCKED_NICKNAME_FRAGMENT,...BLOCKED_VEE_ROMAN_RULES.map(rule=>rule.word)]);
   assert.deepEqual(BLOCKED_ENTRIES.filter(entry=>entry.kind==='answer').map(entry=>entry.word),
@@ -63,4 +67,17 @@ test('roman V/wee admin entries include real live examples, not a separate hard-
   }
   assert.equal(filterBlockedEntries('v','nickname').length,1);
   assert.equal(filterBlockedEntries('we','answer').length,1);
+});
+
+
+test('new Roman blocklist rows show real active patterns and examples',()=>{
+  for(const rule of DISALLOWED_ROMAN_RULES){
+    const entry=BLOCKED_ENTRIES.find(row=>row.word===rule.word&&
+      row.kind===(rule.scope==='exact'?'exact':'contains'));
+    assert.ok(entry,rule.word);
+    assert.equal(entry.examples,rule.examples);
+    assert.equal(isInappropriateLanguage(rule.word),true,'rule must block its own listed word: '+rule.word);
+  }
+  for(const word of ['หีบ','สัดส่วน','ตีนเป็ด','class','shitake','Fukuyama'])
+    assert.equal(isInappropriateLanguage(word),false,word);
 });
