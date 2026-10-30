@@ -133,6 +133,8 @@ function App(){
   const meRef = useRef('');
   const workingRef = useRef(false);
   const roundRef = useRef(0);
+  const firstAnswerRef = useRef<HTMLLabelElement|null>(null);
+  const lastScrolledRoundRef = useRef('');
   const answersRef = useRef<Record<string,string>>({});
   const draftVersionRef=useRef(0);
   const savedVersionRef=useRef(0);
@@ -267,6 +269,27 @@ function App(){
     document.addEventListener('keydown',keyDown);
     return()=>{document.removeEventListener('keydown',keyDown);document.body.style.overflow=previousOverflow;};
   },[exitConfirm,choicePopup]);
+  // Each new consonant/category round starts at the first answer field.
+  // Scroll the card into view without focusing its input (which would open
+  // the mobile keyboard and obscure the round header or countdown).
+  useEffect(()=>{
+    if(game?.phase!=='playing'){
+      lastScrolledRoundRef.current='';
+      return;
+    }
+    const key=game.roomId+':'+game.round;
+    if(lastScrolledRoundRef.current===key)return;
+    const frame=window.requestAnimationFrame(()=>{
+      const target=firstAnswerRef.current;
+      if(!target)return;
+      lastScrolledRoundRef.current=key;
+      target.scrollIntoView({
+        behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',
+        block:'start',inline:'nearest'
+      });
+    });
+    return()=>window.cancelAnimationFrame(frame);
+  },[game?.roomId,game?.round,game?.phase,game?.categories?.[0]]);
   // Update only timed screens; preserve quick ticks during the skip animation.
   useEffect(()=>{
     if(game?.phase!=='playing' && game?.phase!=='review')return;
@@ -675,7 +698,7 @@ function App(){
               const state=feedback.status;
               const hasPrefixHint=category==='dessert'||category==='tree'||
                 Object.prototype.hasOwnProperty.call(CATEGORY_PREFIX_HINTS,category);
-              return <label className={`answer-item answer-${state} ${hasPrefixHint&&(!game.topicCategory||index===0)?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
+              return <label ref={index===0?firstAnswerRef:undefined} className={`answer-item answer-${state} ${hasPrefixHint&&(!game.topicCategory||index===0)?'answer-item-with-hint':''}`} key={`${game.round}-${id}`}>
                 <span className="answer-number">{String(index+1).padStart(2,'0')}</span>
                 <span className="answer-symbol">{game.topicCategory?requestedLetter:SYMBOLS[id]||'✦'}</span>
                 <span className="answer-category">
@@ -735,11 +758,8 @@ function App(){
           {game.phase==='final'?<div className="final-view"><div className="final-crown">♛</div><p className="results-round">MATCH COMPLETE</p><h2>{leaders.length===1?`${leaders[0]?.name} ชนะการแข่งขัน!`:'เสมอกัน! เก่งทุกคน'}</h2><p>จบครบ {game.settings.rounds} รอบแล้ว · ทุกคนโหวตเล่นอีกครั้งเพื่อกลับล็อบบี้ห้องเดิม</p><div className="final-podium">{ordered.map((p,i)=><div className="final-player" key={p.id}><span>{i===0?'♛':`#${i+1}`}</span><b>{p.name}{p.id===me?' (คุณ)':''}</b><strong>{p.score} <small>คะแนน</small></strong></div>)}</div>{game.history.map(round=><div key={round.round} className="synonym-history">
               <p>รอบ {round.round} · {round.topicCategory?LABELS[round.topicCategory]||round.topicCategory:letterCaption(round.letter)}</p>
               {round.topicCategory?round.categories.slice(0,3).map(id=><SynonymLearn key={id} letter={id} categories={[round.topicCategory!]}/>):<SynonymLearn letter={round.letter} categories={round.categories}/>}
-            </div>)}<button className="primary-btn rematch-vote" type="button"
-              aria-pressed={hasRematched} disabled={hasRematched||working}
-              onClick={()=>void vote('rematch')}>{hasRematched?'ลงคะแนนแล้ว':'เล่นอีกครั้ง'} · {rematchCount}/{game.players.length}
-              <span>{hasRematched?'✓':'↻'}</span></button>
-            <p className="small-center">เมื่อทุกคนกดครบ จะกลับล็อบบี้ห้องเดิม พร้อมตั้งค่าเดิมโดยอัตโนมัติ</p></div>:null}
+            </div>)}
+            <p className="small-center">กด “เล่นอีกครั้ง” ที่ปุ่มลอยมุมขวาล่าง · เมื่อทุกคนกดครบ จะกลับล็อบบี้ห้องเดิมพร้อมตั้งค่าเดิม</p></div>:null}
         </section>
         {playing?<button type="button" className={rushing?'skip-time-floating rush-active':'skip-time-floating'}
           disabled={working||hasSkipped||Boolean(game.timeRush)||remaining<=5}
@@ -748,6 +768,14 @@ function App(){
           <span className="skip-time-symbol" aria-hidden="true">⏩</span>
           <span>{rushing?'กำลังเร่งเวลา':game.timeRush?'เร่งเวลาแล้ว':hasSkipped?'โหวตแล้ว':'ข้ามเวลา'}</span>
           <strong>{skipCount}/{game.players.length}</strong>
+        </button>:null}
+        {game.phase==='final'?<button type="button" className="skip-time-floating rematch-floating"
+          disabled={hasRematched||working}
+          aria-pressed={hasRematched}
+          onClick={()=>void vote('rematch')}>
+          <span className="skip-time-symbol" aria-hidden="true">{hasRematched?'✓':'↻'}</span>
+          <span>{hasRematched?'โหวตแล้ว':'เล่นอีกครั้ง'}</span>
+          <strong>{rematchCount}/{game.players.length}</strong>
         </button>:null}
         <aside className="sidebar"><div className="score-card"><div className="sidebar-title"><span className="sidebar-icon"><TrophyIcon/></span><div><h3>ตารางคะแนน</h3><p>อัปเดตทุก 2 วินาที</p></div></div><div className="score-list">{ordered.map((p,i)=><div className={`score-player ${p.id===me?'its-you':''}`} key={p.id}><span className={`avatar av${i%5}`}>{p.name.charAt(0).toUpperCase()}</span><div className="player-info"><b>{p.name}{p.id===me?<small> คุณ</small>:null}</b><span>{i===0?'อันดับ 1':`อันดับ ${i+1}`}</span></div><strong>{p.score}</strong></div>)}</div>{ordered.length<8?<div className="score-footer">+ {8-ordered.length} ที่ว่างสำหรับเพื่อนของคุณ</div>:null}</div>
           <div className="rules-card"><div className="rules-icon">✦</div><h3>กติกาคะแนน</h3><div><span>คำถูกและไม่ซ้ำ</span><strong>+2</strong></div><div><span>คำถูกแต่ซ้ำ</span><strong>+1</strong></div><div><span>คำหายากที่ไม่ซ้ำ (เมื่อมีข้อมูลเพียงพอ)</span><strong>+1 ถึง +2</strong></div><div><span>คำผิดหมวด / ไม่อยู่ในคลัง / ว่าง</span><strong>0</strong></div><p>โบนัสคำหายากรวมสูงสุด +3 ต่อรอบ · หมวดและอักษรที่ข้อมูลไม่พอหรือไม่มีคำหายากยังเล่นตามคะแนนปกติ</p><p>แข่งครบจำนวนรอบที่ตั้งค่า ใครคะแนนรวมสูงสุดชนะ!</p></div>
