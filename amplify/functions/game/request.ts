@@ -6,6 +6,7 @@ export function resolveOperation(event: any):'getGame'|'listRooms'|'getWordStats
   const args=event?.arguments ?? event;
   if(args && typeof args==='object') {
     if(args.request==='stats'||args.request==='dessert-suggestions'||args.request==='rarity')return 'getWordStats';
+    if(['login','check','logout','logoutAll'].includes(args.action))return 'adminSession';
     if(typeof args.action==='string')return 'gameAction';
     if(typeof args.roomId==='string')return 'getGame';
     if (event?.arguments && typeof event.arguments==='object') return 'listRooms';
