@@ -8,19 +8,19 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช'],
-  verb: ['ค', 'พ', 'ล'],
-  sport: ['ส', 'พ', 'ฟ'],
-  music: ['ว', 'ก'],
-  toy: ['ห', 'ห'],
-  school: ['ก', 'ป', 'ต'],
-  body: ['ก', 'ก', 'ข'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช'],
+  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ'],
+  music: ['ว', 'ก', 'ค', 'ท'],
+  toy: ['ห', 'ห', 'ก'],
+  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส'],
+  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต'],
 };
 
-test('AI-3 registers 19 reviewed activity terms without duplicate canonical identities', () => {
+test('AI-3 registers 37 reviewed activity terms without duplicate canonical identities', () => {
   assert.deepEqual(Object.keys(AI3_ACTIVITY_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI3_ACTIVITY_TERMS).flat();
-  assert.equal(all.length, 19);
+  assert.equal(all.length, 37);
   assert.equal(new Set(all).size, all.length);
   let playable = 0;
   for (const [category, words] of Object.entries(AI3_ACTIVITY_TERMS)) {
