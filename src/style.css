@@ -365,3 +365,9 @@ html{scrollbar-gutter:stable}
 .masked-answer-header span:not(:first-child){font-size:10px}
 .mask-token{display:grid;place-items:center;min-height:27px;border-radius:6px;border:1px solid #39495a;background:#263347;color:#879bb1;font-variant-numeric:tabular-nums}
 .mask-token.mask-filled{background:#30485a;border-color:#5d8296;color:#f1d49c;font-weight:700;letter-spacing:.5px}
+
+/* Stable reserved nickname feedback: typing an invalid name never shifts room controls. */
+.nickname-validation-slot{min-height:19px;margin:5px 0 0;font-size:11px;line-height:19px;color:#ffb4a5}
+.join-card #nickname[aria-invalid="true"]{border-color:#df8878}
+.feedback-forbidden{color:#ffad9d;font-weight:600}
+.answer-forbidden{border-color:#ad6260}
