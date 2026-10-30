@@ -22,7 +22,11 @@
 .settings-grid select{font:500 13px Prompt,sans-serif;width:100%;min-height:46px;border:1px solid #596b80;border-radius:10px;color:#f7f4e9;background:#213248;padding:8px 10px}
 .settings-grid select:focus-visible{outline:2px solid #e9be76;outline-offset:2px}
 .lobby-settings{max-width:640px;margin:22px auto}
-.settings-save{margin:12px 0;width:100%}
+.settings-auto-save{min-height:30px;display:flex;align-items:center;justify-content:center;
+  margin:10px auto 0;padding:5px 8px;color:#b9cbd9;font-size:11px;line-height:1.55;text-align:center}
+.settings-auto-save-saving{color:#f0d3a3}
+.settings-auto-save-saved{color:#9bdab7}
+.settings-auto-save-error{color:#ffb49e}
 .lobby-settings .primary-btn{width:100%;margin-top:2px}
 .waiting-settings,.invite-info{border:1px solid #4b6171;border-radius:12px;padding:15px;margin:16px auto;font-size:13px;color:#c8d6e0;line-height:1.9}
 .welcome-settings{padding:14px 10px;margin:14px 0}
