@@ -33,11 +33,38 @@ export const DISALLOWED_THAI_PHRASE_VARIANTS=[
  * token rather than substring detection to avoid false positives.
  */
 export const DISALLOWED_ROMAN_RULES=[
-  {word:'fuck / fck',examples:'fuck, fuuuck, f.u.c.k, fck, f*ck, fück',scope:'contains'},
-  {word:'bitch / cunt / pussy',examples:'bitch, biitch, cunt, pussy',scope:'contains'},
-  {word:'ควย (Roman)',examples:'kuy, kuay, kuai, k.u.y, KUUUAY',scope:'contains'},
-  {word:'คำหยาบแบบคำอ่านไทย',examples:'yed, yeet, hia, hee, sus, sud, ham, tud',scope:'exact'},
-  {word:'คำหยาบภาษาอังกฤษที่อาจเป็นคำทั่วไป',examples:'shit, shiiit, fuk, ass, dick',scope:'exact'}
+  {word:'fuck',scope:'contains',pattern:/fuck/u,examples:'fuck, fuuuck, f.u.c.k, fück'},
+  {word:'fck',scope:'contains',pattern:/fck/u,examples:'fck, f*ck'},
+  {word:'bitch',scope:'contains',pattern:/bitch/u,examples:'bitch, biiitch'},
+  {word:'cunt',scope:'contains',pattern:/cunt/u,examples:'cunt'},
+  {word:'pussy',scope:'contains',pattern:/pusy|pussy/u,examples:'pussy, p_u_s_s_y'},
+  {word:'kuy',scope:'contains',pattern:/(?:^|[^a-z])kuy/u,examples:'kuy, K.U.Y, kuyKung'},
+  {word:'kuay',scope:'contains',pattern:/(?:^|[^a-z])kuay/u,examples:'kuay, KUUUAY, k_u_a_y'},
+  {word:'kuai',scope:'contains',pattern:/(?:^|[^a-z])kuai/u,examples:'kuai'},
+  {word:'คuวย',scope:'contains',pattern:/คuวย/u,examples:'คuวย'},
+  {word:'kuวย',scope:'contains',pattern:/kuวย/u,examples:'kuวย'},
+  {word:'kวย',scope:'contains',pattern:/kวย/u,examples:'kวย'},
+  {word:'ไอhia',scope:'contains',pattern:/(?:ไอ้?|อี)(?:hia|sus|yed|kuy)/u,examples:'ไอ hia, อีsus'},
+  {word:'shit',scope:'exact',pattern:/^shit(?:s|y|ing)?$/u,examples:'shit, shiiit, sh1t'},
+  {word:'fuk',scope:'exact',pattern:/^fuk$/u,examples:'fuk'},
+  {word:'ass',scope:'exact',pattern:/^ass$/u,examples:'ass'},
+  {word:'dick',scope:'exact',pattern:/^dick$/u,examples:'dick'},
+  {word:'cock',scope:'exact',pattern:/^cock$/u,examples:'cock'},
+  {word:'yed',scope:'exact',pattern:/^yed$/u,examples:'yed'},
+  {word:'yeet',scope:'exact',pattern:/^ye{2,}t$/u,examples:'yeet, yeeet'},
+  {word:'hia',scope:'exact',pattern:/^hia$/u,examples:'hia, hiiiia'},
+  {word:'hee',scope:'exact',pattern:/^he{2,}$/u,examples:'hee, heeee'},
+  {word:'sus',scope:'exact',pattern:/^sus$/u,examples:'sus, suss'},
+  {word:'sud',scope:'exact',pattern:/^sud$/u,examples:'sud'},
+  {word:'sat',scope:'exact',pattern:/^sat$/u,examples:'sat'},
+  {word:'ham',scope:'exact',pattern:/^ham$/u,examples:'ham'},
+  {word:'hum',scope:'exact',pattern:/^hum$/u,examples:'hum'},
+  {word:'tud',scope:'exact',pattern:/^tud$/u,examples:'tud'},
+  {word:'tood',scope:'exact',pattern:/^tod$/u,examples:'tood'},
+  {word:'teen',scope:'exact',pattern:/^ten$/u,examples:'teen, teeeen'},
+  {word:'tin',scope:'exact',pattern:/^tin$/u,examples:'tin'},
+  {word:'joo',scope:'exact',pattern:/^jo$/u,examples:'joo'},
+  {word:'jew',scope:'exact',pattern:/^jew$/u,examples:'jew'}
 ] as const;
 
 const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
@@ -48,10 +75,12 @@ function compactThai(value:unknown):string {
   return value.normalize('NFKC').toLocaleLowerCase('th')
     .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'')
     // NFKC decomposes Thai Sara Am; fold it back for exact matches.
-    .replace(/\u0E4D\u0E32/g,'\u0E33')
-    // Phonetic spelling with gratuitous silent marks / stretched Thai letters.
-    .replace(/\u0E4C/gu,'')
-    .replace(REPEATED_SYMBOL,'$1');
+    .replace(/\u0E4D\u0E32/g,'\u0E33');
+}
+
+/** Profanity-only folding; keep historic standalone วี spelling exact. */
+function compactModeration(value:unknown):string {
+  return compactThai(value).replace(/\u0E4C/gu,'').replace(REPEATED_SYMBOL,'$1');
 }
 
 /**
@@ -76,18 +105,16 @@ function romanizedCandidates(value:unknown):string[] {
   const leet=latin.replace(/[@4]/g,'a').replace(/[!1]/g,'i')
     .replace(/3/g,'e').replace(/0/g,'o').replace(/5/g,'s').replace(/7/g,'t').replace(/\$/g,'s')
     .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
-  return [...new Set([plain,leet].map(t=>t.replace(REPEATED_SYMBOL,'$1')))];
+  return [...new Set([plain,leet,plain.replace(REPEATED_SYMBOL,'$1'),leet.replace(REPEATED_SYMBOL,'$1')])];
 }
-const ROMAN_STRONG=/(?:fuck|fck|bitch|cunt|pusy|(?:^|[^a-z])(?:kuy|kuay|kuai)|คuวย|kuวย|kวย|(?:ไอ้?|อี)(?:hia|sus|yed|kuy))/u;
-const ROMAN_WHOLE=/^(?:shit|shits|shitty|shitting|fuk|ass|dick|cock|yed|yet|yeet|hia|hee|sus|sud|sat|ham|hum|tud|tood|teen|tin|joo|jew)$/u;
 export function isInappropriateLanguage(value:unknown):boolean {
-  const compact=compactThai(value);
+  const compact=compactModeration(value);
   if(!compact)return false;
   if(DISALLOWED_EXACT.has(compact)||THAI_EXACT_VARIANTS.has(compact)||
     DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase))||
     DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase)))return true;
   return romanizedCandidates(value).some(roman=>
-    ROMAN_STRONG.test(roman)||ROMAN_WHOLE.test(roman));
+    DISALLOWED_ROMAN_RULES.some(rule=>rule.pattern.test(roman)));
 }
 
 /**
