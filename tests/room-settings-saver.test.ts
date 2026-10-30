@@ -13,7 +13,7 @@ test('save immediately, serialize network writes and retain only the newest rapi
   const first=deferred(),second=deferred();
   const sent:number[]=[];
   const states:RoomSettingSaveStatus[]=[];
-  const saver=createRoomSettingsSaver(async n=>{
+  const saver=createRoomSettingsSaver<number>(async n=>{
     sent.push(n);
     if(n===1)await first.promise;
     if(n===3)await second.promise;
@@ -35,7 +35,7 @@ test('a failed write retries on reconnect while preserving the latest selected v
   const attempts:number[]=[];
   let offline=true;
   const states:RoomSettingSaveStatus[]=[];
-  const saver=createRoomSettingsSaver(async value=>{
+  const saver=createRoomSettingsSaver<number>(async value=>{
     attempts.push(value);
     if(offline)throw new Error('offline');
   },status=>states.push(status));
@@ -54,7 +54,7 @@ test('a failed write retries on reconnect while preserving the latest selected v
 test('a newer change made during an unsuccessful write is automatically sent',async()=>{
   const first=deferred();
   const sent:string[]=[];
-  const saver=createRoomSettingsSaver(async value=>{
+  const saver=createRoomSettingsSaver<string>(async value=>{
     sent.push(value);
     if(value==='old')await first.promise;
   },()=>{});
@@ -68,7 +68,7 @@ test('a newer change made during an unsuccessful write is automatically sent',as
 
 test('closing room settings cancels unsent writes from a departed lobby',async()=>{
   const first=deferred(),sent:number[]=[];
-  const saver=createRoomSettingsSaver(async value=>{
+  const saver=createRoomSettingsSaver<number>(async value=>{
     sent.push(value);
     await first.promise;
   },()=>{});
