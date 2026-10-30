@@ -34,3 +34,5 @@
   .blocklist-table .blocklist-word{font-size:13px}
 }
 @media(max-width:370px){.blocklist-totals{grid-template-columns:1fr}.blocklist-tag{padding:3px 5px;font-size:10px}}
+
+.blocklist-examples{display:block;white-space:normal;font:400 11px/1.55 system-ui,sans-serif;color:#a6bbcf;margin-top:4px;overflow-wrap:anywhere}

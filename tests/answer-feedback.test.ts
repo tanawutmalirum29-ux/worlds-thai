@@ -73,3 +73,13 @@ test('bare วี gives explicit banned-answer feedback, never an unknown-word h
   assert.notEqual(checkAnswerFeedback('วีร์','ว','body').status,'forbidden');
   assert.notEqual(checkAnswerFeedback('วีว์','ว','body').status,'forbidden');
 });
+
+test('roman V and we/wee elongated substitutions show banned feedback instead of unknown word',()=>{
+  for(const word of ['v','V','vee','ve','vvvvv','we','wee','weeeee','vี.','v v v']){
+    const result=checkAnswerFeedback(word,'ว','body');
+    assert.equal(result.status,'forbidden',word);
+    assert.match(result.message,/ห้ามใช้ตัว V/,word);
+  }
+  for(const word of ['win','why','วีนัส'])
+    assert.notEqual(checkAnswerFeedback(word,'ว','body').status,'forbidden',word);
+});
