@@ -16,6 +16,11 @@ const schema = a.schema({
     .returns(a.json())
     .authorization(allow => [allow.guest()])
     .handler(a.handler.function(game)),
+  adminSession: a.mutation()
+    .arguments({action:a.string().required(),token:a.string(),pin:a.string()})
+    .returns(a.json())
+    .authorization(allow=>[allow.guest()])
+    .handler(a.handler.function(game)),
   listRooms: a.query()
     .returns(a.json())
     .authorization(allow => [allow.guest()])
