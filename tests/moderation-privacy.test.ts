@@ -100,3 +100,48 @@ test('standalone วี is blocked in drafts, not any word that merely contains 
   assert.equal(snapshot(match).maskedAnswers.host.body,undefined);
   assert.equal(snapshot(match).maskedAnswers.host.animal,'1234');
 });
+
+test('roman vee lookalikes and stretched spelling are blocked throughout player nicknames',()=>{
+  for(const nick of [
+    'v','V','VVVVV','vee','ve','veeeee','wE','wee','weeeee','wwweee',
+    'v v v','v v v v','v-v-v','v...v...v',' v  ','vี.','Vี','ｖ','Ｖ','ｗｅｅ',
+    'น้องวี','หวี','น้องV','น้องvี','คุณ wee ครับ','sweet','ever','Review',
+    'คุณ w e e','คุณ wwweee','เน้นวีร์'
+  ]){
+    assert.equal(nicknameValidationMessage(nick),'ใช้ชื่อนี้ไม่ได้',nick);
+  }
+  for(const good of ['วิน','วี'.replace('ี','ิ'),'น้องบี','วิชัย','ALEX','Ken','W','win','why','ว่าว','หวาน']){
+    assert.equal(nicknameValidationMessage(good),'',good);
+  }
+});
+
+test('roman vee-like standalone answers are discarded on server, while unrelated words remain unaffected',()=>{
+  for(const word of [
+    'v','V','vvvvv','v v v','vee','ve','veeeee','wee','we','weeeee','wwweee',
+    'w e e','vี.','ｖ','Ｖ','ｗｅｅ','วี','ว ี'
+  ]){
+    assert.equal(isBlockedStandaloneAnswer(word),true,word);
+  }
+  for(const word of ['win','W','why','วิน','วีนัส','วีรบุรุษ','ทวีป','หวี','วิ','เงา','very']){
+    assert.equal(isBlockedStandaloneAnswer(word),false,word);
+  }
+  const match=room();
+  for(const word of ['v','wee','veeeee','vี.']){
+    applyAction(match,'draft','host',now+2500,'',{body:word,animal:'อูฐ'});
+    assert.equal(match.submissions.host.body,'',word);
+    assert.equal(snapshot(match).maskedAnswers.host.body,undefined,word);
+    assert.equal(match.submissions.host.animal,'อูฐ');
+  }
+  assert.equal(validAnswer('v','ว','body'),false);
+  assert.equal(validAnswer('vee','ว','body'),false);
+});
+
+test('server refuses roman vee-style names on both create and join',()=>{
+  for(const name of ['v','vee','we','wee','vvvvv','weeeee','vี.','น้องV']){
+    const m=newMatch('room-aabbccddeeff11223344',now);
+    assert.throws(()=>applyAction(m,'create','host',now,name),/ใช้ชื่อนี้ไม่ได้/,name);
+    applyAction(m,'create','host',now,'Player');
+    assert.throws(()=>applyAction(m,'join','guest',now,name),/ใช้ชื่อนี้ไม่ได้/,name);
+    assert.equal(m.players.length,1);
+  }
+});
