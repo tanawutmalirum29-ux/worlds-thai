@@ -1,3 +1,4 @@
+import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { EXTERNAL_BODY_TERMS } from './external-body-terms.ts';
@@ -2074,6 +2075,12 @@ for (const [category, words] of Object.entries(SO_SO_TERMS)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK,category))
     throw new Error('Unknown ซ category: '+category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category],...words])];
+}
+
+// Familiar bird names are valid both in bird and (where listed) animal categories.
+// De-duplicate exact registered names before the game builds word/rarity indexes.
+for (const [category, words] of Object.entries(FAMILIAR_BIRD_TERMS)) {
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
