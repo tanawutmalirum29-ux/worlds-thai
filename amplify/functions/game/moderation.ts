@@ -14,19 +14,80 @@ export const DISALLOWED_PHRASES = [
   'ชิบหาย','ฉิบหาย'
 ] as const;
 
-/** Normalize Unicode, hidden separators, and punctuation consistently for checks. */
+/**
+ * These are curated *pronunciation* exceptions, not a general spell-corrector.
+ * Preserve the established exact-vs-contains distinction: common words such as
+ * หีบ, สัดส่วน, ตีนเป็ด and legitimate English names must not be swept up.
+ */
+export const DISALLOWED_THAI_EXACT_VARIANTS=[
+  'สาส','ส๊าส','เหีย','เชีย','หี๊','หี้','เงียน'
+] as const;
+export const DISALLOWED_THAI_PHRASE_VARIANTS=[
+  'คุวย','คูวย','เยด','เย้ด','เย๊ด','เหี๊ย','เฮี้ย',
+  'เชี๊ย','เชี๋ย','ชิ้บหาย','ฉิ้บหาย'
+] as const;
+
+/**
+ * English swear words and Romanized Thai profanity. Common English syllables
+ * (e.g. hee, sat, yet, tin or an English person's name Jim) require a whole
+ * token rather than substring detection to avoid false positives.
+ */
+export const DISALLOWED_ROMAN_RULES=[
+  {word:'fuck / fck',examples:'fuck, fuuuck, f.u.c.k, fck, f*ck, fück',scope:'contains'},
+  {word:'bitch / cunt / pussy',examples:'bitch, biitch, cunt, pussy',scope:'contains'},
+  {word:'ควย (Roman)',examples:'kuy, kuay, kuai, k.u.y, KUUUAY',scope:'contains'},
+  {word:'คำหยาบแบบคำอ่านไทย',examples:'yed, yeet, hia, hee, sus, sud, ham, tud',scope:'exact'},
+  {word:'คำหยาบภาษาอังกฤษที่อาจเป็นคำทั่วไป',examples:'shit, shiiit, fuk, ass, dick',scope:'exact'}
+] as const;
+
+const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
+const REPEATED_SYMBOL=/([\p{L}\p{M}])\1+/gu;
+/** Only checks get this lossy representation; never change stored game answers. */
 function compactThai(value:unknown):string {
   if(typeof value!=='string')return '';
   return value.normalize('NFKC').toLocaleLowerCase('th')
-    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF]/gu,'')
+    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'')
     // NFKC decomposes Thai Sara Am; fold it back for exact matches.
-    .replace(/\u0E4D\u0E32/g,'\u0E33');
+    .replace(/\u0E4D\u0E32/g,'\u0E33')
+    // Phonetic spelling with gratuitous silent marks / stretched Thai letters.
+    .replace(/\u0E4C/gu,'')
+    .replace(REPEATED_SYMBOL,'$1');
 }
+
+/**
+ * Latin/Thai Roman spelling checks only. Handle Latin diacritics, select
+ * confusables, text separators and common 1337 substitutions. Keep the
+ * original Thai check independent so English transformations cannot modify
+ * ordinary Thai category words or vocabulary scoring.
+ */
+function romanizedCandidates(value:unknown):string[] {
+  if(typeof value!=='string')return [];
+  const latin=value.normalize('NFKD').toLowerCase()
+    .replace(/[\u0300-\u036F]/g,'')
+    .replace(/[аΑΑɑ]/gu,'a')
+    .replace(/[сϲ]/gu,'c')
+    .replace(/[еε]/gu,'e')
+    .replace(/[іΙı]/gu,'i')
+    .replace(/[οо]/gu,'o')
+    .replace(/[υս]/gu,'u')
+    .replace(/[р]/gu,'p')
+    .replace(/[х]/gu,'x');
+  const plain=latin.replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
+  const leet=latin.replace(/[@4]/g,'a').replace(/[!1]/g,'i')
+    .replace(/3/g,'e').replace(/0/g,'o').replace(/5/g,'s').replace(/7/g,'t').replace(/\$/g,'s')
+    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
+  return [...new Set([plain,leet].map(t=>t.replace(REPEATED_SYMBOL,'$1')))];
+}
+const ROMAN_STRONG=/(?:fuck|fck|bitch|cunt|pusy|kuy|kuay|kuai)/u;
+const ROMAN_WHOLE=/^(?:shit|shits|shitty|shitting|fuk|ass|dick|cock|yed|yet|yeet|hia|hee|sus|sud|sat|ham|hum|tud|tood|teen|tin|joo|jew)$/u;
 export function isInappropriateLanguage(value:unknown):boolean {
   const compact=compactThai(value);
   if(!compact)return false;
-  return DISALLOWED_EXACT.has(compact) ||
-    DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase));
+  if(DISALLOWED_EXACT.has(compact)||THAI_EXACT_VARIANTS.has(compact)||
+    DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase))||
+    DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase)))return true;
+  return romanizedCandidates(value).some(roman=>
+    ROMAN_STRONG.test(roman)||ROMAN_WHOLE.test(roman));
 }
 
 /**
