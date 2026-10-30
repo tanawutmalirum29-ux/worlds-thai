@@ -18,7 +18,7 @@ export function AdminBlocklistView(){
   return <section className="panel blocklist-panel" aria-label="รายการคำหยาบและคำที่ถูกแบน">
     <div className="panel-title">
       <div><h2>รายการคำหยาบ / คำแบน</h2>
-        <p className="help">แสดงกฎจากระบบตรวจคำและชื่อผู้เล่นที่เกมใช้จริง แยกประเภทตามวิธีตรวจ</p>
+        <p className="help">แสดงกฎจากระบบตรวจคำและชื่อผู้เล่นที่เกมใช้จริง รวมการลากพยัญชนะ/สระ เว้นวรรค ซ่อนอักขระ และคำอ่านภาษาอังกฤษ</p>
       </div>
     </div>
     <div className="blocklist-totals" aria-label="จำนวนกฎที่ใช้">
@@ -54,6 +54,6 @@ export function AdminBlocklistView(){
       </table>
     </div>
     <p className="blocklist-note">รายการนี้ดูได้อย่างเดียว หากต้องการเพิ่มหรือลบกฎ ต้องแก้ไฟล์ <code>amplify/functions/game/moderation.ts</code> ใน GitHub แล้ว Deploy เกมใหม่ ไม่ใช่แก้จากหน้านี้</p>
-    <p className="blocklist-note">คำหยาบประเภท “ตรงทั้งคำ” จะไม่แบนคำธรรมดาที่มีตัวอักษรคล้ายกันโดยอัตโนมัติ แต่รายการ “มีในข้อความ” และกฎชื่อผู้เล่นตรวจทั้งข้อความ</p>
+    <p className="blocklist-note">ระบบยุบตัวอักษรและสระที่พิมพ์ซ้ำเพื่อใช้ตรวจเท่านั้น ไม่แก้คำตอบที่ผู้เล่นพิมพ์จริง คำหยาบประเภท “ตรงทั้งคำ” จะไม่แบนคำธรรมดาที่สะกดคล้ายกัน ส่วนคำอ่านภาษาอังกฤษบางคำใช้กฎตรงทั้งคำเพื่อลดการบล็อกคำสุภาพโดยผิดพลาด</p>
   </section>;
 }

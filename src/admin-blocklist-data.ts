@@ -1,6 +1,7 @@
 import {
   DISALLOWED_EXACT,DISALLOWED_PHRASES,BLOCKED_NICKNAME_FRAGMENT,BLOCKED_STANDALONE_ANSWER,
-  BLOCKED_VEE_ROMAN_RULES
+  BLOCKED_VEE_ROMAN_RULES,DISALLOWED_THAI_EXACT_VARIANTS,DISALLOWED_THAI_PHRASE_VARIANTS,
+  DISALLOWED_ROMAN_RULES
 } from '../amplify/functions/game/moderation.ts';
 
 export type BlockKind='exact'|'contains'|'nickname'|'answer';
@@ -16,6 +17,12 @@ export const BLOCK_KIND_LABELS:Record<BlockKind,string>={
 export const BLOCKED_ENTRIES:readonly BlockedEntry[]=[
   ...[...DISALLOWED_EXACT].map(word=>({word,kind:'exact' as const})),
   ...DISALLOWED_PHRASES.map(word=>({word,kind:'contains' as const})),
+  ...DISALLOWED_THAI_EXACT_VARIANTS.map(word=>({word,kind:'exact' as const})),
+  ...DISALLOWED_THAI_PHRASE_VARIANTS.map(word=>({word,kind:'contains' as const})),
+  ...DISALLOWED_ROMAN_RULES.map(rule=>({
+    word:rule.word,kind:rule.scope==='exact'?'exact' as const:'contains' as const,
+    examples:rule.examples
+  })),
   {word:BLOCKED_NICKNAME_FRAGMENT,kind:'nickname'},
   {word:BLOCKED_STANDALONE_ANSWER,kind:'answer'},
   ...BLOCKED_VEE_ROMAN_RULES.flatMap(rule=>[
