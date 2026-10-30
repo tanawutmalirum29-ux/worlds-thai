@@ -135,7 +135,8 @@ export function validRoundAnswer(value:string,letter:string,slot:string,topicCat
 }
 export const REVIEW_SECONDS = 10;
 export const RUSH_ANIMATION_MS = 1800;
-export const IDLE_SECONDS = 43;
+// Give slow connections time to recover without losing their player slot.
+export const IDLE_SECONDS = 150;
 export const ROUND_SECONDS = DEFAULT_SETTINGS.seconds;
 export const ROUNDS = DEFAULT_SETTINGS.rounds;
 export type Phase = 'lobby' | 'playing' | 'review' | 'final';
@@ -318,6 +319,13 @@ function pruneVotes(match:Match) {
     if(!votes)continue;
     for(const id of Object.keys(votes))if(!active.has(id))delete votes[id];
   }
+}
+/** Queries can advance expired server-owned phases as well as heartbeats.
+ * Read-only refreshes must not write when a deadline has not yet passed.
+ */
+export function timedTransitionDue(match:Pick<Match,'phase'|'deadline'>, now:number):boolean {
+  return (match.phase==='playing'||match.phase==='review') &&
+    match.deadline>0 && now>=match.deadline;
 }
 export function advance(match: Match, now: number, random = Math.random): Match {
   match.players = match.players.filter(player => now-player.lastSeen <= IDLE_SECONDS*1000);
