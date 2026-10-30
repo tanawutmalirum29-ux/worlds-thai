@@ -50,6 +50,7 @@ type Entry = { id:string; name:string; answers:Record<string,string>; points:num
 type Round = {round:number; letter:string; categories:string[]; topicCategory?:string; entries:Entry[]};
 type Game = {roomId:string; phase:'lobby'|'playing'|'review'|'final'; round:number; letter:string; topicCategory?:string;
   categories:string[]; deadline:number; countdown:number; players:Player[]; submitted:string[];
+  maskedAnswers?:Record<string,Record<string,string>>;
   history:Round[]; revision:number; ownerId:string; settings:GameSettings; you?:string;
   skipVotes?:string[]; rematchVotes?:string[];
   timeRush?:{start:number;ends:number;from:number};
@@ -625,13 +626,28 @@ function App(){
                 <span className={state==='accepted'?'answer-check filled':state==='empty'?'answer-check':'answer-check invalid'}>{state==='accepted'?'✓':state==='empty'?'—':'!'}</span>
               </label>;
             })}</div>
+            {game.players.length>1?<section className="masked-answer-panel" aria-label="คำตอบของเพื่อนระหว่างเล่น">
+              <div className="masked-answer-title"><b>คำตอบของเพื่อน</b><small>ขณะเล่นจะแสดง 1234 แทนคำจริง · เฉลยเมื่อหมดเวลา</small></div>
+              <div className="masked-answer-scroll">
+                <div className="masked-answer-row masked-answer-header" style={{gridTemplateColumns:`minmax(90px,130px) repeat(${game.categories.length}, 52px)`}}>
+                  <span>ผู้เล่น</span>
+                  {game.categories.map(id=><span key={id} title={game.topicCategory?letterCaption(id):LABELS[id]}>{game.topicCategory?id:LABELS[id]||id}</span>)}
+                </div>
+                {game.players.filter(player=>player.id!==me).map(player=><div className="masked-answer-row" style={{gridTemplateColumns:`minmax(90px,130px) repeat(${game.categories.length}, 52px)`}} key={player.id}>
+                  <span className="masked-answer-name" title={player.name}>{player.name}</span>
+                  {game.categories.map(id=><span key={id} className={game.maskedAnswers?.[player.id]?.[id]?'mask-token mask-filled':'mask-token'} aria-label={`${player.name} ${game.topicCategory?letterCaption(id):LABELS[id]}: ${game.maskedAnswers?.[player.id]?.[id]?'มีคำตอบแล้ว':'ยังไม่ได้ตอบ'}`}>
+                    {game.maskedAnswers?.[player.id]?.[id]?'1234':'—'}
+                  </span>)}
+                </div>)}
+              </div>
+            </section>:null}
             <div className={`auto-save-status autosave-${draftStatus}`} role="status" aria-live="polite">
               {draftStatus==='saving'?'กำลังบันทึกคำตอบ...':
                draftStatus==='saved'?'✓ บันทึกคำตอบแล้ว':
                draftStatus==='error'?'การเชื่อมต่อขัดข้อง กำลังลองบันทึกใหม่':
                'พิมพ์ได้เลย ระบบจะบันทึกคำตอบให้อัตโนมัติ'}
             </div>
-            <p className="small-center">ไม่ต้องกดส่งคำตอบ ระบบคิดคะแนนจากคำล่าสุดที่บันทึกสำเร็จเมื่อหมดเวลา</p>
+            <p className="small-center">คำตอบที่พิมพ์จะเห็นเฉพาะคุณระหว่างเล่น · ไม่ต้องกดส่ง ระบบคิดคะแนนจากคำล่าสุดที่บันทึกสำเร็จเมื่อหมดเวลา</p>
           </>:null}
           {game.phase==='review'&&latest?<div className="results-view"><div className="results-round">ROUND {latest.round} COMPLETE</div><h2>แต้มรอบนี้มาแล้ว!</h2><p>{latest.topicCategory?'หมวดใหญ่':'พยัญชนะ'} <strong className="gold-text">{latest.topicCategory?LABELS[latest.topicCategory]||latest.topicCategory:letterCaption(latest.letter)}</strong> · {latest.round>=game.settings.rounds?'กำลังสรุปคะแนน':`รอบถัดไปใน ${remaining} วินาที`}</p>
             <div className="round-results">{latest.entries.slice().sort((a,b)=>b.points-a.points).map((e,i)=><div className="result-person" key={e.id}><span className="rank-bubble">{i+1}</span><span>{e.name} {e.id===me?'(คุณ)':''}</span><strong>+{e.points} คะแนน</strong></div>)}</div>
