@@ -2,6 +2,7 @@ import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
+import { ADDITIONAL_DESSERTS } from './additional-desserts.ts';
 import { SO_SO_TERMS } from './so-so-terms.ts';
 import { ROYAL_THAI_TERMS } from './royal-thai-terms.ts';
 import { ADVANCED_ROYAL_TERMS } from './advanced-royal-terms.ts';
@@ -2124,6 +2125,10 @@ WORD_BANK.toy = [...new Set([...WORD_BANK.toy, ...ADDITIONAL_TOYS])];
 // Register real fish names before eligibility, scoring and rarity indexes are built.
 // Existing generic ปลา prefix normalization remains server-authoritative.
 WORD_BANK.fish = [...new Set([...WORD_BANK.fish, ...ADDITIONAL_FISH])];
+
+// Reviewed sweets share the existing dessert category and canonical scoring.
+// Deduplicate before eligible letters and rarity statistics are computed.
+WORD_BANK.dessert = [...new Set([...WORD_BANK.dessert, ...ADDITIONAL_DESSERTS])];
 
 export const EXCLUDED_LETTERS = new Set(['ฃ','ฅ','ฎ','ฏ','ฑ','ฒ','ฬ','ฮ']);
 export const MIN_WORDS_PER_PAIR = 2;
