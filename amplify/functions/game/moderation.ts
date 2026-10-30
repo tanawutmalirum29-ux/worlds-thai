@@ -60,6 +60,23 @@ export const DISALLOWED_ROMAN_RULES=[
   {word:'tood',scope:'exact',pattern:/^tod$/u,examples:'tood'},
 ] as const;
 
+/**
+ * Catch inserted Thai combining vowels and tone marks inside banned words,
+ * without stripping meaningful vowels from legitimate words like ควาย.
+ * Exact-only bans stay anchored; phrases may occur inside longer nicknames.
+ */
+const EXTRA_THAI_MARKS=String.raw`[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{0,4}`;
+function withInsertedThaiMarks(word:string,contains:boolean):RegExp {
+  const pattern=[...word].join(EXTRA_THAI_MARKS);
+  return new RegExp(contains?pattern:'^(?:'+pattern+')$','u');
+}
+const STRETCHED_PHRASES=[
+  ...DISALLOWED_PHRASES,...DISALLOWED_THAI_PHRASE_VARIANTS
+].map(word=>withInsertedThaiMarks(word,true));
+const STRETCHED_EXACT=[
+  ...DISALLOWED_EXACT,...DISALLOWED_THAI_EXACT_VARIANTS
+].map(word=>withInsertedThaiMarks(word,false));
+
 const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
 const REPEATED_SYMBOL=/([\p{L}\p{M}])\1+/gu;
 /** Only checks get this lossy representation; never change stored game answers. */
@@ -105,7 +122,9 @@ export function isInappropriateLanguage(value:unknown):boolean {
   if(!compact)return false;
   if(DISALLOWED_EXACT.has(compact)||THAI_EXACT_VARIANTS.has(compact)||
     DISALLOWED_PHRASES.some(phrase=>compact.includes(phrase))||
-    DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase)))return true;
+    DISALLOWED_THAI_PHRASE_VARIANTS.some(phrase=>compact.includes(phrase))||
+    STRETCHED_PHRASES.some(pattern=>pattern.test(compact))||
+    STRETCHED_EXACT.some(pattern=>pattern.test(compact)))return true;
   return romanizedCandidates(value).some(roman=>
     DISALLOWED_ROMAN_RULES.some(rule=>rule.pattern.test(roman)));
 }
