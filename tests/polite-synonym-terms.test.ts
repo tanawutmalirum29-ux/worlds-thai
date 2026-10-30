@@ -36,7 +36,7 @@ test('word meanings are category-bound, with real consonant initials and no inve
     ['นภา','น','nature'], ['ทิวากร','ท','nature'],
     ['ศีรษะ','ศ','body'], ['รับประทาน','ร','verb'],
     ['ผายลม','ผ','verb'], ['อุบล','อ','flower'],
-    ['ผักทอดยอด','ผ','vegetable']
+    ['ผักทอดยอด','ท','vegetable']
   ] as const) {
     assert.equal(wordInitialForCategory(word,category),letter, word+' wrong initial');
     if (eligibleCategories(letter).includes(category))

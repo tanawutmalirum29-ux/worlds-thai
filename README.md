@@ -275,3 +275,6 @@ The gameplay answer input now explicitly says **ห้ามใช้คำน�
 
 ## หมวดผัก: optional ผัก prefix
 In `vegetable`, the category label `ผัก` is ignored when calculating the first consonant. For example `ผักบุ้ง` / `บุ้ง` count as a single บ answer, `ผักกาด` / `กาด` as ก, `ผักชี` / `ชี` as ช, and `ผักโขม` / `โขม` as ข. Names are only accepted when the canonical word is registered in the reviewed bank. The standalone word `ผัก`, stacked `ผักผัก...` and invented names are rejected explicitly; only this category normalizes the prefix (e.g. plant and food categories are unchanged). The same normalization applies to eligible-letter sampling, duplicate scoring, rarity, usage tracking, CSV exports, admin searches and the dashboard. A fictional example `ผักจรวดนุ่มนิ่ม` explains the rule immediately below the vegetable category title without providing a valid answer.
+
+### Vegetable category exceptions to historical ผ listings
+Older curated dictionaries still retain the original spelling of `ผักกูด`, `ผักปลัง` and other prefixed names under ผ vocabulary lists for provenance, but in the **vegetable** game category they belong to the true name letter after `ผัก`. Legacy corpus and score tests now distinguish raw spelling from the category-aware playable initial rather than changing the category rule back to ผ.

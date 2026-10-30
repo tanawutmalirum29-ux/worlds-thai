@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {PHO_PHUENG_TERMS} from '../amplify/functions/game/pho-phueng-terms.ts';
 import {WORD_BANK,MIN_CATEGORIES_PER_LETTER,MIN_WORDS_PER_PAIR} from '../amplify/functions/game/dictionary.ts';
 import {
-  CATEGORIES,LETTERS,eligibleCategories,wordInitialForCategory,canonicalAnswer,
+  CATEGORIES,LETTERS,eligibleCategories,initialConsonant,wordInitialForCategory,canonicalAnswer,
   validAnswer,newMatch,applyAction,chooseRound,scoreRound
 } from '../amplify/functions/game/logic.ts';
 
@@ -19,13 +19,16 @@ test('all reviewed ผ words appear once per live category, are NFC, and start w
       count++;
       assert.equal(word,word.trim().normalize('NFC'),'bad whitespace/Unicode '+word);
       assert.ok(word.length<=48,'word too long '+word);
-      assert.equal(wordInitialForCategory(word,category),'ผ',
-        'preposed vowels and Thai consonants must resolve to ผ for '+word);
+      assert.equal(initialConsonant(word),'ผ',
+        'reviewed dictionary entry must begin with ผ for '+word);
       assert.ok(WORD_BANK[category].includes(word),
         category+': '+word+' missing from production dictionary');
-      if(eligibleCategories('ผ').includes(category))
-        assert.equal(validAnswer(word,'ผ',category),true,
-          category+': '+word+' wrongly rejected by server');
+      const effectiveLetter=wordInitialForCategory(word,category);
+      assert.equal(validAnswer(word,effectiveLetter,category),
+        eligibleCategories(effectiveLetter).includes(category),
+        category+': '+word+' must be assigned by its real consonant');
+      if(effectiveLetter!=='ผ')
+        assert.equal(validAnswer(word,'ผ',category),false,word+' no longer counts ผ category prefix');
     }
   }
   assert.ok(count>=400,'expected a substantial new ผ dictionary');
@@ -75,9 +78,13 @@ test('popular ผ answers and preposed vowels work, but fabricated or wrong-cate
     ['ผึ้งหลวง','insect'],['เผือกเชื่อม','dessert'],
     ['ผิวน้ำ','nature'],['ผ้าถูพื้น','tool']
   ];
-  for(const [word,category] of examples)
-    assert.equal(validAnswer(word,'ผ',category),true,
-      category+': '+word+' must be accepted');
+  for(const [word,category] of examples){
+    const effectiveLetter=wordInitialForCategory(word,category);
+    assert.equal(validAnswer(word,effectiveLetter,category),
+      eligibleCategories(effectiveLetter).includes(category),
+      category+': '+word+' must be playable for the actual initial');
+    if(effectiveLetter!=='ผ')assert.equal(validAnswer(word,'ผ',category),false,word);
+  }
   assert.equal(validAnswer('ขนมเผือกเชื่อม','ผ','dessert'),true);
   assert.equal(canonicalAnswer('ขนมเผือกเชื่อม','dessert'),'เผือกเชื่อม');
   assert.equal(validAnswer('ขนมผิง','ผ','dessert'),true,
@@ -100,7 +107,12 @@ test('score duplicate spelling of a ผ dessert as one answer, not two',()=>{
     host:{animal:'ผึ้ง',vegetable:'ผักกูด',dessert:'เผือกเชื่อม'},
     guest:{animal:'ผีเสื้อกลางคืน',vegetable:'ผักปลัง',dessert:'ขนมเผือกเชื่อม'}
   };
-  assert.deepEqual(scoreRound(m).map(e=>e.points),[5,5]);
+  assert.deepEqual(scoreRound(m).map(e=>e.points),[3,3],
+    'ผักกูด and ผักปลัง now count ก and ป instead of ผ');
   m.submissions.guest={animal:'ผึ้ง',vegetable:'ผักกูด',dessert:'เผือกเชื่อม'};
-  assert.deepEqual(scoreRound(m).map(e=>e.points),[3,3]);
+  assert.deepEqual(scoreRound(m).map(e=>e.points),[2,2]);
+  m.letter='ก';m.categories=['vegetable'];
+  m.submissions={host:{vegetable:'ผักกูด'},guest:{vegetable:'กูด'}};
+  assert.deepEqual(scoreRound(m).map(e=>e.points),[1,1],
+    'the bare and prefixed vegetable names are one answer');
 });

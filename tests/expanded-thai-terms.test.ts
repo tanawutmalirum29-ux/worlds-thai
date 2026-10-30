@@ -37,7 +37,7 @@ test('expanded words follow category boundaries, initial consonants and optional
     ['นักพัฒนาเกม','น','job'],
     ['ถัก','ถ','verb'],
     ['กล้วยน้ำว้า','ก','fruit'],
-    ['ผักกูด','ผ','vegetable'],
+    ['ผักกูด','ก','vegetable'],
     ['ก๋วยจั๊บ','ก','food'],
     ['ชานมไข่มุก','ช','drink'],
     ['เมโลเดียน','ม','music'],
@@ -62,6 +62,9 @@ test('expanded words follow category boundaries, initial consonants and optional
   ];
   for(const [word,letter,category] of examples)
     assert.equal(validAnswer(word,letter,category),true,category+'/'+word+' should be playable');
+  assert.equal(canonicalAnswer('ผักกูด','vegetable'),'กูด');
+  assert.equal(validAnswer('กูด','ก','vegetable'),true);
+  assert.equal(validAnswer('ผักกูด','ผ','vegetable'),false);
   assert.equal(canonicalAnswer('นกแต้วแล้ว','bird'),'แต้วแล้ว');
   assert.equal(canonicalAnswer('ปลากะพงแดง','fish'),'กะพงแดง');
   assert.equal(validAnswer('ปลากะพงแดง','ป','fish'),false);
