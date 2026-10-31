@@ -96,7 +96,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'สกีข้ามประเทศ',
     'วิ่งผลัดสี่คูณสี่ร้อย',
     'คินบอล',
-    'ยิงธนูเป้า',
+    'ราวด์เน็ต',
     'ฟันดาบเอเป้',
   ],
   music: [
