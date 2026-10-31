@@ -7,11 +7,11 @@ import { isInappropriateLanguage, isBlockedStandaloneAnswer } from '../amplify/f
 
 const approvedCategories = ['food', 'fruit'];
 
-test('AI-2 batch C registers exactly 20 unique foods and fruits in the live dictionary', () => {
+test('AI-2 batches C and F register exactly 21 unique foods and fruits in the live dictionary', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_FRUIT_20261031).sort(), approvedCategories);
   assert.equal(AI2_FOOD_FRUIT_20261031.food.length, 15);
-  assert.equal(AI2_FOOD_FRUIT_20261031.fruit.length, 5);
-  assert.equal(Object.values(AI2_FOOD_FRUIT_20261031).flat().length, 20);
+  assert.equal(AI2_FOOD_FRUIT_20261031.fruit.length, 6);
+  assert.equal(Object.values(AI2_FOOD_FRUIT_20261031).flat().length, 21);
 
   for (const [category, words] of Object.entries(AI2_FOOD_FRUIT_20261031)) {
     assert.equal(new Set(words).size, words.length, 'duplicate literal: ' + category);
@@ -39,4 +39,13 @@ test('AI-2 batch C preserves category-local prefix and canonicalization behavior
   assert.equal(wordInitialForCategory('ขนมครก', 'dessert'), 'ค');
   assert.equal(wordInitialForCategory('ผักบุ้ง', 'vegetable'), 'บ');
   assert.equal(canonicalAnswer('ผักบุ้ง', 'vegetable'), 'บุ้ง');
+});
+
+test('AI-2 batch F registers Sla Noen Wong as one unique fruit', () => {
+  const word = 'สละเนินวง';
+  assert.ok(AI2_FOOD_FRUIT_20261031.fruit.includes(word));
+  assert.equal(WORD_BANK.fruit.filter(entry =>
+    canonicalAnswer(entry, 'fruit') === canonicalAnswer(word, 'fruit')).length, 1);
+  assert.equal(isInappropriateLanguage(word), false);
+  assert.equal(wordInitialForCategory(word, 'fruit'), 'ส');
 });
