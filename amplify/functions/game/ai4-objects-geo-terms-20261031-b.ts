@@ -284,7 +284,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 12: established agricultural, industrial and service facilities.
     'โรงเพาะเห็ด',
     'โรงงานทอผ้า',
-    'ศูนย์คัดแยกพัสดุ',
+    'โรงเก็บเรือ',
     'สถานีชาร์จรถยนต์ไฟฟ้า'
   ]
 } as const;

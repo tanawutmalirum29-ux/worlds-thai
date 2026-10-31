@@ -5,7 +5,7 @@ import ts from 'typescript';
 import { AI4_OBJECTS_GEO_TERMS } from '../amplify/functions/game/ai4-objects-geo-terms-20261031-b.ts';
 import { ADDITIONAL_VEHICLES_20261031 } from '../amplify/functions/game/additional-vehicles-20261031.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
-import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory }
+import { canonicalAnswer, eligibleCategories, LETTERS, validAnswer, wordInitialForCategory }
   from '../amplify/functions/game/logic.ts';
 import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
@@ -15,7 +15,7 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
   tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต'],
-  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ', 'ร', 'ส', 'อ', 'ห', 'ร', 'ร', 'ศ', 'ส'],
+  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ', 'ร', 'ส', 'อ', 'ห', 'ร', 'ร', 'ร', 'ส'],
 };
 
 test('AI-4 batches 2–12 register exactly 220 clean and canonically unique terms', () => {
@@ -269,7 +269,7 @@ const BATCH_12: Readonly<Record<string, readonly string[]>> = {
   vehicle: ['รถสโนว์โมบิล', 'เรือดำน้ำท่องเที่ยว', 'รถตักตีนตะขาบ', 'รถฉีดน้ำล้างถนน'],
   device: ['เครื่องซีลสูญญากาศ', 'เครื่องตรวจจับก๊าซ', 'เครื่องอบผลไม้', 'เครื่องเคลือบบัตร'],
   tool: ['เครื่องวัดระยะเลเซอร์', 'ปืนเป่าลม', 'คีมตัดสายเคเบิล', 'ตัวดูดกระจก'],
-  place: ['โรงเพาะเห็ด', 'โรงงานทอผ้า', 'ศูนย์คัดแยกพัสดุ', 'สถานีชาร์จรถยนต์ไฟฟ้า']
+  place: ['โรงเพาะเห็ด', 'โรงงานทอผ้า', 'โรงเก็บเรือ', 'สถานีชาร์จรถยนต์ไฟฟ้า']
 };
 
 test('AI-4 batch 12 adds 20 new canonical-unique entries in owned categories', () => {
@@ -289,6 +289,10 @@ test('AI-4 batch 12 adds 20 new canonical-unique entries in owned categories', (
       assert.equal(isInappropriateLanguage(word), false);
       assert.equal(isBlockedStandaloneAnswer(word), false);
       assert.equal(wordInitialForCategory(word, category), wordInitialForCategory(canonical, category));
+      const initial = wordInitialForCategory(word, category);
+      assert.ok(LETTERS.includes(initial), 'initial excluded from playable letters: ' + category + '/' + word);
+      assert.ok(eligibleCategories(initial).includes(category), 'category unavailable for initial: ' + category + '/' + word);
+      assert.equal(validAnswer(word, initial, category), true, 'registered but unplayable: ' + category + '/' + word);
     }
   }
 });

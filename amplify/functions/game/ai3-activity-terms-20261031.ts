@@ -40,6 +40,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นักบินโดรน',
     'ช่างติดตั้งโซลาร์เซลล์',
     'ช่างซ่อมเครื่องถ่ายเอกสาร',
+    'นักออกแบบภูมิทัศน์',
+    'นักจดหมายเหตุ',
+    'ช่างเทคนิคเครื่องมือแพทย์',
   ],
   verb: [
     'เคลือบเงา',
@@ -78,6 +81,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เพาะเห็ด',
     'หมักปุ๋ย',
     'ปักชำ',
+    'คัดเมล็ด',
+    'กรีดยาง',
+    'ลอกเปลือก',
   ],
   sport: [
     'สปีดสเกต',
@@ -116,6 +122,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ยิงเป้าบิน',
     'แร็กเกตบอล',
     'สแลคไลน์',
+    'ฟิสต์บอล',
+    'ฟุตเน็ต',
+    'โกลบอล',
   ],
   music: [
     'ไวบราโฟน',
@@ -151,6 +160,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'คีย์ตาร์',
     'กลองอูดู',
     'ดิดเจอรีดู',
+    'ซานตูร์',
+    'เอ้อหู',
+    'กู่เจิง',
   ],
   toy: [
     'หุ่นนิ้ว',
@@ -176,6 +188,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมสแครบเบิล',
     'เกมบิงโก',
     'ชุดทดลองภูเขาไฟจำลอง',
+    'เกมคาตัน',
+    'เกมทาบู',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
@@ -213,6 +227,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กล่องใส่ชอล์ก',
     'บัตรดัชนี',
     'กระดาษโน้ตห้าเส้น',
+    'หลอดทดลอง',
+    'ตะแกรงลวด',
+    'แผ่นแม่เหล็กตัวอักษร',
   ],
   body: [
     'กล่องเสียง',
@@ -251,5 +268,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ท่อนำไข่',
     'ต่อมใต้สมอง',
     'ถุงน้ำดี',
+    'ไส้ติ่ง',
+    'เส้นประสาทไตรเจมินัล',
+    'ลิ้นหัวใจไตรคัสปิด',
   ],
 };
