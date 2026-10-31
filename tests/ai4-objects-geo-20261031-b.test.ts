@@ -266,7 +266,7 @@ test('AI-4 batch 11 adds 20 reviewed canonical-unique entries in owned categorie
 
 const BATCH_12: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ถุงมือกันความร้อน', 'สนับศอก', 'รองเท้ากอล์ฟ', 'เสื้อเกราะกันกระแทก'],
-  vehicle: ['รถสโนว์โมบิล', 'เรือดำน้ำท่องเที่ยว', 'รถตักตีนตะขาบ', 'รถฉีดน้ำล้างถนน'],
+  vehicle: ['รถปูยางมะตอย', 'เรือดำน้ำท่องเที่ยว', 'รถตักตีนตะขาบ', 'รถฉีดน้ำล้างถนน'],
   device: ['เครื่องซีลสูญญากาศ', 'เครื่องตรวจจับก๊าซ', 'เครื่องอบผลไม้', 'เครื่องเคลือบบัตร'],
   tool: ['เครื่องวัดระยะเลเซอร์', 'ปืนเป่าลม', 'คีมตัดสายเคเบิล', 'ตัวดูดกระจก'],
   place: ['โรงเพาะเห็ด', 'โรงงานทอผ้า', 'โรงเก็บเรือ', 'สถานีชาร์จรถยนต์ไฟฟ้า']
@@ -295,4 +295,16 @@ test('AI-4 batch 12 adds 20 new canonical-unique entries in owned categories', (
       assert.equal(validAnswer(word, initial, category), true, 'registered but unplayable: ' + category + '/' + word);
     }
   }
+});
+
+
+test('AI-4 batch 12 rejects snowmobile semantic alias already in the main bank', () => {
+  // รถสโนว์โมบิล and สโนว์โมบิล are the same vehicle despite distinct canonical strings.
+  assert.ok(WORD_BANK.vehicle.includes('สโนว์โมบิล'));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถสโนว์โมบิล'));
+  // Asphalt pavers lay asphalt; unlike existing road rollers they do not compact it.
+  assert.ok(AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถปูยางมะตอย'));
+  assert.ok(WORD_BANK.vehicle.includes('รถบดถนน'));
+  assert.equal(wordInitialForCategory('รถปูยางมะตอย', 'vehicle'), 'ร');
+  assert.equal(validAnswer('รถปูยางมะตอย', 'ร', 'vehicle'), true);
 });
