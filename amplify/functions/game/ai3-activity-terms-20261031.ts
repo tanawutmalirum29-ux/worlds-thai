@@ -172,7 +172,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ซานตูร์',
     'เอ้อหู',
     'กู่เจิง',
-    'โอโบอามอร์',
+    'โอโบ ดาโมเร่',
     'กลองเหล็ก',
     'ไวโอลินไฟฟ้า',
   ],
@@ -203,7 +203,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมคาตัน',
     'เกมทาบู',
     'กระดานเขาวงกตลูกเหล็ก',
-    'เกมระเบิดแมว',
+    'เหมียวระเบิด',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
