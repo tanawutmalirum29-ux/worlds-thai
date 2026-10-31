@@ -99,12 +99,30 @@ function withInsertedThaiMarks(word:string,contains:boolean):RegExp {
   const anchored='^(?:'+pattern+')'+String.fromCharCode(36);
   return new RegExp(contains?pattern:anchored,'u');
 }
+/**
+ * Context-dependent and ordinary-adjacent words must not receive fuzzy
+ * repeated-vowel/repeated-consonant matching. For example เสือก looks like
+ * part of เสื้อกั๊ก when arbitrary Thai marks are allowed between letters.
+ * They are still blocked by exact/phrase checks, punctuation/format cleanup,
+ * repeated identical-character folding, and deliberate known variants.
+ */
+const CONSERVATIVE_WORDS=new Set<string>([
+  'ตอแหล','ทุเรศ','เสือก','เฮงซวย','ดัดจริต','สันดาน',
+  'หน้าด้าน','สถุล','อุบาทว์','เสนียด','ร่าน','โง่','เลว',
+  'อีควาย','ไอ้ควาย','ไอควาย','อีตอแหล','ไอ้ตอแหล',
+  'อีร่าน','อีดอกทอง','อีแรด','ไอ้หน้าด้าน','อีหน้าด้าน',
+  'ไอ้สันดาน','อีสันดาน','ไอ้เฮงซวย','อีเฮงซวย',
+  'ไอ้เสือก','ไอ้เบื๊อก','ไอ้หน้าโง่',
+  'ตอแล','ตอแร','ไอ้สลัด','อีสลัด'
+]);
 const STRETCHED_PHRASES=[
   ...DISALLOWED_PHRASES,...DISALLOWED_THAI_PHRASE_VARIANTS
-].map(word=>withInsertedThaiMarks(word,true));
+].filter(word=>!CONSERVATIVE_WORDS.has(word))
+ .map(word=>withInsertedThaiMarks(word,true));
 const STRETCHED_EXACT=[
   ...DISALLOWED_EXACT,...DISALLOWED_THAI_EXACT_VARIANTS
-].map(word=>withInsertedThaiMarks(word,false));
+].filter(word=>!CONSERVATIVE_WORDS.has(word))
+ .map(word=>withInsertedThaiMarks(word,false));
 
 const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
 const REPEATED_SYMBOL=/([\p{L}\p{M}])\1+/gu;
