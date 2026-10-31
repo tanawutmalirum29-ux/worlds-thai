@@ -17,7 +17,7 @@ export const AI2_FOOD_HOME_BATCH_I: Readonly<Record<'vegetable' | 'object' | 'fu
     'ถาดน้ำแข็ง',
     'ถุงซักผ้า',
     'ยางรัดผม',
-    'ซองใส่แว่น',
+    'กระปุกสำลี',
     'ฟอยล์อะลูมิเนียม',
     'ที่กรองชา',
     'ช้อนตวง',
