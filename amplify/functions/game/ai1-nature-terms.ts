@@ -115,7 +115,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกอ้ายงั่ว',
     'นกแอ่นตาล',
     'นกกะเต็นอกขาว',
-    'นกตะขาบทุ่ง',
+    'นกจาบคาเคราแดง',
   ],
   fish: [
     'ปลาสิงโต',
