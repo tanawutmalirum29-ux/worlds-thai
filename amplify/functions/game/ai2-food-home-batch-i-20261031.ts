@@ -12,7 +12,7 @@ export const AI2_FOOD_HOME_BATCH_I: Readonly<Record<'vegetable' | 'object' | 'fu
   ],
   object: [
     'ที่รองสบู่',
-    'เหยือกน้ำ',
+    'ที่แยกไข่แดง',
     'ที่วางตะเกียบ',
     'ถาดน้ำแข็ง',
     'ถุงซักผ้า',

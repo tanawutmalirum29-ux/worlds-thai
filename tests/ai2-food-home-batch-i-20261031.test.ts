@@ -9,7 +9,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 const EXPECTED = {
   vegetable: ['กะหล่ำปม', 'ใบชะมวง', 'หน่อกระวาน', 'ผักขวง'],
   object: [
-    'ที่รองสบู่', 'เหยือกน้ำ', 'ที่วางตะเกียบ', 'ถาดน้ำแข็ง',
+    'ที่รองสบู่', 'ที่แยกไข่แดง', 'ที่วางตะเกียบ', 'ถาดน้ำแข็ง',
     'ถุงซักผ้า', 'ยางรัดผม', 'กระปุกสำลี', 'ที่บีบหลอดยาสีฟัน',
     'ที่กรองชา', 'ช้อนตวง', 'ตลับยา', 'กล่องปฐมพยาบาล'
   ],
@@ -77,7 +77,8 @@ test('AI-2 batch I rejects semantic duplicates of existing household terms', () 
       ['หลอดดูดน้ำ', 'หลอดดูด'],
       ['ที่หนีบผ้า', 'ไม้หนีบผ้า'],
       ['ซองใส่แว่น', 'ซองใส่แว่นตา'],
-      ['ฟอยล์อะลูมิเนียม', 'ฟอยล์อลูมิเนียม']
+      ['ฟอยล์อะลูมิเนียม', 'ฟอยล์อลูมิเนียม'],
+      ['เหยือกน้ำ', 'เหยือก']
     ],
     furniture: [
       ['โต๊ะกลางโซฟา', 'โต๊ะกลาง'],
@@ -95,6 +96,10 @@ test('AI-2 batch I rejects semantic duplicates of existing household terms', () 
   assert.ok(WORD_BANK.vegetable.includes('หน่อกระวาน'));
   assert.equal(WORD_BANK.vegetable.includes('ผักก้านจอง'), false);
   assert.equal(WORD_BANK.vegetable.includes('ผักกะสัง'), false);
+  assert.ok(WORD_BANK.object.includes('เหยือก'));
+  assert.equal(WORD_BANK.object.includes('เหยือกน้ำ'), false);
+  assert.ok(WORD_BANK.object.includes('ที่แยกไข่แดง'));
+  assert.equal(wordInitialForCategory('ที่แยกไข่แดง', 'object'), 'ท');
   assert.ok(WORD_BANK.object.includes('ที่รองสบู่'));
   assert.ok(WORD_BANK.object.includes('ที่วางตะเกียบ'));
   assert.equal(WORD_BANK.object.includes('ฝาปิดแก้ว'), false);
