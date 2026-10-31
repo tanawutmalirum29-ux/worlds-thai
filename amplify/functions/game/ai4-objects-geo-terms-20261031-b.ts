@@ -114,7 +114,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือท้องกระจก',
     'รถตักหน้าขุดหลัง',
     // AI-4 batch 12: distinct land and underwater transport types.
-    'รถสโนว์โมบิล',
+    'รถปูยางมะตอย',
     'เรือดำน้ำท่องเที่ยว',
     'รถตักตีนตะขาบ',
     'รถฉีดน้ำล้างถนน'
