@@ -7,14 +7,21 @@ export const DISALLOWED_EXACT = new Set([
   'ควย','หี','หำ','จู๋','จิ๋ม','เจี๊ยว','จ้อน','แตด','กระดอ','กระเจี๊ยว',
   'ตีน','ตูด','ดาก','สัส','สัด','เหี้ย','เชี่ย','เชี้ย','ห่า',
   'เย็ด','เงี่ยน','ชิบหาย','ฉิบหาย','ดอกทอง',
-  'แม่ง','แม่ม','มึง','กู','จัญไร','ระยำ','สถุน','อัปรีย์','สารเลว','สวะ'
+  'แม่ง','แม่ม','มึง','กู','จัญไร','ระยำ','สถุน','อัปรีย์','สารเลว','สวะ',
+  'ตอแหล','ทุเรศ','เสือก','เฮงซวย','ดัดจริต','สันดาน','หน้าด้าน',
+  'สถุล','อุบาทว์','เสนียด','ร่าน','โง่','เลว'
 ]);
 export const DISALLOWED_PHRASES = [
   'ควย','จิ๋ม','เจี๊ยว','กระดอ','กระเจี๊ยว','แตด','เย็ด','สัส','เหี้ย','เงี่ยน','หำ',
   'ส้นตีน','ไอ้เหี้ย','ไอเหี้ย','ไข่เหี้ย','ไอ้สัส','ไอสัส',
   'ชิบหาย','ฉิบหาย',
   'ไอ้เวร','อีเวร','ไอ้สัตว์','อีสัตว์','ไอ้โง่','อีโง่',
-  'อีดอก','อีห่า','แม่มึง','พ่อมึง','ไอ้ระยำ','ปัญญาอ่อน'
+  'อีดอก','อีห่า','แม่มึง','พ่อมึง','ไอ้ระยำ','ปัญญาอ่อน',
+  // These are abusive *phrases*, not bans on normal game animals/food.
+  'อีควาย','ไอ้ควาย','ไอควาย','อีตอแหล','ไอ้ตอแหล',
+  'อีร่าน','อีดอกทอง','อีแรด','ไอ้หน้าด้าน','อีหน้าด้าน',
+  'ไอ้สันดาน','อีสันดาน','ไอ้เฮงซวย','อีเฮงซวย',
+  'ไอ้เสือก','ไอ้เบื๊อก','ไอ้หน้าโง่'
 ] as const;
 
 /**
@@ -28,7 +35,8 @@ export const DISALLOWED_THAI_EXACT_VARIANTS=[
 export const DISALLOWED_THAI_PHRASE_VARIANTS=[
   'คุวย','คูวย','เยด','เย้ด','เย๊ด','เหี๊ย','เฮี้ย',
   'เชี๊ย','เชี๋ย','ชิ้บหาย','ฉิ้บหาย','ไอ้สาส','ไอสาส','อีสาส',
-  'ไอ้สาด','ไอสาด','ไอ้แสรด','อีแสรด'
+  'ไอ้สาด','ไอสาด','ไอ้แสรด','อีแสรด',
+  'ตอแล','ตอแร','ไอ้สลัด','อีสลัด'
 ] as const;
 
 /**
@@ -67,6 +75,11 @@ export const DISALLOWED_ROMAN_RULES=[
   {word:'bastard',scope:'exact',pattern:/^bastard$/u,examples:'bastard'},
   {word:'nigga',scope:'exact',pattern:/^nigga$/u,examples:'nigga'},
   {word:'retard',scope:'exact',pattern:/^retard$/u,examples:'retard'},
+  {word:'fvck',scope:'contains',pattern:/fvck/u,examples:'fvck, f.v.c.k'},
+  {word:'phuck',scope:'contains',pattern:/phuck/u,examples:'phuck'},
+  {word:'khuay',scope:'exact',pattern:/^khuay$/u,examples:'khuay, k.h.u.a.y'},
+  {word:'khuai',scope:'exact',pattern:/^khuai$/u,examples:'khuai'},
+  {word:'kuwy',scope:'exact',pattern:/^kuwy$/u,examples:'kuwy'},
 ] as const;
 
 /**
@@ -95,11 +108,16 @@ const STRETCHED_EXACT=[
 
 const THAI_EXACT_VARIANTS=new Set<string>(DISALLOWED_THAI_EXACT_VARIANTS);
 const REPEATED_SYMBOL=/([\p{L}\p{M}])\1+/gu;
+// Invisible controls, variation selectors, and combining grapheme joiners are
+// not ordinary Thai spelling marks. Remove them only in moderation checks.
+const INVISIBLE_FORMATS=/[\p{Cf}\u034F\uFE00-\uFE0F]/gu;
+const ROMAN_SEPARATORS=/[\s\p{P}\p{S}\p{Cf}\u034F\uFE00-\uFE0F]/gu;
 /** Only checks get this lossy representation; never change stored game answers. */
 function compactThai(value:unknown):string {
   if(typeof value!=='string')return '';
   return value.normalize('NFKC').toLocaleLowerCase('th')
-    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'')
+    .replace(/[\s\p{P}\p{S}]/gu,'')
+    .replace(INVISIBLE_FORMATS,'')
     // NFKC decomposes Thai Sara Am; fold it back for exact matches.
     .replace(/\u0E4D\u0E32/g,'\u0E33');
 }
@@ -108,6 +126,7 @@ function compactThai(value:unknown):string {
 function compactModeration(value:unknown):string {
   return compactThai(value)
     .replace(/[0-9\u0E50-\u0E59]/gu,'')
+    .replace(/เเ/gu,'แ')
     .replace(/\u0E4C/gu,'').replace(REPEATED_SYMBOL,'$1');
 }
 
@@ -129,11 +148,14 @@ function romanizedCandidates(value:unknown):string[] {
     .replace(/[υս]/gu,'u')
     .replace(/[р]/gu,'p')
     .replace(/[х]/gu,'x');
-  const plain=latin.replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
+  const plain=latin.replace(ROMAN_SEPARATORS,'');
   const leet=latin.replace(/[@4]/g,'a').replace(/[!1]/g,'i')
     .replace(/3/g,'e').replace(/0/g,'o').replace(/5/g,'s').replace(/7/g,'t').replace(/\$/g,'s')
-    .replace(/[\s\p{P}\p{S}\u200B-\u200D\uFEFF\u2060-\u206F]/gu,'');
-  return [...new Set([plain,leet,plain.replace(REPEATED_SYMBOL,'$1'),leet.replace(REPEATED_SYMBOL,'$1')])];
+    .replace(ROMAN_SEPARATORS,'');
+  // Numeric insertions may be both character substitutions ("sh1t") and
+  // separators ("f1u2c3k"). Keep both candidates; no fuzzy edit distance.
+  const digitsRemoved=latin.replace(/[0-9\u0E50-\u0E59]/gu,'').replace(ROMAN_SEPARATORS,'');
+  return [...new Set([plain,leet,digitsRemoved,...[plain,leet,digitsRemoved].map(t=>t.replace(REPEATED_SYMBOL,'$1'))])];
 }
 export function isInappropriateLanguage(value:unknown):boolean {
   const compact=compactModeration(value);
