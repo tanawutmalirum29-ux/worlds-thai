@@ -12,7 +12,7 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ฝ', 'ฟ', 'ห'],
   sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค'],
   music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ฮ', 'ป', 'ต'],
-  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ร'],
+  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก'],
   school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก'],
   body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย'],
 };
@@ -55,7 +55,7 @@ const BATCH_TEN: Readonly<Record<string, readonly string[]>> = {
   verb: ['ฝัดข้าว', 'ฟั่นเชือก', 'หยอดเมล็ด'],
   sport: ['คินบอล', 'ราวด์เน็ต', 'โครเกต์'],
   music: ['ฮาร์ปซิคอร์ด', 'ปี่ไฉน', 'แตรบาริโทน'],
-  toy: ['เกมจับคู่ภาพ', 'รถของเล่นลากจูง'],
+  toy: ['เกมลูโด', 'เกมทวิสเตอร์'],
   school: ['สมุดกราฟ', 'ปากกาไวท์บอร์ด', 'กระดาษคาร์บอน'],
   body: ['ต่อมน้ำตา', 'ท่อน้ำดี', 'เยื่อบุตา'],
 };
@@ -72,10 +72,11 @@ test('AI-3 batch 10 terms are unique across all registered categories', () => {
 });
 
 // Guard against semantically identical names that are not yet canonical aliases.
-test('AI-3 does not re-add known job and sport synonyms as separate answers', () => {
+test('AI-3 does not re-add known job sport and toy synonyms as separate answers', () => {
   const semanticPairs: Readonly<Record<string, readonly (readonly [string, string])[]>> = {
     job: [['ช่างเชื่อม', 'ช่างเชื่อมโลหะ']],
     sport: [['ฟันดาบ', 'ฟันดาบเอเป้']],
+    toy: [['เกมจับคู่', 'เกมจับคู่ภาพ'], ['รถของเล่น', 'รถของเล่นลากจูง']],
   };
   for (const [category, pairs] of Object.entries(semanticPairs)) {
     const known = new Set(WORD_BANK[category].map(word => word.normalize('NFC').toLocaleLowerCase('th')));

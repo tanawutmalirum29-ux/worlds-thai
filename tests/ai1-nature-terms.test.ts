@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { AI1_NATURE_TERMS } from '../amplify/functions/game/ai1-nature-terms.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
-import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
+import { canonicalAnswer, eligibleCategories, normalizeAnswer, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
 
-test('AI-1 adds 155 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 286 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 155);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 286);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -68,5 +68,31 @@ test('nature nouns keep existing bird, fish, insect, tree, and flower prefix ide
   for (const [category, word, canonical, initial] of examples) {
     assert.equal(canonicalAnswer(word, category), canonical);
     assert.equal(wordInitialForCategory(word, category), initial);
+  }
+});
+
+
+/**
+ * The main branch had 155 AI-1 terms before PR #74. Review only words added
+ * by this PR, so a pre-existing word shared across legitimate categories
+ * cannot be mistaken for a newly introduced cross-category duplicate.
+ */
+test('AI-1 PR additions have unique literal spelling across the entire registered word bank', () => {
+  const baseline: Readonly<Record<string, number>> = {
+    animal: 21, bird: 21, fish: 19, insect: 17,
+    plant: 23, tree: 21, flower: 18, nature: 15,
+  };
+  const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
+    terms.slice(baseline[category]).map(word => ({ category, word })));
+  assert.equal(additions.length, 131, 'PR #74 must contain 131 net new nature names');
+
+  for (const { category, word } of additions) {
+    const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
+    for (const [bankCategory, bankWords] of Object.entries(WORD_BANK)) {
+      const occurrences = bankWords.filter(existing =>
+        normalizeAnswer(existing).toLocaleLowerCase('th') === normalized).length;
+      assert.equal(occurrences, bankCategory === category ? 1 : 0,
+        `${word} must not duplicate a literal name in ${bankCategory}`);
+    }
   }
 });
