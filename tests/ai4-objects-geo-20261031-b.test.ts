@@ -109,8 +109,13 @@ test('AI-4 batches 5–10 contribute 120 new canonical identities beyond the oth
     'source scan must detect the existing tile cutter');
   assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('ที่ตัดกระเบื้อง'),
     'do not reintroduce a synonym for the existing tile cutter');
-  assert.ok(AI4_OBJECTS_GEO_TERMS.tool.includes('เหล็กส่งตะปู'),
-    'distinct nail-set punch must replace the tile-cutter synonym');
+  // AI-5 semantic QA: a nail-set punch is already represented by เหล็กส่ง.
+  assert.ok(existing.get('tool')?.has(canonicalAnswer('เหล็กส่ง', 'tool')),
+    'source scan must detect the registered nail-setting punch');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('เหล็กส่งตะปู'),
+    'nail-setting punch is a semantic alias of the existing เหล็กส่ง');
+  assert.ok(AI4_OBJECTS_GEO_TERMS.tool.includes('เหล็กตอกตัวอักษร'),
+    'letter stamp punch is a distinct tool for imprinting characters, not setting nails');
   let added = 0;
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
     for (const word of words.slice(-24)) {
@@ -205,7 +210,7 @@ const BATCH_10: Readonly<Record<string, readonly string[]>> = {
   'tool': [
     'ที่เจาะรูเข็มขัด',
     'เกจวัดลมยาง',
-    'เหล็กส่งตะปู',
+    'เหล็กตอกตัวอักษร',
     'ตัวดูดลูกปืน'
   ],
   'place': [
