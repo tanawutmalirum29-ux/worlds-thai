@@ -9,9 +9,9 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ'],
-  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ฝ', 'ฟ', 'ห'],
+  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห'],
   sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค'],
-  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ฮ', 'ป', 'ต'],
+  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต'],
   toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก'],
   school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก'],
   body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย'],
@@ -52,9 +52,9 @@ test('AI-3 registers 195 reviewed activity terms without duplicate canonical ide
 
 const BATCH_TEN: Readonly<Record<string, readonly string[]>> = {
   job: ['นักวางผังเมือง', 'ผู้ตรวจสอบอาคาร', 'เจ้าพนักงานเภสัชกรรม'],
-  verb: ['ฝัดข้าว', 'ฟั่นเชือก', 'หยอดเมล็ด'],
+  verb: ['สาวไหม', 'ฟั่นเชือก', 'หยอดเมล็ด'],
   sport: ['คินบอล', 'ราวด์เน็ต', 'โครเกต์'],
-  music: ['ฮาร์ปซิคอร์ด', 'ปี่ไฉน', 'แตรบาริโทน'],
+  music: ['โคโตะ', 'ปี่ไฉน', 'แตรบาริโทน'],
   toy: ['เกมลูโด', 'เกมทวิสเตอร์'],
   school: ['สมุดกราฟ', 'ปากกาไวท์บอร์ด', 'กระดาษคาร์บอน'],
   body: ['ต่อมน้ำตา', 'ท่อน้ำดี', 'เยื่อบุตา'],
@@ -67,6 +67,19 @@ test('AI-3 batch 10 terms are unique across all registered categories', () => {
       assert.ok(AI3_ACTIVITY_TERMS[category].includes(word), 'missing AI-3 term: ' + word);
       assert.equal(registered.filter(entry => entry === word.normalize('NFC').toLocaleLowerCase('th')).length,
         1, 'cross-category spelling duplicate: ' + word);
+    }
+  }
+});
+
+
+test('AI-3 batch 10 entries are all playable in an actual eligible round', () => {
+  for (const [category, words] of Object.entries(BATCH_TEN)) {
+    for (const word of words) {
+      const initial = wordInitialForCategory(word, category);
+      assert.ok(eligibleCategories(initial).includes(category),
+        'unavailable round: ' + category + '/' + word + ' (' + initial + ')');
+      assert.equal(validAnswer(word, initial, category), true,
+        'unplayable batch-10 term: ' + category + '/' + word);
     }
   }
 });
