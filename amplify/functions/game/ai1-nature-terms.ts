@@ -90,7 +90,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาตองลาย',
     'ปลาไหลงู',
     'ปลาซิวแก้ว',
-    'ปลาฉนาก',
+    'ปลาฉลามเสือดาว',
   ],
   insect: [
     'แมลงช้างปีกใส',
