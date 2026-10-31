@@ -1,3 +1,4 @@
+import { ADDITIONAL_VEHICLES_20261031 } from './additional-vehicles-20261031.ts';
 import { ADDITIONAL_CLOTHING_20261031 } from './additional-clothing-20261031.ts';
 import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { AI1_NATURE_TERMS } from './ai1-nature-terms.ts';
@@ -984,6 +985,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ชุดเนตรนารี"
   ],
   "vehicle": [
+    ...ADDITIONAL_VEHICLES_20261031,
     "เก๋ง",
     "กระบะ",
     "เกวียน",
