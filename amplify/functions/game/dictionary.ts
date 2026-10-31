@@ -1,3 +1,4 @@
+import { ADDITIONAL_CLOTHING_20261031 } from './additional-clothing-20261031.ts';
 import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { AI1_NATURE_TERMS } from './ai1-nature-terms.ts';
 import { AI4_OBJECTS_GEO_TERMS } from './ai4-objects-geo-terms-20261031-b.ts';
@@ -919,6 +920,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...PHO_PHUENG_TERMS.clothing,
     ...LOR_LING_TERMS.clothing,
     ...COMMON_THAI_TERMS.clothing,
+    ...ADDITIONAL_CLOTHING_20261031,
     "กางเกง",
     "กระโปรง",
     "กางเกงยีนส์",
