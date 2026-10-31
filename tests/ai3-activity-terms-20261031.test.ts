@@ -108,7 +108,7 @@ const BATCH_ELEVEN: Readonly<Record<string, readonly string[]>> = {
   sport: ['ไคท์เซิร์ฟ', 'คอร์นโฮล', 'ไซเคิลโปโล'],
   music: ['บาลาไลก้า', 'ชามิเซ็น', 'ดูดุก'],
   toy: ['เกมโอเทลโล', 'เกมสแครบเบิล'],
-  school: ['ไม้ทีเขียนแบบ', 'ไส้ดินสอกด', 'สันรูดพลาสติก'],
+  school: ['กระดาษลิตมัส', 'ไส้ดินสอกด', 'สันรูดพลาสติก'],
   body: ['เส้นประสาทรับกลิ่น', 'ข้อต่อขากรรไกร', 'กระดูกสะบ้า'],
 };
 
@@ -134,4 +134,14 @@ test('AI-3 batch 11 adds exactly 20 unique and playable reviewed answers', () =>
       assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + category + '/' + word);
     }
   }
+});
+
+// AI-5 semantic QA: the drafting T-square is already registered as ไม้ที.
+// A longer descriptive name must not be counted as a distinct school item.
+test('AI-3 does not duplicate the existing T-square under a descriptive name', () => {
+  assert.ok(WORD_BANK.school.includes('ไม้ที'), 'baseline T-square missing');
+  assert.ok(!WORD_BANK.school.includes('ไม้ทีเขียนแบบ'), 'duplicate T-square reintroduced');
+  assert.ok(AI3_ACTIVITY_TERMS.school.includes('กระดาษลิตมัส'), 'replacement litmus paper missing');
+  assert.equal(wordInitialForCategory('กระดาษลิตมัส', 'school'), 'ก');
+  assert.equal(validAnswer('กระดาษลิตมัส', 'ก', 'school'), true);
 });
