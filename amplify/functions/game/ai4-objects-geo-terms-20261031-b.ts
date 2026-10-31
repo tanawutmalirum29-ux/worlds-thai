@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–8).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–9).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -41,7 +41,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดกี่เพ้า',
     'กางเกงขาสามส่วน',
     'รองเท้าผ้าใบหุ้มข้อ',
-    'ถุงเท้ายาว'
+    'ถุงเท้ายาว',
+    // AI-4 batch 9: reviewed distinct clothing vocabulary.
+    'ชุดอวกาศ',
+    'ถุงมือหนัง',
+    'ชุดป้องกันสารเคมี',
+    'รองเท้าส้นเตี้ย'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -77,7 +82,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือกู้ภัย',
     'รถบัสสองชั้น',
     'รถกระบะสี่ประตู',
-    'รถไฟฟ้ารางเดี่ยว'
+    'รถไฟฟ้ารางเดี่ยว',
+    // AI-4 batch 9: reviewed distinct vehicle vocabulary.
+    'รถขนส่งนักเรียน',
+    'รถห้องเย็น',
+    'เรือบรรทุกน้ำมัน',
+    'เครื่องบินบรรทุกสินค้า'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -113,7 +123,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เตาไฟฟ้า',
     'เครื่องไล่ยุงไฟฟ้า',
     'เครื่องนวดไฟฟ้า',
-    'เครื่องวัดฝุ่น'
+    'เครื่องวัดฝุ่น',
+    // AI-4 batch 9: reviewed distinct device vocabulary.
+    'เครื่องสแกนบาร์โค้ด',
+    'เครื่องตรวจน้ำตาลในเลือด',
+    'เครื่องนับธนบัตร',
+    'เครื่องนึ่งขวดนม'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -149,7 +164,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เหล็กขีด',
     'แปรงทาสี',
     'ประแจตัวที',
-    'เกรียงฉาบปูน'
+    'เกรียงฉาบปูน',
+    // AI-4 batch 9: reviewed distinct tool vocabulary.
+    'ประแจปากตาย',
+    'ปากกาจับท่อ',
+    'ที่ดัดท่อ',
+    'คีมย้ำสายแลน'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -185,6 +205,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานน้ำตาล',
     'ศูนย์อพยพ',
     'สถานีรถไฟฟ้า',
-    'โรงเรียนสอนขับรถ'
+    'โรงเรียนสอนขับรถ',
+    // AI-4 batch 9: reviewed distinct place vocabulary.
+    'โรงฆ่าสัตว์',
+    'สถานีตรวจอากาศ',
+    'หอควบคุมการบิน',
+    'โรงงานประกอบรถยนต์'
   ]
 } as const;
