@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–7).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–8).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -36,7 +36,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รองเท้าบูตยาง',
     'ถุงเท้ากีฬา',
     'เสื้อยืดคอกลม',
-    'กางเกงเอี๊ยม'
+    'กางเกงเอี๊ยม',
+    // AI-4 batch 8: recognizable, distinct clothing types.
+    'ชุดกี่เพ้า',
+    'กางเกงขาสามส่วน',
+    'รองเท้าผ้าใบหุ้มข้อ',
+    'ถุงเท้ายาว'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -67,7 +72,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือสปีดโบ๊ต',
     'เครื่องบินใบพัด',
     'รถสามล้อถีบ',
-    'รถบ้าน'
+    'รถบ้าน',
+    // AI-4 batch 8: distinct road, rail and water vehicles.
+    'เรือกู้ภัย',
+    'รถบัสสองชั้น',
+    'รถกระบะสี่ประตู',
+    'รถไฟฟ้ารางเดี่ยว'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -98,7 +108,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'หุ่นยนต์ดูดฝุ่น',
     'เครื่องตรวจจับควัน',
     'พัดลมไร้ใบพัด',
-    'นาฬิกาปลุกดิจิทัล'
+    'นาฬิกาปลุกดิจิทัล',
+    // AI-4 batch 8: familiar electrical appliances and measuring devices.
+    'เตาไฟฟ้า',
+    'เครื่องไล่ยุงไฟฟ้า',
+    'เครื่องนวดไฟฟ้า',
+    'เครื่องวัดฝุ่น'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -129,7 +144,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ปืนยิงลวด',
     'ประแจสายพาน',
     'เวอร์เนียร์คาลิปเปอร์',
-    'คีมถอนตะปู'
+    'คีมถอนตะปู',
+    // AI-4 batch 8: distinct workshop and construction tools.
+    'เหล็กขีด',
+    'แปรงทาสี',
+    'ประแจตัวที',
+    'เกรียงฉาบปูน'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -160,6 +180,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'สนามยิงธนู',
     'ท่ารถตู้',
     'ห้องสมุดประชาชน',
-    'สนามแข่งม้า'
+    'สนามแข่งม้า',
+    // AI-4 batch 8: real public facilities and workplaces.
+    'โรงงานน้ำตาล',
+    'ศูนย์อพยพ',
+    'สถานีรถไฟฟ้า',
+    'โรงเรียนสอนขับรถ'
   ]
 } as const;
