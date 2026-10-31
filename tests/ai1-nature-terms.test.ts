@@ -6,9 +6,9 @@ import { canonicalAnswer, eligibleCategories, normalizeAnswer, validAnswer, word
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
 
-test('AI-1 adds 286 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 306 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 286);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 306);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -73,18 +73,18 @@ test('nature nouns keep existing bird, fish, insect, tree, and flower prefix ide
 
 
 /**
- * The main branch had 155 AI-1 terms before PR #74. Review only words added
- * by this PR, so a pre-existing word shared across legitimate categories
- * cannot be mistaken for a newly introduced cross-category duplicate.
+ * The original AI-1 module had 155 terms before the reviewed additions.
+ * Check all subsequent additions (including later PRs) across categories,
+ * without penalizing historically shared names in the original baseline.
  */
-test('AI-1 PR additions have unique literal spelling across the entire registered word bank', () => {
+test('AI-1 additions since the 155-term baseline have unique literal spelling across the entire registered word bank', () => {
   const baseline: Readonly<Record<string, number>> = {
     animal: 21, bird: 21, fish: 19, insect: 17,
     plant: 23, tree: 21, flower: 18, nature: 15,
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 131, 'PR #74 must contain 131 net new nature names');
+  assert.equal(additions.length, 151, 'AI-1 must contain 151 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
