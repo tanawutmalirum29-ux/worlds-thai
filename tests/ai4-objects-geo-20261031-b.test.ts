@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import ts from 'typescript';
 import { AI4_OBJECTS_GEO_TERMS } from '../amplify/functions/game/ai4-objects-geo-terms-20261031-b.ts';
+import { ADDITIONAL_VEHICLES_20261031 } from '../amplify/functions/game/additional-vehicles-20261031.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory }
   from '../amplify/functions/game/logic.ts';
@@ -11,7 +12,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร'],
-  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค'],
+  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
   tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค'],
   place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร'],
@@ -73,6 +74,10 @@ function canonicalIdentitiesFromOtherSources(): Map<string, Set<string>> {
     }
     visit(source);
   }
+  // This standalone list is merged into WORD_BANK.vehicle but has no
+  // `vehicle: [...]` property for the AST scanner above to discover.
+  for (const vehicle of ADDITIONAL_VEHICLES_20261031)
+    identities.get('vehicle')!.add(canonicalAnswer(vehicle, 'vehicle'));
   return identities;
 }
 
@@ -89,6 +94,14 @@ test('AI-4 batches 5–9 contribute 100 new canonical identities beyond the othe
     'do not duplicate the existing barcode reader in AI-4');
   assert.ok(AI4_OBJECTS_GEO_TERMS.device.includes('เครื่องสแกนลายนิ้วมือ'),
     'the distinct fingerprint scanner must be registered');
+  // AI-5 semantic review: cargo aircraft is already represented by
+  // `เครื่องบินลำเลียง` in the standalone vehicle vocabulary.
+  assert.ok(existing.get('vehicle')?.has(canonicalAnswer('เครื่องบินลำเลียง', 'vehicle')),
+    'source scan must include the standalone vehicle vocabulary');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('เครื่องบินบรรทุกสินค้า'),
+    'cargo aircraft is a semantic duplicate of existing transport aircraft');
+  assert.ok(AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถขนส่งผู้ต้องขัง'),
+    'prisoner transport vehicle must replace the duplicate aircraft');
   assert.ok(existing.get('tool')?.has(canonicalAnswer('กรรไกรตัดเหล็ก', 'tool')),
     'source scan must detect tools already registered by expanded-thai-terms');
   let added = 0;
@@ -145,7 +158,7 @@ test('AI-4 batch 8 adds 20 new reviewed terms in owned categories', () => {
 
 const BATCH_9: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ชุดอวกาศ', 'ถุงมือหนัง', 'ชุดป้องกันสารเคมี', 'รองเท้าส้นเตี้ย'],
-  vehicle: ['รถขนส่งนักเรียน', 'รถห้องเย็น', 'เรือบรรทุกน้ำมัน', 'เครื่องบินบรรทุกสินค้า'],
+  vehicle: ['รถขนส่งนักเรียน', 'รถห้องเย็น', 'เรือบรรทุกน้ำมัน', 'รถขนส่งผู้ต้องขัง'],
   device: ['เครื่องสแกนลายนิ้วมือ', 'เครื่องตรวจน้ำตาลในเลือด', 'เครื่องนับธนบัตร', 'เครื่องนึ่งขวดนม'],
   tool: ['ประแจปากตาย', 'ปากกาจับท่อ', 'ที่ดัดท่อ', 'คีมย้ำสายแลน'],
   place: ['โรงฆ่าสัตว์', 'สถานีตรวจอากาศ', 'หอควบคุมการบิน', 'โรงงานประกอบรถยนต์']
