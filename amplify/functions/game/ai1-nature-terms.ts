@@ -116,7 +116,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาบู่มหิดล',
     'ปลาบู่รำไพ',
     'ปลาหมูค้อ',
-    'ปลาซิวควาย',
+    'ปลากะรังจุดฟ้า',
   ],
   insect: [
     'แมลงช้างปีกใส',
