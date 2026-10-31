@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { AI1_NATURE_TERMS } from '../amplify/functions/game/ai1-nature-terms.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
-import { canonicalAnswer, eligibleCategories, normalizeAnswer, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
+import { canonicalAnswer, eligibleCategories, LETTERS, normalizeAnswer, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
 
-test('AI-1 adds 322 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 338 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 322);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 338);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -86,9 +86,11 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 167, 'AI-1 must contain 167 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 183, 'AI-1 must contain 183 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
+    const initial = wordInitialForCategory(word, category);
+    assert.ok((LETTERS as readonly string[]).includes(initial), `${word} must start with a currently playable consonant`);
     const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
     for (const [bankCategory, bankWords] of Object.entries(WORD_BANK)) {
       const occurrences = bankWords.filter(existing =>
@@ -97,4 +99,12 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
         `${word} must not duplicate a literal name in ${bankCategory}`);
     }
   }
+});
+
+// Semantic and gameplay regression cases flagged by independent AI-5 QA.
+test('AI-1 does not reintroduce unplayable or semantically duplicate names', () => {
+  assert.ok(WORD_BANK.nature.includes('ผาหินปูน'), 'Existing limestone cliff must remain in the dictionary');
+  assert.ok(!AI1_NATURE_TERMS.nature.includes('หน้าผาหินปูน'), 'Do not count limestone cliff twice by rephrasing it');
+  assert.ok(!AI1_NATURE_TERMS.animal.includes('ไฮยีนาลายจุด'), 'ฮ is not currently playable');
+  assert.ok(!AI1_NATURE_TERMS.nature.includes('ธารน้ำร้อน'), 'ธ is not currently playable');
 });

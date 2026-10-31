@@ -45,11 +45,13 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'แมวป่าหัวแบน',
     'กระรอกหลากสี',
     'เสือดาวหิมะ',
-    'ไฮยีนาลายจุด',
+    'กวางรูซา',
     'สุนัขจิ้งจอกอาร์กติก',
     'จิงโจ้ต้นไม้',
     'โอคาปี',
     'วาฬหลังค่อม',
+    'วัลลาบี',
+    'วาฬเบลูกา',
   ],
   bird: [
     'นกกะรางหัวขวาน',
@@ -96,6 +98,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกหัวโตทรายเล็ก',
     'นกนางนวลหัวดำ',
     'นกเป็ดผีเล็ก',
+    'นกจาบคาหัวเขียว',
+    'นกปากห่าง',
   ],
   fish: [
     'ปลาสิงโต',
@@ -137,6 +141,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลากระเบนหางแส้',
     'ปลาไหลญี่ปุ่น',
     'ปลาสเตอร์เจียน',
+    'ปลาแพะเขียว',
+    'ปลาปักเป้าหนามหลังแถบ',
   ],
   insect: [
     'แมลงช้างปีกใส',
@@ -174,6 +180,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ด้วงเต่าลาย',
     'เพลี้ยแป้ง',
     'ด้วงงวงมะพร้าว',
+    'ด้วงงวงกล้วย',
+    'เพลี้ยจักจั่น',
   ],
   plant: [
     'แหนแดง',
@@ -219,6 +227,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'บอนกระดาด',
     'เฟินกนกนารี',
     'หญ้าข้าวนก',
+    'เฟินบอสตัน',
+    'หญ้าขัดมอน',
   ],
   tree: [
     'ประดู่ป่า',
@@ -263,6 +273,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'มะกอกเกลื้อน',
     'แคป่า',
     'ตะขบป่า',
+    'ตะแบกเลือด',
+    'ประดู่แดง',
   ],
   flower: [
     'บัวดิน',
@@ -301,6 +313,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พุดพิชญา',
     'กล้วยไม้แคทลียา',
     'ดาวเรืองอเมริกัน',
+    'พุดศุภโชค',
+    'กล้วยไม้หวาย',
   ],
   nature: [
     'น้ำขึ้นน้ำลง',
@@ -337,9 +351,11 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ถ้ำทะเล',
     'ทุ่งหญ้าสะวันนา',
     'แอ่งกระทะ',
-    'หน้าผาหินปูน',
+    'แอ่งน้ำเค็ม',
     'หาดหิน',
-    'ธารน้ำร้อน',
+    'ดินดอนสามเหลี่ยมปากแม่น้ำ',
     'โพรงหิน',
+    'ป่าดิบแล้ง',
+    'ตะกอนน้ำพา',
   ],
 };
