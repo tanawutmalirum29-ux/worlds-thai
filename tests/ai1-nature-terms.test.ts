@@ -707,7 +707,7 @@ const BATCH29_TERMS: Readonly<Record<string, readonly string[]>> = {
   plant: ['เฟินเขากวาง', 'กระบองเพชรหูกระต่าย'],
   tree: ['โกงกางใบเล็ก', 'แสมขาว'],
   flower: ['เอื้องดิน', 'เอื้องไอยเรศ'],
-  nature: ['หมอกทะเล', 'ภูเขาน้ำแข็ง'],
+  nature: ['หมอกทะเล', 'เมฆคิวมูโลนิมบัส'],
 };
 
 test('AI-5 sinkhole QA: do not re-add the already imported หลุมยุบ', () => {
