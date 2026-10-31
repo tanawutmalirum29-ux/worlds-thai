@@ -5,12 +5,12 @@ import { AI2_FOOD_HOME_BATCH_D } from '../amplify/functions/game/ai2-food-home-b
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 import { isInappropriateLanguage, isBlockedStandaloneAnswer } from '../amplify/functions/game/moderation.ts';
 
-test('AI-2 batches D and E register 33 distinct canonical answers in only owned categories', () => {
+test('AI-2 batches D, E and F register 48 distinct canonical answers in only owned categories', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_D).sort(), ['dessert', 'drink', 'food']);
-  assert.equal(AI2_FOOD_HOME_BATCH_D.food.length, 22);
-  assert.equal(AI2_FOOD_HOME_BATCH_D.dessert.length, 5);
+  assert.equal(AI2_FOOD_HOME_BATCH_D.food.length, 36);
+  assert.equal(AI2_FOOD_HOME_BATCH_D.dessert.length, 6);
   assert.equal(AI2_FOOD_HOME_BATCH_D.drink.length, 6);
-  assert.equal(Object.values(AI2_FOOD_HOME_BATCH_D).flat().length, 33);
+  assert.equal(Object.values(AI2_FOOD_HOME_BATCH_D).flat().length, 48);
 
   for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_D)) {
     assert.equal(new Set(words).size, words.length, 'duplicate spelling in ' + category);
@@ -66,4 +66,39 @@ test('AI-2 batch D preserves existing dessert prefix and vegetable prefix behavi
   assert.equal(wordInitialForCategory('ยำขนมจีน', 'food'), 'ย');
   assert.equal(wordInitialForCategory('ผักบุ้ง', 'vegetable'), 'บ');
   assert.equal(canonicalAnswer('ผักบุ้ง', 'vegetable'), 'บุ้ง');
+});
+
+test('AI-2 batch F registers 14 real dishes and one dessert with unique canonical answers', () => {
+  const additions = {
+    food: [
+      'ฉู่ฉี่กุ้ง',
+      'ผัดสะตอกะปิกุ้ง',
+      'ผัดผักเชียงดา',
+      'ยำผักกูด',
+      'ซุปขนุน',
+      'ผัดยอดฟักแม้ว',
+      'แกงเห็ดเผาะ',
+      'แกงอ่อมไก่',
+      'ต้มยำปลาคัง',
+      'แกงคั่วสับปะรด',
+      'คั่วกลิ้งไก่',
+      'แกงคั่วหอยแครง',
+      'ซุปมะเขือ',
+      'ผัดดอกขจร'
+    ],
+    dessert: ['ขนมกลีบลำดวน']
+  } as const;
+  assert.equal(additions.food.length, 14);
+  assert.equal(additions.dessert.length, 1);
+  for (const [category, words] of Object.entries(additions)) {
+    for (const word of words) {
+      assert.ok(AI2_FOOD_HOME_BATCH_D[category as 'food' | 'dessert'].includes(word), word);
+      assert.equal(WORD_BANK[category].filter(entry =>
+        canonicalAnswer(entry, category) === canonicalAnswer(word, category)).length,
+        1, 'duplicate in live bank: ' + category + '/' + word);
+      assert.equal(isInappropriateLanguage(word), false, word);
+      assert.equal(isBlockedStandaloneAnswer(word), false, word);
+    }
+  }
+  assert.equal(wordInitialForCategory('ขนมกลีบลำดวน', 'dessert'), 'ก');
 });
