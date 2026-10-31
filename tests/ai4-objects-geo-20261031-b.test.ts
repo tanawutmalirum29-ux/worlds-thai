@@ -11,7 +11,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ'],
-  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร'],
+  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค'],
   tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก'],
   place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร'],
@@ -108,7 +108,7 @@ test('AI-4 batch 7 adds exactly 20 reviewed terms in owned categories', () => {
   assert.deepEqual(Object.keys(BATCH_7), Object.keys(AI4_OBJECTS_GEO_TERMS));
   assert.equal(Object.values(BATCH_7).flat().length, 20);
   for (const [category, words] of Object.entries(BATCH_7)) {
-    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category as keyof typeof AI4_OBJECTS_GEO_TERMS].slice(-4), words,
+    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category as keyof typeof AI4_OBJECTS_GEO_TERMS].slice(-8, -4), words,
       'unexpected batch 7 vocabulary in ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, 4);
   }
@@ -116,7 +116,7 @@ test('AI-4 batch 7 adds exactly 20 reviewed terms in owned categories', () => {
 
 const BATCH_8: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ชุดกี่เพ้า', 'กางเกงขาสามส่วน', 'รองเท้าผ้าใบหุ้มข้อ', 'ถุงเท้ายาว'],
-  vehicle: ['เรือกู้ภัย', 'รถบัสสองชั้น', 'จักรยานสามล้อ', 'รถไฟฟ้ารางเดี่ยว'],
+  vehicle: ['เรือกู้ภัย', 'รถบัสสองชั้น', 'รถกระบะสี่ประตู', 'รถไฟฟ้ารางเดี่ยว'],
   device: ['เตาไฟฟ้า', 'เครื่องไล่ยุงไฟฟ้า', 'เครื่องนวดไฟฟ้า', 'เครื่องวัดฝุ่น'],
   tool: ['เหล็กขีด', 'แปรงทาสี', 'ประแจตัวที', 'เกรียงฉาบปูน'],
   place: ['โรงงานน้ำตาล', 'ศูนย์อพยพ', 'สถานีรถไฟฟ้า', 'โรงเรียนสอนขับรถ']
