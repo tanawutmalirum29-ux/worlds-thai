@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–12).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–13).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -61,7 +61,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ถุงมือกันความร้อน',
     'สนับศอก',
     'รองเท้ากอล์ฟ',
-    'เสื้อเกราะกันกระแทก'
+    'เสื้อเกราะกันกระแทก',
+    // AI-4 batch 13: independently named, playable objects and facilities.
+    'ชุดสกี',
+    'รองเท้าปีนผา',
+    'ผ้ารัดข้อมือ',
+    'ชุดเต้นบัลเลต์'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -117,7 +122,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถปูยางมะตอย',
     'เรือดำน้ำท่องเที่ยว',
     'รถตักตีนตะขาบ',
-    'รถฉีดน้ำล้างถนน'
+    'รถฉีดน้ำล้างถนน',
+    // AI-4 batch 13: independently named, playable objects and facilities.
+    'รถไฟไอน้ำ',
+    'รถไฟตรวจราง',
+    'เรือกวาดทุ่นระเบิด',
+    'รถขนส่งกระจก'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -173,7 +183,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องซีลสูญญากาศ',
     'เครื่องตรวจจับก๊าซ',
     'เครื่องอบผลไม้',
-    'เครื่องเคลือบบัตร'
+    'เครื่องเคลือบบัตร',
+    // AI-4 batch 13: independently named, playable objects and facilities.
+    'เครื่องทำโยเกิร์ต',
+    'เครื่องอุ่นนม',
+    'เครื่องพ่นละอองยา',
+    'เครื่องตรวจวัดคุณภาพน้ำ'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -229,7 +244,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดระยะเลเซอร์',
     'ปืนเป่าลม',
     'คีมตัดสายเคเบิล',
-    'ตัวดูดกระจก'
+    'ตัวดูดกระจก',
+    // AI-4 batch 13: independently named, playable objects and facilities.
+    'เกจวัดเกลียว',
+    'ไม้ฉากปรับมุม',
+    'มีดปาดสี',
+    'ค้อนทองแดง'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -285,6 +305,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงเพาะเห็ด',
     'โรงงานทอผ้า',
     'โรงเก็บเรือ',
-    'สถานีชาร์จรถยนต์ไฟฟ้า'
+    'สถานีชาร์จรถยนต์ไฟฟ้า',
+    // AI-4 batch 13: independently named, playable objects and facilities.
+    'สนามซ้อมกอล์ฟ',
+    'โรงงานผลิตกระดาษ',
+    'สถานีเรดาร์',
+    'ลานสเก็ตบอร์ด'
   ]
 } as const;
