@@ -1,5 +1,5 @@
 /**
- * AI-2 batch C: 20 reviewed, established Thai food and fruit names.
+ * AI-2 batches C and F: reviewed, established Thai food and fruit names.
  * No brand names, fabricated flavor combinations or gameplay-rule changes.
  * Only the existing food and fruit categories are extended.
  */
@@ -26,6 +26,7 @@ export const AI2_FOOD_FRUIT_20261031: Readonly<Record<'food' | 'fruit', readonly
     'มะม่วงแก้วขมิ้น',
     'แตงโมเนื้อเหลือง',
     'แอปเปิลแดง',
-    'องุ่นไร้เมล็ด'
+    'องุ่นไร้เมล็ด',
+    'สละเนินวง'
   ]
 } as const;

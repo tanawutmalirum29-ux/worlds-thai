@@ -5,12 +5,12 @@ import { AI2_FOOD_HOME_TERMS } from '../amplify/functions/game/ai2-food-home-ter
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 import { isInappropriateLanguage } from '../amplify/functions/game/moderation.ts';
 
-test('AI-2 registers 47 distinct clean words in object and furniture only', () => {
+test('AI-2 registers 51 distinct clean words in object and furniture only', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_TERMS).sort(), ['furniture', 'object']);
-  assert.equal(Object.values(AI2_FOOD_HOME_TERMS).reduce((n, words) => n + words.length, 0), 47);
+  assert.equal(Object.values(AI2_FOOD_HOME_TERMS).reduce((n, words) => n + words.length, 0), 51);
 
   for (const [category, words] of Object.entries(AI2_FOOD_HOME_TERMS)) {
-    assert.equal(words.length, category === 'object' ? 24 : 23, 'unexpected AI-2 count for ' + category);
+    assert.equal(words.length, category === 'object' ? 28 : 23, 'unexpected AI-2 count for ' + category);
     assert.equal(new Set(words).size, words.length, 'literal duplicate in ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'canonical duplicate in ' + category);
@@ -96,5 +96,17 @@ test('AI-2 batch E adds seven distinct household and furniture terms', () => {
       ).length, 1, 'duplicate canonical identity: ' + category + '/' + word);
       assert.equal(isInappropriateLanguage(word), false, word);
     }
+  }
+});
+
+test('AI-2 batch F adds four distinct household objects', () => {
+  const additions = ['ฝาครอบปลั๊ก', 'ฝาปิดท่อ', 'ซองกันน้ำ', 'ขวดปั๊มสบู่'] as const;
+  assert.equal(additions.length, 4);
+  for (const word of additions) {
+    assert.ok(AI2_FOOD_HOME_TERMS.object.includes(word), word);
+    assert.equal(WORD_BANK.object.filter(entry =>
+      canonicalAnswer(entry, 'object') === canonicalAnswer(word, 'object')).length,
+      1, 'duplicate object identity: ' + word);
+    assert.equal(isInappropriateLanguage(word), false, word);
   }
 });
