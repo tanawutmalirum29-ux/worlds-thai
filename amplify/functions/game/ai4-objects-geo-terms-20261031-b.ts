@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–4).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–5).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -21,7 +21,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'หมวกนิรภัย',
     'เสื้อกั๊กกันกระสุน',
     'ชุดดับเพลิง',
-    'ชุดคลุมท้อง'
+    'ชุดคลุมท้อง',
+    // AI-4 batch 5: reviewed clothing terms.
+    'เสื้อกาวน์',
+    'รองเท้าหนัง',
+    'ชุดฮันบก',
+    'กางเกงขากระบอก'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -37,7 +42,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถไถนา',
     'รถพ่วงข้าง',
     'รถบรรทุกตู้คอนเทนเนอร์',
-    'เรือท้องแบน'
+    'เรือท้องแบน',
+    // AI-4 batch 5: distinct transport types.
+    'รถขุดตีนตะขาบ',
+    'รถกวาดถนน',
+    'เรือบรรทุกสินค้า',
+    'รถไฟความเร็วสูง'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -53,7 +63,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ตู้กดน้ำ',
     'เครื่องอบรองเท้า',
     'เครื่องชั่งดิจิทัล',
-    'เครื่องพิมพ์ฉลาก'
+    'เครื่องพิมพ์ฉลาก',
+    // AI-4 batch 5: distinct electrical appliances.
+    'เครื่องทำน้ำแข็ง',
+    'กริ่งไฟฟ้า',
+    'เครื่องวัดความดันโลหิต',
+    'เตาย่างไฟฟ้า'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -69,7 +84,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ไขควงหัวดาว',
     'คีมตัดท่อ',
     'ฉากช่างไม้',
-    'เครื่องยิงตะปู'
+    'เครื่องยิงตะปู',
+    // AI-4 batch 5: distinct workshop tools.
+    'บล็อกลม',
+    'เลื่อยสายพาน',
+    'ที่ดูดตะกั่ว',
+    'ปืนยิงรีเวท'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -85,6 +105,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'อู่ซ่อมรถ',
     'โรงพิมพ์',
     'โรงงานรีไซเคิล',
-    'สถานีขนส่งผู้โดยสาร'
+    'สถานีขนส่งผู้โดยสาร',
+    // AI-4 batch 5: established place types.
+    'ศาลากลางจังหวัด',
+    'ทัณฑสถาน',
+    'ศูนย์กีฬา',
+    'ศูนย์ประชุม'
   ]
 } as const;
