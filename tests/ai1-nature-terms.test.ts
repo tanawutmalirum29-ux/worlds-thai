@@ -302,7 +302,7 @@ test('batch 22 does not duplicate the older tree ต้นสะเดาเท�
 // modules. Distinct species/subspecies are not aliases of generic category nouns.
 const BATCH23_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['ตัวกินมดยักษ์', 'ช้างแอฟริกา'],
-  bird: ['นกกะเต็นอกขาว', 'นกตะขาบทุ่ง'],
+  bird: ['นกกะเต็นอกขาว', 'นกจาบคาเคราแดง'],
   fish: ['ปลานกแก้วหัวโหนก', 'ปลากะรังแดงจุดน้ำเงิน'],
   insect: ['ผีเสื้อหนอนกาฝากธรรมดา', 'ด้วงเต่าลายขวาง'],
   plant: ['หญ้านกสีชมพู', 'หญ้าหนวดปลาดุก'],
@@ -346,4 +346,11 @@ test('batch 23 registers 16 distinct currently playable names in AI-1 categories
 test('batch 23 does not re-add manta ray under a different Thai name', () => {
   assert.ok(!AI1_NATURE_TERMS.fish.includes('ปลากระเบนแมนต้า'));
   assert.ok(AI1_NATURE_TERMS.fish.includes('ปลานกแก้วหัวโหนก'));
+});
+
+test('batch 23 does not duplicate the hourly bird ตะขาบทุ่ง under optional นก prefix', () => {
+  assert.ok(WORD_BANK.bird.includes('ตะขาบทุ่ง'), 'existing unprefixed bird remains');
+  assert.ok(!AI1_NATURE_TERMS.bird.includes('นกตะขาบทุ่ง'), 'AI-1 must not re-add the same bird');
+  assert.equal(canonicalAnswer('นกตะขาบทุ่ง', 'bird'), canonicalAnswer('ตะขาบทุ่ง', 'bird'));
+  assert.ok(AI1_NATURE_TERMS.bird.includes('นกจาบคาเคราแดง'), 'distinct bird must replace duplicate');
 });
