@@ -5,12 +5,12 @@ import { AI2_FOOD_HOME_TERMS } from '../amplify/functions/game/ai2-food-home-ter
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 import { isInappropriateLanguage } from '../amplify/functions/game/moderation.ts';
 
-test('AI-2 registers 51 distinct clean words in object and furniture only', () => {
+test('AI-2 registers 61 distinct clean words in object and furniture only', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_TERMS).sort(), ['furniture', 'object']);
-  assert.equal(Object.values(AI2_FOOD_HOME_TERMS).reduce((n, words) => n + words.length, 0), 51);
+  assert.equal(Object.values(AI2_FOOD_HOME_TERMS).reduce((n, words) => n + words.length, 0), 61);
 
   for (const [category, words] of Object.entries(AI2_FOOD_HOME_TERMS)) {
-    assert.equal(words.length, category === 'object' ? 28 : 23, 'unexpected AI-2 count for ' + category);
+    assert.equal(words.length, category === 'object' ? 35 : 26, 'unexpected AI-2 count for ' + category);
     assert.equal(new Set(words).size, words.length, 'literal duplicate in ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'canonical duplicate in ' + category);
@@ -109,4 +109,33 @@ test('AI-2 batch F adds four distinct household objects', () => {
       1, 'duplicate object identity: ' + word);
     assert.equal(isInappropriateLanguage(word), false, word);
   }
+});
+
+
+test('AI-2 batch G registers seven household objects and three furniture items without duplicates', () => {
+  const additions = {
+    object: [
+      'ฝักบัวอาบน้ำ', 'ถ้วยตวง', 'ที่คั้นมะนาว', 'ที่เปิดกระป๋อง',
+      'ฟองน้ำแต่งหน้า', 'ฝาปิดกล่อง', 'ถุงซิปล็อก'
+    ],
+    furniture: ['โต๊ะญี่ปุ่น', 'โต๊ะข้างเตียง', 'เก้าอี้กินข้าวเด็ก']
+  } as const;
+  assert.equal(additions.object.length, 7);
+  assert.equal(additions.furniture.length, 3);
+  for (const [category, words] of Object.entries(additions)) {
+    for (const word of words) {
+      assert.ok(AI2_FOOD_HOME_TERMS[category as 'object' | 'furniture'].includes(word), word);
+      assert.equal(WORD_BANK[category].filter(entry =>
+        canonicalAnswer(entry, category) === canonicalAnswer(word, category)).length,
+        1, 'duplicate canonical identity: ' + category + '/' + word);
+      assert.equal(isInappropriateLanguage(word), false, word);
+      const initial = wordInitialForCategory(word, category);
+      assert.match(initial, /^[ก-ฮ]$/, 'invalid consonant: ' + word);
+      if (eligibleCategories(initial).includes(category))
+        assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + word);
+    }
+  }
+  assert.equal(wordInitialForCategory('ฝักบัวอาบน้ำ', 'object'), 'ฝ');
+  assert.equal(wordInitialForCategory('ฟองน้ำแต่งหน้า', 'object'), 'ฟ');
+  assert.equal(wordInitialForCategory('ถ้วยตวง', 'object'), 'ถ');
 });
