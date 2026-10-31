@@ -78,7 +78,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พารายิงธนู',
     'ยิงปืนรณยุทธ์',
     'ขี่ม้าทางไกล',
-    'วิ่งข้ามรั้ว',
+    'วิ่งผลัดสี่คูณร้อย',
     'ไตรกีฬาระยะสั้น',
   ],
   music: [
