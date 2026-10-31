@@ -76,7 +76,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 8: distinct road, rail and water vehicles.
     'เรือกู้ภัย',
     'รถบัสสองชั้น',
-    'จักรยานสามล้อ',
+    'รถกระบะสี่ประตู',
     'รถไฟฟ้ารางเดี่ยว'
   ],
   device: [
