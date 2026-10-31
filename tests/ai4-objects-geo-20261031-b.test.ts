@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import ts from 'typescript';
 import { AI4_OBJECTS_GEO_TERMS } from '../amplify/functions/game/ai4-objects-geo-terms-20261031-b.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory }
@@ -11,7 +13,7 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก'],
   vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต'],
-  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ก', 'ป'],
+  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป'],
   place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ']
 };
 
@@ -41,4 +43,55 @@ test('AI-4 batches 2–5 register exactly 80 clean and canonically unique terms'
           'registered term not accepted: ' + category + '/' + word);
     }
   }
+});
+
+
+/** The live WORD_BANK uses Set deduplication, so checking it alone can hide
+ * an AI-4 word already present in another source module. Scan the actual
+ * category arrays that feed the live bank, excluding only AI-4's own file.
+ */
+function canonicalIdentitiesFromOtherSources(): Map<string, Set<string>> {
+  const categories = new Set(Object.keys(AI4_OBJECTS_GEO_TERMS));
+  const identities = new Map([...categories].map(category => [category, new Set<string>()]));
+  const folder = new URL('../amplify/functions/game/', import.meta.url);
+  for (const filename of readdirSync(folder)) {
+    if (!filename.endsWith('.ts') || filename.startsWith('ai4-objects-geo-')) continue;
+    const source = ts.createSourceFile(filename,
+      readFileSync(new URL(filename, folder), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    function visit(node: ts.Node): void {
+      if (ts.isPropertyAssignment(node)
+        && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name))
+        && categories.has(node.name.text)
+        && ts.isArrayLiteralExpression(node.initializer)) {
+        const category = node.name.text;
+        for (const element of node.initializer.elements) {
+          if (ts.isStringLiteral(element) || ts.isNoSubstitutionTemplateLiteral(element))
+            identities.get(category)!.add(canonicalAnswer(element.text, category));
+        }
+      }
+      ts.forEachChild(node, visit);
+    }
+    visit(source);
+  }
+  return identities;
+}
+
+test('AI-4 batch 5 contributes 20 new canonical identities beyond the other live sources', () => {
+  const existing = canonicalIdentitiesFromOtherSources();
+  // Regression guard: the duplicate rejected by AI-5 must be visible to this scanner.
+  assert.ok(existing.get('tool')?.has(canonicalAnswer('กรรไกรตัดเหล็ก', 'tool')),
+    'source scan must detect tools already registered by expanded-thai-terms');
+  let added = 0;
+  for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
+    for (const word of words.slice(-4)) {
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(!existing.get(category)?.has(canonical),
+        'not a new canonical identity: ' + category + '/' + word);
+      assert.equal(WORD_BANK[category].filter(entry =>
+        canonicalAnswer(entry, category) === canonical).length, 1,
+        'missing or duplicated in live WORD_BANK: ' + category + '/' + word);
+      added++;
+    }
+  }
+  assert.equal(added, 20);
 });
