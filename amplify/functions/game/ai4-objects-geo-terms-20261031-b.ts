@@ -188,7 +188,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 10: reviewed, distinct vocabulary.
     'ที่เจาะรูเข็มขัด',
     'เกจวัดลมยาง',
-    'ที่ตัดกระเบื้อง',
+    'เหล็กส่งตะปู',
     'ตัวดูดลูกปืน'
   ],
   place: [
