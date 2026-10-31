@@ -43,7 +43,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พญากระรอกดำ',
     'เนื้อทราย',
     'แมวป่าหัวแบน',
-    'นากเล็กเล็บสั้น',
+    'กระรอกหลากสี',
     'เสือดาวหิมะ',
   ],
   bird: [
@@ -84,8 +84,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกนางนวลแกลบเล็ก',
     'นกคุ่มอืดเล็ก',
     'นกปากซ่อมหางพัด',
-    'นกกระเต็นอกขาว',
-    'นกเอี้ยงสาริกา',
+    'นกกิ้งโครงแกลบหัวเทา',
+    'นกเค้าจุด',
   ],
   fish: [
     'ปลาสิงโต',
@@ -121,8 +121,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาบู่รำไพ',
     'ปลาหมูค้อ',
     'ปลาสลิดหินโรลแลนด์',
-    'ปลาสลาด',
-    'ปลาดุกอุย',
+    'ปลาสลิดทะเลแถบ',
+    'ปลาดุกทะเล',
   ],
   insect: [
     'แมลงช้างปีกใส',
@@ -154,7 +154,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ด้วงกว่างชน',
     'แมลงหวี่ขาว',
     'ด้วงหนวดยาวอ้อย',
-    'ผีเสื้อถุงทองธรรมดา',
+    'ด้วงมูลสัตว์',
     'มวนลิ้นจี่',
   ],
   plant: [
@@ -234,8 +234,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กระโดน',
     'มะกล่ำต้น',
     'กะพ้อ',
-    'พะยอม',
-    'ตะคร้อ',
+    'แคบ้าน',
+    'กระทุ่มบก',
   ],
   flower: [
     'บัวดิน',
