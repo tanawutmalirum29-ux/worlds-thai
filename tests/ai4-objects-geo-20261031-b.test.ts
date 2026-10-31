@@ -79,6 +79,16 @@ function canonicalIdentitiesFromOtherSources(): Map<string, Set<string>> {
 test('AI-4 batches 5–9 contribute 100 new canonical identities beyond the other live sources', () => {
   const existing = canonicalIdentitiesFromOtherSources();
   // Regression guard: the duplicate rejected by AI-5 must be visible to this scanner.
+  // AI-5 semantic QA: barcode scanners and barcode readers are the same device.
+  // Their distinct spellings are NOT a new device; do not add either to AI-4.
+  assert.ok(existing.get('device')?.has(canonicalAnswer('เครื่องอ่านบาร์โค้ด', 'device')),
+    'source scan must find the existing barcode reader');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.device.includes('เครื่องสแกนบาร์โค้ด'),
+    'barcode scanner is a semantic duplicate of the existing barcode reader');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.device.includes('เครื่องอ่านบาร์โค้ด'),
+    'do not duplicate the existing barcode reader in AI-4');
+  assert.ok(AI4_OBJECTS_GEO_TERMS.device.includes('เครื่องสแกนลายนิ้วมือ'),
+    'the distinct fingerprint scanner must be registered');
   assert.ok(existing.get('tool')?.has(canonicalAnswer('กรรไกรตัดเหล็ก', 'tool')),
     'source scan must detect tools already registered by expanded-thai-terms');
   let added = 0;
@@ -136,7 +146,7 @@ test('AI-4 batch 8 adds 20 new reviewed terms in owned categories', () => {
 const BATCH_9: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ชุดอวกาศ', 'ถุงมือหนัง', 'ชุดป้องกันสารเคมี', 'รองเท้าส้นเตี้ย'],
   vehicle: ['รถขนส่งนักเรียน', 'รถห้องเย็น', 'เรือบรรทุกน้ำมัน', 'เครื่องบินบรรทุกสินค้า'],
-  device: ['เครื่องสแกนบาร์โค้ด', 'เครื่องตรวจน้ำตาลในเลือด', 'เครื่องนับธนบัตร', 'เครื่องนึ่งขวดนม'],
+  device: ['เครื่องสแกนลายนิ้วมือ', 'เครื่องตรวจน้ำตาลในเลือด', 'เครื่องนับธนบัตร', 'เครื่องนึ่งขวดนม'],
   tool: ['ประแจปากตาย', 'ปากกาจับท่อ', 'ที่ดัดท่อ', 'คีมย้ำสายแลน'],
   place: ['โรงฆ่าสัตว์', 'สถานีตรวจอากาศ', 'หอควบคุมการบิน', 'โรงงานประกอบรถยนต์']
 };
