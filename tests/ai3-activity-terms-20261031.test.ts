@@ -8,19 +8,19 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช'],
-  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป'],
-  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส'],
-  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด'],
-  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช'],
-  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก'],
-  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย', 'ส', 'ข', 'ก', 'ท', 'ต', 'ถ'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช'],
+  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก'],
+  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก'],
+  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก'],
+  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ'],
+  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย', 'ส', 'ข', 'ก', 'ท', 'ต', 'ถ', 'ส', 'ส', 'ล'],
 };
 
-test('AI-3 registers 235 reviewed activity terms without duplicate canonical identities', () => {
+test('AI-3 registers 255 reviewed activity terms without duplicate canonical identities', () => {
   assert.deepEqual(Object.keys(AI3_ACTIVITY_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI3_ACTIVITY_TERMS).flat();
-  assert.equal(all.length, 235);
+  assert.equal(all.length, 255);
   assert.equal(new Set(all).size, all.length);
   let playable = 0;
   for (const [category, words] of Object.entries(AI3_ACTIVITY_TERMS)) {
@@ -180,4 +180,50 @@ test('AI-3 batch 12 adds 20 distinct and playable human-activities answers', () 
       assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + category + '/' + word);
     }
   }
+});
+
+// AI-3 batch 13: category-specific, non-aliased terms with playable initials.
+const BATCH_THIRTEEN: Readonly<Record<string, readonly string[]>> = {
+  job: ['นักออกแบบภูมิทัศน์', 'นักจดหมายเหตุ', 'ช่างเทคนิคเครื่องมือแพทย์'],
+  verb: ['คัดเมล็ด', 'กรีดยาง', 'ลอกเปลือก'],
+  sport: ['ฟิสต์บอล', 'ฟุตเน็ต', 'โกลบอล'],
+  music: ['ซานตูร์', 'เอ้อหู', 'กู่เจิง'],
+  toy: ['เกมคาตัน', 'เกมทาบู'],
+  school: ['หลอดทดลอง', 'ตะแกรงลวด', 'แผ่นแม่เหล็กตัวอักษร'],
+  body: ['ไส้ติ่ง', 'เส้นประสาทไตรเจมินัล', 'ลิ้นหัวใจไตรคัสปิด'],
+};
+
+test('AI-3 batch 13 adds 20 unique, clean and playable reviewed answers', () => {
+  const additions = Object.values(BATCH_THIRTEEN).flat();
+  assert.equal(additions.length, 20);
+  assert.equal(new Set(additions).size, additions.length);
+  const allRegistered = Object.values(WORD_BANK).flat()
+    .map(word => word.normalize('NFC').toLocaleLowerCase('th'));
+  for (const [category, words] of Object.entries(BATCH_THIRTEEN)) {
+    for (const word of words) {
+      assert.ok(AI3_ACTIVITY_TERMS[category].includes(word), 'missing: ' + category + '/' + word);
+      assert.equal(word, word.trim().normalize('NFC'), 'unnormalized: ' + word);
+      assert.equal(isInappropriateLanguage(word), false, 'moderation: ' + word);
+      assert.equal(isBlockedStandaloneAnswer(word), false, 'blocked: ' + word);
+      assert.equal(allRegistered.filter(entry => entry === word.toLocaleLowerCase('th')).length, 1,
+        'cross-category spelling collision: ' + word);
+      const canonical = canonicalAnswer(word, category);
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonical).length, 1,
+        'canonical collision: ' + category + '/' + word);
+      const initial = wordInitialForCategory(word, category);
+      assert.ok(eligibleCategories(initial).includes(category), 'unavailable: ' + category + '/' + word);
+      assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + category + '/' + word);
+    }
+  }
+});
+
+// AI-5 semantic QA: an air-conditioner mechanic is already registered under two names.
+// Do not count the longer synonym as a new occupation when aliases are not canonicalized.
+test('AI-3 does not reintroduce the existing air-conditioner mechanic occupation', () => {
+  assert.ok(WORD_BANK.job.includes('ช่างซ่อมแอร์'), 'existing occupation missing');
+  assert.ok(WORD_BANK.job.includes('ช่างแอร์'), 'existing short title missing');
+  assert.ok(!WORD_BANK.job.includes('ช่างซ่อมเครื่องปรับอากาศ'), 'semantic duplicate reintroduced');
+  assert.ok(AI3_ACTIVITY_TERMS.job.includes('นักจดหมายเหตุ'), 'archivist replacement missing');
+  assert.equal(wordInitialForCategory('นักจดหมายเหตุ', 'job'), 'น');
+  assert.equal(validAnswer('นักจดหมายเหตุ', 'น', 'job'), true);
 });
