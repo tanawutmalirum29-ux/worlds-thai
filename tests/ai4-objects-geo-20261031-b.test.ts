@@ -14,7 +14,7 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส'],
   vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
-  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ท', 'ต'],
+  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต'],
   place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ'],
 };
 
@@ -104,6 +104,13 @@ test('AI-4 batches 5–10 contribute 120 new canonical identities beyond the oth
     'prisoner transport vehicle must replace the duplicate aircraft');
   assert.ok(existing.get('tool')?.has(canonicalAnswer('กรรไกรตัดเหล็ก', 'tool')),
     'source scan must detect tools already registered by expanded-thai-terms');
+  // AI-5 semantic QA: a generic tile cutter already exists in the live tool bank.
+  assert.ok(existing.get('tool')?.has(canonicalAnswer('เครื่องตัดกระเบื้อง', 'tool')),
+    'source scan must detect the existing tile cutter');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('ที่ตัดกระเบื้อง'),
+    'do not reintroduce a synonym for the existing tile cutter');
+  assert.ok(AI4_OBJECTS_GEO_TERMS.tool.includes('เหล็กส่งตะปู'),
+    'distinct nail-set punch must replace the tile-cutter synonym');
   let added = 0;
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
     for (const word of words.slice(-24)) {
@@ -198,7 +205,7 @@ const BATCH_10: Readonly<Record<string, readonly string[]>> = {
   'tool': [
     'ที่เจาะรูเข็มขัด',
     'เกจวัดลมยาง',
-    'ที่ตัดกระเบื้อง',
+    'เหล็กส่งตะปู',
     'ตัวดูดลูกปืน'
   ],
   'place': [
