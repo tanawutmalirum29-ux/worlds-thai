@@ -19,7 +19,7 @@ export const AI2_FOOD_HOME_BATCH_K: Readonly<Record<'food' | 'dessert' | 'drink'
     'ขนมเรไร'
   ],
   drink: [
-    'กาแฟคอร์ตาโด',
+    'กาแฟริสเตรตโต',
     'ชามาซาลา'
   ]
 } as const;
