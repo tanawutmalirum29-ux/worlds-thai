@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { AI2_FOOD_HOME_BATCH_D } from '../amplify/functions/game/ai2-food-home-batch-d-20261031.ts';
+import { AI2_FOOD_HOME_TERMS } from '../amplify/functions/game/ai2-food-home-terms.ts';
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 import { isInappropriateLanguage, isBlockedStandaloneAnswer } from '../amplify/functions/game/moderation.ts';
 
@@ -108,7 +110,7 @@ test('AI-2 batch G adds four dishes, two desserts and four drinks with unique ca
   const additions = {
     food: ['ซุบหน่อไม้', 'ก้อยไข่มดแดง', 'แหนมเนือง', 'ยำแหนม'],
     dessert: ['ขนมตะลุ่ม', 'ขนมโสมนัส'],
-    drink: ['น้ำจับเลี้ยง', 'น้ำลูกเดือย', 'น้ำบ๊วย', 'นมถั่วดำ']
+    drink: ['น้ำใบย่านาง', 'น้ำตะไคร้ใบเตย', 'ชากุหลาบมะนาว', 'นมถั่วดำ']
   } as const;
   assert.equal(Object.values(additions).flat().length, 10);
   for (const [category, words] of Object.entries(additions)) {
@@ -129,4 +131,32 @@ test('AI-2 batch G adds four dishes, two desserts and four drinks with unique ca
   assert.equal(wordInitialForCategory('ขนมโสมนัส', 'dessert'), 'ส');
   assert.equal(wordInitialForCategory('ซุบหน่อไม้', 'food'), 'ซ');
   assert.equal(canonicalAnswer('ขนมตะลุ่ม', 'dessert'), 'ขนมตะลุ่ม');
+});
+
+
+// WORD_BANK de-duplicates exact strings, so checking the live bank alone can
+// conceal a word already registered by another vocabulary source module.
+test('AI-2 batch G adds 20 source-unique words across all registered modules', () => {
+  const additions = [
+    ...AI2_FOOD_HOME_BATCH_D.food.slice(-4),
+    ...AI2_FOOD_HOME_BATCH_D.dessert.slice(-2),
+    ...AI2_FOOD_HOME_BATCH_D.drink.slice(-4),
+    ...AI2_FOOD_HOME_TERMS.object.slice(-7),
+    ...AI2_FOOD_HOME_TERMS.furniture.slice(-3)
+  ];
+  assert.equal(additions.length, 20);
+  assert.equal(new Set(additions).size, 20, 'batch G has repeated literal names');
+
+  const dictionarySource = readFileSync(new URL('../amplify/functions/game/dictionary.ts', import.meta.url), 'utf8');
+  const imports = [...dictionarySource.matchAll(/from '\\.\\/([^']+\\.ts)'/g)].map(match => match[1]);
+  const sources = [dictionarySource, ...imports.map(filename =>
+    readFileSync(new URL('../amplify/functions/game/' + filename, import.meta.url), 'utf8'))];
+
+  for (const word of additions) {
+    const single = "'" + word + "'";
+    const double = '"' + word + '"';
+    const occurrences = sources.reduce((total, source) => total
+      + source.split(single).length - 1 + source.split(double).length - 1, 0);
+    assert.equal(occurrences, 1, 'source-level duplicate or missing entry: ' + word);
+  }
 });
