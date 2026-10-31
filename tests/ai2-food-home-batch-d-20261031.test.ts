@@ -5,12 +5,12 @@ import { AI2_FOOD_HOME_BATCH_D } from '../amplify/functions/game/ai2-food-home-b
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 import { isInappropriateLanguage, isBlockedStandaloneAnswer } from '../amplify/functions/game/moderation.ts';
 
-test('AI-2 batches D, E and F register 48 distinct canonical answers in only owned categories', () => {
+test('AI-2 batches D, E, F and G register 58 distinct canonical answers in only owned categories', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_D).sort(), ['dessert', 'drink', 'food']);
-  assert.equal(AI2_FOOD_HOME_BATCH_D.food.length, 36);
-  assert.equal(AI2_FOOD_HOME_BATCH_D.dessert.length, 6);
-  assert.equal(AI2_FOOD_HOME_BATCH_D.drink.length, 6);
-  assert.equal(Object.values(AI2_FOOD_HOME_BATCH_D).flat().length, 48);
+  assert.equal(AI2_FOOD_HOME_BATCH_D.food.length, 40);
+  assert.equal(AI2_FOOD_HOME_BATCH_D.dessert.length, 8);
+  assert.equal(AI2_FOOD_HOME_BATCH_D.drink.length, 10);
+  assert.equal(Object.values(AI2_FOOD_HOME_BATCH_D).flat().length, 58);
 
   for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_D)) {
     assert.equal(new Set(words).size, words.length, 'duplicate spelling in ' + category);
@@ -101,4 +101,32 @@ test('AI-2 batch F registers 14 real dishes and one dessert with unique canonica
     }
   }
   assert.equal(wordInitialForCategory('ขนมกลีบลำดวน', 'dessert'), 'ก');
+});
+
+
+test('AI-2 batch G adds four dishes, two desserts and four drinks with unique canonical answers', () => {
+  const additions = {
+    food: ['ซุบหน่อไม้', 'ก้อยไข่มดแดง', 'แหนมเนือง', 'ยำแหนม'],
+    dessert: ['ขนมตะลุ่ม', 'ขนมโสมนัส'],
+    drink: ['น้ำจับเลี้ยง', 'น้ำลูกเดือย', 'น้ำบ๊วย', 'นมถั่วดำ']
+  } as const;
+  assert.equal(Object.values(additions).flat().length, 10);
+  for (const [category, words] of Object.entries(additions)) {
+    for (const word of words) {
+      assert.ok(AI2_FOOD_HOME_BATCH_D[category as 'food' | 'dessert' | 'drink'].includes(word), word);
+      assert.equal(WORD_BANK[category].filter(entry =>
+        canonicalAnswer(entry, category) === canonicalAnswer(word, category)).length,
+        1, 'duplicate canonical identity: ' + category + '/' + word);
+      assert.equal(isInappropriateLanguage(word), false, word);
+      assert.equal(isBlockedStandaloneAnswer(word), false, word);
+      const initial = wordInitialForCategory(word, category);
+      assert.match(initial, /^[ก-ฮ]$/, 'invalid consonant: ' + word);
+      if (eligibleCategories(initial).includes(category))
+        assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + word);
+    }
+  }
+  assert.equal(wordInitialForCategory('ขนมตะลุ่ม', 'dessert'), 'ต');
+  assert.equal(wordInitialForCategory('ขนมโสมนัส', 'dessert'), 'ส');
+  assert.equal(wordInitialForCategory('ซุบหน่อไม้', 'food'), 'ซ');
+  assert.equal(canonicalAnswer('ขนมตะลุ่ม', 'dessert'), 'ขนมตะลุ่ม');
 });
