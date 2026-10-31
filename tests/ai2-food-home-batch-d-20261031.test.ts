@@ -5,12 +5,12 @@ import { AI2_FOOD_HOME_BATCH_D } from '../amplify/functions/game/ai2-food-home-b
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 import { isInappropriateLanguage, isBlockedStandaloneAnswer } from '../amplify/functions/game/moderation.ts';
 
-test('AI-2 batch D registers 20 distinct canonical answers in only owned categories', () => {
+test('AI-2 batches D and E register 33 distinct canonical answers in only owned categories', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_D).sort(), ['dessert', 'drink', 'food']);
-  assert.equal(AI2_FOOD_HOME_BATCH_D.food.length, 10);
+  assert.equal(AI2_FOOD_HOME_BATCH_D.food.length, 22);
   assert.equal(AI2_FOOD_HOME_BATCH_D.dessert.length, 5);
-  assert.equal(AI2_FOOD_HOME_BATCH_D.drink.length, 5);
-  assert.equal(Object.values(AI2_FOOD_HOME_BATCH_D).flat().length, 20);
+  assert.equal(AI2_FOOD_HOME_BATCH_D.drink.length, 6);
+  assert.equal(Object.values(AI2_FOOD_HOME_BATCH_D).flat().length, 33);
 
   for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_D)) {
     assert.equal(new Set(words).size, words.length, 'duplicate spelling in ' + category);
@@ -29,6 +29,30 @@ test('AI-2 batch D registers 20 distinct canonical answers in only owned categor
       assert.match(initial, /^[ก-ฮ]$/, 'invalid initial: ' + word);
       if (eligibleCategories(initial).includes(category))
         assert.equal(validAnswer(word, initial, category), true, 'not playable: ' + word);
+    }
+  }
+});
+
+test('AI-2 batch E registers exactly 12 new foods and one drink', () => {
+  const additions = {
+    food: [
+      'ฉู่ฉี่ปลาทู', 'แกงหน่อไม้', 'แกงคั่วหอยขม', 'ผัดผักกูด',
+      'คั่วกลิ้งหมู', 'ไก่ผัดเม็ดมะม่วงหิมพานต์', 'ต้มโคล้งปลากรอบ',
+      'หมี่กะทิ', 'ซี่โครงหมูอบน้ำผึ้ง', 'ยำดอกขจร',
+      'ปลาทอดขมิ้น', 'ต้มกะทิสายบัว'
+    ],
+    drink: ['ชาดอกมะลิ']
+  } as const;
+  assert.equal(additions.food.length, 12);
+  assert.equal(additions.drink.length, 1);
+  for (const [category, words] of Object.entries(additions)) {
+    for (const word of words) {
+      assert.ok(AI2_FOOD_HOME_BATCH_D[category as 'food' | 'drink'].includes(word), word);
+      assert.equal(WORD_BANK[category].filter(
+        entry => canonicalAnswer(entry, category) === canonicalAnswer(word, category)
+      ).length, 1, 'duplicate canonical identity: ' + category + '/' + word);
+      assert.equal(isInappropriateLanguage(word), false, word);
+      assert.equal(isBlockedStandaloneAnswer(word), false, word);
     }
   }
 });
