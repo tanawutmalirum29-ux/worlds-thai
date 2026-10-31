@@ -1,5 +1,5 @@
 /**
- * AI-2 batches C and F: reviewed, established Thai food and fruit names.
+ * AI-2 batches C, F and H: reviewed, established Thai food and fruit names.
  * No brand names, fabricated flavor combinations or gameplay-rule changes.
  * Only the existing food and fruit categories are extended.
  */
@@ -19,7 +19,21 @@ export const AI2_FOOD_FRUIT_20261031: Readonly<Record<'food' | 'fruit', readonly
     'หมูชะมวง',
     'ไข่เจียวปู',
     'ปลากะพงนึ่งมะนาว',
-    'แกงจืดเต้าหู้หมูสับ'
+    'แกงจืดเต้าหู้หมูสับ',
+    'ฟักแม้วผัดไข่',
+    'ซาลาเปาไส้หมู',
+    'ฉู่ฉี่ปลาเนื้ออ่อน',
+    'ฉู่ฉี่ปลาช่อน',
+    'อ่อมหมู',
+    'หมกหน่อไม้',
+    'ปลาส้มทอด',
+    'ข้าวจี่ไข่',
+    'ยำมะม่วงปลากรอบ',
+    'แกงส้มชะอมไข่',
+    'ไก่ย่างเขาสวนกวาง',
+    'ต้มส้มปลากระบอก',
+    'หลนปลาอินทรีเค็ม',
+    'ลาบหมูคั่ว'
   ],
   fruit: [
     'ส้มเกลี้ยง',
@@ -27,6 +41,9 @@ export const AI2_FOOD_FRUIT_20261031: Readonly<Record<'food' | 'fruit', readonly
     'แตงโมเนื้อเหลือง',
     'แอปเปิลแดง',
     'องุ่นไร้เมล็ด',
-    'สละเนินวง'
+    'สละเนินวง',
+    'กระท้อนปุยฝ้าย',
+    'มะเฟืองหวาน',
+    'ชมพู่ทับทิมจันทร์'
   ]
 } as const;
