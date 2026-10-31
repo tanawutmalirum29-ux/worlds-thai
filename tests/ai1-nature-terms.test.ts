@@ -362,7 +362,7 @@ test('batch 23 does not duplicate the hourly bird ตะขาบทุ่ง un
 const BATCH24_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['กวางดาว', 'หนูพุก'],
   bird: ['นกกะเต็นน้อยธรรมดา', 'นกจับแมลงคอสีน้ำเงินเข้ม'],
-  fish: ['ปลากระสูบขีด', 'ปลาตะกรับ'],
+  fish: ['ปลาหมูหางแดง', 'ปลาบู่กองหิน'],
   insect: ['ด้วงคีมยีราฟ', 'ด้วงกว่างห้าเขา'],
   plant: ['ตำแยแมว', 'กระดุมทองเลื้อย'],
   tree: ['ยอป่า', 'ตะคร้ำ'],
