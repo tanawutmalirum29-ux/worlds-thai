@@ -84,8 +84,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลากระเบนบัว',
     'ปลาไหลนา',
     'ปลาเนื้ออ่อน',
-    'ปลาบู่ทราย',
-    'ปลาดุกด้าน',
+    'ปลาตองลาย',
+    'ปลาไหลงู',
     'ปลาซิวแก้ว',
   ],
   insect: [
