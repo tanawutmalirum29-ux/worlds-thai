@@ -1,3 +1,5 @@
+import { ADDITIONAL_VEHICLES_20261031 } from './additional-vehicles-20261031.ts';
+import { ADDITIONAL_CLOTHING_20261031 } from './additional-clothing-20261031.ts';
 import { FAMILIAR_BIRD_TERMS } from './familiar-bird-terms.ts';
 import { AI1_NATURE_TERMS } from './ai1-nature-terms.ts';
 import { AI4_OBJECTS_GEO_TERMS } from './ai4-objects-geo-terms-20261031-b.ts';
@@ -919,6 +921,7 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     ...PHO_PHUENG_TERMS.clothing,
     ...LOR_LING_TERMS.clothing,
     ...COMMON_THAI_TERMS.clothing,
+    ...ADDITIONAL_CLOTHING_20261031,
     "กางเกง",
     "กระโปรง",
     "กางเกงยีนส์",
@@ -958,9 +961,31 @@ export const WORD_BANK: Record<string, readonly string[]> = {
     "ชุดไทย",
     "ชุดหมี",
     "เสื้อคอเต่า",
-    "ผ้าคาดเอว"
+    "ผ้าคาดเอว",
+    // Everyday clothing, footwear, headwear, uniforms and accessories (31 Oct 2026).
+    "เสื้อโค้ต",
+    "เสื้อคอจีน",
+    "เสื้อคลุมอาบน้ำ",
+    "เสื้อเชิ้ตแขนสั้น",
+    "กระโปรงสั้น",
+    "กระโปรงทรงเอ",
+    "กางเกงขาเดฟ",
+    "กางเกงกระโปรง",
+    "รองเท้าคัทชู",
+    "รองเท้าสตั๊ด",
+    "รองเท้าสลิปออน",
+    "หมวกฟาง",
+    "หมวกบักเก็ต",
+    "หมวกว่ายน้ำ",
+    "ถุงน่อง",
+    "ผ้ากันเปื้อน",
+    "ผ้าคลุมไหล่",
+    "เข็มขัด",
+    "ชุดลูกเสือ",
+    "ชุดเนตรนารี"
   ],
   "vehicle": [
+    ...ADDITIONAL_VEHICLES_20261031,
     "เก๋ง",
     "กระบะ",
     "เกวียน",
