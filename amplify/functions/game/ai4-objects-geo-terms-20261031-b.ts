@@ -88,7 +88,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 5: distinct workshop tools.
     'บล็อกลม',
     'เลื่อยสายพาน',
-    'กรรไกรตัดเหล็ก',
+    'ที่ดูดตะกั่ว',
     'ปืนยิงรีเวท'
   ],
   place: [
