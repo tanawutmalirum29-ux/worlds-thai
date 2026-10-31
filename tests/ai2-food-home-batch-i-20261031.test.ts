@@ -9,7 +9,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 const EXPECTED = {
   vegetable: ['กะหล่ำปม', 'ใบชะมวง', 'หน่อกระวาน', 'ผักขวง'],
   object: [
-    'ที่รองสบู่', 'เหยือกน้ำ', 'ฝาปิดแก้ว', 'ถาดน้ำแข็ง',
+    'ที่รองสบู่', 'เหยือกน้ำ', 'ที่วางตะเกียบ', 'ถาดน้ำแข็ง',
     'ถุงซักผ้า', 'ยางรัดผม', 'กระปุกสำลี', 'ที่บีบหลอดยาสีฟัน',
     'ที่กรองชา', 'ช้อนตวง', 'ตลับยา', 'กล่องปฐมพยาบาล'
   ],
@@ -35,8 +35,9 @@ test('AI-2 batch I adds exactly 20 clean canonical words in three owned categori
         1, 'canonical duplicate across live category: ' + category + '/' + word);
       const initial = wordInitialForCategory(word, category);
       assert.match(initial, /^[ก-ฮ]$/, 'invalid playable initial: ' + word);
-      if (eligibleCategories(initial).includes(category))
-        assert.equal(validAnswer(word, initial, category), true, 'not playable: ' + word);
+      assert.ok(eligibleCategories(initial).includes(category),
+        'unplayable initial/category: ' + category + '/' + word + ' (' + initial + ')');
+      assert.equal(validAnswer(word, initial, category), true, 'not playable: ' + word);
     }
   }
 });
@@ -95,6 +96,9 @@ test('AI-2 batch I rejects semantic duplicates of existing household terms', () 
   assert.equal(WORD_BANK.vegetable.includes('ผักก้านจอง'), false);
   assert.equal(WORD_BANK.vegetable.includes('ผักกะสัง'), false);
   assert.ok(WORD_BANK.object.includes('ที่รองสบู่'));
+  assert.ok(WORD_BANK.object.includes('ที่วางตะเกียบ'));
+  assert.equal(WORD_BANK.object.includes('ฝาปิดแก้ว'), false);
+  assert.equal(wordInitialForCategory('ที่วางตะเกียบ', 'object'), 'ท');
   assert.ok(WORD_BANK.object.includes('ถุงซักผ้า'));
   assert.ok(WORD_BANK.object.includes('กระปุกสำลี'));
   assert.ok(WORD_BANK.object.includes('ที่บีบหลอดยาสีฟัน'));
