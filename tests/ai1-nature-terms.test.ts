@@ -20,9 +20,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 464 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 480 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 464);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 480);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -100,7 +100,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 309, 'AI-1 must contain 309 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 325, 'AI-1 must contain 325 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -222,10 +222,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 178 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 194 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 178);
+  assert.equal(additions.length, 194);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -254,7 +254,7 @@ const BATCH22_TERMS: Readonly<Record<string, readonly string[]>> = {
   plant: ['พรมมิ', 'หญ้าลิเภา'],
   tree: ['เสม็ดแดง', 'ปอทะเล'],
   flower: ['ฟ้าประดิษฐ์', 'ชบาเมเปิ้ล'],
-  nature: ['ดินถล่ม', 'พายุทราย'],
+  nature: ['หาดทรายสีชมพู', 'พายุทราย'],
 };
 
 test('batch 22 registers 16 new playable nature names without canonical or literal collisions', () => {
@@ -610,6 +610,82 @@ test('batch 27 adds 16 canonical-distinct, playable Thai nature names', () => {
       const initial = wordInitialForCategory(word, category);
       assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
       assert.equal(validAnswer(word, initial, category), true, `${word} cannot be played in ${category}`);
+      const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [bankCategory, bank] of Object.entries(WORD_BANK)) {
+        assert.equal(bank.filter(existing =>
+          normalizeAnswer(existing).toLocaleLowerCase('th') === normalized).length,
+          bankCategory === category ? 1 : 0, `${word} duplicated in ${bankCategory}`);
+      }
+    }
+  }
+});
+
+
+// Batch 28 (1 Nov 2026): only distinct, playable names in the eight AI-1 categories.
+const BATCH28_TERMS: Readonly<Record<string, readonly string[]>> = {
+  "animal": [
+    "แมวน้ำช้าง",
+    "แมวน้ำเสือดาว"
+  ],
+  "bird": [
+    "นกเค้ากู่",
+    "นกเขาไฟ"
+  ],
+  "fish": [
+    "ปลามังกรเงิน",
+    "ปลาหมอสีออสการ์"
+  ],
+  "insect": [
+    "ด้วงคีมแดง",
+    "ด้วงน้ำมันแดงหัวโต"
+  ],
+  "plant": [
+    "ว่านเศรษฐีเรือนใน",
+    "หญ้ากกดอกขาว"
+  ],
+  "tree": [
+    "ยางแดง",
+    "ยางเสียน"
+  ],
+  "flower": [
+    "กล้วยไม้ช้างกระ",
+    "ลิลลี่หุบเขา"
+  ],
+  "nature": [
+    "หลุมยุบ",
+    "ทุ่งหญ้าอัลไพน์"
+  ]
+};
+
+test('AI-5 landslide semantic QA: no second identity for แผ่นดินถล่ม', () => {
+  assert.ok(WORD_BANK.nature.includes('แผ่นดินถล่ม'), 'the original landslide name remains registered');
+  assert.ok(!AI1_NATURE_TERMS.nature.includes('ดินถล่ม'), 'semantic synonym must not be counted as new');
+  assert.ok(AI1_NATURE_TERMS.nature.includes('หาดทรายสีชมพู'), 'independent coastal feature replaces the alias');
+});
+
+test('batch 28 adds 16 canonical-distinct playable Thai nature names', () => {
+  assert.deepEqual(Object.keys(BATCH28_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH28_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = {
+    bird:'นก', fish:'ปลา', insect:'แมลง', tree:'ต้น', flower:'ดอก'
+  };
+  for (const [category, words] of Object.entries(BATCH28_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} must be registered in ${category}`);
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, `${word} needs a canonical identity`);
+      assert.equal(WORD_BANK[category].filter(existing =>
+        canonicalAnswer(existing, category) === canonical).length, 1,
+        `${word} must not duplicate an existing canonical identity`);
+      const prefix = prefixes[category];
+      if (prefix) {
+        const alternate = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(alternate, category), canonical,
+          `${word} must preserve optional prefix normalization`);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} cannot be played`);
       const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
       for (const [bankCategory, bank] of Object.entries(WORD_BANK)) {
         assert.equal(bank.filter(existing =>

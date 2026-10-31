@@ -68,6 +68,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กระรอกท้องแดง',
     'ม้าลายเกรวี',
     'อูฐสองโหนก',
+    'แมวน้ำช้าง',
+    'แมวน้ำเสือดาว',
   ],
   bird: [
     'นกกะรางหัวขวาน',
@@ -132,6 +134,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกกะเต็นลาย',
     'นกกระสาคอขาว',
     'นกยางกรอกพันธุ์ชวา',
+    'นกเค้ากู่',
+    'นกเขาไฟ',
   ],
   fish: [
     'ปลาสิงโต',
@@ -189,6 +193,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลากะรังหัวโขน',
     'ปลากระบอกดำ',
     'ปลากะรังบั้ง',
+    'ปลามังกรเงิน',
+    'ปลาหมอสีออสการ์',
   ],
   insect: [
     'แมลงช้างปีกใส',
@@ -244,6 +250,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ด้วงเต่าเจ็ดจุด',
     'ด้วงกว่างญี่ปุ่น',
     'ตั๊กแตนตำข้าวกล้วยไม้',
+    'ด้วงคีมแดง',
+    'ด้วงน้ำมันแดงหัวโต',
   ],
   plant: [
     'แหนแดง',
@@ -307,6 +315,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'หญ้าแพงโกล่า',
     'กาบหอยแครง',
     'หญ้าปล้อง',
+    'ว่านเศรษฐีเรือนใน',
+    'หญ้ากกดอกขาว',
   ],
   tree: [
     'ประดู่ป่า',
@@ -369,6 +379,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'แสมดำ',
     'สนสองใบ',
     'สนสามใบ',
+    'ยางแดง',
+    'ยางเสียน',
   ],
   flower: [
     'บัวดิน',
@@ -425,6 +437,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เอื้องเงินหลวง',
     'แคแสด',
     'พวงแก้วกุดั่น',
+    'กล้วยไม้ช้างกระ',
+    'ลิลลี่หุบเขา',
   ],
   nature: [
     'น้ำขึ้นน้ำลง',
@@ -471,7 +485,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปากอ่าว',
     'ตะพักลำน้ำ',
     'ลานหินทราย',
-    'ดินถล่ม',
+    'หาดทรายสีชมพู',
     'พายุทราย',
     'พายุลูกเห็บ',
     'ดินเค็ม',
@@ -483,5 +497,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ทะเลสาบน้ำจืด',
     'หลุมอุกกาบาต',
     'เกาะหินปูน',
+    'หลุมยุบ',
+    'ทุ่งหญ้าอัลไพน์',
   ],
 };
