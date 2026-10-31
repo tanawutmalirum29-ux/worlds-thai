@@ -7,7 +7,7 @@ import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategor
 import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED = {
-  vegetable: ['ผักก้านจอง', 'ใบชะมวง', 'ผักกะสัง', 'ผักขวง'],
+  vegetable: ['กะหล่ำปม', 'ใบชะมวง', 'หน่อกระวาน', 'ผักขวง'],
   object: [
     'ที่รองสบู่', 'เหยือกน้ำ', 'ฝาปิดแก้ว', 'ถาดน้ำแข็ง',
     'ถุงซักผ้า', 'ยางรัดผม', 'กระปุกสำลี', 'ฟอยล์อะลูมิเนียม',
@@ -56,11 +56,11 @@ test('AI-2 batch I words occur once in source modules before WORD_BANK deduplica
 });
 
 test('AI-2 batch I preserves existing ผัก and ขนม initial/canonical rules', () => {
-  assert.equal(wordInitialForCategory('ผักก้านจอง', 'vegetable'), 'ก');
-  assert.equal(wordInitialForCategory('ผักกะสัง', 'vegetable'), 'ก');
+  assert.equal(wordInitialForCategory('กะหล่ำปม', 'vegetable'), 'ก');
+  assert.equal(wordInitialForCategory('หน่อกระวาน', 'vegetable'), 'ห');
   assert.equal(wordInitialForCategory('ผักขวง', 'vegetable'), 'ข');
-  assert.equal(canonicalAnswer('ผักก้านจอง', 'vegetable'), 'ก้านจอง');
-  assert.equal(canonicalAnswer('ผักกะสัง', 'vegetable'), 'กะสัง');
+  assert.equal(canonicalAnswer('กะหล่ำปม', 'vegetable'), 'กะหล่ำปม');
+  assert.equal(canonicalAnswer('หน่อกระวาน', 'vegetable'), 'หน่อกระวาน');
   assert.equal(wordInitialForCategory('ใบชะมวง', 'vegetable'), 'บ');
   assert.equal(wordInitialForCategory('ขนมครก', 'dessert'), 'ค');
   assert.equal(canonicalAnswer('ผักบุ้ง', 'vegetable'), 'บุ้ง');
@@ -68,6 +68,10 @@ test('AI-2 batch I preserves existing ผัก and ขนม initial/canonical 
 
 test('AI-2 batch I rejects semantic duplicates of existing household terms', () => {
   const rejected = {
+    vegetable: [
+      ['ผักก้านจอง', 'ผักพาย'],
+      ['ผักกะสัง', 'ผักกระสัง']
+    ],
     object: [
       ['หลอดดูดน้ำ', 'หลอดดูด'],
       ['ที่หนีบผ้า', 'ไม้หนีบผ้า'],
@@ -81,10 +85,14 @@ test('AI-2 batch I rejects semantic duplicates of existing household terms', () 
   for (const [category, pairs] of Object.entries(rejected)) {
     for (const [duplicate, existing] of pairs) {
       assert.ok(WORD_BANK[category].includes(existing), 'missing baseline term: ' + existing);
-      assert.equal((AI2_FOOD_HOME_BATCH_I[category as 'object' | 'furniture'] as readonly string[]).includes(duplicate),
+      assert.equal((AI2_FOOD_HOME_BATCH_I[category as 'vegetable' | 'object' | 'furniture'] as readonly string[]).includes(duplicate),
         false, 'semantic duplicate added: ' + duplicate + ' ≈ ' + existing);
     }
   }
+  assert.ok(WORD_BANK.vegetable.includes('กะหล่ำปม'));
+  assert.ok(WORD_BANK.vegetable.includes('หน่อกระวาน'));
+  assert.equal(WORD_BANK.vegetable.includes('ผักก้านจอง'), false);
+  assert.equal(WORD_BANK.vegetable.includes('ผักกะสัง'), false);
   assert.ok(WORD_BANK.object.includes('ที่รองสบู่'));
   assert.ok(WORD_BANK.object.includes('ถุงซักผ้า'));
   assert.ok(WORD_BANK.object.includes('กระปุกสำลี'));

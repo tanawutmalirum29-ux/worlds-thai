@@ -5,9 +5,9 @@
  */
 export const AI2_FOOD_HOME_BATCH_I: Readonly<Record<'vegetable' | 'object' | 'furniture', readonly string[]>> = {
   vegetable: [
-    'ผักก้านจอง',
+    'กะหล่ำปม',
     'ใบชะมวง',
-    'ผักกะสัง',
+    'หน่อกระวาน',
     'ผักขวง'
   ],
   object: [
