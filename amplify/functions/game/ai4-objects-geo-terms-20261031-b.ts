@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–5).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–6).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -26,7 +26,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เสื้อกาวน์',
     'รองเท้าหนัง',
     'ชุดฮันบก',
-    'กางเกงขากระบอก'
+    'กางเกงขากระบอก',
+    // AI-4 batch 6: vetted distinct clothing terms.
+    'รองเท้าหัวเหล็ก',
+    'เสื้อราชปะแตน',
+    'รองเท้าบัลเลต์',
+    'เสื้อคอกระเช้า'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -47,7 +52,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถขุดตีนตะขาบ',
     'รถกวาดถนน',
     'เรือบรรทุกสินค้า',
-    'รถไฟความเร็วสูง'
+    'รถไฟความเร็วสูง',
+    // AI-4 batch 6: vetted distinct vehicle terms.
+    'จักรยานล้อเดียว',
+    'รถบดถนน',
+    'เรือแจว',
+    'เรือกอนโดลา'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -68,7 +78,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องทำน้ำแข็ง',
     'กริ่งไฟฟ้า',
     'เครื่องวัดความดันโลหิต',
-    'เตาย่างไฟฟ้า'
+    'เตาย่างไฟฟ้า',
+    // AI-4 batch 6: vetted distinct device terms.
+    'เครื่องดูดความชื้น',
+    'ตู้กดบัตรคิว',
+    'เครื่องสแกนเอกสาร',
+    'เครื่องเป่ามือ'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -89,7 +104,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'บล็อกลม',
     'เลื่อยสายพาน',
     'ที่ดูดตะกั่ว',
-    'ปืนยิงรีเวท'
+    'ปืนยิงรีเวท',
+    // AI-4 batch 6: vetted distinct tool terms.
+    'บักเต้า',
+    'คีมตัดลวด',
+    'ตะไบสามเหลี่ยม',
+    'ค้อนหัวกลม'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -110,6 +130,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ศาลากลางจังหวัด',
     'ทัณฑสถาน',
     'ศูนย์กีฬา',
-    'ศูนย์ประชุม'
+    'ศูนย์ประชุม',
+    // AI-4 batch 6: vetted distinct place terms.
+    'โรงสีข้าว',
+    'สถานีวิทยุ',
+    'ศูนย์ฝึกอาชีพ',
+    'บ่อบำบัดน้ำเสีย'
   ]
 } as const;
