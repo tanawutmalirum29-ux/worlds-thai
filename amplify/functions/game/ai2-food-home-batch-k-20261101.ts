@@ -15,7 +15,7 @@ export const AI2_FOOD_HOME_BATCH_K: Readonly<Record<'food' | 'dessert' | 'drink'
     'ยำมะเขือยาว'
   ],
   dessert: [
-    'ขนมสัมปันนี',
+    'ขนมอาเก๊าะ',
     'ขนมเรไร'
   ],
   drink: [
