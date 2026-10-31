@@ -54,7 +54,7 @@ test('strip Unicode invisible controls, variation selectors and format marks for
 test('English/roman words catch mixed symbols, leetspeak, inserted numerals and stretched letters',()=>{
   for(const value of [
     'f1u2c3k','f.v.c.k','fvck','phuck','f-u-c-k',
-    'f\\u200Euck','f\\uFE0Fuck',
+    'f'+String.fromCharCode(0x200E)+'uck','f'+String.fromCharCode(0xFE0F)+'uck',
     'b!tch','b*i*t*c*h','s.h.1.t','p12ussy',
     'khuay','khuai','kuwy','k.h.u.a.y',
     'K.U.A.Y','k_u_a_y','fÜck','n1gga'
