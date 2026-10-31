@@ -8,21 +8,21 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช'],
-  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร'],
-  device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค'],
-  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห'],
-  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร']
+  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช'],
+  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
+  device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค'],
+  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค'],
+  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส']
 };
 
-test('AI-4 batches 2–3 register exactly 40 clean and canonically unique terms', () => {
+test('AI-4 batches 2–4 register exactly 60 clean and canonically unique terms', () => {
   assert.deepEqual(Object.keys(AI4_OBJECTS_GEO_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI4_OBJECTS_GEO_TERMS).flat();
-  assert.equal(all.length, 40);
-  assert.equal(new Set(all).size, 40, 'duplicate literal within AI-4 batches');
+  assert.equal(all.length, 60);
+  assert.equal(new Set(all).size, 60, 'duplicate literal within AI-4 batches');
 
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
-    assert.equal(words.length, 8, 'unexpected count: ' + category);
+    assert.equal(words.length, 12, 'unexpected count: ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'duplicate canonical identity within AI-4 category: ' + category);
     for (const [index, word] of words.entries()) {
