@@ -10,7 +10,7 @@ const EXPECTED = {
   vegetable: ['กะหล่ำปม', 'ใบชะมวง', 'หน่อกระวาน', 'ผักขวง'],
   object: [
     'ที่รองสบู่', 'เหยือกน้ำ', 'ฝาปิดแก้ว', 'ถาดน้ำแข็ง',
-    'ถุงซักผ้า', 'ยางรัดผม', 'กระปุกสำลี', 'ฟอยล์อะลูมิเนียม',
+    'ถุงซักผ้า', 'ยางรัดผม', 'กระปุกสำลี', 'ที่บีบหลอดยาสีฟัน',
     'ที่กรองชา', 'ช้อนตวง', 'ตลับยา', 'กล่องปฐมพยาบาล'
   ],
   furniture: ['ตู้เก็บจาน', 'โต๊ะเย็บผ้า', 'ชั้นวางแก้ว', 'เก้าอี้นวด']
@@ -75,7 +75,8 @@ test('AI-2 batch I rejects semantic duplicates of existing household terms', () 
     object: [
       ['หลอดดูดน้ำ', 'หลอดดูด'],
       ['ที่หนีบผ้า', 'ไม้หนีบผ้า'],
-      ['ซองใส่แว่น', 'ซองใส่แว่นตา']
+      ['ซองใส่แว่น', 'ซองใส่แว่นตา'],
+      ['ฟอยล์อะลูมิเนียม', 'ฟอยล์อลูมิเนียม']
     ],
     furniture: [
       ['โต๊ะกลางโซฟา', 'โต๊ะกลาง'],
@@ -96,6 +97,9 @@ test('AI-2 batch I rejects semantic duplicates of existing household terms', () 
   assert.ok(WORD_BANK.object.includes('ที่รองสบู่'));
   assert.ok(WORD_BANK.object.includes('ถุงซักผ้า'));
   assert.ok(WORD_BANK.object.includes('กระปุกสำลี'));
+  assert.ok(WORD_BANK.object.includes('ที่บีบหลอดยาสีฟัน'));
+  assert.ok(WORD_BANK.object.includes('ฟอยล์อลูมิเนียม'));
+  assert.equal(WORD_BANK.object.includes('ฟอยล์อะลูมิเนียม'), false);
   assert.equal(WORD_BANK.object.includes('ซองใส่แว่น'), false);
   assert.ok(WORD_BANK.furniture.includes('โต๊ะเย็บผ้า'));
   assert.ok(WORD_BANK.furniture.includes('เก้าอี้นวด'));
