@@ -4,6 +4,7 @@ import { AI4_OBJECTS_GEO_TERMS } from './ai4-objects-geo-terms-20261031-b.ts';
 import { AI3_ACTIVITY_TERMS } from './ai3-activity-terms-20261031.ts';
 import { AI2_FOOD_HOME_TERMS } from './ai2-food-home-terms.ts';
 import { AI2_FOOD_FRUIT_20261031 } from './ai2-food-fruit-20261031.ts';
+import { AI2_FOOD_HOME_BATCH_D } from './ai2-food-home-batch-d-20261031.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
@@ -2283,5 +2284,12 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_TERMS)) {
 for (const [category, words] of Object.entries(AI2_FOOD_FRUIT_20261031)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-2 food/fruit category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// AI-2 batch D: curated regional food, desserts and drinks only.
+for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_D)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown AI-2 batch D category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
