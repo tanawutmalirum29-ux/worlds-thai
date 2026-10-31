@@ -296,7 +296,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กูดเกี๊ยะ',
     'ผักเบี้ยหิน',
     'หญ้ารูซี่',
-    'หญ้าพง',
+    'หญ้าแพงโกล่า',
   ],
   tree: [
     'ประดู่ป่า',

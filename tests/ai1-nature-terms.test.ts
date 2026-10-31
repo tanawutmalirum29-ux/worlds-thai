@@ -496,7 +496,7 @@ const BATCH26_TERMS: Readonly<Record<string, readonly string[]>> = {
   ],
   "plant": [
     "หญ้ารูซี่",
-    "หญ้าพง"
+    "หญ้าแพงโกล่า"
   ],
   "tree": [
     "กระถินเทพา",
