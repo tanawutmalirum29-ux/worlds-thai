@@ -11,7 +11,7 @@ const EXPECTED = {
     'หมูสร่ง', 'แสร้งว่ากุ้ง', 'แกงส้มดอกแค', 'ข้าวหมูกรอบ',
     'ปลาร้าสับ', 'แกงผักกูด', 'ไก่ต้มขมิ้น', 'ยำมะเขือยาว'
   ],
-  dessert: ['ขนมสัมปันนี', 'ขนมเรไร'],
+  dessert: ['ขนมอาเก๊าะ', 'ขนมเรไร'],
   drink: ['กาแฟริสเตรตโต', 'ชามาซาลา']
 } as const;
 
@@ -58,9 +58,15 @@ test('AI-2 batch K has no source-level literal duplicates in imported dictionary
 });
 
 test('AI-2 batch K preserves category-specific dessert prefixes and existing identities', () => {
-  assert.equal(wordInitialForCategory('ขนมสัมปันนี', 'dessert'), 'ส');
+  assert.equal(wordInitialForCategory('ขนมอาเก๊าะ', 'dessert'), 'อ');
   assert.equal(wordInitialForCategory('ขนมเรไร', 'dessert'), 'ร');
   assert.equal(wordInitialForCategory('ผักบุ้ง', 'vegetable'), 'บ');
   assert.equal(canonicalAnswer('ผักบุ้ง', 'vegetable'), 'บุ้ง');
   assert.equal(canonicalAnswer('ขนมเจาะหู', 'dessert'), 'ขนมเจาะหู');
+  // Semantic QA: สัมปันนี and สำปันนี are the same traditional sweet.
+  // The existing main-bank spelling must not be counted as a new AI-2 entry.
+  assert.ok(WORD_BANK.dessert.includes('สำปันนี'));
+  assert.equal(AI2_FOOD_HOME_BATCH_K.dessert.includes('ขนมสัมปันนี'), false);
+  assert.equal(AI2_FOOD_HOME_BATCH_K.dessert.includes('สัมปันนี'), false);
+  assert.equal(canonicalAnswer('ขนมอาเก๊าะ', 'dessert'), 'ขนมอาเก๊าะ');
 });
