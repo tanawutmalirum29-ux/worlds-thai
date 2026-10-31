@@ -173,7 +173,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เอ้อหู',
     'กู่เจิง',
     'โอโบอามอร์',
-    'แฮนด์แพน',
+    'กลองเหล็ก',
     'ไวโอลินไฟฟ้า',
   ],
   toy: [
