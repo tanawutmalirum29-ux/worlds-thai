@@ -6,9 +6,9 @@ import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategor
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
 
-test('AI-1 adds 75 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 135 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 75);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 135);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -45,6 +45,20 @@ test('nature nouns keep existing bird, fish, insect, tree, and flower prefix ide
     ['fish', 'ปลาไหลมอเรย์', 'ไหลมอเรย์', 'ห'],
     ['insect', 'แมลงทับ', 'ทับ', 'ท'],
     ['insect', 'แมลงหางหนีบ', 'หางหนีบ', 'ห'],
+    ['bird', 'นกพญาไฟเล็ก', 'พญาไฟเล็ก', 'พ'],
+    ['bird', 'นกเด้าดินทุ่งเล็ก', 'เด้าดินทุ่งเล็ก', 'ด'],
+    ['fish', 'ปลาหมอสีคางดำ', 'หมอสีคางดำ', 'ห'],
+    ['fish', 'ปลาโมง', 'โมง', 'ม'],
+    ['bird', 'นกแซงแซวหางบ่วง', 'แซงแซวหางบ่วง', 'ซ'],
+    ['fish', 'ปลาข้าวสาร', 'ข้าวสาร', 'ข'],
+    ['insect', 'แมลงสาบเยอรมัน', 'สาบเยอรมัน', 'ส'],
+    ['bird', 'นกกระติ๊ดขี้หมู', 'กระติ๊ดขี้หมู', 'ก'],
+    ['bird', 'นกกระเรียนไทย', 'กระเรียนไทย', 'ก'],
+    ['fish', 'ปลาหมูอินโด', 'หมูอินโด', 'ห'],
+    ['fish', 'ปลากระดี่นาง', 'กระดี่นาง', 'ก'],
+    ['insect', 'ด้วงแรดมะพร้าว', 'ด้วงแรดมะพร้าว', 'ด'],
+    ['tree', 'ยางกราด', 'ยางกราด', 'ย'],
+    ['flower', 'เอื้องผึ้ง', 'เอื้องผึ้ง', 'อ'],
   ];
   for (const [category, word, canonical, initial] of examples) {
     assert.equal(canonicalAnswer(word, category), canonical);
