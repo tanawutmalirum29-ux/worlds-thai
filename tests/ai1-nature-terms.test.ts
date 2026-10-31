@@ -6,9 +6,9 @@ import { canonicalAnswer, eligibleCategories, normalizeAnswer, validAnswer, word
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
 
-test('AI-1 adds 306 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 322 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 306);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 322);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -64,6 +64,8 @@ test('nature nouns keep existing bird, fish, insect, tree, and flower prefix ide
     ['tree', 'โกงกางใบใหญ่', 'โกงกางใบใหญ่', 'ก'],
     ['flower', 'หิรัญญิการ์', 'หิรัญญิการ์', 'ห'],
     ['flower', 'เอื้องผึ้ง', 'เอื้องผึ้ง', 'อ'],
+    ['bird', 'นกนางนวลหัวดำ', 'นางนวลหัวดำ', 'น'],
+    ['fish', 'ปลาสเตอร์เจียน', 'สเตอร์เจียน', 'ส'],
   ];
   for (const [category, word, canonical, initial] of examples) {
     assert.equal(canonicalAnswer(word, category), canonical);
@@ -84,7 +86,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 151, 'AI-1 must contain 151 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 167, 'AI-1 must contain 167 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
