@@ -1,5 +1,5 @@
 /**
- * AI-2: Reviewed household items and furniture used in Thailand.
+ * AI-2: Reviewed household items and furniture used in Thailand (two 20-word batches).
  * These are literal established names, not generated combinations.
  * Keep categories limited to object and furniture; game rules are unchanged.
  */
@@ -14,7 +14,17 @@ export const AI2_FOOD_HOME_TERMS: Readonly<Record<'object' | 'furniture', readon
     'ตะแกรงล้างผัก',
     'ลูกกลิ้งเก็บฝุ่น',
     'สายวัด',
-    'หมุด'
+    'หมุด',
+    'ซองกันกระแทก',
+    'จุกขวด',
+    'ตลับแป้ง',
+    'ขวดสเปรย์',
+    'แปรงล้างขวด',
+    'ที่ตักผง',
+    'ที่คีบน้ำแข็ง',
+    'ลูกบิดประตู',
+    'กระติกน้ำ',
+    'ปฏิทินตั้งโต๊ะ'
   ],
   furniture: [
     'ล็อกเกอร์',
@@ -26,6 +36,16 @@ export const AI2_FOOD_HOME_TERMS: Readonly<Record<'object' | 'furniture', readon
     'โต๊ะหมู่บูชา',
     'ชั้นลอยติดผนัง',
     'โต๊ะปิกนิก',
-    'ชั้นวางต้นไม้'
+    'ชั้นวางต้นไม้',
+    'ตู้เก็บของ',
+    'โต๊ะวางทีวี',
+    'โต๊ะข้างโซฟา',
+    'โต๊ะหินอ่อน',
+    'เก้าอี้พลาสติก',
+    'ชั้นวางไมโครเวฟ',
+    'โต๊ะประชุม',
+    'เตียงเหล็ก',
+    'ชั้นวางเครื่องสำอาง',
+    'ตู้เก็บหนังสือ'
   ]
 } as const;
