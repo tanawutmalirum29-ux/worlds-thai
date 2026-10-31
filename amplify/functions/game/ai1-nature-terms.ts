@@ -514,6 +514,6 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'น้ำตกใต้ดิน',
     'ทุ่งหญ้าอัลไพน์',
     'หมอกทะเล',
-    'ภูเขาน้ำแข็ง',
+    'เมฆคิวมูโลนิมบัส',
   ],
 };
