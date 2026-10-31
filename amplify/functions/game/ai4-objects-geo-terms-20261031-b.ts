@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–6).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–7).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -31,7 +31,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รองเท้าหัวเหล็ก',
     'เสื้อราชปะแตน',
     'รองเท้าบัลเลต์',
-    'เสื้อคอกระเช้า'
+    'เสื้อคอกระเช้า',
+    // AI-4 batch 7: recognizable clothing and practical workwear.
+    'รองเท้าบูตยาง',
+    'ถุงเท้ากีฬา',
+    'เสื้อยืดคอกลม',
+    'กางเกงเอี๊ยม'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -57,7 +62,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'จักรยานล้อเดียว',
     'รถบดถนน',
     'เรือแจว',
-    'เรือกอนโดลา'
+    'เรือกอนโดลา',
+    // AI-4 batch 7: distinct, real passenger and utility vehicles.
+    'เรือสปีดโบ๊ต',
+    'เครื่องบินใบพัด',
+    'รถสามล้อถีบ',
+    'รถบ้าน'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -83,7 +93,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องดูดความชื้น',
     'ตู้กดบัตรคิว',
     'เครื่องสแกนเอกสาร',
-    'เครื่องเป่ามือ'
+    'เครื่องเป่ามือ',
+    // AI-4 batch 7: identifiable electrical and electronic devices.
+    'หุ่นยนต์ดูดฝุ่น',
+    'เครื่องตรวจจับควัน',
+    'พัดลมไร้ใบพัด',
+    'นาฬิกาปลุกดิจิทัล'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -109,7 +124,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'บักเต้า',
     'คีมตัดลวด',
     'ตะไบสามเหลี่ยม',
-    'ค้อนหัวกลม'
+    'ค้อนหัวกลม',
+    // AI-4 batch 7: distinct workshop and trade tools.
+    'ปืนยิงลวด',
+    'ประแจสายพาน',
+    'เวอร์เนียร์คาลิปเปอร์',
+    'คีมถอนตะปู'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -135,6 +155,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงสีข้าว',
     'สถานีวิทยุ',
     'ศูนย์ฝึกอาชีพ',
-    'บ่อบำบัดน้ำเสีย'
+    'บ่อบำบัดน้ำเสีย',
+    // AI-4 batch 7: real, familiar public places and facilities.
+    'สนามยิงธนู',
+    'ท่ารถตู้',
+    'ห้องสมุดประชาชน',
+    'สนามแข่งม้า'
   ]
 } as const;
