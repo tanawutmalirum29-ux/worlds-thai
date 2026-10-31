@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–11).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–12).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -56,7 +56,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เสื้อฮาวาย',
     'หมวกกะลาสี',
     'เสื้อกั๊กช่างภาพ',
-    'ผ้าคลุมเจ้าสาว'
+    'ผ้าคลุมเจ้าสาว',
+    // AI-4 batch 12: distinct real-world protective wear and footwear.
+    'ถุงมือกันความร้อน',
+    'สนับศอก',
+    'รองเท้ากอล์ฟ',
+    'เสื้อเกราะกันกระแทก'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -107,7 +112,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถดับเพลิงบันไดสูง',
     'รถเครนล้อยาง',
     'เรือท้องกระจก',
-    'รถตักหน้าขุดหลัง'
+    'รถตักหน้าขุดหลัง',
+    // AI-4 batch 12: distinct land and underwater transport types.
+    'รถปูยางมะตอย',
+    'เรือดำน้ำท่องเที่ยว',
+    'รถตักตีนตะขาบ',
+    'รถฉีดน้ำล้างถนน'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -158,7 +168,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดออกซิเจนปลายนิ้ว',
     'เครื่องฆ่าเชื้อยูวี',
     'เครื่องตรวจจับโลหะ',
-    'เครื่องให้อาหารสัตว์อัตโนมัติ'
+    'เครื่องให้อาหารสัตว์อัตโนมัติ',
+    // AI-4 batch 12: separate appliance functions.
+    'เครื่องซีลสูญญากาศ',
+    'เครื่องตรวจจับก๊าซ',
+    'เครื่องอบผลไม้',
+    'เครื่องเคลือบบัตร'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -209,7 +224,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ประแจโซ่',
     'เหล็กงัดยาง',
     'เลื่อยหางหนู',
-    'ปืนพ่นสี'
+    'ปืนพ่นสี',
+    // AI-4 batch 12: measurement, pneumatic and lifting tools.
+    'เครื่องวัดระยะเลเซอร์',
+    'ปืนเป่าลม',
+    'คีมตัดสายเคเบิล',
+    'ตัวดูดกระจก'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -260,6 +280,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงน้ำแข็ง',
     'สถานสงเคราะห์เด็ก',
     'อาคารจอดรถ',
-    'ห้องเก็บเอกสาร'
+    'ห้องเก็บเอกสาร',
+    // AI-4 batch 12: established agricultural, industrial and service facilities.
+    'โรงเพาะเห็ด',
+    'โรงงานทอผ้า',
+    'โรงเก็บเรือ',
+    'สถานีชาร์จรถยนต์ไฟฟ้า'
   ]
 } as const;
