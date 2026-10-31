@@ -20,9 +20,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 355 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 370 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 355);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 370);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -100,7 +100,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 200, 'AI-1 must contain 200 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 215, 'AI-1 must contain 215 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -186,4 +186,60 @@ test('batch 20 contributes 17 canonical-distinct and currently playable nature t
       assert.equal(validAnswer(word, initial, category), true, `${word} must be playable in ${category}`);
     }
   }
+});
+
+ 
+// PR #92 started with 286 terms in main. Check every proposed word, not just
+// the newest batch: a green CI result must also mean the answer is playable.
+const PR92_START_COUNTS: Readonly<Record<string, number>> = {
+  animal: 40, bird: 39, fish: 35, insect: 31,
+  plant: 39, tree: 37, flower: 32, nature: 33,
+};
+const BATCH21_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: ['วัวไบซัน', 'เสือชีตาห์'],
+  bird: ['นกกระสาแดง', 'นกยางโทนใหญ่'],
+  fish: ['ปลาไหลริบบิ้น', 'ปลาทองหัวสิงห์'],
+  insect: ['ผีเสื้อหางดาบลายจุด', 'ผีเสื้อหนอนคูนเหลือง'],
+  plant: ['หญ้าแห้วหมู'],
+  tree: ['กระพี้เขาควาย', 'ตะเคียนชันตาแมว'],
+  flower: ['ดอกจำปูน', 'เอื้องแปรงสีฟัน'],
+  nature: ['ตะพักลำน้ำ', 'ลานหินทราย'],
+};
+
+test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () => {
+  assert.deepEqual(Object.keys(BATCH21_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH21_TERMS).flat().length, 15);
+  for (const [category, words] of Object.entries(BATCH21_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} must be registered in ${category}`);
+      const identity = canonicalAnswer(word, category);
+      assert.equal(WORD_BANK[category].filter(existing => canonicalAnswer(existing, category) === identity).length, 1,
+        `${word} must have one canonical identity in ${category}`);
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} must use a playable initial`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} must be playable`);
+    }
+  }
+});
+
+test('all 84 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+  const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
+    words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
+  assert.equal(additions.length, 84);
+  for (const { category, word } of additions) {
+    const initial = wordInitialForCategory(word, category);
+    assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
+    assert.equal(validAnswer(word, initial, category), true, `${word} cannot be submitted in ${category}`);
+    if (word.startsWith('เฟิน')) {
+      const spellingVariant = 'เฟิร์น' + word.slice('เฟิน'.length);
+      assert.ok(!WORD_BANK[category].includes(spellingVariant),
+        `${word} is the same plant as existing spelling ${spellingVariant}`);
+    }
+  }
+});
+
+test('Boston fern semantic alias is not double-counted in AI-1', () => {
+  assert.ok(WORD_BANK.plant.includes('เฟิร์นบอสตัน'), 'existing main spelling must remain');
+  assert.ok(!AI1_NATURE_TERMS.plant.includes('เฟินบอสตัน'), 'AI-1 must not add the same Boston fern again');
+  assert.ok(AI1_NATURE_TERMS.plant.includes('กระแตไต่ไม้'), 'replacement must be a distinct fern');
 });
