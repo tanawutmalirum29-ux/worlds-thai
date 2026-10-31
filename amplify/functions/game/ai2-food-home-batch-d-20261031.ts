@@ -1,5 +1,5 @@
 /**
- * AI-2 batches D and E: established Thai regional dishes, sweets and drinks.
+ * AI-2 batches D, E and F: established Thai regional dishes, sweets and drinks.
  * Curated literal names only; no new categories or gameplay-rule changes.
  * Dessert names retain their written ขนม prefix; the existing game logic
  * determines their playable initial from the remainder.
@@ -27,14 +27,29 @@ export const AI2_FOOD_HOME_BATCH_D: Readonly<Record<'food' | 'dessert' | 'drink'
     'ซี่โครงหมูอบน้ำผึ้ง',
     'ยำดอกขจร',
     'ปลาทอดขมิ้น',
-    'ต้มกะทิสายบัว'
+    'ต้มกะทิสายบัว',
+    'ฉู่ฉี่กุ้ง',
+    'ผัดสะตอกะปิกุ้ง',
+    'ผัดผักเชียงดา',
+    'ยำผักกูด',
+    'ซุปขนุน',
+    'ผัดยอดฟักแม้ว',
+    'แกงเห็ดเผาะ',
+    'แกงอ่อมไก่',
+    'ต้มยำปลาคัง',
+    'แกงคั่วสับปะรด',
+    'คั่วกลิ้งไก่',
+    'แกงคั่วหอยแครง',
+    'ซุปมะเขือ',
+    'ผัดดอกขจร'
   ],
   dessert: [
     'ขนมข้าวโป่ง',
     'ขนมรังผึ้ง',
     'ขนมโก๋',
     'ขนมปั้นขลิบ',
-    'ขนมไข่กรอบ'
+    'ขนมไข่กรอบ',
+    'ขนมกลีบลำดวน'
   ],
   drink: [
     'น้ำงาดำ',
