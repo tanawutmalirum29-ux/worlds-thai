@@ -20,7 +20,7 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 434 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 448 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
   assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 434);
 
@@ -222,10 +222,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 148 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 162 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 148);
+  assert.equal(additions.length, 162);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -249,7 +249,7 @@ test('Boston fern semantic alias is not double-counted in AI-1', () => {
 const BATCH22_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['ลิงอ้ายเงี้ยะ', 'ชะมดแผงหางปล้อง'],
   bird: ['นกอ้ายงั่ว', 'นกแอ่นตาล'],
-  fish: ['ปลาฟันเลื่อย', 'ปลาวัว'],
+  fish: ['ปลาหมอสีฟรอนโตซ่า', 'ปลาวัว'],
   insect: ['ด้วงเสือ', 'แมลงวันลาย'],
   plant: ['พรมมิ', 'หญ้าลิเภา'],
   tree: ['เสม็ดแดง', 'ปอทะเล'],
@@ -467,6 +467,77 @@ test('batch 25 adds 16 distinct currently playable names without canonical or cr
         const occurrences = bank.filter(existing => normalizeAnswer(existing).toLocaleLowerCase('th') === normalized).length;
         assert.equal(occurrences, bankCategory === category ? 1 : 0,
           `${word} duplicates a literal answer in ${bankCategory}`);
+      }
+    }
+  }
+});
+
+
+// Batch 26: remove semantic sawfish alias and add only independently distinct
+// names. AI-5 flagged ปลาฟันเลื่อย as a possible alias of existing ฉนาก.
+test('AI-1 does not count sawfish twice under descriptive names', () => {
+  assert.ok(WORD_BANK.fish.includes('ฉนาก'), 'existing sawfish identity must remain');
+  assert.ok(!AI1_NATURE_TERMS.fish.includes('ปลาฟันเลื่อย'), 'sawfish alias must not be re-added');
+  assert.ok(AI1_NATURE_TERMS.fish.includes('ปลาหมอสีฟรอนโตซ่า'), 'distinct frontosa cichlid replaces it');
+});
+
+const BATCH26_TERMS: Readonly<Record<string, readonly string[]>> = {
+  "animal": [
+    "กระต่ายป่า",
+    "กระรอกท้องแดง"
+  ],
+  "bird": [
+    "นกกระสานวล",
+    "นกกะเต็นลาย"
+  ],
+  "insect": [
+    "เพลี้ยหอย",
+    "ด้วงเต่าเจ็ดจุด"
+  ],
+  "plant": [
+    "หญ้ารูซี่",
+    "หญ้าพง"
+  ],
+  "tree": [
+    "กระถินเทพา",
+    "แสมดำ"
+  ],
+  "flower": [
+    "พวงคราม",
+    "เอื้องเงินหลวง"
+  ],
+  "nature": [
+    "ปล่องภูเขาไฟ",
+    "ทะเลสาบน้ำจืด"
+  ]
+};
+
+test('batch 26 adds 14 distinct playable names across AI-1 categories', () => {
+  assert.equal(Object.values(BATCH26_TERMS).flat().length, 14);
+  const prefixes: Readonly<Record<string,string>> = {
+    bird:'นก', fish:'ปลา', insect:'แมลง', tree:'ต้น', flower:'ดอก'
+  };
+  for (const [category, words] of Object.entries(BATCH26_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} must be registered`);
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, `${word} needs a canonical identity`);
+      assert.equal(WORD_BANK[category].filter(existing =>
+        canonicalAnswer(existing, category) === canonical).length, 1,
+        `${word} duplicates another registered identity`);
+      const prefix = prefixes[category];
+      if (prefix) {
+        const variant = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(variant, category), canonical);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} cannot be played`);
+      const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [bankCategory, bank] of Object.entries(WORD_BANK)) {
+        assert.equal(bank.filter(existing =>
+          normalizeAnswer(existing).toLocaleLowerCase('th') === normalized).length,
+          bankCategory === category ? 1 : 0, `${word} is duplicated in ${bankCategory}`);
       }
     }
   }
