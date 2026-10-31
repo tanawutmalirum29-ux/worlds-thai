@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import ts from 'typescript';
 import { AI4_OBJECTS_GEO_TERMS } from '../amplify/functions/game/ai4-objects-geo-terms-20261031-b.ts';
+import { ADDITIONAL_VEHICLES_20261031 } from '../amplify/functions/game/additional-vehicles-20261031.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory }
   from '../amplify/functions/game/logic.ts';
@@ -10,21 +11,21 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ'],
-  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
-  device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค'],
-  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก'],
-  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร'],
+  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร'],
+  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
+  device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
+  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค'],
+  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร'],
 };
 
-test('AI-4 batches 2–8 register exactly 140 clean and canonically unique terms', () => {
+test('AI-4 batches 2–9 register exactly 160 clean and canonically unique terms', () => {
   assert.deepEqual(Object.keys(AI4_OBJECTS_GEO_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI4_OBJECTS_GEO_TERMS).flat();
-  assert.equal(all.length, 140);
-  assert.equal(new Set(all).size, 140, 'duplicate literal within AI-4 batches');
+  assert.equal(all.length, 160);
+  assert.equal(new Set(all).size, 160, 'duplicate literal within AI-4 batches');
 
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
-    assert.equal(words.length, 28, 'unexpected count: ' + category);
+    assert.equal(words.length, 32, 'unexpected count: ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'duplicate canonical identity within AI-4 category: ' + category);
     for (const [index, word] of words.entries()) {
@@ -73,17 +74,39 @@ function canonicalIdentitiesFromOtherSources(): Map<string, Set<string>> {
     }
     visit(source);
   }
+  // This standalone list is merged into WORD_BANK.vehicle but has no
+  // `vehicle: [...]` property for the AST scanner above to discover.
+  for (const vehicle of ADDITIONAL_VEHICLES_20261031)
+    identities.get('vehicle')!.add(canonicalAnswer(vehicle, 'vehicle'));
   return identities;
 }
 
-test('AI-4 batches 5–8 contribute 80 new canonical identities beyond the other live sources', () => {
+test('AI-4 batches 5–9 contribute 100 new canonical identities beyond the other live sources', () => {
   const existing = canonicalIdentitiesFromOtherSources();
   // Regression guard: the duplicate rejected by AI-5 must be visible to this scanner.
+  // AI-5 semantic QA: barcode scanners and barcode readers are the same device.
+  // Their distinct spellings are NOT a new device; do not add either to AI-4.
+  assert.ok(existing.get('device')?.has(canonicalAnswer('เครื่องอ่านบาร์โค้ด', 'device')),
+    'source scan must find the existing barcode reader');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.device.includes('เครื่องสแกนบาร์โค้ด'),
+    'barcode scanner is a semantic duplicate of the existing barcode reader');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.device.includes('เครื่องอ่านบาร์โค้ด'),
+    'do not duplicate the existing barcode reader in AI-4');
+  assert.ok(AI4_OBJECTS_GEO_TERMS.device.includes('เครื่องสแกนลายนิ้วมือ'),
+    'the distinct fingerprint scanner must be registered');
+  // AI-5 semantic review: cargo aircraft is already represented by
+  // `เครื่องบินลำเลียง` in the standalone vehicle vocabulary.
+  assert.ok(existing.get('vehicle')?.has(canonicalAnswer('เครื่องบินลำเลียง', 'vehicle')),
+    'source scan must include the standalone vehicle vocabulary');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('เครื่องบินบรรทุกสินค้า'),
+    'cargo aircraft is a semantic duplicate of existing transport aircraft');
+  assert.ok(AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถขนส่งผู้ต้องขัง'),
+    'prisoner transport vehicle must replace the duplicate aircraft');
   assert.ok(existing.get('tool')?.has(canonicalAnswer('กรรไกรตัดเหล็ก', 'tool')),
     'source scan must detect tools already registered by expanded-thai-terms');
   let added = 0;
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
-    for (const word of words.slice(-16)) {
+    for (const word of words.slice(-20)) {
       const canonical = canonicalAnswer(word, category);
       assert.ok(!existing.get(category)?.has(canonical),
         'not a new canonical identity: ' + category + '/' + word);
@@ -93,7 +116,7 @@ test('AI-4 batches 5–8 contribute 80 new canonical identities beyond the other
       added++;
     }
   }
-  assert.equal(added, 80);
+  assert.equal(added, 100);
 });
 
 const BATCH_7: Readonly<Record<string, readonly string[]>> = {
@@ -108,7 +131,7 @@ test('AI-4 batch 7 adds exactly 20 reviewed terms in owned categories', () => {
   assert.deepEqual(Object.keys(BATCH_7), Object.keys(AI4_OBJECTS_GEO_TERMS));
   assert.equal(Object.values(BATCH_7).flat().length, 20);
   for (const [category, words] of Object.entries(BATCH_7)) {
-    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category as keyof typeof AI4_OBJECTS_GEO_TERMS].slice(-8, -4), words,
+    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category as keyof typeof AI4_OBJECTS_GEO_TERMS].slice(-12, -8), words,
       'unexpected batch 7 vocabulary in ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, 4);
   }
@@ -127,8 +150,27 @@ test('AI-4 batch 8 adds 20 new reviewed terms in owned categories', () => {
   assert.equal(Object.values(BATCH_8).flat().length, 20);
   for (const category of Object.keys(BATCH_8) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_8[category];
-    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words,
+    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-8, -4), words,
       'unexpected batch 8 vocabulary in ' + category);
+    assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, 4);
+  }
+});
+
+const BATCH_9: Readonly<Record<string, readonly string[]>> = {
+  clothing: ['ชุดอวกาศ', 'ถุงมือหนัง', 'ชุดป้องกันสารเคมี', 'รองเท้าส้นเตี้ย'],
+  vehicle: ['รถขนส่งนักเรียน', 'รถห้องเย็น', 'เรือบรรทุกน้ำมัน', 'รถขนส่งผู้ต้องขัง'],
+  device: ['เครื่องสแกนลายนิ้วมือ', 'เครื่องตรวจน้ำตาลในเลือด', 'เครื่องนับธนบัตร', 'เครื่องนึ่งขวดนม'],
+  tool: ['ประแจปากตาย', 'ปากกาจับท่อ', 'ที่ดัดท่อ', 'คีมย้ำสายแลน'],
+  place: ['โรงฆ่าสัตว์', 'สถานีตรวจอากาศ', 'หอควบคุมการบิน', 'โรงงานประกอบรถยนต์']
+};
+
+test('AI-4 batch 9 adds 20 reviewed and canonical-unique terms in owned categories', () => {
+  assert.deepEqual(Object.keys(BATCH_9), Object.keys(AI4_OBJECTS_GEO_TERMS));
+  assert.equal(Object.values(BATCH_9).flat().length, 20);
+  for (const category of Object.keys(BATCH_9) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
+    const words = BATCH_9[category];
+    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words,
+      'unexpected batch 9 vocabulary in ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, 4);
   }
 });
