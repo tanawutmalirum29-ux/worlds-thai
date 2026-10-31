@@ -747,7 +747,7 @@ test('batch 29 adds 16 unique, currently playable names in only the eight assign
 const BATCH30_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['วัวมัสก์', 'แมวน้ำฮาร์ป'],
   bird: ['นกขุนแผนหัวแดง', 'นกขุนแผนอกส้ม'],
-  fish: ['ปลาสร้อยนกเขาจุดทอง', 'ปลาสร้อยนกเขาจุดทอง'],
+  fish: ['ปลากระสูบหลังดำ', 'ปลาสร้อยนกเขาจุดทอง'],
   insect: ['เพลี้ยไฟพริก', 'แมลงปอเข็มท้องเข็มสังขละ'],
   plant: ['ว่านนางคำ', 'ว่านสาวหลง'],
   tree: ['เสลาใบใหญ่', 'ปาล์มคิง'],

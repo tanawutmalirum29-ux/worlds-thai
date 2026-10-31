@@ -205,7 +205,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาหมอสีออสการ์',
     'ปลาซิวหนู',
     'ปลาซิวใบไผ่แม่แตง',
-    'ปลาสร้อยนกเขาจุดทอง',
+    'ปลากระสูบหลังดำ',
     'ปลาสร้อยนกเขาจุดทอง',
   ],
   insect: [
