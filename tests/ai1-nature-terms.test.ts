@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { AI1_NATURE_TERMS } from '../amplify/functions/game/ai1-nature-terms.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
@@ -20,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 480 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 496 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 480);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 496);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -100,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 325, 'AI-1 must contain 325 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 341, 'AI-1 must contain 341 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -222,10 +223,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 194 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 210 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 194);
+  assert.equal(additions.length, 210);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -652,7 +653,7 @@ const BATCH28_TERMS: Readonly<Record<string, readonly string[]>> = {
     "ลิลลี่หุบเขา"
   ],
   "nature": [
-    "หลุมยุบ",
+    "น้ำตกใต้ดิน",
     "ทุ่งหญ้าอัลไพน์"
   ]
 };
@@ -692,6 +693,98 @@ test('batch 28 adds 16 canonical-distinct playable Thai nature names', () => {
           normalizeAnswer(existing).toLocaleLowerCase('th') === normalized).length,
           bankCategory === category ? 1 : 0, `${word} duplicated in ${bankCategory}`);
       }
+    }
+  }
+});
+
+
+// Batch 29 (1 Nov 2026): 16 reviewed, category-specific names.
+const BATCH29_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: ['จิงโจ้แดง', 'คาราคัล'],
+  bird: ['นกโพระดกคางเหลือง', 'นกโพระดกหูเขียว'],
+  fish: ['ปลาซิวหนู', 'ปลาซิวใบไผ่แม่แตง'],
+  insect: ['ด้วงเต่าแตงแดง', 'แมลงปอเข็มน้ำตกใหญ่ญี่ปุ่น'],
+  plant: ['เฟินเขากวาง', 'กระบองเพชรหูกระต่าย'],
+  tree: ['โกงกางใบเล็ก', 'แสมขาว'],
+  flower: ['เอื้องดิน', 'เอื้องไอยเรศ'],
+  nature: ['หมอกทะเล', 'ภูเขาน้ำแข็ง'],
+};
+
+test('AI-5 sinkhole QA: do not re-add the already imported หลุมยุบ', () => {
+  assert.ok(WORD_BANK.nature.includes('หลุมยุบ'), 'the imported hourly sinkhole name must remain');
+  assert.ok(!AI1_NATURE_TERMS.nature.includes('หลุมยุบ'), 'AI-1 must not duplicate the source-level name');
+  assert.ok(AI1_NATURE_TERMS.nature.includes('น้ำตกใต้ดิน'), 'distinct replacement feature must be registered');
+});
+
+test('batch 29 adds 16 unique, currently playable names in only the eight assigned categories', () => {
+  assert.deepEqual(Object.keys(BATCH29_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH29_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = {
+    bird:'นก', fish:'ปลา', insect:'แมลง', tree:'ต้น', flower:'ดอก',
+  };
+  for (const [category, words] of Object.entries(BATCH29_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} must be in ${category}`);
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, `${word} must have an identity`);
+      assert.equal(WORD_BANK[category].filter(existing =>
+        canonicalAnswer(existing, category) === canonical).length, 1,
+        `${word} duplicates an existing canonical identity`);
+      const prefix = prefixes[category];
+      if (prefix) {
+        const variant = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(variant, category), canonical,
+          `${word} must keep its prefix-normalized identity`);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} must be playable`);
+    }
+  }
+});
+
+// Check the actual *source files* imported by dictionary.ts. WORD_BANK uses Set
+// to deduplicate values, so checking only the runtime bank can hide duplicates
+// such as หลุมยุบ from hourly-vocabulary-20261030-b.ts.
+test('all PR #92 additions are absent from every other imported vocabulary source', () => {
+  const sourceRoot = new URL('../amplify/functions/game/', import.meta.url);
+  const dictionarySource = readFileSync(new URL('dictionary.ts', sourceRoot), 'utf8');
+  const imports = [...new Set([...dictionarySource.matchAll(/from '\.\/([^']+\.ts)'/g)]
+    .map(match => match[1]))].filter(file => file !== 'ai1-nature-terms.ts');
+  const sourceFiles = ['dictionary.ts', ...imports];
+  const normalize = (word:string) => normalizeAnswer(word).toLocaleLowerCase('th');
+  const literalSources = new Map<string, Set<string>>();
+  const categorySources = new Map<string, Map<string, Set<string>>>();
+  for (const file of sourceFiles) {
+    const source = file === 'dictionary.ts'
+      ? dictionarySource : readFileSync(new URL(file, sourceRoot), 'utf8');
+    literalSources.set(file, new Set(
+      [...source.matchAll(/['"]([^'"\r\n]+)['"]/g)].map(match => normalize(match[1]))));
+    const byCategory = new Map<string, Set<string>>();
+    for (const match of source.matchAll(/(?:^|\n)\s*['"]?(animal|bird|fish|insect|plant|tree|flower|nature)['"]?\s*:\s*\[([\s\S]*?)\]/g)) {
+      const category = match[1];
+      const names = byCategory.get(category) ?? new Set<string>();
+      for (const item of match[2].matchAll(/['"]([^'"\r\n]+)['"]/g))
+        names.add(canonicalAnswer(item[1], category));
+      byCategory.set(category, names);
+    }
+    categorySources.set(file, byCategory);
+  }
+  const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
+    words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
+  assert.equal(proposed.length, 210);
+  for (const { category, word } of proposed) {
+    const literal = normalize(word);
+    const variants = [literal];
+    if (literal.startsWith('เฟิน')) variants.push('เฟิร์น' + literal.slice('เฟิน'.length));
+    if (literal.startsWith('เฟิร์น')) variants.push('เฟิน' + literal.slice('เฟิร์น'.length));
+    const identity = canonicalAnswer(word, category);
+    for (const file of sourceFiles) {
+      for (const variant of variants)
+        assert.ok(!literalSources.get(file)!.has(variant),
+          `${word} is already a literal in imported source ${file} (variant ${variant})`);
+      assert.ok(!categorySources.get(file)?.get(category)?.has(identity),
+        `${word} is already a prefix-normalized ${category} answer in ${file}`);
     }
   }
 });
