@@ -125,7 +125,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องนวดไฟฟ้า',
     'เครื่องวัดฝุ่น',
     // AI-4 batch 9: reviewed distinct device vocabulary.
-    'เครื่องสแกนบาร์โค้ด',
+    'เครื่องสแกนลายนิ้วมือ',
     'เครื่องตรวจน้ำตาลในเลือด',
     'เครื่องนับธนบัตร',
     'เครื่องนึ่งขวดนม'
