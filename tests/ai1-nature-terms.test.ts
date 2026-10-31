@@ -20,9 +20,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 370 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 386 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 370);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 386);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -100,7 +100,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 215, 'AI-1 must contain 215 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 231, 'AI-1 must contain 231 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -222,10 +222,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 84 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 100 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 84);
+  assert.equal(additions.length, 100);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -242,4 +242,49 @@ test('Boston fern semantic alias is not double-counted in AI-1', () => {
   assert.ok(WORD_BANK.plant.includes('เฟิร์นบอสตัน'), 'existing main spelling must remain');
   assert.ok(!AI1_NATURE_TERMS.plant.includes('เฟินบอสตัน'), 'AI-1 must not add the same Boston fern again');
   assert.ok(AI1_NATURE_TERMS.plant.includes('กระแตไต่ไม้'), 'replacement must be a distinct fern');
+});
+
+
+// Batch 22: distinct Thai species, plants and natural features; only AI-1 categories.
+const BATCH22_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: ['ลิงอ้ายเงี้ยะ', 'ชะมดแผงหางปล้อง'],
+  bird: ['นกอ้ายงั่ว', 'นกแอ่นตาล'],
+  fish: ['ปลาฟันเลื่อย', 'ปลาวัว'],
+  insect: ['ด้วงเสือ', 'แมลงวันลาย'],
+  plant: ['พรมมิ', 'หญ้าลิเภา'],
+  tree: ['สะเดาเทียม', 'ปอทะเล'],
+  flower: ['ฟ้าประดิษฐ์', 'ชบาเมเปิ้ล'],
+  nature: ['ดินถล่ม', 'พายุทราย'],
+};
+
+test('batch 22 registers 16 new playable nature names without canonical or literal collisions', () => {
+  assert.deepEqual(Object.keys(BATCH22_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH22_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = {
+    bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
+  };
+  for (const [category, words] of Object.entries(BATCH22_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} must be in ${category}`);
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, `${word} must have a canonical identity`);
+      assert.equal(WORD_BANK[category].filter(existing => canonicalAnswer(existing, category) === canonical).length, 1,
+        `${word} must not duplicate an existing category answer`);
+      const prefix = prefixes[category];
+      if (prefix) {
+        const alternate = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(alternate, category), canonical,
+          `${word} must preserve category-prefix identity`);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} must use a playable initial`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} must be accepted in a live round`);
+      const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [otherCategory, bank] of Object.entries(WORD_BANK)) {
+        const occurrences = bank.filter(existing => normalizeAnswer(existing).toLocaleLowerCase('th') === normalized).length;
+        assert.equal(occurrences, otherCategory === category ? 1 : 0,
+          `${word} must not duplicate a literal name in ${otherCategory}`);
+      }
+    }
+  }
 });
