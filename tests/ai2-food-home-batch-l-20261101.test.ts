@@ -73,7 +73,7 @@ test('AI-2 batch L adds 20 distinct moderated and playable words in owned catego
 
 test('AI-2 batch L has no literal duplicates in the registered source modules', () => {
   const dictionary = readFileSync(new URL('../amplify/functions/game/dictionary.ts', import.meta.url), 'utf8');
-  const imports = dictionary.split('\\n').filter(line => line.startsWith('import ') && line.includes("from './"))
+  const imports = dictionary.split('\n').filter(line => line.startsWith('import ') && line.includes("from './"))
     .map(line => line.split("from './")[1]?.split("'")[0]).filter((filename): filename is string => Boolean(filename));
   const sources = [dictionary, ...imports.map(filename =>
     readFileSync(new URL('../amplify/functions/game/' + filename, import.meta.url), 'utf8'))];
