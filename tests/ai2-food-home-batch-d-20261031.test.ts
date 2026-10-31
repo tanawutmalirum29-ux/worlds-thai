@@ -148,7 +148,7 @@ test('AI-2 batch G adds 20 source-unique words across all registered modules', (
   assert.equal(new Set(additions).size, 20, 'batch G has repeated literal names');
 
   const dictionarySource = readFileSync(new URL('../amplify/functions/game/dictionary.ts', import.meta.url), 'utf8');
-  const imports = [...dictionarySource.matchAll(/from '\\.\\/([^']+\\.ts)'/g)].map(match => match[1]);
+  const imports = [...dictionarySource.matchAll(/from '\.\/([^']+\.ts)'/g)].map(match => match[1]);
   const sources = [dictionarySource, ...imports.map(filename =>
     readFileSync(new URL('../amplify/functions/game/' + filename, import.meta.url), 'utf8'))];
 
