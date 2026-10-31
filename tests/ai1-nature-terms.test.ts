@@ -20,9 +20,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 418 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 434 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 418);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 434);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -391,6 +391,76 @@ test('batch 24 adds 16 distinct currently playable names without cross-bank coll
       }
       const initial = wordInitialForCategory(word, category);
       assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has an unplayable initial ${initial}`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} cannot be played`);
+      const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [bankCategory, bank] of Object.entries(WORD_BANK)) {
+        const occurrences = bank.filter(existing => normalizeAnswer(existing).toLocaleLowerCase('th') === normalized).length;
+        assert.equal(occurrences, bankCategory === category ? 1 : 0,
+          `${word} duplicates a literal answer in ${bankCategory}`);
+      }
+    }
+  }
+});
+
+
+// Batch 25: names confirmed against main and imported vocabulary modules.
+// Keep prefix-canonical identities and ensure all additions are playable.
+const BATCH25_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: [
+    'หมูป่า',
+    'หมีขั้วโลก'
+  ],
+  bird: [
+    'นกอีแจว',
+    'นกพญาไฟใหญ่'
+  ],
+  fish: [
+    'ปลากระทุงเหวเมือง',
+    'ปลากะรังหัวโขน'
+  ],
+  insect: [
+    'แมลงวันบ้าน',
+    'ตั๊กแตนตำข้าวคอยาวเกษตรศาสตร์'
+  ],
+  plant: [
+    'กูดเกี๊ยะ',
+    'ผักเบี้ยหิน'
+  ],
+  tree: [
+    'มะเกลือ',
+    'จันทน์หอม'
+  ],
+  flower: [
+    'พุดตาน',
+    'พุดสามสี'
+  ],
+  nature: [
+    'ทะเลสาบน้ำเค็ม',
+    'ที่ราบน้ำท่วมถึง'
+  ]
+};
+
+test('batch 25 adds 16 distinct currently playable names without canonical or cross-bank duplicates', () => {
+  assert.deepEqual(Object.keys(BATCH25_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH25_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = {
+    bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
+  };
+  for (const [category, words] of Object.entries(BATCH25_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} must be registered in ${category}`);
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, `${word} needs a canonical identity`);
+      assert.equal(WORD_BANK[category].filter(existing => canonicalAnswer(existing, category) === canonical).length, 1,
+        `${word} duplicates a registered canonical answer`);
+      const prefix = prefixes[category];
+      if (prefix) {
+        const alternate = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(alternate, category), canonical,
+          `${word} must preserve optional category-prefix identity`);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
       assert.equal(validAnswer(word, initial, category), true, `${word} cannot be played`);
       const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
       for (const [bankCategory, bank] of Object.entries(WORD_BANK)) {

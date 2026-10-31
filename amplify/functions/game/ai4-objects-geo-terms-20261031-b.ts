@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–9).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–10).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -46,7 +46,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดอวกาศ',
     'ถุงมือหนัง',
     'ชุดป้องกันสารเคมี',
-    'รองเท้าส้นเตี้ย'
+    'รองเท้าส้นเตี้ย',
+    // AI-4 batch 10: reviewed, distinct vocabulary.
+    'หมวกทรงกระบอก',
+    'รองเท้าสเก็ตน้ำแข็ง',
+    'หมวกบัณฑิต',
+    'สนับแข้ง'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -87,7 +92,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถขนส่งนักเรียน',
     'รถห้องเย็น',
     'เรือบรรทุกน้ำมัน',
-    'รถขนส่งผู้ต้องขัง'
+    'รถขนส่งผู้ต้องขัง',
+    // AI-4 batch 10: reviewed, distinct vocabulary.
+    'รถลากจูงเครื่องบิน',
+    'รถพ่นหมอกควัน',
+    'เรือลากจูง',
+    'รถเจาะเสาเข็ม'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -128,7 +138,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องสแกนลายนิ้วมือ',
     'เครื่องตรวจน้ำตาลในเลือด',
     'เครื่องนับธนบัตร',
-    'เครื่องนึ่งขวดนม'
+    'เครื่องนึ่งขวดนม',
+    // AI-4 batch 10: reviewed, distinct vocabulary.
+    'เครื่องทำสายไหม',
+    'เครื่องนับเหรียญ',
+    'เครื่องอ่านบัตรประชาชน',
+    'เครื่องทำป๊อปคอร์น'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -169,7 +184,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ประแจปากตาย',
     'ปากกาจับท่อ',
     'ที่ดัดท่อ',
-    'คีมย้ำสายแลน'
+    'คีมย้ำสายแลน',
+    // AI-4 batch 10: reviewed, distinct vocabulary.
+    'ที่เจาะรูเข็มขัด',
+    'เกจวัดลมยาง',
+    'เหล็กตอกตัวอักษร',
+    'ตัวดูดลูกปืน'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -210,6 +230,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงฆ่าสัตว์',
     'สถานีตรวจอากาศ',
     'หอควบคุมการบิน',
-    'โรงงานประกอบรถยนต์'
+    'โรงงานประกอบรถยนต์',
+    // AI-4 batch 10: reviewed, distinct vocabulary.
+    'สถานีสูบน้ำ',
+    'โรงคั่วกาแฟ',
+    'ลานจอดเฮลิคอปเตอร์',
+    'อู่ซ่อมรถไฟ'
   ]
 } as const;
