@@ -5,6 +5,20 @@ import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { canonicalAnswer, eligibleCategories, LETTERS, normalizeAnswer, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
+// Legacy reviewed names can become playable as more categories reach the letter threshold.
+// Every name added or substituted in this batch must already be playable today.
+const BATCH19_PLAYABLE = new Set([
+  'กวางรูซา', 'วัลลาบี', 'วาฬเบลูกา',
+  'นกจาบคาหัวเขียว', 'นกปากห่าง',
+  'ปลาแพะเขียว', 'ปลาปักเป้าหนามหลังแถบ',
+  'ด้วงงวงกล้วย', 'เพลี้ยจักจั่น',
+  'เฟินบอสตัน', 'หญ้าขัดมอน',
+  'ตะแบกเลือด', 'ประดู่แดง',
+  'พุดศุภโชค', 'กล้วยไม้หวาย',
+  'แอ่งน้ำเค็ม', 'ดินดอนสามเหลี่ยมปากแม่น้ำ',
+  'ป่าดิบแล้ง', 'ตะกอนน้ำพา',
+]);
+const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
 test('AI-1 adds 338 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
@@ -90,7 +104,9 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
-    assert.ok((LETTERS as readonly string[]).includes(initial), `${word} must start with a currently playable consonant`);
+    assert.ok(GAME_CONSONANTS.has(initial), `${word} must use a supported game consonant`);
+    if (BATCH19_PLAYABLE.has(word))
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} must start with a currently playable consonant`);
     const normalized = normalizeAnswer(word).toLocaleLowerCase('th');
     for (const [bankCategory, bankWords] of Object.entries(WORD_BANK)) {
       const occurrences = bankWords.filter(existing =>
