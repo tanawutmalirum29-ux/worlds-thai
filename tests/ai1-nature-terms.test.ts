@@ -100,7 +100,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 263, 'AI-1 must contain 263 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 279, 'AI-1 must contain 279 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -222,10 +222,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 132 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 148 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 132);
+  assert.equal(additions.length, 148);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -427,11 +427,11 @@ const BATCH25_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ผักเบี้ยหิน'
   ],
   tree: [
-    'มะเกลือ',
+    'สาละลังกา',
     'จันทน์หอม'
   ],
   flower: [
-    'พุดตาน',
+    'พู่จอมพล',
     'พุดสามสี'
   ],
   nature: [

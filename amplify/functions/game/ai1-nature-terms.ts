@@ -345,7 +345,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ก่อเดือย',
     'ยอป่า',
     'ตะคร้ำ',
-    'มะเกลือ',
+    'สาละลังกา',
     'จันทน์หอม',
   ],
   flower: [
@@ -397,7 +397,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ม่วงเทพรัตน์',
     'เทียนกิ่ง',
     'มะลุลี',
-    'พุดตาน',
+    'พู่จอมพล',
     'พุดสามสี',
   ],
   nature: [
