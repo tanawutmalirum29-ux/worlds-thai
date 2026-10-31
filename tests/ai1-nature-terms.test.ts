@@ -746,8 +746,8 @@ test('batch 29 adds 16 unique, currently playable names in only the eight assign
 // Batch 30 (1 Nov 2026): 16 source-screened, category-specific Thai names.
 const BATCH30_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['วัวมัสก์', 'แมวน้ำฮาร์ป'],
-  bird: ['นกขุนแผนหัวแดง', 'นกเงือกกรามช้าง'],
-  fish: ['ปลาสร้อยนกเขาจุดทอง', 'ปลาช่อนทะเล'],
+  bird: ['นกขุนแผนหัวแดง', 'นกขุนแผนอกส้ม'],
+  fish: ['ปลาสร้อยนกเขาจุดทอง', 'ปลาสร้อยนกเขาจุดทอง'],
   insect: ['เพลี้ยไฟพริก', 'แมลงปอเข็มท้องเข็มสังขละ'],
   plant: ['ว่านนางคำ', 'ว่านสาวหลง'],
   tree: ['เสลาใบใหญ่', 'ปาล์มคิง'],
