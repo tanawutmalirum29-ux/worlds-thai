@@ -6,9 +6,9 @@ import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategor
 
 const NATURE_CATEGORIES = ['animal', 'bird', 'fish', 'insect', 'plant', 'tree', 'flower', 'nature'];
 
-test('AI-1 adds 135 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 155 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 135);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 155);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -58,6 +58,11 @@ test('nature nouns keep existing bird, fish, insect, tree, and flower prefix ide
     ['fish', 'ปลากระดี่นาง', 'กระดี่นาง', 'ก'],
     ['insect', 'ด้วงแรดมะพร้าว', 'ด้วงแรดมะพร้าว', 'ด'],
     ['tree', 'ยางกราด', 'ยางกราด', 'ย'],
+    ['bird', 'นกยางเปีย', 'ยางเปีย', 'ย'],
+    ['fish', 'ปลานิลแดง', 'นิลแดง', 'น'],
+    ['insect', 'แมลงดานา', 'ดานา', 'ด'],
+    ['tree', 'โกงกางใบใหญ่', 'โกงกางใบใหญ่', 'ก'],
+    ['flower', 'หิรัญญิการ์', 'หิรัญญิการ์', 'ห'],
     ['flower', 'เอื้องผึ้ง', 'เอื้องผึ้ง', 'อ'],
   ];
   for (const [category, word, canonical, initial] of examples) {
