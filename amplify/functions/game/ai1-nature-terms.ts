@@ -143,7 +143,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกโพระดกคางเหลือง',
     'นกโพระดกหูเขียว',
     'นกขุนแผนหัวแดง',
-    'นกกางเขนดง',
+    'นกเงือกกรามช้าง',
   ],
   fish: [
     'ปลาสิงโต',
@@ -205,7 +205,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาหมอสีออสการ์',
     'ปลาซิวหนู',
     'ปลาซิวใบไผ่แม่แตง',
-    'ปลากดคัง',
+    'ปลาสร้อยนกเขาจุดทอง',
     'ปลาช่อนทะเล',
   ],
   insect: [

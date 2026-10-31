@@ -101,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 341, 'AI-1 must contain 341 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 357, 'AI-1 must contain 357 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -746,8 +746,8 @@ test('batch 29 adds 16 unique, currently playable names in only the eight assign
 // Batch 30 (1 Nov 2026): 16 source-screened, category-specific Thai names.
 const BATCH30_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['วัวมัสก์', 'แมวน้ำฮาร์ป'],
-  bird: ['นกขุนแผนหัวแดง', 'นกกางเขนดง'],
-  fish: ['ปลากดคัง', 'ปลาช่อนทะเล'],
+  bird: ['นกขุนแผนหัวแดง', 'นกเงือกกรามช้าง'],
+  fish: ['ปลาสร้อยนกเขาจุดทอง', 'ปลาช่อนทะเล'],
   insect: ['เพลี้ยไฟพริก', 'แมลงปอเข็มท้องเข็มสังขละ'],
   plant: ['ว่านนางคำ', 'ว่านสาวหลง'],
   tree: ['เสลาใบใหญ่', 'ปาล์มคิง'],
