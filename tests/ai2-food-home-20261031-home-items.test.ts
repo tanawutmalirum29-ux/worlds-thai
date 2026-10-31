@@ -5,12 +5,12 @@ import { AI2_FOOD_HOME_TERMS } from '../amplify/functions/game/ai2-food-home-ter
 import { canonicalAnswer, eligibleCategories, validAnswer, wordInitialForCategory } from '../amplify/functions/game/logic.ts';
 import { isInappropriateLanguage } from '../amplify/functions/game/moderation.ts';
 
-test('AI-2 registers 40 distinct clean words in object and furniture only', () => {
+test('AI-2 registers 51 distinct clean words in object and furniture only', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_TERMS).sort(), ['furniture', 'object']);
-  assert.equal(Object.values(AI2_FOOD_HOME_TERMS).reduce((n, words) => n + words.length, 0), 40);
+  assert.equal(Object.values(AI2_FOOD_HOME_TERMS).reduce((n, words) => n + words.length, 0), 51);
 
   for (const [category, words] of Object.entries(AI2_FOOD_HOME_TERMS)) {
-    assert.equal(words.length, 20, 'unexpected AI-2 count for ' + category);
+    assert.equal(words.length, category === 'object' ? 28 : 23, 'unexpected AI-2 count for ' + category);
     assert.equal(new Set(words).size, words.length, 'literal duplicate in ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'canonical duplicate in ' + category);
@@ -78,5 +78,35 @@ test('AI-2 second batch adds 20 new household terms without changing game rules'
       if (eligibleCategories(initial).includes(category))
         assert.equal(validAnswer(word, initial, category), true, 'not playable: ' + word);
     }
+  }
+});
+
+test('AI-2 batch E adds seven distinct household and furniture terms', () => {
+  const additions = {
+    object: ['กรวยกรอกน้ำ', 'ตะแกรงร่อนแป้ง', 'ถังขยะเหยียบ', 'ที่คว่ำจาน'],
+    furniture: ['ตู้หัวเตียง', 'ตู้โชว์กระจก', 'ตู้เสื้อผ้าบานเลื่อน']
+  } as const;
+  assert.equal(additions.object.length, 4);
+  assert.equal(additions.furniture.length, 3);
+  for (const [category, words] of Object.entries(additions)) {
+    for (const word of words) {
+      assert.ok(AI2_FOOD_HOME_TERMS[category as 'object' | 'furniture'].includes(word), word);
+      assert.equal(WORD_BANK[category].filter(
+        entry => canonicalAnswer(entry, category) === canonicalAnswer(word, category)
+      ).length, 1, 'duplicate canonical identity: ' + category + '/' + word);
+      assert.equal(isInappropriateLanguage(word), false, word);
+    }
+  }
+});
+
+test('AI-2 batch F adds four distinct household objects', () => {
+  const additions = ['ฝาครอบปลั๊ก', 'ฝาปิดท่อ', 'ซองกันน้ำ', 'ขวดปั๊มสบู่'] as const;
+  assert.equal(additions.length, 4);
+  for (const word of additions) {
+    assert.ok(AI2_FOOD_HOME_TERMS.object.includes(word), word);
+    assert.equal(WORD_BANK.object.filter(entry =>
+      canonicalAnswer(entry, 'object') === canonicalAnswer(word, 'object')).length,
+      1, 'duplicate object identity: ' + word);
+    assert.equal(isInappropriateLanguage(word), false, word);
   }
 });

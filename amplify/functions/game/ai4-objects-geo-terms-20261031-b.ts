@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–4).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–8).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -21,7 +21,27 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'หมวกนิรภัย',
     'เสื้อกั๊กกันกระสุน',
     'ชุดดับเพลิง',
-    'ชุดคลุมท้อง'
+    'ชุดคลุมท้อง',
+    // AI-4 batch 5: reviewed clothing terms.
+    'เสื้อกาวน์',
+    'รองเท้าหนัง',
+    'ชุดฮันบก',
+    'กางเกงขากระบอก',
+    // AI-4 batch 6: vetted distinct clothing terms.
+    'รองเท้าหัวเหล็ก',
+    'เสื้อราชปะแตน',
+    'รองเท้าบัลเลต์',
+    'เสื้อคอกระเช้า',
+    // AI-4 batch 7: recognizable clothing and practical workwear.
+    'รองเท้าบูตยาง',
+    'ถุงเท้ากีฬา',
+    'เสื้อยืดคอกลม',
+    'กางเกงเอี๊ยม',
+    // AI-4 batch 8: recognizable, distinct clothing types.
+    'ชุดกี่เพ้า',
+    'กางเกงขาสามส่วน',
+    'รองเท้าผ้าใบหุ้มข้อ',
+    'ถุงเท้ายาว'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -37,7 +57,27 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถไถนา',
     'รถพ่วงข้าง',
     'รถบรรทุกตู้คอนเทนเนอร์',
-    'เรือท้องแบน'
+    'เรือท้องแบน',
+    // AI-4 batch 5: distinct transport types.
+    'รถขุดตีนตะขาบ',
+    'รถกวาดถนน',
+    'เรือบรรทุกสินค้า',
+    'รถไฟความเร็วสูง',
+    // AI-4 batch 6: vetted distinct vehicle terms.
+    'จักรยานล้อเดียว',
+    'รถบดถนน',
+    'เรือแจว',
+    'เรือกอนโดลา',
+    // AI-4 batch 7: distinct, real passenger and utility vehicles.
+    'เรือสปีดโบ๊ต',
+    'เครื่องบินใบพัด',
+    'รถสามล้อถีบ',
+    'รถบ้าน',
+    // AI-4 batch 8: distinct road, rail and water vehicles.
+    'เรือกู้ภัย',
+    'รถบัสสองชั้น',
+    'รถกระบะสี่ประตู',
+    'รถไฟฟ้ารางเดี่ยว'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -53,7 +93,27 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ตู้กดน้ำ',
     'เครื่องอบรองเท้า',
     'เครื่องชั่งดิจิทัล',
-    'เครื่องพิมพ์ฉลาก'
+    'เครื่องพิมพ์ฉลาก',
+    // AI-4 batch 5: distinct electrical appliances.
+    'เครื่องทำน้ำแข็ง',
+    'กริ่งไฟฟ้า',
+    'เครื่องวัดความดันโลหิต',
+    'เตาย่างไฟฟ้า',
+    // AI-4 batch 6: vetted distinct device terms.
+    'เครื่องดูดความชื้น',
+    'ตู้กดบัตรคิว',
+    'เครื่องสแกนเอกสาร',
+    'เครื่องเป่ามือ',
+    // AI-4 batch 7: identifiable electrical and electronic devices.
+    'หุ่นยนต์ดูดฝุ่น',
+    'เครื่องตรวจจับควัน',
+    'พัดลมไร้ใบพัด',
+    'นาฬิกาปลุกดิจิทัล',
+    // AI-4 batch 8: familiar electrical appliances and measuring devices.
+    'เตาไฟฟ้า',
+    'เครื่องไล่ยุงไฟฟ้า',
+    'เครื่องนวดไฟฟ้า',
+    'เครื่องวัดฝุ่น'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -69,7 +129,27 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ไขควงหัวดาว',
     'คีมตัดท่อ',
     'ฉากช่างไม้',
-    'เครื่องยิงตะปู'
+    'เครื่องยิงตะปู',
+    // AI-4 batch 5: distinct workshop tools.
+    'บล็อกลม',
+    'เลื่อยสายพาน',
+    'ที่ดูดตะกั่ว',
+    'ปืนยิงรีเวท',
+    // AI-4 batch 6: vetted distinct tool terms.
+    'บักเต้า',
+    'คีมตัดลวด',
+    'ตะไบสามเหลี่ยม',
+    'ค้อนหัวกลม',
+    // AI-4 batch 7: distinct workshop and trade tools.
+    'ปืนยิงลวด',
+    'ประแจสายพาน',
+    'เวอร์เนียร์คาลิปเปอร์',
+    'คีมถอนตะปู',
+    // AI-4 batch 8: distinct workshop and construction tools.
+    'เหล็กขีด',
+    'แปรงทาสี',
+    'ประแจตัวที',
+    'เกรียงฉาบปูน'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -85,6 +165,26 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'อู่ซ่อมรถ',
     'โรงพิมพ์',
     'โรงงานรีไซเคิล',
-    'สถานีขนส่งผู้โดยสาร'
+    'สถานีขนส่งผู้โดยสาร',
+    // AI-4 batch 5: established place types.
+    'ศาลากลางจังหวัด',
+    'ทัณฑสถาน',
+    'ศูนย์กีฬา',
+    'ศูนย์ประชุม',
+    // AI-4 batch 6: vetted distinct place terms.
+    'โรงสีข้าว',
+    'สถานีวิทยุ',
+    'ศูนย์ฝึกอาชีพ',
+    'บ่อบำบัดน้ำเสีย',
+    // AI-4 batch 7: real, familiar public places and facilities.
+    'สนามยิงธนู',
+    'ท่ารถตู้',
+    'ห้องสมุดประชาชน',
+    'สนามแข่งม้า',
+    // AI-4 batch 8: real public facilities and workplaces.
+    'โรงงานน้ำตาล',
+    'ศูนย์อพยพ',
+    'สถานีรถไฟฟ้า',
+    'โรงเรียนสอนขับรถ'
   ]
 } as const;
