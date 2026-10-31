@@ -32,7 +32,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'วิศวกรเหมืองแร่',
     'ผู้กำกับเวที',
     'นักวางผังเมือง',
-    'ช่างเชื่อมโลหะ',
+    'ผู้ตรวจสอบอาคาร',
     'เจ้าพนักงานเภสัชกรรม',
   ],
   verb: [
@@ -97,7 +97,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'วิ่งผลัดสี่คูณสี่ร้อย',
     'คินบอล',
     'ราวด์เน็ต',
-    'ฟันดาบเอเป้',
+    'โครเกต์',
   ],
   music: [
     'ไวบราโฟน',

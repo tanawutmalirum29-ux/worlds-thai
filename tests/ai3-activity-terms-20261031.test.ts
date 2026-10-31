@@ -8,9 +8,9 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ช', 'จ'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ'],
   verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ฝ', 'ฟ', 'ห'],
-  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ฟ'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค'],
   music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ฮ', 'ป', 'ต'],
   toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ร'],
   school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก'],
@@ -51,9 +51,9 @@ test('AI-3 registers 195 reviewed activity terms without duplicate canonical ide
 });
 
 const BATCH_TEN: Readonly<Record<string, readonly string[]>> = {
-  job: ['นักวางผังเมือง', 'ช่างเชื่อมโลหะ', 'เจ้าพนักงานเภสัชกรรม'],
+  job: ['นักวางผังเมือง', 'ผู้ตรวจสอบอาคาร', 'เจ้าพนักงานเภสัชกรรม'],
   verb: ['ฝัดข้าว', 'ฟั่นเชือก', 'หยอดเมล็ด'],
-  sport: ['คินบอล', 'ราวด์เน็ต', 'ฟันดาบเอเป้'],
+  sport: ['คินบอล', 'ราวด์เน็ต', 'โครเกต์'],
   music: ['ฮาร์ปซิคอร์ด', 'ปี่ไฉน', 'แตรบาริโทน'],
   toy: ['เกมจับคู่ภาพ', 'รถของเล่นลากจูง'],
   school: ['สมุดกราฟ', 'ปากกาไวท์บอร์ด', 'กระดาษคาร์บอน'],
@@ -67,6 +67,21 @@ test('AI-3 batch 10 terms are unique across all registered categories', () => {
       assert.ok(AI3_ACTIVITY_TERMS[category].includes(word), 'missing AI-3 term: ' + word);
       assert.equal(registered.filter(entry => entry === word.normalize('NFC').toLocaleLowerCase('th')).length,
         1, 'cross-category spelling duplicate: ' + word);
+    }
+  }
+});
+
+// Guard against semantically identical names that are not yet canonical aliases.
+test('AI-3 does not re-add known job and sport synonyms as separate answers', () => {
+  const semanticPairs: Readonly<Record<string, readonly (readonly [string, string])[]>> = {
+    job: [['ช่างเชื่อม', 'ช่างเชื่อมโลหะ']],
+    sport: [['ฟันดาบ', 'ฟันดาบเอเป้']],
+  };
+  for (const [category, pairs] of Object.entries(semanticPairs)) {
+    const known = new Set(WORD_BANK[category].map(word => word.normalize('NFC').toLocaleLowerCase('th')));
+    for (const [generic, equivalent] of pairs) {
+      assert.ok(!(known.has(generic) && known.has(equivalent)),
+        'semantic duplicate: ' + category + '/' + generic + ' ~ ' + equivalent);
     }
   }
 });
