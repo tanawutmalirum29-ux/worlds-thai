@@ -22,7 +22,7 @@ test('AI-4 batches 2–13 register exactly 240 clean and canonically unique term
   assert.deepEqual(Object.keys(AI4_OBJECTS_GEO_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI4_OBJECTS_GEO_TERMS).flat();
   assert.equal(all.length, 240);
-  assert.equal(new Set(all).size, 220, 'duplicate literal within AI-4 batches');
+  assert.equal(new Set(all).size, 240, 'duplicate literal within AI-4 batches');
 
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
     assert.equal(words.length, 48, 'unexpected count: ' + category);
