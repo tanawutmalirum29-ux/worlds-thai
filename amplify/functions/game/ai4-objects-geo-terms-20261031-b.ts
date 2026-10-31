@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–3).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–4).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -16,7 +16,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เสื้อกันลม',
     'กางเกงขาบาน',
     'ชุดเชฟ',
-    'ชุดช่าง'
+    'ชุดช่าง',
+    // AI-4 batch 4: reviewed distinct vocabulary.
+    'หมวกนิรภัย',
+    'เสื้อกั๊กกันกระสุน',
+    'ชุดดับเพลิง',
+    'ชุดคลุมท้อง'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -27,7 +32,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องบินน้ำ',
     'จักรยานบรรทุกของ',
     'เรือคายัค',
-    'รถบรรทุกขยะ'
+    'รถบรรทุกขยะ',
+    // AI-4 batch 4: reviewed distinct vocabulary.
+    'รถไถนา',
+    'รถพ่วงข้าง',
+    'รถบรรทุกตู้คอนเทนเนอร์',
+    'เรือท้องแบน'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -38,7 +48,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ตู้แช่แข็ง',
     'เตาแม่เหล็กไฟฟ้า',
     'เครื่องปิ้งขนมปัง',
-    'เครื่องดูดควัน'
+    'เครื่องดูดควัน',
+    // AI-4 batch 4: reviewed distinct vocabulary.
+    'ตู้กดน้ำ',
+    'เครื่องอบรองเท้า',
+    'เครื่องชั่งดิจิทัล',
+    'เครื่องพิมพ์ฉลาก'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -49,7 +64,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'หัวแร้งบัดกรี',
     'คีมถ่างแหวน',
     'แคลมป์จับงาน',
-    'เหล็กเจาะนำศูนย์'
+    'เหล็กเจาะนำศูนย์',
+    // AI-4 batch 4: reviewed distinct vocabulary.
+    'ไขควงหัวดาว',
+    'คีมตัดท่อ',
+    'ฉากช่างไม้',
+    'เครื่องยิงตะปู'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -60,6 +80,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ท่าเรือประมง',
     'โรงคัดแยกขยะ',
     'หอศิลป์',
-    'โรงผลิตน้ำประปา'
+    'โรงผลิตน้ำประปา',
+    // AI-4 batch 4: reviewed distinct vocabulary.
+    'อู่ซ่อมรถ',
+    'โรงพิมพ์',
+    'โรงงานรีไซเคิล',
+    'สถานีขนส่งผู้โดยสาร'
   ]
 } as const;
