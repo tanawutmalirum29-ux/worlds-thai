@@ -8,7 +8,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'ช', 'ช'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช'],
   verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล'],
   sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก'],
   music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก'],
@@ -184,7 +184,7 @@ test('AI-3 batch 12 adds 20 distinct and playable human-activities answers', () 
 
 // AI-3 batch 13: category-specific, non-aliased terms with playable initials.
 const BATCH_THIRTEEN: Readonly<Record<string, readonly string[]>> = {
-  job: ['นักออกแบบภูมิทัศน์', 'ช่างซ่อมเครื่องปรับอากาศ', 'ช่างเทคนิคเครื่องมือแพทย์'],
+  job: ['นักออกแบบภูมิทัศน์', 'นักจดหมายเหตุ', 'ช่างเทคนิคเครื่องมือแพทย์'],
   verb: ['คัดเมล็ด', 'กรีดยาง', 'ลอกเปลือก'],
   sport: ['ฟิสต์บอล', 'ฟุตเน็ต', 'โกลบอล'],
   music: ['ซานตูร์', 'เอ้อหู', 'กู่เจิง'],
@@ -215,4 +215,15 @@ test('AI-3 batch 13 adds 20 unique, clean and playable reviewed answers', () => 
       assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + category + '/' + word);
     }
   }
+});
+
+// AI-5 semantic QA: an air-conditioner mechanic is already registered under two names.
+// Do not count the longer synonym as a new occupation when aliases are not canonicalized.
+test('AI-3 does not reintroduce the existing air-conditioner mechanic occupation', () => {
+  assert.ok(WORD_BANK.job.includes('ช่างซ่อมแอร์'), 'existing occupation missing');
+  assert.ok(WORD_BANK.job.includes('ช่างแอร์'), 'existing short title missing');
+  assert.ok(!WORD_BANK.job.includes('ช่างซ่อมเครื่องปรับอากาศ'), 'semantic duplicate reintroduced');
+  assert.ok(AI3_ACTIVITY_TERMS.job.includes('นักจดหมายเหตุ'), 'archivist replacement missing');
+  assert.equal(wordInitialForCategory('นักจดหมายเหตุ', 'job'), 'น');
+  assert.equal(validAnswer('นักจดหมายเหตุ', 'น', 'job'), true);
 });
