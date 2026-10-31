@@ -61,7 +61,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาหมูข้างลาย',
     'ปลาข้าวสาร',
     'ปลาหมูอินโด',
-    'ปลาแขยงหิน',
+    'ปลากระดี่นาง',
   ],
   insect: [
     'แมลงช้างปีกใส',
