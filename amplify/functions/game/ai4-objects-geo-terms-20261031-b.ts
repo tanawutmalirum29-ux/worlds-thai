@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–10).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–11).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -51,7 +51,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'หมวกทรงกระบอก',
     'รองเท้าสเก็ตน้ำแข็ง',
     'หมวกบัณฑิต',
-    'สนับแข้ง'
+    'สนับแข้ง',
+    // AI-4 batch 11: distinct reviewed terms, no changes to game logic.
+    'เสื้อฮาวาย',
+    'หมวกกะลาสี',
+    'เสื้อกั๊กช่างภาพ',
+    'ผ้าคลุมเจ้าสาว'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -97,7 +102,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถลากจูงเครื่องบิน',
     'รถพ่นหมอกควัน',
     'เรือลากจูง',
-    'รถเจาะเสาเข็ม'
+    'รถเจาะเสาเข็ม',
+    // AI-4 batch 11: distinct reviewed terms, no changes to game logic.
+    'รถดับเพลิงบันไดสูง',
+    'รถเครนล้อยาง',
+    'เรือท้องกระจก',
+    'รถตักหน้าขุดหลัง'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -143,7 +153,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องทำสายไหม',
     'เครื่องนับเหรียญ',
     'เครื่องอ่านบัตรประชาชน',
-    'เครื่องทำป๊อปคอร์น'
+    'เครื่องทำป๊อปคอร์น',
+    // AI-4 batch 11: distinct reviewed terms, no changes to game logic.
+    'เครื่องวัดออกซิเจนปลายนิ้ว',
+    'เครื่องฆ่าเชื้อยูวี',
+    'เครื่องตรวจจับโลหะ',
+    'เครื่องให้อาหารสัตว์อัตโนมัติ'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -189,7 +204,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ที่เจาะรูเข็มขัด',
     'เกจวัดลมยาง',
     'เหล็กตอกตัวอักษร',
-    'ตัวดูดลูกปืน'
+    'ตัวดูดลูกปืน',
+    // AI-4 batch 11: distinct reviewed terms, no changes to game logic.
+    'ประแจโซ่',
+    'เหล็กงัดยาง',
+    'เลื่อยหางหนู',
+    'ปืนพ่นสี'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -235,6 +255,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'สถานีสูบน้ำ',
     'โรงคั่วกาแฟ',
     'ลานจอดเฮลิคอปเตอร์',
-    'อู่ซ่อมรถไฟ'
+    'อู่ซ่อมรถไฟ',
+    // AI-4 batch 11: distinct reviewed terms, no changes to game logic.
+    'โรงน้ำแข็ง',
+    'สถานสงเคราะห์เด็ก',
+    'อาคารจอดรถ',
+    'ห้องเก็บเอกสาร'
   ]
 } as const;
