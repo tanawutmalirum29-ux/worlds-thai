@@ -12,7 +12,7 @@ const EXPECTED = {
     'ปลาร้าสับ', 'แกงผักกูด', 'ไก่ต้มขมิ้น', 'ยำมะเขือยาว'
   ],
   dessert: ['ขนมสัมปันนี', 'ขนมเรไร'],
-  drink: ['กาแฟคอร์ตาโด', 'ชามาซาลา']
+  drink: ['กาแฟริสเตรตโต', 'ชามาซาลา']
 } as const;
 
 test('AI-2 batch K adds 12 clean, canonical, playable words only in owned categories', () => {
