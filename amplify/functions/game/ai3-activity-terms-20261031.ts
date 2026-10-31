@@ -193,7 +193,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'สมุดกราฟ',
     'ปากกาไวท์บอร์ด',
     'กระดาษคาร์บอน',
-    'ไม้ทีเขียนแบบ',
+    'กระดาษลิตมัส',
     'ไส้ดินสอกด',
     'สันรูดพลาสติก',
   ],
