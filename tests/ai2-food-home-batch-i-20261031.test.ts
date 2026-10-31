@@ -43,7 +43,7 @@ test('AI-2 batch I adds exactly 20 clean canonical words in three owned categori
 
 test('AI-2 batch I words occur once in source modules before WORD_BANK deduplication', () => {
   const dictionary = readFileSync(new URL('../amplify/functions/game/dictionary.ts', import.meta.url), 'utf8');
-  const imports = [...dictionary.matchAll(/from '\\.\\/([^']+\\.ts)'/g)].map(match => match[1]);
+  const imports = [...dictionary.matchAll(/from '\.\/([^']+\.ts)'/g)].map(match => match[1]);
   const sources = [dictionary, ...imports.map(filename =>
     readFileSync(new URL('../amplify/functions/game/' + filename, import.meta.url), 'utf8'))];
   for (const word of Object.values(EXPECTED).flat()) {
