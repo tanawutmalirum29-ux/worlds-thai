@@ -110,7 +110,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาฉลามกรีนแลนด์',
     'ปลากัดป่า',
     'ปลาบู่มหิดล',
-    'ปลากระสูบขีด',
+    'ปลาบู่รำไพ',
   ],
   insect: [
     'แมลงช้างปีกใส',
