@@ -49,7 +49,8 @@ test('AI-2 batch J adds 20 unique, moderated and playable words in owned categor
 
 test('AI-2 batch J has no source-level literal duplicates across dictionary modules', () => {
   const dictionary = readFileSync(new URL('../amplify/functions/game/dictionary.ts', import.meta.url), 'utf8');
-  const imports = [...dictionary.matchAll(/from '\\.\\/([^']+\\.ts)'/g)].map(match => match[1]);
+  const imports = dictionary.split('\n').filter(line => line.startsWith('import ') && line.includes("from './"))
+    .map(line => line.split("from './")[1]?.split("'")[0]).filter((filename): filename is string => Boolean(filename));
   const sources = [dictionary, ...imports.map(filename =>
     readFileSync(new URL('../amplify/functions/game/' + filename, import.meta.url), 'utf8'))];
   for (const word of Object.values(EXPECTED).flat()) {
