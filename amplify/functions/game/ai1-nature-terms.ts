@@ -309,7 +309,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'มะฮอกกานี',
     'กระพี้เขาควาย',
     'ตะเคียนชันตาแมว',
-    'สะเดาเทียม',
+    'เสม็ดแดง',
     'ปอทะเล',
   ],
   flower: [

@@ -252,7 +252,7 @@ const BATCH22_TERMS: Readonly<Record<string, readonly string[]>> = {
   fish: ['ปลาฟันเลื่อย', 'ปลาวัว'],
   insect: ['ด้วงเสือ', 'แมลงวันลาย'],
   plant: ['พรมมิ', 'หญ้าลิเภา'],
-  tree: ['สะเดาเทียม', 'ปอทะเล'],
+  tree: ['เสม็ดแดง', 'ปอทะเล'],
   flower: ['ฟ้าประดิษฐ์', 'ชบาเมเปิ้ล'],
   nature: ['ดินถล่ม', 'พายุทราย'],
 };
@@ -287,4 +287,12 @@ test('batch 22 registers 16 new playable nature names without canonical or liter
       }
     }
   }
+});
+
+
+test('batch 22 does not duplicate the older tree ต้นสะเดาเทียม under its optional prefix', () => {
+  assert.ok(WORD_BANK.tree.includes('ต้นสะเดาเทียม'), 'existing hourly tree name must remain');
+  assert.ok(!AI1_NATURE_TERMS.tree.includes('สะเดาเทียม'), 'AI-1 must not re-add the same tree without prefix');
+  assert.equal(canonicalAnswer('ต้นสะเดาเทียม', 'tree'), canonicalAnswer('สะเดาเทียม', 'tree'));
+  assert.ok(AI1_NATURE_TERMS.tree.includes('เสม็ดแดง'), 'distinct replacement tree must be registered');
 });
