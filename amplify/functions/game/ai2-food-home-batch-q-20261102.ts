@@ -10,7 +10,7 @@ export const AI2_FOOD_HOME_BATCH_Q: Readonly<Record<'food' | 'dessert' | 'drink'
     'ไก่ต้มน้ำปลา'
   ],
   dessert: [
-    'ขนมกง',
+    'ขนมลูกเต๋า',
     'ขนมสามเกลอ'
   ],
   drink: [
