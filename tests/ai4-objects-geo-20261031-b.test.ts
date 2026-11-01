@@ -128,7 +128,7 @@ test('AI-4 batches 5–15 contribute 220 new canonical identities beyond the oth
       added++;
     }
   }
-  assert.equal(added, 220;
+  assert.equal(added, 220);
 });
 
 const BATCH_7: Readonly<Record<string, readonly string[]>> = {
