@@ -12,7 +12,7 @@ const EXPECTED = {
   drink: ['ชานมฮ่องกง', 'น้ำทับทิมโซดา', 'ชาข้าวโพด'],
   fruit: ['มะมุด'],
   vegetable: ['หน่อกะลา', 'ผักเซียงดา'],
-  object: ['ที่แยกไข่แดง', 'ขวดโหลสุญญากาศ', 'แผ่นซิลิโคนรองอบ', 'ตะแกรงพักขนม', 'พิมพ์กดคุกกี้'],
+  object: ['อุปกรณ์ตัดเปลือกไข่', 'ขวดโหลสุญญากาศ', 'แผ่นซิลิโคนรองอบ', 'ตะแกรงพักขนม', 'พิมพ์กดคุกกี้'],
   furniture: ['ชั้นวางไวน์', 'โต๊ะพับติดผนัง']
 } as const;
 
@@ -69,7 +69,13 @@ test('AI-2 batch S rejects previously registered semantic equivalents', () => {
     assert.equal(AI2_FOOD_HOME_BATCH_S[category].includes(alias),false,
       'semantic alias must not be added: '+category+'/'+alias);
   }
-  // ผ้ากรองชา is only a usage-qualified form of the existing ผ้ากรอง.\n  assert.ok(WORD_BANK.object.includes('ผ้ากรอง'));\n  assert.equal(AI2_FOOD_HOME_BATCH_S.object.includes('ผ้ากรองชา'),false);\n  // ตู้ยา already exists as an object, so its furniture synonym is not semantic-new.
+  // ผ้ากรองชา is only a usage-qualified form of the existing ผ้ากรอง.
+  assert.ok(WORD_BANK.object.includes('ผ้ากรอง'));
+  assert.equal(AI2_FOOD_HOME_BATCH_S.object.includes('ผ้ากรองชา'),false);
+  // Batch I already includes a distinct egg-yolk separator; do not add it again.
+  assert.ok(WORD_BANK.object.includes('ที่แยกไข่แดง'));
+  assert.equal(AI2_FOOD_HOME_BATCH_S.object.includes('ที่แยกไข่แดง'),false);
+  // ตู้ยา already exists as an object, so its furniture synonym is not semantic-new.
   assert.ok(WORD_BANK.object.includes('ตู้ยา'));
   assert.equal(AI2_FOOD_HOME_BATCH_S.furniture.includes('ตู้เก็บยา'),false);
 });
