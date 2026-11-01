@@ -2402,7 +2402,7 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_R)) {
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
-// AI-2 batch S: register independently reviewed terms in seven owned categories only.
+// AI-2 batch S: register reviewed food/home terms in seven owned categories only.
 for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_S)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-2 batch S category: ' + category);
