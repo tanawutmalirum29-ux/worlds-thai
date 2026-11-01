@@ -49,6 +49,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นักกีฏวิทยา',
     'ช่างแกะสลักหิน',
     'ช่างทำหัวโขน',
+    'นักจุลชีววิทยา',
+    'ช่างทำร่ม',
+    'นักพิษวิทยา',
   ],
   verb: [
     'เคลือบเงา',
@@ -96,6 +99,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกี่ยวข้าว',
     'ดำนา',
     'หว่านข้าว',
+    'ขูดสี',
+    'ทอเสื่อ',
+    'คั่วถั่ว',
   ],
   sport: [
     'สปีดสเกต',
@@ -143,6 +149,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'แคนูโปโล',
     'พายเรือยืน',
     'สเกตบอร์ดพาร์ก',
+    'สเกตบอร์ดสตรีต',
+    'โรลเลอร์สกี',
+    'สโนว์บอร์ดสโลปสไตล์',
   ],
   music: [
     'ไวบราโฟน',
@@ -187,6 +196,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พิณเปี๊ยะ',
     'คอนทราบาสซูน',
     'บัณเฑาะว์',
+    'พิณไฟฟ้า',
+    'แซกโซโฟนโซปราโน',
+    'ทรัมเป็ตพิคโคโล',
   ],
   toy: [
     'หุ่นนิ้ว',
@@ -218,6 +230,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เหมียวระเบิด',
     'ชุดทำสร้อยลูกปัด',
     'กระดานวาดภาพน้ำ',
+    'ชุดประดิษฐ์ว่าว',
+    'กระดานวาดทราย',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
@@ -264,6 +278,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กระบอกตวง',
     'แผ่นสไลด์แก้ว',
     'กระดาษมิลลิเมตร',
+    'ตาชั่งสามคาน',
+    'แผ่นปิดสไลด์',
+    'ขวดรูปชมพู่',
   ],
   body: [
     'กล่องเสียง',
@@ -311,5 +328,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กล้ามเนื้อกะบังลม',
     'เส้นเอ็นไขว้หลัง',
     'เยื่อหุ้มกระดูก',
+    'เส้นประสาทมีเดียน',
+    'กระดูกสันอก',
+    'กระดูกโหนกแก้ม',
   ],
 };
