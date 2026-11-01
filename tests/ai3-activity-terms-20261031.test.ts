@@ -10,7 +10,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'ช', 'น', 'น'],
   verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล', 'ผ', 'ต', 'บ', 'ก', 'ด', 'ห', 'ข', 'ท', 'ค', 'ห', 'ฟ', 'ว', 'ส', 'ส', 'ข', 'ล', 'ว', 'ห'],
-  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ข', 'ข', 'ว'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ร', 'ต', 'ว'],
   music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก', 'อ', 'ก', 'ว', 'พ', 'ค', 'บ', 'พ', 'ซ', 'ม', 'ก', 'ก', 'ฉ', 'ก', 'ท', 'อ', 'ป', 'ห', 'ต'],
   toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก', 'ก', 'ห', 'ช', 'ก', 'ช', 'ก', 'ต', 'ต', 'ล', 'ก', 'ว', 'ห'],
   school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ', 'จ', 'ท', 'ท', 'ก', 'ผ', 'ก', 'ต', 'ผ', 'ข', 'บ', 'ข', 'ก', 'ก', 'ข', 'ห', 'พ', 'ก', 'ส'],
@@ -444,7 +444,7 @@ test('AI-3 batch 18 adds 20 clean canonical-unique playable answers', () => {
 const BATCH_NINETEEN: Readonly<Record<string, readonly string[]>> = {
   job: ['ช่างซ่อมรองเท้า', 'นักวิทยาศาสตร์การกีฬา', 'นักจิตวิทยาคลินิก'],
   verb: ['ลับกรรไกร', 'วัดไข้', 'หยอดกาว'],
-  sport: ['ขว้างหอก', 'แข่งเรือมังกร', 'ว่ายน้ำท่าผีเสื้อ'],
+  sport: ['เรือแคนูมาราธอน', 'ไตรกีฬาผลัดผสม', 'ว่ายน้ำเดี่ยวผสม'],
   music: ['โปงลาง', 'หยางฉิน', 'ตะโพนมอญ'],
   toy: ['ว่าวกล่อง', 'หุ่นยนต์บังคับวิทยุ'],
   school: ['พู่กันหัวกลม', 'กรรไกรปลายมน', 'สีโปสเตอร์'],
@@ -471,5 +471,26 @@ test('AI-3 batch 19 adds 20 unique, clean and playable human-activity terms', ()
       assert.ok(eligibleCategories(initial).includes(category), 'unavailable: ' + category + '/' + word);
       assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + category + '/' + word);
     }
+  }
+});
+
+
+// AI-5 independent QA: three proposed sports were aliases of registered disciplines.
+// Keep their replacements distinct and prevent semantic double counting.
+test('AI-3 batch 19 does not duplicate existing javelin, dragon boat or butterfly swimming', () => {
+  const aliases: Readonly<readonly (readonly [string, string])[]> = [
+    ['ขว้างหอก', 'พุ่งแหลน'],
+    ['แข่งเรือมังกร', 'พายเรือมังกร'],
+    ['ว่ายน้ำท่าผีเสื้อ', 'ว่ายน้ำผีเสื้อ'],
+  ];
+  for (const [duplicate, registered] of aliases) {
+    assert.ok(WORD_BANK.sport.includes(registered), 'baseline sport missing: ' + registered);
+    assert.ok(!AI3_ACTIVITY_TERMS.sport.includes(duplicate), 'semantic duplicate: ' + duplicate);
+  }
+  for (const replacement of ['เรือแคนูมาราธอน', 'ไตรกีฬาผลัดผสม', 'ว่ายน้ำเดี่ยวผสม']) {
+    assert.ok(AI3_ACTIVITY_TERMS.sport.includes(replacement), 'replacement missing: ' + replacement);
+    const initial = wordInitialForCategory(replacement, 'sport');
+    assert.ok(eligibleCategories(initial).includes('sport'), 'unplayable replacement: ' + replacement);
+    assert.equal(validAnswer(replacement, initial, 'sport'), true);
   }
 });
