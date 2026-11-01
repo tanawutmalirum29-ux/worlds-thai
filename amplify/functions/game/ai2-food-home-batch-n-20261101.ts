@@ -25,7 +25,7 @@ export const AI2_FOOD_HOME_BATCH_N: Readonly<Record<'food' | 'dessert' | 'drink'
     'ยอดมันปู'
   ],
   object: [
-    'กระบวยกะลา',
+    'ที่คีบขนมปัง',
     'ตะแกรงย่างปลา',
     'พัดใบตาล',
     'กระจาดไม้ไผ่',
@@ -36,6 +36,6 @@ export const AI2_FOOD_HOME_BATCH_N: Readonly<Record<'food' | 'dessert' | 'drink'
     'โต๊ะเขียนแบบ',
     'ตู้เก็บยา',
     'เตียงพยาบาล',
-    'เตียงเด็กอ่อน'
+    'เก้าอี้ทำฟัน'
   ]
 } as const;

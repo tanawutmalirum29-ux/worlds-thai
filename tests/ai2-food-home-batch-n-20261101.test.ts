@@ -28,7 +28,7 @@ const EXPECTED = {
     "ยอดมันปู"
   ],
   "object": [
-    "กระบวยกะลา",
+    "ที่คีบขนมปัง",
     "ตะแกรงย่างปลา",
     "พัดใบตาล",
     "กระจาดไม้ไผ่",
@@ -39,7 +39,7 @@ const EXPECTED = {
     "โต๊ะเขียนแบบ",
     "ตู้เก็บยา",
     "เตียงพยาบาล",
-    "เตียงเด็กอ่อน"
+    "เก้าอี้ทำฟัน"
   ]
 } as const;
 const OWNED = ['dessert', 'drink', 'food', 'fruit', 'furniture', 'object', 'vegetable'];
@@ -92,4 +92,14 @@ test('AI-2 batch N respects existing dessert and vegetable prefix behavior', () 
   assert.equal(wordInitialForCategory('ขนมเต้าส้อ', 'dessert'), 'ต');
   assert.equal(wordInitialForCategory('ยอดมันปู', 'vegetable'), 'ย');
   assert.equal(canonicalAnswer('ยอดมันปู', 'vegetable'), 'ยอดมันปู');
+});
+
+// Regression: reject the semantic near-duplicates flagged by AI-5.
+test('AI-2 batch N avoids previously identified near-duplicate household terms', () => {
+  assert.ok(WORD_BANK.object.includes('กระบวย'));
+  assert.ok(WORD_BANK.furniture.includes('เตียงเด็ก'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_N.object.includes('กระบวยกะลา'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_N.furniture.includes('เตียงเด็กอ่อน'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.object.includes('ที่คีบขนมปัง'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.furniture.includes('เก้าอี้ทำฟัน'));
 });
