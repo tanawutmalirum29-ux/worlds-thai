@@ -10,5 +10,5 @@ export const AI2_FOOD_HOME_BATCH_S: Readonly<Record<'food' | 'dessert' | 'drink'
   fruit: ['มะมุด'],
   vegetable: ['หน่อกะลา', 'ผักเซียงดา'],
   object: ['ผ้ากรองชา', 'ขวดโหลสุญญากาศ', 'แผ่นซิลิโคนรองอบ', 'ตะแกรงพักขนม', 'พิมพ์กดคุกกี้'],
-  furniture: ['ชั้นวางไวน์', 'ตู้เก็บยา']
+  furniture: ['ชั้นวางไวน์', 'โต๊ะพับติดผนัง']
 } as const;
