@@ -717,7 +717,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'คลื่นความร้อน',
     'ลมกรด',
     'ลมภูเขา',
-    'น้ำค้างแข็ง',
+    'เมฆสุกใส',
     'เมฆอาร์คัส',
   ],
 };

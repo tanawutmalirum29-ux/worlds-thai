@@ -101,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 529, 'AI-1 must contain 529 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 545, 'AI-1 must contain 545 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -1476,7 +1476,7 @@ const BATCH42_TERMS: Readonly<Record<string, readonly string[]>> = {
   plant: ['หญ้าพองลม', 'สาหร่ายข้าวเหนียวใบเล็ก'],
   tree: ['ก่วมขาว', 'ยางโอน'],
   flower: ['บานไม่รู้โรยป่า', 'เทียนดอย'],
-  nature: ['น้ำค้างแข็ง', 'เมฆอาร์คัส'],
+  nature: ['เมฆสุกใส', 'เมฆอาร์คัส'],
 };
 
 test('batch 42 adds 16 canonical-distinct playable names without cross-bank collisions', () => {
