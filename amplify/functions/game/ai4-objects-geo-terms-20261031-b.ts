@@ -176,7 +176,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 18: reviewed distinct practical vocabulary.
     'เรือตัดน้ำแข็ง',
     'กระเช้าไฟฟ้า',
-    'รถฉีดโฟมดับเพลิง',
+    'เรือพระที่นั่ง',
     'รถบรรทุกเครื่องจักร'
   ],
   device: [
@@ -346,7 +346,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ดอกสว่านเจาะกระจก',
     'ค้อนทุบกระจก',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
-    'แปรงขัดสนิม',
+    'เลื่อยตัดกิ่ง',
     'ปืนเป่าลมร้อน',
     'ประแจขันหัวเทียน',
     'เกรียงขัดมัน'
