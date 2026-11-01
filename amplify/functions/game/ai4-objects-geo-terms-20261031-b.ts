@@ -432,7 +432,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงเพาะเลี้ยงสัตว์น้ำ',
     'ลานจอดรถบรรทุก',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
-    'โรงซ่อมรถไฟ',
+    'สนามทดสอบรถยนต์',
     'อู่ต่อเรือ',
     'โรงงานผลิตรองเท้า',
     'โรงงานผลิตอาหารสัตว์'
