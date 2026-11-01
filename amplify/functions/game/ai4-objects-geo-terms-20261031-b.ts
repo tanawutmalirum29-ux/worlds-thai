@@ -174,7 +174,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือเก็บคราบน้ำมัน',
     'เรือใบสองเสา',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
-    'เรือขุดลอกคลอง',
+    'เรือตัดน้ำแข็ง',
     'กระเช้าไฟฟ้า',
     'รถฉีดโฟมดับเพลิง',
     'รถบรรทุกเครื่องจักร'
