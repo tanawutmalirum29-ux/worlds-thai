@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 700 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 716 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 700);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 716);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -1504,6 +1504,51 @@ test('batch 42 adds 16 canonical-distinct playable names without cross-bank coll
       for (const [otherCategory, bank] of Object.entries(WORD_BANK)) {
         assert.equal(bank.filter(entry => normalizeAnswer(entry).toLocaleLowerCase('th') === literal).length,
           otherCategory === category ? 1 : 0, `${word} duplicate literal in ${otherCategory}`);
+      }
+    }
+  }
+});
+
+
+// Batch 43 (1 Nov 2026): source-checked ONEP wildlife/fish records, DOA pests and
+// weeds, Royal Forest Department trees, Thai horticulture and TMD meteorology.
+// Each registered term is a distinct Thai common name, not a prefix alias.
+const BATCH43_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: ['อ้นเล็ก', 'ค่างแว่นถิ่นเหนือ'],
+  bird: ['นกยางไฟหัวเทา'],
+  fish: ['ปลาแขยงใบข้าว', 'ปลาบู่แคระ', 'ปลาบู่แดงแถบฟ้า'],
+  insect: ['แมลงหวี่ขาวยาสูบ', 'หนอนเจาะสมอฝ้าย'],
+  plant: ['กกกระจุก', 'หญ้ายางนงนุช'],
+  tree: ['นนทรีป่า', 'ทิ้งถ่อน'],
+  flower: ['เข็มอินเดีย', 'เข็มปัตตาเวีย'],
+  nature: ['พายุฝนฟ้าคะนอง', 'เมฆชั้นกลาง'],
+};
+
+test('batch 43 adds 16 distinct playable nature names without prefix or cross-bank collisions', () => {
+  assert.deepEqual(Object.keys(BATCH43_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH43_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string,string>> = {
+    bird:'นก', fish:'ปลา', insect:'แมลง', tree:'ต้น', flower:'ดอก',
+  };
+  for (const [category, names] of Object.entries(BATCH43_TERMS)) {
+    for (const word of names) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), word + ' not registered');
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, word + ' has empty canonical identity');
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry,category) === canonical).length,
+        1, word + ' canonical duplicate');
+      const prefix = prefixes[category];
+      if (prefix) {
+        const variant = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(variant,category),canonical,word + ' prefix mismatch');
+      }
+      const initial = wordInitialForCategory(word,category);
+      assert.ok((LETTERS as readonly string[]).includes(initial),word + ' unplayable initial');
+      assert.equal(validAnswer(word,initial,category),true,word + ' rejected by gameplay');
+      const literal = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [otherCategory,bank] of Object.entries(WORD_BANK)) {
+        assert.equal(bank.filter(entry => normalizeAnswer(entry).toLocaleLowerCase('th') === literal).length,
+          otherCategory === category ? 1 : 0,word + ' literal collision in ' + otherCategory);
       }
     }
   }
