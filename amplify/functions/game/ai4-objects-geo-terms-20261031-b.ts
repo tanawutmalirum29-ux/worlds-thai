@@ -307,7 +307,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'มีดแกะสลักไม้',
     // AI-4 batch 16: distinct practical workshop tools.
     'เลื่อยญี่ปุ่น',
-    'ลูกกลิ้งทาสี',
+    'ตะไบครึ่งวงกลม',
     'เกจวัดความลึก',
     'คีมตัดกระเบื้อง'
   ],
@@ -383,7 +383,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'สถานีขนส่งสินค้า',
     // AI-4 batch 16: established real-world facility types.
     'โรงหล่อโลหะ',
-    'ลานกางเต็นท์',
+    'ลานฝึกขับรถ',
     'สนามแข่งจักรยาน',
     'โรงฝึกมวย'
   ]
