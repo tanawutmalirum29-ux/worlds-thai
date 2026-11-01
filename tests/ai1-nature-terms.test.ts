@@ -101,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 373, 'AI-1 must contain 373 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 389, 'AI-1 must contain 389 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -890,14 +890,14 @@ test('batch 31 adds 16 canonical-distinct, playable terms in the eight AI-1 cate
 
 // Batch 32 (1 Nov 2026): verified nature names, only the eight AI-1 categories.
 const BATCH32_TERMS: Readonly<Record<string, readonly string[]>> = {
-  animal: ['วอมแบต', 'สุนัขจิ้งจอกแดง'],
-  bird: ['นกตะกรุม', 'นกกระทาดงแข้งเขียว'],
+  animal: ['ออริกซ์เขาดาบ', 'สุนัขจิ้งจอกแดง'],
+  bird: ['นกติ๊ดสุลต่าน', 'นกกระทาดงแข้งเขียว'],
   fish: ['ปลาม้าลาย', 'ปลาซิวข้างขวาน'],
-  insect: ['ผีเสื้อหนอนมะนาว', 'ผีเสื้อหางติ่งปารีส'],
-  plant: ['หญ้าคาทะเล', 'ผักคราดหัวแหวน'],
-  tree: ['กระบาก', 'อินทนิลน้ำ'],
-  flower: ['กล้วยไม้แวนด้า', 'กุหลาบมอญ'],
-  nature: ['เมฆสเตรตัส', 'เมฆคิวมูลัส'],
+  insect: ['เพลี้ยกระโดดหลังขาว', 'แมลงปอเข็มท้องเข็มดำ'],
+  plant: ['หญ้าคาทะเล', 'หญ้าใบพาย'],
+  tree: ['ไผ่ซางหม่น', 'ไผ่หก'],
+  flower: ['เอื้องสีตาล', 'เอื้องดอกมะขาม'],
+  nature: ['เมฆสเตรตัส', 'เมฆนิมโบสเตรตัส'],
 };
 
 test('batch 32 adds 16 playable canonical-distinct nature terms', () => {
@@ -927,4 +927,12 @@ test('AI-1 does not add a second name for existing reindeer', () => {
   assert.ok(WORD_BANK.animal.includes('เรนเดียร์'));
   assert.ok(!AI1_NATURE_TERMS.animal.includes('กวางเรนเดียร์'));
   assert.ok(AI1_NATURE_TERMS.animal.includes('กวางซิก้า'));
+});
+
+
+test('batch 32 excludes main-source aliases and literal collisions found in CI', () => {
+  assert.ok(!AI1_NATURE_TERMS.animal.includes('วอมแบต'));
+  assert.ok(!AI1_NATURE_TERMS.bird.includes('นกตะกรุม'));
+  assert.ok(!AI1_NATURE_TERMS.plant.includes('ผักคราดหัวแหวน'));
+  assert.ok(!AI1_NATURE_TERMS.nature.includes('เมฆคิวมูลัส'));
 });
