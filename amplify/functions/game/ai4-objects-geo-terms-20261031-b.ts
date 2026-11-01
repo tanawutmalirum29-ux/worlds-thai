@@ -388,7 +388,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 20: reviewed distinct equipment and real-world facility types.
     'ประแจหัวบาน',
     'เกจวัดรู',
-    'คีมล็อก',
+    'ดอกสว่านขั้นบันได',
     'คีมปากแหลมงอ'
   ],
   place: [
