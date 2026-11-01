@@ -1559,7 +1559,7 @@ test('batch 43 adds 16 distinct playable nature names without prefix or cross-ba
 // from ONEP TH-BIF and NARIT. Keep scoring and category-prefix logic unchanged.
 const BATCH44_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['กระเล็นขนปลายหูสั้น', 'กระเล็นขนปลายหูยาว'],
-  bird: ['นกเงือกกรามช้าง', 'นกหัวขวานจิ๋วคิ้วขาว'],
+  bird: ['นกคอพัน', 'นกหัวขวานจิ๋วคิ้วขาว'],
   fish: ['ปลาจวดหัวแหลม', 'ปลาจวดหน้าสั้น'],
   insect: ['ผีเสื้อปีกกึ่งหุบลายแปลก', 'ผีเสื้อฟ้าขอบขนธรรมดา'],
   plant: ['หญ้าพันงูแดง', 'หญ้าไฟตะกาด'],
