@@ -14,7 +14,7 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล', 'ผ', 'ต', 'บ', 'ก', 'ด', 'ห', 'ข', 'ท', 'ค', 'ห', 'ฟ', 'ว', 'ส', 'ส', 'ข', 'ล', 'ว', 'ห', 'ซ', 'ค', 'ย', 'ย', 'ถ', 'ค'],
   sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ร', 'ต', 'ว', 'พ', 'จ', 'ย', 'ก', 'ร', 'ส'],
   music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก', 'อ', 'ก', 'ว', 'พ', 'ค', 'บ', 'พ', 'ซ', 'ม', 'ก', 'ก', 'ฉ', 'ก', 'ท', 'อ', 'ป', 'ห', 'ต', 'ค', 'อ', 'ก', 'ก', 'ก', 'อ'],
-  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก', 'ก', 'ห', 'ช', 'ก', 'ช', 'ก', 'ต', 'ต', 'ล', 'ก', 'ว', 'ห', 'ก', 'ห', 'ร', 'ช'],
+  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก', 'ก', 'ห', 'ช', 'ก', 'ช', 'ก', 'ต', 'ต', 'ล', 'ก', 'ว', 'ห', 'ก', 'ห', 'ร', 'ก'],
   school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ', 'จ', 'ท', 'ท', 'ก', 'ผ', 'ก', 'ต', 'ผ', 'ข', 'บ', 'ข', 'ก', 'ก', 'ข', 'ห', 'พ', 'ก', 'ส', 'ม', 'ป', 'ข', 'ค', 'ท', 'ก'],
   body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย', 'ส', 'ข', 'ก', 'ท', 'ต', 'ถ', 'ส', 'ส', 'ล', 'ส', 'ย', 'ก', 'ก', 'ส', 'ย', 'ส', 'ก', 'ก', 'ก', 'ส', 'ล', 'ก', 'ห', 'ส', 'ก', 'ห', 'ส', 'ส', 'ก', 'ต', 'ก', 'ก', 'ก'],
 };
@@ -550,7 +550,7 @@ const BATCH_TWENTY_ONE: Readonly<Record<string, readonly string[]>> = {
   verb: ['เย็บผ้าห่ม', 'ถักเปีย', 'คั้นน้ำอ้อย'],
   sport: ['กระโดดน้ำสปริงบอร์ด', 'เรือใบออปติมิสต์', 'สกีสลาลอม'],
   music: ['กลองเปิงมาง', 'กลองสองหน้า', 'โอโบเบส'],
-  toy: ['รถแข่งรางไฟฟ้า', 'ชุดทำฟองสบู่'],
+  toy: ['รถแข่งรางไฟฟ้า', 'เกมดิกซ์อิท'],
   school: ['เครื่องชั่งสปริง', 'แท่งแม่เหล็ก', 'กระดาษยูนิเวอร์ซัลอินดิเคเตอร์'],
   body: ['กล้ามเนื้อไตรเซปส์', 'กระดูกน่อง', 'กล้ามเนื้อเดลทอยด์'],
 };
@@ -608,4 +608,20 @@ test('AI-3 batch 21 does not duplicate the existing phone-repair occupation', ()
   assert.equal(initial, 'ช');
   assert.ok(eligibleCategories(initial).includes('job'), 'mold-maker job is not playable');
   assert.equal(validAnswer('ช่างทำแม่พิมพ์', initial, 'job'), true);
+});
+
+
+// AI-5 semantic QA: bubble-making sets describe the existing bubble toy,
+// whereas Dixit is a named storytelling-and-picture-voting board game.
+test('AI-3 batch 21 avoids the bubble toy semantic alias and keeps distinct Dixit playable', () => {
+  assert.ok(WORD_BANK.toy.includes('ฟองสบู่'), 'baseline bubble toy missing');
+  assert.ok(WORD_BANK.toy.includes('เครื่องเป่าฟองสบู่'), 'bubble-maker baseline missing');
+  assert.ok(!AI3_ACTIVITY_TERMS.toy.includes('ชุดทำฟองสบู่'), 'bubble toy semantic duplicate reintroduced');
+  assert.ok(AI3_ACTIVITY_TERMS.toy.includes('เกมดิกซ์อิท'), 'Dixit replacement missing');
+  assert.equal(WORD_BANK.toy.filter(word => canonicalAnswer(word, 'toy') === canonicalAnswer('เกมดิกซ์อิท', 'toy')).length, 1,
+    'Dixit canonical duplicate');
+  const initial = wordInitialForCategory('เกมดิกซ์อิท', 'toy');
+  assert.equal(initial, 'ก');
+  assert.ok(eligibleCategories(initial).includes('toy'), 'Dixit unavailable in toy rounds');
+  assert.equal(validAnswer('เกมดิกซ์อิท', initial, 'toy'), true);
 });
