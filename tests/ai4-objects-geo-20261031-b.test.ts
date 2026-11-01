@@ -580,7 +580,7 @@ test('AI-4 batch 18 adds 20 new playable canonical identities without cross-sour
 
 const BATCH_19: Readonly<Record<string, readonly string[]>> = {
   clothing: ['กางเกงมวยไทย', 'รองเท้าวิ่งเทรล', 'ชุดฟันดาบ', 'เสื้อช็อปช่าง'],
-  vehicle: ['รถขนส่งเงินสด', 'รถบรรทุกไม้ซุง', 'เรือสำรวจอุทกศาสตร์', 'รถขนสัมภาระสนามบิน'],
+  vehicle: ['รถขนส่งเงินสด', 'รถสุขาเคลื่อนที่', 'เรือวางสายเคเบิล', 'รถขนสัมภาระสนามบิน'],
   device: ['เครื่องทำความสะอาดไอน้ำ', 'เครื่องดูดเสมหะ', 'เครื่องบดเนื้อไฟฟ้า', 'เครื่องวัดระดับเสียง'],
   tool: ['คีมดัดลวด', 'ตะไบหางหนู', 'เกจวัดช่องว่าง', 'ประแจแหวนฟรี'],
   place: ['โรงคัดแยกพัสดุ', 'โรงงานผลิตยา', 'สถานรับบริจาคโลหิต', 'โรงเรียนการบิน'],
@@ -593,7 +593,18 @@ test('AI-4 batch 19 adds 20 playable canonical-unique terms without cross-source
   // Regression: the standalone vehicle bank already has the medical aircraft.
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('เครื่องบินพยาบาล'));
   assert.ok(!BATCH_19.vehicle.includes('เครื่องบินพยาบาล'));
-  assert.ok(BATCH_19.vehicle.includes('เรือสำรวจอุทกศาสตร์'));
+  // AI-5 semantic QA: a timber/log truck is already registered as รถบรรทุกไม้.
+  // A mobile restroom is a self-contained sanitation service vehicle, not a timber truck.
+  assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถบรรทุกไม้'));
+  assert.ok(!BATCH_19.vehicle.includes('รถบรรทุกไม้ซุง'));
+  assert.ok(BATCH_19.vehicle.includes('รถสุขาเคลื่อนที่'));
+  // A generic survey ship already exists. A cable layer installs/repairs seabed
+  // communications or power cables; unlike a survey ship it is construction equipment,
+  // and unlike a pipe-laying vessel it deploys flexible cables rather than pipelines.
+  assert.ok(ADDITIONAL_VEHICLES_20261031.includes('เรือสำรวจ'));
+  assert.ok(!BATCH_19.vehicle.includes('เรือสำรวจอุทกศาสตร์'));
+  assert.ok(AI4_OBJECTS_GEO_TERMS.vehicle.includes('เรือวางท่อ'));
+  assert.ok(BATCH_19.vehicle.includes('เรือวางสายเคเบิล'));
   // AI-5 semantic QA: ผ้าคาดศีรษะ is the same headband as existing ผ้าคาดผม.
   // ผ้าคลุมไหล่ was also already present in the core clothing bank.
   // Muay Thai boxing shorts are distinct sport-specific apparel, not a headband or shawl.

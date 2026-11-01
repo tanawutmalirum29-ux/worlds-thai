@@ -185,8 +185,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถบรรทุกเครื่องจักร',
     // AI-4 batch 19: reviewed distinct real-world terms.
     'รถขนส่งเงินสด',
-    'รถบรรทุกไม้ซุง',
-    'เรือสำรวจอุทกศาสตร์',
+    'รถสุขาเคลื่อนที่',
+    'เรือวางสายเคเบิล',
     'รถขนสัมภาระสนามบิน'
   ],
   device: [
