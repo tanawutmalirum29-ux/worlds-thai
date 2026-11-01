@@ -949,7 +949,7 @@ test('batch 32 does not re-add existing fish after ปลา prefix normalizatio
 const BATCH33_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['แมวน้ำวงแหวน', 'แพะภูเขา'],
   bird: ['นกกะรางสร้อยคอเล็ก', 'นกเค้าเหยี่ยว'],
-  fish: ['ปลาซิวควาย', 'ปลากดหัวแข็ง'],
+  fish: ['ปลากัดตะวันออก', 'ปลากดหัวแข็ง'],
   insect: ['แมลงช้างกรามโตทัศนัย', 'แมลงช้างกรามโตสยาม'],
   plant: ['หญ้าแฝกหอม', 'หญ้าแฝกดอน'],
   tree: ['ยางปาย', 'กระบากขาว'],
@@ -992,4 +992,7 @@ test('batch 33 rejects semantically duplicate candidate aliases found during ext
   assert.ok(AI1_NATURE_TERMS.tree.includes('ก่อเดือย'));
   assert.ok(!AI1_NATURE_TERMS.tree.includes('ก่อแป้น'));
   assert.ok(!AI1_NATURE_TERMS.flower.includes('สร้อยระย้า'));
+  assert.ok(WORD_BANK.fish.includes('ซิวควาย'));
+  assert.ok(!AI1_NATURE_TERMS.fish.includes('ปลาซิวควาย'));
+  assert.ok(!AI1_NATURE_TERMS.fish.includes('ปลาซิวหางแดง'));
 });
