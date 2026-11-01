@@ -19,7 +19,7 @@ const EXPECTED = {
   ],
   "drink": [
     "น้ำกระเจี๊ยบโซดา",
-    "ชามะนาวน้ำผึ้ง"
+    "ชาผู่เอ๋อร์"
   ],
   "fruit": [
     "ลูกหยี"
@@ -37,7 +37,7 @@ const EXPECTED = {
   ],
   "furniture": [
     "โต๊ะเขียนแบบ",
-    "ตู้เก็บยา",
+    "เก้าอี้ตัดผม",
     "เตียงพยาบาล",
     "เก้าอี้ทำฟัน"
   ]
@@ -102,4 +102,15 @@ test('AI-2 batch N avoids previously identified near-duplicate household terms',
   assert.ok(!AI2_FOOD_HOME_BATCH_N.furniture.includes('เตียงเด็กอ่อน'));
   assert.ok(AI2_FOOD_HOME_BATCH_N.object.includes('ที่คีบขนมปัง'));
   assert.ok(AI2_FOOD_HOME_BATCH_N.furniture.includes('เก้าอี้ทำฟัน'));
+});
+
+// AI-5 cross-category semantic QA: same beverage and medicine cabinet must not
+// be counted as new just because their Thai wording or category differs.
+test('AI-2 batch N rejects swapped-ingredient and cross-category semantic duplicates', () => {
+  assert.ok(WORD_BANK.drink.includes('ชาน้ำผึ้งมะนาว'));
+  assert.ok(WORD_BANK.object.includes('ตู้ยา'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_N.drink.includes('ชามะนาวน้ำผึ้ง'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_N.furniture.includes('ตู้เก็บยา'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.drink.includes('ชาผู่เอ๋อร์'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.furniture.includes('เก้าอี้ตัดผม'));
 });
