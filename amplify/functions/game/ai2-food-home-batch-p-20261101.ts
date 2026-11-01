@@ -25,7 +25,7 @@ export const AI2_FOOD_HOME_BATCH_P: Readonly<Record<'food' | 'dessert' | 'drink'
   vegetable: [
     'ดอกงิ้ว',
     'ดอกดาหลา',
-    'ยอดกระถิน'
+    'ยอดฟักข้าว'
   ],
   object: [
     'หวีสับ',

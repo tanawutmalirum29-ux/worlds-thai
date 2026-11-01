@@ -28,7 +28,7 @@ const EXPECTED = {
   "vegetable": [
     "ดอกงิ้ว",
     "ดอกดาหลา",
-    "ยอดกระถิน"
+    "ยอดฟักข้าว"
   ],
   "object": [
     "หวีสับ",
@@ -85,7 +85,7 @@ test('AI-2 batch P source literals are new across all registered dictionary impo
 test('AI-2 batch P preserves category-specific prefix and canonical rules', () => {
   assert.equal(wordInitialForCategory('ขนมอังกู๊','dessert'),'อ');
   assert.equal(wordInitialForCategory('ขนมบุหงาบูดะ','dessert'),'บ');
-  assert.equal(wordInitialForCategory('ยอดกระถิน','vegetable'),'ย');
+  assert.equal(wordInitialForCategory('ยอดฟักข้าว','vegetable'),'ย');
   assert.equal(wordInitialForCategory('ดอกงิ้ว','vegetable'),'ด');
   assert.equal(canonicalAnswer('ขนมอังกู๊','dessert'),'ขนมอังกู๊');
 });
