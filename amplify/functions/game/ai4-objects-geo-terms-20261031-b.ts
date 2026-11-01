@@ -89,7 +89,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ผ้าปิดตานอน',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
     'รองเท้ารัดส้น',
-    'ถุงเท้าข้อสั้น',
+    'ปลอกขากันโคลน',
     'รองเท้าแตะหูคีบ',
     'ชุดเอี๊ยมกันน้ำ'
   ],
@@ -174,10 +174,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือเก็บคราบน้ำมัน',
     'เรือใบสองเสา',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
-    'รถยกพาเลต',
+    'เรือขุดลอกคลอง',
     'กระเช้าไฟฟ้า',
     'รถฉีดโฟมดับเพลิง',
-    'รถขุดล้อยาง'
+    'รถบรรทุกเครื่องจักร'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
