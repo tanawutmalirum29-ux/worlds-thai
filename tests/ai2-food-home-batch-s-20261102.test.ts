@@ -11,17 +11,17 @@ const EXPECTED = {
   dessert: ['ขนมคันหลาว', 'ขนมพริกไทย', 'ขนมนวลแห้ว'],
   drink: ['ชานมฮ่องกง', 'น้ำทับทิมโซดา', 'ชาข้าวโพด'],
   fruit: ['มะมุด'],
-  vegetable: ['หน่อกะลา'],
+  vegetable: ['หน่อกะลา', 'ผักเซียงดา'],
   object: ['ผ้ากรองชา', 'ขวดโหลสุญญากาศ', 'แผ่นซิลิโคนรองอบ', 'ตะแกรงพักขนม', 'พิมพ์กดคุกกี้'],
   furniture: ['ชั้นวางไวน์', 'ตู้เก็บยา']
 } as const;
 
 const OWNED = ['dessert', 'drink', 'food', 'fruit', 'furniture', 'object', 'vegetable'];
 
-test('AI-2 batch S registers 19 distinct, moderated, playable terms only in owned categories', () => {
+test('AI-2 batch S registers 20 distinct, moderated, playable terms only in owned categories', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_S).sort(), OWNED);
   assert.deepEqual(AI2_FOOD_HOME_BATCH_S, EXPECTED);
-  assert.equal(Object.values(EXPECTED).flat().length, 19);
+  assert.equal(Object.values(EXPECTED).flat().length, 20);
   for (const [category, words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size, words.length, 'literal duplicate: '+category);
     assert.equal(new Set(words.map(word=>canonicalAnswer(word,category))).size, words.length,
@@ -59,7 +59,7 @@ test('AI-2 batch S source literals occur once across all registered dictionary i
 test('AI-2 batch S rejects previously registered semantic equivalents', () => {
   const rejected = [
     { category:'food', alias:'ห่อหมกหน่อไม้', existing:'หมกหน่อไม้' },
-    { category:'vegetable', alias:'ผักเซียงดา', existing:'ผักเชียงดา' },
+    { category:'vegetable', alias:'ยอดผักมันปู', existing:'ยอดมันปู' },
     { category:'drink', alias:'ชาข้าวบาร์เลย์', existing:'น้ำข้าวบาร์เลย์' },
     { category:'drink', alias:'น้ำลิ้นจี่โซดา', existing:'ลิ้นจี่โซดา' },
     { category:'food', alias:'ต้มขมิ้นไก่', existing:'ไก่ต้มขมิ้น' }
@@ -78,5 +78,6 @@ test('AI-2 batch S preserves dessert and vegetable prefix semantics', () => {
   assert.equal(wordInitialForCategory('ขนม','dessert'),'');
   assert.equal(wordInitialForCategory('หน่อกะลา','vegetable'),'ห');
   assert.equal(wordInitialForCategory('ผักหน่อกะลา','vegetable'),'ห');
+  assert.equal(wordInitialForCategory('ผักเซียงดา','vegetable'),'ซ');
   assert.equal(canonicalAnswer('ผักหน่อกะลา','vegetable'),'หน่อกะลา');
 });
