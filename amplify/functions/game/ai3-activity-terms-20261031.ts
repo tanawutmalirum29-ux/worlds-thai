@@ -301,7 +301,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมเจงก้า',
     'หุ่นเชิดเงา',
     'รถแข่งรางไฟฟ้า',
-    'ชุดทำฟองสบู่',
+    'เกมดิกซ์อิท',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
