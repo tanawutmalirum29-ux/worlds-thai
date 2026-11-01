@@ -28,9 +28,9 @@ const EXPECTED = {
     "ยอดมันปู"
   ],
   "object": [
-    "ที่คีบขนมปัง",
+    "ไม้คลึงแป้ง",
     "ตะแกรงย่างปลา",
-    "พัดใบตาล",
+    "ที่ตัดพิซซ่า",
     "กระจาดไม้ไผ่",
     "ตะเกียงเจ้าพายุ",
     "กระเช้าหวาย"
@@ -100,8 +100,14 @@ test('AI-2 batch N avoids previously identified near-duplicate household terms',
   assert.ok(WORD_BANK.furniture.includes('เตียงเด็ก'));
   assert.ok(!AI2_FOOD_HOME_BATCH_N.object.includes('กระบวยกะลา'));
   assert.ok(!AI2_FOOD_HOME_BATCH_N.furniture.includes('เตียงเด็กอ่อน'));
-  assert.ok(AI2_FOOD_HOME_BATCH_N.object.includes('ที่คีบขนมปัง'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.object.includes('ไม้คลึงแป้ง'));
   assert.ok(AI2_FOOD_HOME_BATCH_N.furniture.includes('เก้าอี้ทำฟัน'));
+  assert.ok(WORD_BANK.object.includes('พัด'));
+  assert.ok(WORD_BANK.object.includes('ที่คีบอาหาร'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_N.object.includes('พัดใบตาล'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_N.object.includes('ที่คีบขนมปัง'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.object.includes('ที่ตัดพิซซ่า'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.object.includes('ไม้คลึงแป้ง'));
 });
 
 // AI-5 cross-category semantic QA: same beverage and medicine cabinet must not
