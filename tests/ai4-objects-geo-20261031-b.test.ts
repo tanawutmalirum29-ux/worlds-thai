@@ -13,7 +13,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ถ', 'ป', 'ช', 'ช', 'ผ', 'ร', 'ช', 'ส'],
+  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ถ', 'ป', 'ช', 'ช', 'ก', 'ร', 'ช', 'ส'],
   vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'น', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'ห', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
   tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค', 'ป', 'ก', 'ด', 'ค', 'ล', 'ป', 'ป', 'ก', 'ค', 'ต', 'ก', 'ป'],
@@ -579,7 +579,7 @@ test('AI-4 batch 18 adds 20 new playable canonical identities without cross-sour
 
 
 const BATCH_19: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ผ้าคลุมไหล่', 'รองเท้าวิ่งเทรล', 'ชุดฟันดาบ', 'เสื้อช็อปช่าง'],
+  clothing: ['กางเกงมวยไทย', 'รองเท้าวิ่งเทรล', 'ชุดฟันดาบ', 'เสื้อช็อปช่าง'],
   vehicle: ['รถขนส่งเงินสด', 'รถบรรทุกไม้ซุง', 'เรือสำรวจอุทกศาสตร์', 'รถขนสัมภาระสนามบิน'],
   device: ['เครื่องทำความสะอาดไอน้ำ', 'เครื่องดูดเสมหะ', 'เครื่องบดเนื้อไฟฟ้า', 'เครื่องวัดระดับเสียง'],
   tool: ['คีมดัดลวด', 'ตะไบหางหนู', 'เกจวัดช่องว่าง', 'ประแจแหวนฟรี'],
@@ -595,11 +595,13 @@ test('AI-4 batch 19 adds 20 playable canonical-unique terms without cross-source
   assert.ok(!BATCH_19.vehicle.includes('เครื่องบินพยาบาล'));
   assert.ok(BATCH_19.vehicle.includes('เรือสำรวจอุทกศาสตร์'));
   // AI-5 semantic QA: ผ้าคาดศีรษะ is the same headband as existing ผ้าคาดผม.
-  // A shoulder shawl is a distinct garment worn over the shoulders, not on the head.
+  // ผ้าคลุมไหล่ was also already present in the core clothing bank.
+  // Muay Thai boxing shorts are distinct sport-specific apparel, not a headband or shawl.
   assert.ok(ADDITIONAL_CLOTHING_20261031.includes('ผ้าคาดผม'));
   assert.ok(!BATCH_19.clothing.includes('ผ้าคาดศีรษะ'));
-  assert.ok(BATCH_19.clothing.includes('ผ้าคลุมไหล่'));
-  assert.ok(!existing.get('clothing')?.has(canonicalAnswer('ผ้าคลุมไหล่', 'clothing')));
+  assert.ok(!BATCH_19.clothing.includes('ผ้าคลุมไหล่'));
+  assert.ok(BATCH_19.clothing.includes('กางเกงมวยไทย'));
+  assert.ok(!existing.get('clothing')?.has(canonicalAnswer('กางเกงมวยไทย', 'clothing')));
   for (const category of Object.keys(BATCH_19) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_19[category];
     assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words);

@@ -93,7 +93,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดมาสคอต',
     'ชุดเอี๊ยมกันน้ำ',
     // AI-4 batch 19: reviewed distinct real-world terms.
-    'ผ้าคลุมไหล่',
+    'กางเกงมวยไทย',
     'รองเท้าวิ่งเทรล',
     'ชุดฟันดาบ',
     'เสื้อช็อปช่าง'
