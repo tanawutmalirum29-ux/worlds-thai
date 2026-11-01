@@ -14,7 +14,7 @@ export const AI2_FOOD_HOME_BATCH_M: Readonly<Record<'food' | 'dessert' | 'drink'
     'ขนมข้าวตังหน้าตั้ง'
   ],
   drink: [
-    'ชาดอกคำฝอย',
+    'น้ำกระเจี๊ยบมะนาว',
     'น้ำบ๊วยมะนาว'
   ],
   fruit: [
