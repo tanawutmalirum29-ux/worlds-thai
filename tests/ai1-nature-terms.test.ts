@@ -101,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 545, 'AI-1 must contain 545 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 561, 'AI-1 must contain 561 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -223,10 +223,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 414 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 430 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 414);
+  assert.equal(additions.length, 430);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -811,7 +811,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 414);
+  assert.equal(proposed.length, 430);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
@@ -1516,7 +1516,7 @@ test('batch 42 adds 16 canonical-distinct playable names without cross-bank coll
 const BATCH43_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['อ้นเล็ก', 'ค่างแว่นถิ่นเหนือ'],
   bird: ['นกยางไฟหัวเทา'],
-  fish: ['ปลาแขยงใบข้าว', 'ปลาบู่แคระ', 'ปลาบู่แดงแถบฟ้า'],
+  fish: ['ปลาแขยงนวล', 'ปลาบู่แคระ', 'ปลาบู่แดงแถบฟ้า'],
   insect: ['แมลงหวี่ขาวยาสูบ', 'หนอนเจาะสมอฝ้าย'],
   plant: ['กกกระจุก', 'หญ้ายางนงนุช'],
   tree: ['นนทรีป่า', 'ทิ้งถ่อน'],
