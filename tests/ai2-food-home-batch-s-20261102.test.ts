@@ -13,7 +13,7 @@ const EXPECTED = {
   fruit: ['มะมุด'],
   vegetable: ['หน่อกะลา', 'ผักเซียงดา'],
   object: ['ผ้ากรองชา', 'ขวดโหลสุญญากาศ', 'แผ่นซิลิโคนรองอบ', 'ตะแกรงพักขนม', 'พิมพ์กดคุกกี้'],
-  furniture: ['ชั้นวางไวน์', 'ตู้เก็บยา']
+  furniture: ['ชั้นวางไวน์', 'โต๊ะพับติดผนัง']
 } as const;
 
 const OWNED = ['dessert', 'drink', 'food', 'fruit', 'furniture', 'object', 'vegetable'];
@@ -62,7 +62,8 @@ test('AI-2 batch S rejects previously registered semantic equivalents', () => {
     { category:'vegetable', alias:'ยอดผักมันปู', existing:'ยอดมันปู' },
     { category:'drink', alias:'ชาข้าวบาร์เลย์', existing:'น้ำข้าวบาร์เลย์' },
     { category:'drink', alias:'น้ำลิ้นจี่โซดา', existing:'ลิ้นจี่โซดา' },
-    { category:'food', alias:'ต้มขมิ้นไก่', existing:'ไก่ต้มขมิ้น' }
+    { category:'food', alias:'ต้มขมิ้นไก่', existing:'ไก่ต้มขมิ้น' },
+    { category:'furniture', alias:'ตู้เก็บยา', existing:'ตู้ยา' }
   ] as const;
   for (const {category,alias,existing} of rejected) {
     assert.ok(WORD_BANK[category].includes(existing), 'missing existing identity: '+category+'/'+existing);
