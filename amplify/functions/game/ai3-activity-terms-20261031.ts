@@ -330,6 +330,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เยื่อหุ้มกระดูก',
     'เส้นประสาทมีเดียน',
     'กระดูกสันอก',
-    'กระดูกโหนกแก้ม',
+    'กระดูกทั่ง',
   ],
 };

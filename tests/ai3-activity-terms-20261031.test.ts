@@ -345,7 +345,7 @@ const BATCH_SIXTEEN: Readonly<Record<string, readonly string[]>> = {
   music: ['พิณไฟฟ้า', 'แซกโซโฟนโซปราโน', 'เมลโลโฟน'],
   toy: ['ชุดประดิษฐ์ว่าว', 'กระดานวาดทราย'],
   school: ['ตาชั่งสามคาน', 'แผ่นปิดสไลด์', 'ขวดรูปชมพู่'],
-  body: ['เส้นประสาทมีเดียน', 'กระดูกสันอก', 'กระดูกโหนกแก้ม'],
+  body: ['เส้นประสาทมีเดียน', 'กระดูกสันอก', 'กระดูกทั่ง'],
 };
 
 test('AI-3 batch 16 contributes 20 new clean canonical-unique playable answers', () => {
