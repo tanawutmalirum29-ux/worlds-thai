@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–14).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–15).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -71,7 +71,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เสื้อกั๊กตกปลา',
     'รองเท้าบูตขี่ม้า',
     'ถุงมือทำสวน',
-    'ถุงเท้ากันน้ำ'
+    'ถุงเท้ากันน้ำ',
+    // AI-4 batch 15: reviewed distinct Thai vocabulary.
+    'สนับเข่า',
+    'รองเท้าฟุตซอล',
+    'ชุดเวทสูท',
+    'ถุงมือกอล์ฟ'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -137,7 +142,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องบินเติมน้ำมันกลางอากาศ',
     'เรือพยาบาล',
     'รถตรวจวัดมลพิษ',
-    'เรือเก็บขยะ'
+    'เรือเก็บขยะ',
+    // AI-4 batch 15: reviewed distinct Thai vocabulary.
+    'รถขนส่งไปรษณีย์',
+    'เรือเก็บผักตบชวา',
+    'เรือวิจัยสมุทรศาสตร์',
+    'รถลากเรือ'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -203,7 +213,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องตัดกระดาษไฟฟ้า',
     'เครื่องบันทึกเสียงดิจิทัล',
     'ป้ายไฟวิ่ง',
-    'นาฬิกาจับเวลาดิจิทัล'
+    'นาฬิกาจับเวลาดิจิทัล',
+    // AI-4 batch 15: reviewed distinct Thai vocabulary.
+    'เครื่องตรวจจับน้ำรั่ว',
+    'เครื่องดูดไรฝุ่น',
+    'เครื่องอบจาน',
+    'เครื่องวัดความชื้นดิน'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -269,7 +284,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เกจวัดรัศมี',
     'คีมถอดคลิปพลาสติก',
     'ประแจถอดกรองน้ำมันเครื่อง',
-    'ตะไบเพชร'
+    'ตะไบเพชร',
+    // AI-4 batch 15: reviewed distinct Thai vocabulary.
+    'ปืนอัดจาระบี',
+    'เครื่องตัดโฟมลวดร้อน',
+    'เครื่องลับดอกสว่าน',
+    'มีดแกะสลักไม้'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -335,6 +355,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานผลิตปุ๋ย',
     'สถานีตรวจสภาพรถ',
     'โรงงานผลิตกระจก',
-    'ท่าเรือน้ำลึก'
+    'ท่าเรือน้ำลึก',
+    // AI-4 batch 15: reviewed distinct Thai vocabulary.
+    'โรงงานผลิตสบู่',
+    'โรงเก็บรถไฟ',
+    'โรงงานผลิตยางรถยนต์',
+    'สถานีขนส่งสินค้า'
   ]
 } as const;
