@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–13).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–14).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -66,7 +66,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดสกี',
     'รองเท้าปีนผา',
     'ผ้ารัดข้อมือ',
-    'ชุดเต้นบัลเลต์'
+    'ชุดเต้นบัลเลต์',
+    // AI-4 batch 14: reviewed, distinct and playable Thai terms.
+    'เสื้อกั๊กตกปลา',
+    'รองเท้าบูตขี่ม้า',
+    'ถุงมือทำสวน',
+    'ถุงเท้ากันน้ำ'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -127,7 +132,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถไฟไอน้ำ',
     'รถไฟตรวจราง',
     'เรือกวาดทุ่นระเบิด',
-    'รถขนส่งกระจก'
+    'รถขนส่งกระจก',
+    // AI-4 batch 14: reviewed, distinct and playable Thai terms.
+    'เครื่องบินเติมน้ำมันกลางอากาศ',
+    'เรือพยาบาล',
+    'รถตรวจวัดมลพิษ',
+    'เรือเก็บขยะ'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -188,7 +198,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องทำโยเกิร์ต',
     'เครื่องอุ่นนม',
     'เครื่องพ่นละอองยา',
-    'เครื่องตรวจวัดคุณภาพน้ำ'
+    'เครื่องตรวจวัดคุณภาพน้ำ',
+    // AI-4 batch 14: reviewed, distinct and playable Thai terms.
+    'เครื่องตัดกระดาษไฟฟ้า',
+    'เครื่องบันทึกเสียงดิจิทัล',
+    'ป้ายไฟวิ่ง',
+    'นาฬิกาจับเวลาดิจิทัล'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -249,7 +264,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เกจวัดเกลียว',
     'ไม้ฉากปรับมุม',
     'มีดปาดสี',
-    'ค้อนทองแดง'
+    'ค้อนทองแดง',
+    // AI-4 batch 14: reviewed, distinct and playable Thai terms.
+    'เกจวัดรัศมี',
+    'คีมถอดคลิปพลาสติก',
+    'ประแจถอดกรองน้ำมันเครื่อง',
+    'ตะไบเพชร'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -310,6 +330,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'สนามซ้อมกอล์ฟ',
     'โรงงานผลิตกระดาษ',
     'สถานีเรดาร์',
-    'ลานสเก็ตบอร์ด'
+    'ลานสเก็ตบอร์ด',
+    // AI-4 batch 14: reviewed, distinct and playable Thai terms.
+    'โรงงานผลิตปุ๋ย',
+    'สถานีตรวจสภาพรถ',
+    'โรงงานผลิตกระจก',
+    'ท่าเรือน้ำลึก'
   ]
 } as const;
