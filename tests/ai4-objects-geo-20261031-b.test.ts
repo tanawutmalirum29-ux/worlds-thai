@@ -493,7 +493,7 @@ test('AI-4 batch 17 adds 20 new playable canonical identities without cross-sour
 
 const BATCH_18: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ถุงเท้าแยกนิ้ว', 'ปลอกขากันโคลน', 'ชุดมาสคอต', 'ชุดเอี๊ยมกันน้ำ'],
-  vehicle: ['เรือขุดลอกคลอง', 'กระเช้าไฟฟ้า', 'รถฉีดโฟมดับเพลิง', 'รถบรรทุกเครื่องจักร'],
+  vehicle: ['เรือตัดน้ำแข็ง', 'กระเช้าไฟฟ้า', 'รถฉีดโฟมดับเพลิง', 'รถบรรทุกเครื่องจักร'],
   device: ['แปรงสีฟันไฟฟ้า', 'หูฟังไร้สาย', 'เครื่องชงกาแฟแคปซูล', 'เครื่องวัดอุณหภูมิอินฟราเรด'],
   tool: ['แปรงขัดสนิม', 'ปืนเป่าลมร้อน', 'ประแจขันหัวเทียน', 'เกรียงขัดมัน'],
   place: ['หอพักนักศึกษา', 'อู่ต่อเรือ', 'โรงงานผลิตรองเท้า', 'โรงงานผลิตอาหารสัตว์']
@@ -514,6 +514,11 @@ test('AI-4 batch 18 adds 20 new playable canonical identities without cross-sour
   assert.ok(!BATCH_18.clothing.includes('หมวกเบเรต์'));
   assert.ok(BATCH_18.clothing.includes('ถุงเท้าแยกนิ้ว'));
   assert.ok(BATCH_18.clothing.includes('ชุดมาสคอต'));
+  // AI-5 semantic QA: canal dredgers and dredging vessels are the same vehicle.
+  assert.ok(ADDITIONAL_VEHICLES_20261031.includes('เรือขุดลอก'));
+  assert.ok(!BATCH_18.vehicle.includes('เรือขุดลอกคลอง'));
+  // An icebreaker is a separate purpose-built hull type, not a dredger.
+  assert.ok(BATCH_18.vehicle.includes('เรือตัดน้ำแข็ง'));
   for (const category of Object.keys(BATCH_18) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_18[category];
     assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words);
