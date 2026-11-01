@@ -16,7 +16,7 @@ export const AI2_FOOD_HOME_BATCH_N: Readonly<Record<'food' | 'dessert' | 'drink'
   ],
   drink: [
     'น้ำกระเจี๊ยบโซดา',
-    'ชามะนาวน้ำผึ้ง'
+    'ชาผู่เอ๋อร์'
   ],
   fruit: [
     'ลูกหยี'
@@ -34,7 +34,7 @@ export const AI2_FOOD_HOME_BATCH_N: Readonly<Record<'food' | 'dessert' | 'drink'
   ],
   furniture: [
     'โต๊ะเขียนแบบ',
-    'ตู้เก็บยา',
+    'เก้าอี้ตัดผม',
     'เตียงพยาบาล',
     'เก้าอี้ทำฟัน'
   ]
