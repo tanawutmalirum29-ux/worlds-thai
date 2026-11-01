@@ -197,7 +197,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกหัวโตมลายู',
     'นกขมิ้นน้อยปีกเรียบ',
     'นกยางไฟหัวเทา',
-    'นกเงือกกรามช้าง',
+    'นกคอพัน',
     'นกหัวขวานจิ๋วคิ้วขาว',
   ],
   fish: [
