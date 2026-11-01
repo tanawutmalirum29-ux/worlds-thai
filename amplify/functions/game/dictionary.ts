@@ -16,6 +16,7 @@ import { AI2_FOOD_HOME_BATCH_N } from './ai2-food-home-batch-n-20261101.ts';
 import { AI2_FOOD_HOME_BATCH_O } from './ai2-food-home-batch-o-20261101.ts';
 import { AI2_FOOD_HOME_BATCH_P } from './ai2-food-home-batch-p-20261101.ts';
 import { AI2_FOOD_HOME_BATCH_Q } from './ai2-food-home-batch-q-20261102.ts';
+import { AI2_FOOD_HOME_BATCH_R } from './ai2-food-home-batch-r-20261102.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
@@ -2390,5 +2391,12 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_P)) {
 for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_Q)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-2 batch Q category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// AI-2 batch R: append reviewed words in seven owned categories only.
+for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_R)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown AI-2 batch R category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
