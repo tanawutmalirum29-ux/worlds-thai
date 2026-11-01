@@ -1199,14 +1199,14 @@ test('batch 36 adds 16 unique playable nature names with category-local prefix i
 
 // Batch 37: independently sourced TH-BIF species names and natural phenomena.
 const BATCH37_TERMS: Readonly<Record<string, readonly string[]>> = {
-  animal: ['แรดดำ', 'วาฬเพชฌฆาต'],
-  bird: ['นกแซงแซวหางปลา', 'นกแซงแซวปากกา'],
+  animal: ['แรดดำ', 'ลิงโบโนโบ'],
+  bird: ['นกแซงแซวเล็กเหลือบ', 'นกแซงแซวปากกา'],
   fish: ['ปลาฉลามหูดำ', 'ปลามังกรน้อยแถบขาว'],
   insect: ['ผีเสื้อหางมังกรเขียว', 'ด้วงหนวดยาวโคนลูกปัด'],
   plant: ['หญ้าหางนกยูงใหญ่', 'ผักปราบใบกว้าง'],
   tree: ['เสลาขาว', 'กางขี้มอด'],
   flower: ['หางกระรอกแดง', 'ประทัดดอย'],
-  nature: ['หิมะถล่ม', 'ภูเขาไฟระเบิด'],
+  nature: ['หิมะถล่ม', 'พายุสุริยะ'],
 };
 
 test('batch 37 adds 16 canonical-distinct playable names in AI-1 categories', () => {

@@ -87,7 +87,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'อ้นใหญ่',
     'แรดขาว',
     'แรดดำ',
-    'วาฬเพชฌฆาต',
+    'ลิงโบโนโบ',
   ],
   bird: [
     'นกกะรางหัวขวาน',
@@ -170,7 +170,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกแก๊ก',
     'นกจาบคาเคราน้ำเงิน',
     'นกคัดคูมรกต',
-    'นกแซงแซวหางปลา',
+    'นกแซงแซวเล็กเหลือบ',
     'นกแซงแซวปากกา',
   ],
   fish: [
@@ -642,6 +642,6 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พายุทอร์นาโด',
     'แสงใต้',
     'หิมะถล่ม',
-    'ภูเขาไฟระเบิด',
+    'พายุสุริยะ',
   ],
 };
