@@ -88,7 +88,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดป้องกันผึ้ง',
     'ผ้าปิดตานอน',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
-    'หมวกเบเรต์',
+    'ถุงเท้าแยกนิ้ว',
     'ปลอกขากันโคลน',
     'ชุดมาสคอต',
     'ชุดเอี๊ยมกันน้ำ'
