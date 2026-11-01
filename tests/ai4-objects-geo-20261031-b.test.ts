@@ -246,7 +246,7 @@ test('AI-4 batch 10 adds 20 distinct reviewed objects and places', () => {
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถเกี่ยวข้าว'));
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถเกรดเดอร์'));
   assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถเก็บเกี่ยวข้าว'));
-  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถเกลี่ยดิน'));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถเกี่ยวข้าวโพด'));
 });
 
 
@@ -721,6 +721,9 @@ test('AI-4 batch 21 contributes 18 new, playable and cross-source-distinct terms
   // Semantic QA: these are already represented under different names in main.
   assert.ok(ADDITIONAL_CLOTHING_20261031.includes('รองเท้าจักรยาน'));
   assert.ok(!BATCH_21.clothing.includes('รองเท้าปั่นจักรยาน'));
+  assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถเกรดเดอร์'));
+  assert.ok(!BATCH_21.vehicle.includes('รถเกลี่ยดิน'));
+  assert.ok(BATCH_21.vehicle.includes('รถเกี่ยวข้าวโพด'));
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถตัดอ้อย'));
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถดำนา'));
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('เรือคาตามารัน'));
