@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 732 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 748 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 732);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 748);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -223,10 +223,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 446 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 462 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 446);
+  assert.equal(additions.length, 462);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -811,7 +811,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 446);
+  assert.equal(proposed.length, 462);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
@@ -1585,6 +1585,49 @@ test('batch 44 adds 16 distinct playable names in only the eight AI-1 nature cat
       if (prefix) {
         const variant = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
         assert.equal(canonicalAnswer(variant, category), canonical, word + ' prefix mismatch');
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), word + ' unplayable initial');
+      assert.equal(validAnswer(word, initial, category), true, word + ' rejected by gameplay');
+      const literal = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [otherCategory, bank] of Object.entries(WORD_BANK)) {
+        assert.equal(bank.filter(entry => normalizeAnswer(entry).toLocaleLowerCase('th') === literal).length,
+          otherCategory === category ? 1 : 0, word + ' literal collision in ' + otherCategory);
+      }
+    }
+  }
+});
+
+// Batch 45: independently named Thai species from ONEP TH-BIF and cloud forms
+// from the Thai Meteorological Department. No game-logic changes.
+const BATCH45_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: ['กระรอกดินแก้มแดง', 'หนูหริ่งไม้หางพู่'],
+  bird: ['นกไต่ไม้ท้องสีเม็ดมะขาม', 'นกจาบปีกอ่อนอกเหลือง'],
+  fish: ['ปลาจวดเครา', 'ปลาแป้นจมูกสั้น'],
+  insect: ['ด้วงหนวดยาวก่อ', 'ผีเสื้อเณรจิ๋ว'],
+  plant: ['หญ้าโจน', 'สังกรณีดง'],
+  tree: ['ก่อสร้อย', 'ส้านหิ่ง'],
+  flower: ['ดอกหรีดกอ', 'ชำมะนาด'],
+  nature: ['เมฆทาง', 'เมฆแท่ง'],
+};
+
+test('batch 45 registers 16 unique playable names without prefix or literal collisions', () => {
+  assert.deepEqual(Object.keys(BATCH45_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH45_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = {
+    bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
+  };
+  for (const [category, names] of Object.entries(BATCH45_TERMS)) {
+    for (const word of names) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), word + ' missing from AI-1');
+      const identity = canonicalAnswer(word, category);
+      assert.ok(identity, word + ' empty canonical identity');
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === identity).length,
+        1, word + ' duplicates a category canonical identity');
+      const prefix = prefixes[category];
+      if (prefix) {
+        const alternative = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(alternative, category), identity, word + ' prefix mismatch');
       }
       const initial = wordInitialForCategory(word, category);
       assert.ok((LETTERS as readonly string[]).includes(initial), word + ' unplayable initial');
