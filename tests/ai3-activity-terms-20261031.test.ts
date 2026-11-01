@@ -501,7 +501,7 @@ const BATCH_TWENTY: Readonly<Record<string, readonly string[]>> = {
   verb: ['ซ่อมหลังคา', 'คั้นกะทิ', 'เย็บกระดุม'],
   sport: ['พาราเรือแคนู', 'จักรยานไทรอัล', 'ยิงปืนยาวอัดลม'],
   music: ['คลาริเน็ตอัลโต', 'อัลโตฮอร์น', 'กีตาร์เรโซเนเตอร์'],
-  toy: ['บล็อกไม้รูปทรง', 'หุ่นเชิดเงา'],
+  toy: ['เกมเจงก้า', 'หุ่นเชิดเงา'],
   school: ['ไมโครปิเปต', 'ปากกาเขียนแผ่นใส', 'ขวดวัดปริมาตร'],
   body: ['เส้นประสาทเรเดียล', 'กล้ามเนื้อไบเซปส์', 'ต่อมน้ำลายใต้ขากรรไกร'],
 };
@@ -527,4 +527,16 @@ test('AI-3 batch 20 adds 20 clean, canonical-unique and playable answers', () =>
       assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + category + '/' + word);
     }
   }
+});
+
+
+// AI-5 semantic QA: wooden shape blocks are not a distinct identity from บล็อกไม้.
+// Jenga is a named tower-extraction game with rules distinct from generic building blocks.
+test('AI-3 batch 20 rejects semantic wooden-block duplicate and registers Jenga game', () => {
+  assert.ok(WORD_BANK.toy.includes('บล็อกไม้'), 'existing wooden blocks baseline missing');
+  assert.ok(!AI3_ACTIVITY_TERMS.toy.includes('บล็อกไม้รูปทรง'), 'semantic duplicate reintroduced');
+  assert.ok(AI3_ACTIVITY_TERMS.toy.includes('เกมเจงก้า'), 'replacement game missing');
+  const initial = wordInitialForCategory('เกมเจงก้า', 'toy');
+  assert.ok(eligibleCategories(initial).includes('toy'), 'Jenga unavailable for toy');
+  assert.equal(validAnswer('เกมเจงก้า', initial, 'toy'), true);
 });
