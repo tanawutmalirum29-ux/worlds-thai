@@ -832,7 +832,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
 // Batch 31 (1 Nov 2026): 16 distinct nature names, two per assigned category.
 const BATCH31_TERMS: Readonly<Record<string, readonly string[]>> = {
   'animal': [
-    'กวางเรนเดียร์',
+    'กวางซิก้า',
     'เสือจากัวร์'
   ],
   'bird': [
@@ -920,4 +920,11 @@ test('batch 32 adds 16 playable canonical-distinct nature terms', () => {
       assert.equal(validAnswer(word, initial, category), true, `${word} not accepted`);
     }
   }
+});
+
+
+test('AI-1 does not add a second name for existing reindeer', () => {
+  assert.ok(WORD_BANK.animal.includes('เรนเดียร์'));
+  assert.ok(!AI1_NATURE_TERMS.animal.includes('กวางเรนเดียร์'));
+  assert.ok(AI1_NATURE_TERMS.animal.includes('กวางซิก้า'));
 });
