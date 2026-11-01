@@ -162,8 +162,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกเค้าเหยี่ยว',
     'นกปากช้อนหน้าดำ',
     'นกกะรางหัวหงอก',
-    'นกคีรีบูน',
-    'นกอีมู',
+    'นกคาสโซวารี่',
+    'นกแก๊ก',
   ],
   fish: [
     'ปลาสิงโต',
@@ -236,7 +236,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลากระทิงดำ',
     'ปลาหมอสีฟลาวเวอร์ฮอร์น',
     'ปลากระโทงดาบ',
-    'ปลาเสือพ่นน้ำ',
+    'ปลาสากดำ',
   ],
   insect: [
     'แมลงช้างปีกใส',
@@ -536,7 +536,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พุดกังหัน',
     'กุหลาบจีน',
     'เบญจมาศ',
-    'โบตั๋น',
+    'แกลดิโอลัส',
   ],
   nature: [
     'น้ำขึ้นน้ำลง',

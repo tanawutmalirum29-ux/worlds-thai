@@ -1063,12 +1063,12 @@ const BATCH35_TERMS: Readonly<Record<string, readonly string[]>> = {
     "โอพอสซัม"
   ],
   "bird": [
-    "นกคีรีบูน",
-    "นกอีมู"
+    "นกคาสโซวารี่",
+    "นกแก๊ก"
   ],
   "fish": [
     "ปลากระโทงดาบ",
-    "ปลาเสือพ่นน้ำ"
+    "ปลาสากดำ"
   ],
   "insect": [
     "ด้วงเฮอร์คิวลีส",
@@ -1084,7 +1084,7 @@ const BATCH35_TERMS: Readonly<Record<string, readonly string[]>> = {
   ],
   "flower": [
     "เบญจมาศ",
-    "โบตั๋น"
+    "แกลดิโอลัส"
   ],
   "nature": [
     "แสงเหนือ",
