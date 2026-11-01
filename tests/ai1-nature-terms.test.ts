@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 653 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 668 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 653);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 668);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -101,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 498, 'AI-1 must contain 498 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 513, 'AI-1 must contain 513 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -223,10 +223,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 367 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 382 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 367);
+  assert.equal(additions.length, 382);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -811,7 +811,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 367);
+  assert.equal(proposed.length, 382);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
@@ -1350,6 +1350,73 @@ test('batch 39 registers 16 distinct playable AI-1 terms without cross-bank or p
       for (const [bankCategory, bank] of Object.entries(WORD_BANK)) {
         assert.equal(bank.filter(item => normalizeAnswer(item).toLocaleLowerCase('th') === literal).length,
           bankCategory === category ? 1 : 0, `${word} duplicates a literal in ${bankCategory}`);
+      }
+    }
+  }
+});
+
+// Batch 40: source-reviewed Thai nature vocabulary, kept in the eight AI-1 categories.
+// References: Bangkok Metropolitan Administration tree inventory, Chiang Mai Zoo
+// Aquarium, DMCR Nepenthes survey, Thai flower/bird nurseries and DOAE pest records.
+const BATCH40_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: [
+    'เม่นแคระแอฟริกา',
+    'อาร์มาดิลโลเก้าแถบ'
+  ],
+  bird: [
+    'นกฟินซ์เจ็ดสี',
+    'นกซีบร้าฟินซ์'
+  ],
+  fish: [
+    'ปลาผีดำ',
+    'ปลาดุกไฟฟ้า'
+  ],
+  insect: [
+    'เพลี้ยแป้งมันสำปะหลัง',
+    'ด้วงถั่วเขียว'
+  ],
+  plant: [
+    'หม้อข้าวหม้อแกงลิง'
+  ],
+  tree: [
+    'ไทรย้อยใบทู่',
+    'ตะโกสวน'
+  ],
+  flower: [
+    'ดอกไอริส',
+    'ฟอร์เก็ตมีน็อต'
+  ],
+  nature: [
+    'รุ้งสองชั้น',
+    'คลื่นความร้อน'
+  ]
+};
+
+test('batch 40 contributes 15 new playable canonical-distinct nature answers', () => {
+  assert.deepEqual(Object.keys(BATCH40_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH40_TERMS).flat().length, 15);
+  const prefixes: Readonly<Record<string,string>> = {
+    bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
+  };
+  for (const [category, names] of Object.entries(BATCH40_TERMS)) {
+    for (const word of names) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} not in AI-1 bank`);
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, `${word} lacks canonical identity`);
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonical).length,
+        1, `${word} canonical collision`);
+      const prefix = prefixes[category];
+      if (prefix) {
+        const alternative = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(alternative, category), canonical, `${word} prefix mismatch`);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} unplayable consonant ${initial}`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} not accepted in gameplay`);
+      const literal = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [bankCategory, bank] of Object.entries(WORD_BANK)) {
+        assert.equal(bank.filter(entry => normalizeAnswer(entry).toLocaleLowerCase('th') === literal).length,
+          bankCategory === category ? 1 : 0, `${word} duplicate literal in ${bankCategory}`);
       }
     }
   }
