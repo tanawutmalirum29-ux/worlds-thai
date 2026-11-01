@@ -12,7 +12,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ร', 'ป', 'ร', 'ช'],
+  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ห', 'ป', 'ช', 'ช'],
   vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ก', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'น', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'ห', 'ค', 'ค'],
   tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค', 'ป', 'ก', 'ด', 'ค', 'ป', 'ป', 'ป', 'ก'],
@@ -492,7 +492,7 @@ test('AI-4 batch 17 adds 20 new playable canonical identities without cross-sour
 });
 
 const BATCH_18: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['รองเท้ารัดส้น', 'ปลอกขากันโคลน', 'รองเท้าแตะหูคีบ', 'ชุดเอี๊ยมกันน้ำ'],
+  clothing: ['หมวกเบเรต์', 'ปลอกขากันโคลน', 'ชุดมาสคอต', 'ชุดเอี๊ยมกันน้ำ'],
   vehicle: ['เรือขุดลอกคลอง', 'กระเช้าไฟฟ้า', 'รถฉีดโฟมดับเพลิง', 'รถบรรทุกเครื่องจักร'],
   device: ['แปรงสีฟันไฟฟ้า', 'หูฟังไร้สาย', 'เครื่องชงกาแฟแคปซูล', 'เครื่องวัดอุณหภูมิอินฟราเรด'],
   tool: ['แปรงขัดสนิม', 'ปืนเป่าลมร้อน', 'ประแจขันหัวเทียน', 'เกรียงขัดมัน'],
@@ -503,6 +503,14 @@ test('AI-4 batch 18 adds 20 new playable canonical identities without cross-sour
   assert.deepEqual(Object.keys(BATCH_18), Object.keys(AI4_OBJECTS_GEO_TERMS));
   assert.equal(Object.values(BATCH_18).flat().length, 20);
   const existing = canonicalIdentitiesFromOtherSources();
+  // AI-5 semantic QA: two rejected sandal aliases already exist in the main
+  // clothing list. A literal-string-only duplicate check would miss them.
+  assert.ok(existing.get('clothing')?.has(canonicalAnswer('รองเท้าแตะรัดส้น', 'clothing')));
+  assert.ok(existing.get('clothing')?.has(canonicalAnswer('รองเท้าแตะคีบ', 'clothing')));
+  assert.ok(!BATCH_18.clothing.includes('รองเท้ารัดส้น'));
+  assert.ok(!BATCH_18.clothing.includes('รองเท้าแตะหูคีบ'));
+  assert.ok(BATCH_18.clothing.includes('หมวกเบเรต์'));
+  assert.ok(BATCH_18.clothing.includes('ชุดมาสคอต'));
   for (const category of Object.keys(BATCH_18) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_18[category];
     assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words);

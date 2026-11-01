@@ -88,9 +88,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดป้องกันผึ้ง',
     'ผ้าปิดตานอน',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
-    'รองเท้ารัดส้น',
+    'หมวกเบเรต์',
     'ปลอกขากันโคลน',
-    'รองเท้าแตะหูคีบ',
+    'ชุดมาสคอต',
     'ชุดเอี๊ยมกันน้ำ'
   ],
   vehicle: [
