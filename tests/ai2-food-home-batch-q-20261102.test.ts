@@ -8,7 +8,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 
 const EXPECTED = {
   food: ['ข้าวผัดสับปะรด','แกงส้มไหลบัว','ไก่ต้มน้ำปลา'],
-  dessert: ['ขนมกง','ขนมสามเกลอ'],
+  dessert: ['ขนมลูกเต๋า','ขนมสามเกลอ'],
   drink: ['น้ำฟักข้าว','กาแฟน้ำมะพร้าว','น้ำสละ'],
   fruit: ['ลูกสำรอง','ส้มมือ'],
   vegetable: ['ดอกฟักทอง','หน่อหวาย','ใบมะขามอ่อน'],
@@ -56,7 +56,7 @@ test('AI-2 batch Q source literals are unique across every registered dictionary
 });
 
 test('AI-2 batch Q keeps dessert and vegetable prefix semantics unchanged', () => {
-  assert.equal(wordInitialForCategory('ขนมกง','dessert'),'ก');
+  assert.equal(wordInitialForCategory('ขนมลูกเต๋า','dessert'),'ล');
   assert.equal(wordInitialForCategory('ขนมสามเกลอ','dessert'),'ส');
   assert.equal(wordInitialForCategory('ขนม','dessert'),'');
   assert.equal(wordInitialForCategory('หน่อหวาย','vegetable'),'ห');
