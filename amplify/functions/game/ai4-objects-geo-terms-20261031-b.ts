@@ -204,7 +204,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือบรรทุกสารเคมี',
     'รถไฟไฮโดรเจน',
     // AI-4 batch 21: reviewed distinct equipment, apparel and facilities.
-    'รถเกลี่ยดิน',
+    'รถเกี่ยวข้าวโพด',
     'เรือวางทุ่น'
   ],
   device: [
