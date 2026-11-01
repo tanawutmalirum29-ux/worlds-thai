@@ -78,7 +78,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดเวทสูท',
     'ถุงมือกอล์ฟ',
     // AI-4 batch 16: established protective and athletic wear.
-    'ถุงมือชกมวย',
+    'เสื้อกั๊กถ่วงน้ำหนัก',
     'รองเท้าตะปู',
     'หมวกเชื่อมเหล็ก',
     'ผ้ากันเปื้อนช่างเชื่อม'
