@@ -106,7 +106,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ทอเสื่อ',
     'คั่วถั่ว',
     'หาบน้ำ',
-    'ฝัดข้าว',
+    'ฟาดข้าว',
     'วิดน้ำ',
   ],
   sport: [
