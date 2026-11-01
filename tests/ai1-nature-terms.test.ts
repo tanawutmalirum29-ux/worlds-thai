@@ -1428,7 +1428,7 @@ test('batch 40 contributes 15 new playable canonical-distinct nature answers', (
 const BATCH41_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['นากเล็บสั้น', 'กบรายา'],
   bird: ['นกแอ่นฟ้าหงอน', 'นกเด้าลมเหลือง'],
-  fish: ['ปลาแขยงหิน', 'ปลาซิวหางกรรไกร'],
+  fish: ['ปลาบู่จุดเขียวใหญ่', 'ปลาสีกุนกบ'],
   insect: ['ผีเสื้อแผนที่ธรรมดา', 'ผีเสื้อหางมังกรขาว'],
   plant: ['หญ้านิ้วหนู', 'กกมารี'],
   tree: ['สะท้อนรอก', 'นวลเสี้ยน'],
