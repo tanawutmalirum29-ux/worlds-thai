@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–16).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–18).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -86,7 +86,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ถุงมือปั่นจักรยาน',
     'รองเท้าดำน้ำ',
     'ชุดป้องกันผึ้ง',
-    'ผ้าปิดตานอน'
+    'ผ้าปิดตานอน',
+    // AI-4 batch 18: reviewed distinct practical vocabulary.
+    'ถุงเท้าแยกนิ้ว',
+    'ปลอกขากันโคลน',
+    'ชุดมาสคอต',
+    'ชุดเอี๊ยมกันน้ำ'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -167,7 +172,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถบรรทุกปูนผง',
     'รถไฟรางแม่เหล็ก',
     'เรือเก็บคราบน้ำมัน',
-    'เรือใบสองเสา'
+    'เรือใบสองเสา',
+    // AI-4 batch 18: reviewed distinct practical vocabulary.
+    'เรือตัดน้ำแข็ง',
+    'รถรางขึ้นเขา',
+    'เรือแอร์โบ๊ท',
+    'รถบรรทุกเครื่องจักร'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -248,7 +258,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องล้างอัลตราโซนิก',
     'เครื่องบันทึกภาพกล้องวงจรปิด',
     'เครื่องวัดแสง',
-    'เครื่องทำฟองนม'
+    'เครื่องทำฟองนม',
+    // AI-4 batch 18: reviewed distinct practical vocabulary.
+    'แปรงสีฟันไฟฟ้า',
+    'หูฟังไร้สาย',
+    'เครื่องชงกาแฟแคปซูล',
+    'เครื่องวัดอุณหภูมิอินฟราเรด'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -329,7 +344,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ประแจขันซี่ลวด',
     'เกจวัดมุม',
     'ดอกสว่านเจาะกระจก',
-    'ค้อนทุบกระจก'
+    'ค้อนทุบกระจก',
+    // AI-4 batch 18: reviewed distinct practical vocabulary.
+    'เลื่อยตัดกิ่ง',
+    'ปืนเป่าลมร้อน',
+    'ประแจขันหัวเทียน',
+    'เกรียงขัดมัน'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -410,6 +430,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานผลิตอิฐ',
     'ท่าเรือเฟอร์รี',
     'โรงเพาะเลี้ยงสัตว์น้ำ',
-    'ลานจอดรถบรรทุก'
+    'ลานจอดรถบรรทุก',
+    // AI-4 batch 18: reviewed distinct practical vocabulary.
+    'สนามทดสอบรถยนต์',
+    'อู่ต่อเรือ',
+    'โรงงานผลิตรองเท้า',
+    'โรงงานผลิตอาหารสัตว์'
   ]
 } as const;
