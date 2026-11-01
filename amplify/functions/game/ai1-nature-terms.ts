@@ -223,7 +223,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาทองออรันดา',
     'ปลาแป้นกระโดงจุด',
     'ปลาหมูสีแก้มแดง',
-    'ปลาซิวควาย',
+    'ปลากัดตะวันออก',
     'ปลากดหัวแข็ง',
   ],
   insect: [
