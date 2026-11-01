@@ -11,6 +11,7 @@ import { AI2_FOOD_HOME_BATCH_I } from './ai2-food-home-batch-i-20261031.ts';
 import { AI2_FOOD_HOME_BATCH_J } from './ai2-food-home-batch-j-20261031.ts';
 import { AI2_FOOD_HOME_BATCH_K } from './ai2-food-home-batch-k-20261101.ts';
 import { AI2_FOOD_HOME_BATCH_L } from './ai2-food-home-batch-l-20261101.ts';
+import { AI2_FOOD_HOME_BATCH_M } from './ai2-food-home-batch-m-20261101.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
@@ -2349,5 +2350,12 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_K)) {
 for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_L)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-2 batch L category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// AI-2 batch M: reviewed food/home vocabulary; no canonicalization or gameplay changes.
+for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_M)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown AI-2 batch M category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
