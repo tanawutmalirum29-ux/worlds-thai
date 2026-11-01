@@ -81,7 +81,7 @@ function canonicalIdentitiesFromOtherSources(): Map<string, Set<string>> {
   return identities;
 }
 
-test('AI-4 batches 5–15 contribute 220 new canonical identities beyond the other live sources', () => {
+test('AI-4 batches 5–16 contribute 240 new canonical identities beyond the other live sources', () => {
   const existing = canonicalIdentitiesFromOtherSources();
   // Regression guard: the duplicate rejected by AI-5 must be visible to this scanner.
   // AI-5 semantic QA: barcode scanners and barcode readers are the same device.
@@ -128,7 +128,7 @@ test('AI-4 batches 5–15 contribute 220 new canonical identities beyond the oth
       added++;
     }
   }
-  assert.equal(added, 220);
+  assert.equal(added, 240);
 });
 
 const BATCH_7: Readonly<Record<string, readonly string[]>> = {
