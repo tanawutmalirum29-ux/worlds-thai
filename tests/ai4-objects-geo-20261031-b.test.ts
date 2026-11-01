@@ -11,7 +11,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ถ', 'ร', 'ห', 'ผ'],
+  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ'],
   vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'น', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
   tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค'],
@@ -408,7 +408,7 @@ test('AI-4 batch 15 contributes 20 distinct playable terms in owned categories',
 });
 
 const BATCH_16: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ถุงมือชกมวย', 'รองเท้าตะปู', 'หมวกเชื่อมเหล็ก', 'ผ้ากันเปื้อนช่างเชื่อม'],
+  clothing: ['เสื้อกั๊กถ่วงน้ำหนัก', 'รองเท้าตะปู', 'หมวกเชื่อมเหล็ก', 'ผ้ากันเปื้อนช่างเชื่อม'],
   vehicle: ['รถสูบคอนกรีต', 'รถไถหิมะ', 'เรือวางท่อ', 'รถยกตู้คอนเทนเนอร์'],
   device: ['เครื่องตรวจธนบัตรปลอม', 'เครื่องฟักไข่', 'เครื่องทดสอบแบตเตอรี่', 'เครื่องพับกระดาษอัตโนมัติ'],
   tool: ['เลื่อยญี่ปุ่น', 'ตะไบครึ่งวงกลม', 'เกจวัดความลึก', 'คีมตัดกระเบื้อง'],
@@ -419,6 +419,13 @@ test('AI-4 batch 16 adds 20 canonical-unique playable words without cross-source
   assert.deepEqual(Object.keys(BATCH_16), Object.keys(AI4_OBJECTS_GEO_TERMS));
   assert.equal(Object.values(BATCH_16).flat().length, 20);
   const existing = canonicalIdentitiesFromOtherSources();
+  // Semantic regression: boxing gloves already exist under two Thai synonyms in nor-nu-terms.ts.
+  assert.ok(existing.get('clothing')?.has(canonicalAnswer('นวม', 'clothing')));
+  assert.ok(existing.get('clothing')?.has(canonicalAnswer('นวมชกมวย', 'clothing')));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.clothing.includes('ถุงมือชกมวย'),
+    'boxing gloves duplicate the existing นวม/นวมชกมวย');
+  assert.ok(!existing.get('clothing')?.has(canonicalAnswer('เสื้อกั๊กถ่วงน้ำหนัก', 'clothing')),
+    'replacement weighted exercise vest must be new in other sources');
   for (const category of Object.keys(BATCH_16) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_16[category];
     assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words);
