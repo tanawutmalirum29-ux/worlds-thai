@@ -629,7 +629,7 @@ test('AI-3 batch 21 avoids the bubble toy semantic alias and keeps distinct Dixi
 
 // Batch 22: checked against main's game vocabulary sources and explicit job aliases.
 const BATCH_TWENTY_TWO: Readonly<Record<string, readonly string[]>> = {
-  job: ['ช่างทำกระจกสี', 'ผู้จัดการพิพิธภัณฑ์', 'ช่างเครื่องเรือ'],
+  job: ['ช่างทำกระจกสี', 'ผู้จัดการพิพิธภัณฑ์', 'ช่างเป่าแก้ว'],
   verb: ['ล้างฟิล์ม', 'ห่อเกี๊ยว', 'ผูกเงื่อน'],
   sport: ['สเกตบอร์ดบิ๊กแอร์', 'สโนว์บอร์ดบิ๊กแอร์', 'ยิงธนูรีเคิร์ฟ'],
   music: ['กลองบาตา', 'คอนเซอร์ตินา', 'ซารังกี'],
@@ -667,4 +667,16 @@ test('AI-3 batch 22 contributes 20 canonical-unique playable terms in seven owne
       assert.deepEqual(sources, [], 'source literal collision: ' + category + '/' + word);
     }
   }
+});
+
+// AI-5 semantic HOLD: a marine mechanic is a specialization of existing ช่างเครื่อง.
+// Glassblowing is a separate skilled glass-forming trade, not mechanical repair.
+test('AI-3 batch 22 uses a distinct glassblower trade instead of generic mechanic specialization', () => {
+  assert.ok(WORD_BANK.job.includes('ช่างเครื่อง'), 'existing mechanic baseline missing');
+  assert.ok(!AI3_ACTIVITY_TERMS.job.includes('ช่างเครื่องเรือ'), 'generic mechanic specialization reintroduced');
+  assert.ok(AI3_ACTIVITY_TERMS.job.includes('ช่างเป่าแก้ว'), 'glassblower replacement missing');
+  const initial = wordInitialForCategory('ช่างเป่าแก้ว', 'job');
+  assert.equal(initial, 'ช');
+  assert.ok(eligibleCategories(initial).includes('job'), 'glassblower job unavailable');
+  assert.equal(validAnswer('ช่างเป่าแก้ว', initial, 'job'), true);
 });

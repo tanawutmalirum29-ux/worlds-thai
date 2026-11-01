@@ -69,7 +69,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ช่างทำเบาะ',
     'ช่างทำกระจกสี',
     'ผู้จัดการพิพิธภัณฑ์',
-    'ช่างเครื่องเรือ',
+    'ช่างเป่าแก้ว',
   ],
   verb: [
     'เคลือบเงา',
