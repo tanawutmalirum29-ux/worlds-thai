@@ -55,6 +55,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ช่างต่อเรือ',
     'นักปฐพีวิทยา',
     'ช่างหล่อพระ',
+    'นักอุทกวิทยา',
+    'นักพัฒนาหลักสูตร',
+    'ช่างทำเครื่องสาย',
   ],
   verb: [
     'เคลือบเงา',
@@ -108,6 +111,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'หาบน้ำ',
     'ฟาดข้าว',
     'วิดน้ำ',
+    'สีข้าว',
+    'สับฟืน',
+    'ขึงผ้า',
   ],
   sport: [
     'สปีดสเกต',
@@ -161,6 +167,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ไจแอนต์สลาลอม',
     'เคอร์ลิงวีลแชร์',
     'รักบี้ใต้น้ำ',
+    'สกีโมกุล',
+    'พาราไตรกีฬา',
+    'วิ่งวิบากสามพันเมตร',
   ],
   music: [
     'ไวบราโฟน',
@@ -211,6 +220,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กรับพวง',
     'กลองชาตรี',
     'ฉาบใหญ่',
+    'กีตาร์บาริโทน',
+    'ทรัมเป็ตพิคโคโล',
+    'ออร์แกนท่อ',
   ],
   toy: [
     'หุ่นนิ้ว',
@@ -246,6 +258,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กระดานวาดทราย',
     'ตุ๊กตาล้มลุก',
     'ตุ๊กตาแม่ลูกดก',
+    'ลูกบาศก์งู',
+    'เกมโยนถุงทราย',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
@@ -298,6 +312,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'บีกเกอร์',
     'ขวดบีบน้ำกลั่น',
     'กระดาษพับโอริกามิ',
+    'กระดาษกรอง',
+    'ขาตั้งสามขา',
+    'หลอดหยด',
   ],
   body: [
     'กล่องเสียง',
@@ -351,5 +368,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กระดูกค้อน',
     'เส้นประสาทอัลนาร์',
     'ลิ้นหัวใจพัลโมนารี',
+    'กระดูกเรเดียส',
+    'หลอดเลือดดำพอร์ทัล',
+    'เส้นประสาทไซอาติก',
   ],
 };
