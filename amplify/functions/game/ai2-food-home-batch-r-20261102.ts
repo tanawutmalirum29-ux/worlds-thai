@@ -3,11 +3,11 @@
  * Data only; canonicalization, game rules and other categories are unchanged.
  */
 export const AI2_FOOD_HOME_BATCH_R: Readonly<Record<'food' | 'dessert' | 'drink' | 'fruit' | 'vegetable' | 'object' | 'furniture', readonly string[]>> = {
-  food: ['หมูโสร่ง', 'ข้าวหน้าปลาไหล', 'สตูว์เนื้อ'],
+  food: ['ยากิโทริ', 'ข้าวหน้าปลาไหล', 'สตูว์เนื้อ'],
   dessert: ['ขนมลิ้นหมา'],
-  drink: ['ชามาซาล่า', 'ลาสซี่มะม่วง', 'ชาเปปเปอร์มินต์'],
-  fruit: ['เนคทารีน'],
-  vegetable: ['ยอดมะรุม', 'ยอดชะมวง', 'ยอดผักติ้ว'],
+  drink: ['ชาเจียวกู่หลาน', 'ลาสซี่มะม่วง', 'ชาเปปเปอร์มินต์'],
+  fruit: ['จาบูติกาบา'],
+  vegetable: ['ยอดมะรุม', 'ยอดชะมวง', 'ผักลิ้นห่าน'],
   object: ['หินลับมีด', 'กระบอกน้ำสุญญากาศ', 'กล่องใส่รองเท้า'],
-  furniture: ['ชั้นวางเครื่องเสียง', 'เตียงสนาม', 'โต๊ะคอนโซล']
+  furniture: ['ชั้นวางเครื่องเสียง', 'เตียงสนาม', 'เก้าอี้อาบน้ำ']
 } as const;
