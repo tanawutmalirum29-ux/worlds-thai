@@ -452,7 +452,7 @@ test('AI-4 batch 16 adds 20 canonical-unique playable words without cross-source
 
 const BATCH_17: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ถุงมือปั่นจักรยาน', 'รองเท้าดำน้ำ', 'ชุดป้องกันผึ้ง', 'ผ้าปิดตานอน'],
-  vehicle: ['รถบรรทุกปูนผง', 'รถขนส่งสัตว์', 'เรือเก็บคราบน้ำมัน', 'รถดูดโคลน'],
+  vehicle: ['รถบรรทุกปูนผง', 'รถไฟรางแม่เหล็ก', 'เรือเก็บคราบน้ำมัน', 'เรือใบสองเสา'],
   device: ['เครื่องล้างอัลตราโซนิก', 'เครื่องบันทึกภาพกล้องวงจรปิด', 'เครื่องวัดแสง', 'เครื่องทำฟองนม'],
   tool: ['ประแจขันซี่ลวด', 'เกจวัดมุม', 'ดอกสว่านเจาะกระจก', 'ค้อนทุบกระจก'],
   place: ['โรงงานผลิตอิฐ', 'ท่าเรือเฟอร์รี', 'โรงเพาะเลี้ยงสัตว์น้ำ', 'ลานจอดรถบรรทุก']
@@ -465,6 +465,11 @@ test('AI-4 batch 17 adds 20 new playable canonical identities without cross-sour
   // Rejected candidates are already registered and must not be counted again.
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('เรือบรรทุกก๊าซ'));
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถเครนตีนตะขาบ'));
+  assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถบรรทุกสัตว์'));
+  assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถดูดส้วม'));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถขนส่งสัตว์'));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถดูดโคลน'));
+
   assert.ok(existing.get('clothing')?.has(canonicalAnswer('ถุงมือกันบาด', 'clothing')));
   assert.ok(existing.get('tool')?.has(canonicalAnswer('เกรียงหวี', 'tool')));
   for (const category of Object.keys(BATCH_17) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
