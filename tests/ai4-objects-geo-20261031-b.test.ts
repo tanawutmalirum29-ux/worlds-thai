@@ -246,7 +246,7 @@ test('AI-4 batch 10 adds 20 distinct reviewed objects and places', () => {
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถเกี่ยวข้าว'));
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถเกรดเดอร์'));
   assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถเก็บเกี่ยวข้าว'));
-  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถเกี่ยวข้าวโพด'));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถเกลี่ยดิน'));
 });
 
 
@@ -690,7 +690,7 @@ const BATCH_21: Readonly<Record<keyof typeof AI4_OBJECTS_GEO_TERMS, readonly str
     'เสื้อบาติก'
   ],
   vehicle: [
-    'รถเกลี่ยดิน',
+    'รถเกี่ยวข้าวโพด',
     'เรือวางทุ่น'
   ],
   device: [
