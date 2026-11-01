@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–20).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–21).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -101,7 +101,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ผ้าโพกศีรษะ',
     'ชุดสครับ',
     'ถุงมือฉนวนไฟฟ้า',
-    'ชุดดรายสูท'
+    'ชุดดรายสูท',
+    // AI-4 batch 21: reviewed distinct equipment, apparel and facilities.
+    'ชุดเทควันโด',
+    'ชุดยูโด',
+    'รองเท้าโบว์ลิ่ง',
+    'เสื้อบาติก'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -197,7 +202,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถบรรทุกปศุสัตว์',
     'เรือใบไตรมารัน',
     'เรือบรรทุกสารเคมี',
-    'รถไฟไฮโดรเจน'
+    'รถไฟไฮโดรเจน',
+    // AI-4 batch 21: reviewed distinct equipment, apparel and facilities.
+    'รถเกลี่ยดิน',
+    'เรือวางทุ่น'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -293,7 +301,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องทำแซนด์วิช',
     'เครื่องวัดความเร็วลม',
     'เครื่องบันทึกคลื่นไฟฟ้าหัวใจ',
-    'เครื่องทดสอบสายแลน'
+    'เครื่องทดสอบสายแลน',
+    // AI-4 batch 21: reviewed distinct equipment, apparel and facilities.
+    'เครื่องปั๊มนมไฟฟ้า',
+    'เครื่องสกัดน้ำผลไม้',
+    'ตู้บ่มเพาะเชื้อ',
+    'ป้ายไฟทางออกฉุกเฉิน'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -389,7 +402,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ประแจหัวบาน',
     'เกจวัดรู',
     'ดอกสว่านขั้นบันได',
-    'คีมปากแหลมงอ'
+    'คีมปากแหลมงอ',
+    // AI-4 batch 21: reviewed distinct equipment, apparel and facilities.
+    'เกจวัดรอยเชื่อม',
+    'เลื่อยตัดกระเบื้อง',
+    'เกจวัดแรงดันน้ำ',
+    'บล็อกถอดล้อ'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -485,6 +503,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานผลิตปูนซีเมนต์',
     'โรงงานผลิตกระเบื้อง',
     'โรงงานผลิตสี',
-    'โรงงานผลิตเฟอร์นิเจอร์'
+    'โรงงานผลิตเฟอร์นิเจอร์',
+    // AI-4 batch 21: reviewed distinct equipment, apparel and facilities.
+    'โรงงานผลิตแบตเตอรี่',
+    'สนามฝึกสุนัข',
+    'หอจดหมายเหตุ',
+    'โรงเรียนสอนว่ายน้ำ'
   ]
 } as const;
