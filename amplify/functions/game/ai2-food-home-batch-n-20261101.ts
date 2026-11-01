@@ -11,7 +11,7 @@ export const AI2_FOOD_HOME_BATCH_N: Readonly<Record<'food' | 'dessert' | 'drink'
     'หมกเห็ด'
   ],
   dessert: [
-    'ขนมอาโป๊ง',
+    'ขนมลอเป๊ะ',
     'ขนมเต้าส้อ'
   ],
   drink: [

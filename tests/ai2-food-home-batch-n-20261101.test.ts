@@ -14,7 +14,7 @@ const EXPECTED = {
     "หมกเห็ด"
   ],
   "dessert": [
-    "ขนมอาโป๊ง",
+    "ขนมลอเป๊ะ",
     "ขนมเต้าส้อ"
   ],
   "drink": [
@@ -88,7 +88,7 @@ test('AI-2 batch N contains no duplicated source literals in the registered bank
 });
 
 test('AI-2 batch N respects existing dessert and vegetable prefix behavior', () => {
-  assert.equal(wordInitialForCategory('ขนมอาโป๊ง', 'dessert'), 'อ');
+  assert.equal(wordInitialForCategory('ขนมลอเป๊ะ', 'dessert'), 'อ');
   assert.equal(wordInitialForCategory('ขนมเต้าส้อ', 'dessert'), 'ต');
   assert.equal(wordInitialForCategory('ยอดมันปู', 'vegetable'), 'ย');
   assert.equal(canonicalAnswer('ยอดมันปู', 'vegetable'), 'ยอดมันปู');
@@ -119,4 +119,14 @@ test('AI-2 batch N rejects swapped-ingredient and cross-category semantic duplic
   assert.ok(!AI2_FOOD_HOME_BATCH_N.furniture.includes('ตู้เก็บยา'));
   assert.ok(AI2_FOOD_HOME_BATCH_N.drink.includes('ชาผู่เอ๋อร์'));
   assert.ok(AI2_FOOD_HOME_BATCH_N.furniture.includes('เก้าอี้ตัดผม'));
+});
+
+// Semantic QA: อาโป and อาโป๊ง are the same Phuket coconut crepe.
+// Keep the existing อาโป entry; replace the proposed alias with Satun's ลอเป๊ะ.
+test('AI-2 batch N does not re-count อาโป under an alternate spelling', () => {
+  assert.ok(WORD_BANK.dessert.includes('อาโป'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_N.dessert.includes('ขนมอาโป๊ง'));
+  assert.ok(AI2_FOOD_HOME_BATCH_N.dessert.includes('ขนมลอเป๊ะ'));
+  assert.equal(wordInitialForCategory('ขนมลอเป๊ะ', 'dessert'), 'ล');
+  assert.equal(validAnswer('ขนมลอเป๊ะ', 'ล', 'dessert'), true);
 });
