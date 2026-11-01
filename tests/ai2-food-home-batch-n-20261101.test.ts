@@ -88,7 +88,7 @@ test('AI-2 batch N contains no duplicated source literals in the registered bank
 });
 
 test('AI-2 batch N respects existing dessert and vegetable prefix behavior', () => {
-  assert.equal(wordInitialForCategory('ขนมลอเป๊ะ', 'dessert'), 'อ');
+  assert.equal(wordInitialForCategory('ขนมลอเป๊ะ', 'dessert'), 'ล');
   assert.equal(wordInitialForCategory('ขนมเต้าส้อ', 'dessert'), 'ต');
   assert.equal(wordInitialForCategory('ยอดมันปู', 'vegetable'), 'ย');
   assert.equal(canonicalAnswer('ยอดมันปู', 'vegetable'), 'ยอดมันปู');
