@@ -15,7 +15,6 @@ const EXPECTED = {
     "ผัดฉ่าปลากะพง"
   ],
   "dessert": [
-    "ขนมหน้านวล",
     "ขนมข้าวตังหน้าตั้ง"
   ],
   "drink": [
@@ -27,7 +26,7 @@ const EXPECTED = {
   ],
   "vegetable": [
     "ผักขะแยง",
-    "ผักชะคราม",
+    "ผักกาดหอมแดง",
     "ใบมะรุม"
   ],
   "object": [
@@ -35,7 +34,8 @@ const EXPECTED = {
     "ไซดักปลา",
     "หวดนึ่งข้าว",
     "กระด้ง",
-    "ขันโตก"
+    "ขันโตก",
+    "ตะแกรงตากปลา"
   ],
   "furniture": [
     "แคร่ไม้ไผ่",
@@ -88,8 +88,8 @@ test('AI-2 batch M has no literal duplicates across registered source modules', 
 });
 
 test('AI-2 batch M keeps existing category-prefix rules unchanged', () => {
-  assert.equal(wordInitialForCategory('ขนมหน้านวล', 'dessert'), 'ห');
+  assert.equal(wordInitialForCategory('ขนมข้าวตังหน้าตั้ง', 'dessert'), 'ข');
   assert.equal(wordInitialForCategory('ผักขะแยง', 'vegetable'), 'ข');
   assert.equal(canonicalAnswer('ผักขะแยง', 'vegetable'), 'ขะแยง');
-  assert.equal(canonicalAnswer('ผักชะคราม', 'vegetable'), 'ชะคราม');
+  assert.equal(canonicalAnswer('ผักกาดหอมแดง', 'vegetable'), 'กาดหอมแดง');
 });
