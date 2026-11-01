@@ -15,7 +15,7 @@ const EXPECTED = {
     "ผัดฉ่าปลากะพง"
   ],
   "dessert": [
-    "ขนมข้าวตังหน้าตั้ง"
+    "ขนมเกลียว"
   ],
   "drink": [
     "น้ำกระเจี๊ยบมะนาว",
@@ -88,7 +88,7 @@ test('AI-2 batch M has no literal duplicates across registered source modules', 
 });
 
 test('AI-2 batch M keeps existing category-prefix rules unchanged', () => {
-  assert.equal(wordInitialForCategory('ขนมข้าวตังหน้าตั้ง', 'dessert'), 'ข');
+  assert.equal(wordInitialForCategory('ขนมเกลียว', 'dessert'), 'ก');
   assert.equal(wordInitialForCategory('ผักขะแยง', 'vegetable'), 'ข');
   assert.equal(canonicalAnswer('ผักขะแยง', 'vegetable'), 'ขะแยง');
   assert.equal(canonicalAnswer('ผักกาดหอมแดง', 'vegetable'), 'กาดหอมแดง');
