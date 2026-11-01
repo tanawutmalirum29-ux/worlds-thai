@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 748 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 764 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 748);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 764);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -101,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 593, 'AI-1 must contain 593 source entries after the 155-term baseline');
+  assert.equal(additions.length, 609, 'AI-1 must contain 609 source entries after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -1624,6 +1624,49 @@ test('batch 45 registers 16 unique playable names without prefix or literal coll
       assert.ok(identity, word + ' empty canonical identity');
       assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === identity).length,
         1, word + ' duplicates a category canonical identity');
+      const prefix = prefixes[category];
+      if (prefix) {
+        const alternative = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(alternative, category), identity, word + ' prefix mismatch');
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), word + ' unplayable initial');
+      assert.equal(validAnswer(word, initial, category), true, word + ' rejected by gameplay');
+      const literal = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [otherCategory, bank] of Object.entries(WORD_BANK)) {
+        assert.equal(bank.filter(entry => normalizeAnswer(entry).toLocaleLowerCase('th') === literal).length,
+          otherCategory === category ? 1 : 0, word + ' literal collision in ' + otherCategory);
+      }
+    }
+  }
+});
+
+// Batch 46: names listed by ONEP TH-BIF; ENSO phases documented by TMD.
+// No gameplay, rarity or canonicalization changes.
+const BATCH46_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: ['กระจ้อน', 'หนูมือลิง'],
+  bird: ['นกหัวขวานสีตาล', 'นกตบยุงภูเขา'],
+  fish: ['ปลาบู่เสือเล็ก', 'ปลากระทุงเหวปากแดง'],
+  insect: ['ผีเสื้อหนอนใบกุ่มลายจุด', 'ผีเสื้อฟ้าดอกหญ้า'],
+  plant: ['เสลดพังพอนตัวเมีย', 'เนียมสวน'],
+  tree: ['ส้านเห็บ', 'กะโมกเขา'],
+  flower: ['เอื้องหงอนไก่', 'ประทัดทอง'],
+  nature: ['เอลนีโญ', 'ลานีญา'],
+};
+
+test('batch 46 adds 16 playable names with distinct canonical and literal identities', () => {
+  assert.deepEqual(Object.keys(BATCH46_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH46_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = {
+    bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
+  };
+  for (const [category, names] of Object.entries(BATCH46_TERMS)) {
+    for (const word of names) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), word + ' missing');
+      const identity = canonicalAnswer(word, category);
+      assert.ok(identity, word + ' empty canonical identity');
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === identity).length,
+        1, word + ' canonical collision');
       const prefix = prefixes[category];
       if (prefix) {
         const alternative = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
