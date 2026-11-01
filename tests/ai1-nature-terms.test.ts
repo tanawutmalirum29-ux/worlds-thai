@@ -1067,7 +1067,7 @@ const BATCH35_TERMS: Readonly<Record<string, readonly string[]>> = {
     "นกแก๊ก"
   ],
   "fish": [
-    "ปลากระโทงดาบ",
+    "ปลาลิ้นควายขนดำ",
     "ปลาสากดำ"
   ],
   "insect": [

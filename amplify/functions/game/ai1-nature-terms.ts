@@ -235,7 +235,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลากดหัวแข็ง',
     'ปลากระทิงดำ',
     'ปลาหมอสีฟลาวเวอร์ฮอร์น',
-    'ปลากระโทงดาบ',
+    'ปลาลิ้นควายขนดำ',
     'ปลาสากดำ',
   ],
   insect: [
