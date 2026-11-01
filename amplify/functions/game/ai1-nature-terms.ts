@@ -254,7 +254,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาฉลามหูดำ',
     'ปลามังกรน้อยแถบขาว',
     'ปลากระเบนราหูยักษ์',
-    'ปลาโรนิน',
+    'ปลากระเบนปีศาจหางหนาม',
   ],
   insect: [
     'แมลงช้างปีกใส',

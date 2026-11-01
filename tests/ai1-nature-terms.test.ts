@@ -1252,7 +1252,7 @@ const BATCH38_TERMS: Readonly<Record<string, readonly string[]>> = {
   ],
   "fish": [
     "ปลากระเบนราหูยักษ์",
-    "ปลาโรนิน"
+    "ปลากระเบนปีศาจหางหนาม"
   ],
   "insect": [
     "เพลี้ยจักจั่นฝอยทุเรียน",
