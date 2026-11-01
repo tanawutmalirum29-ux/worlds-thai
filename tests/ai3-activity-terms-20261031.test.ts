@@ -546,7 +546,7 @@ test('AI-3 batch 20 rejects semantic wooden-block duplicate and registers Jenga 
 
 // Batch 21 (1 Nov 2026): distinct real jobs, actions, sports, instruments, toys, school items and anatomy.
 const BATCH_TWENTY_ONE: Readonly<Record<string, readonly string[]>> = {
-  job: ['ช่างซ่อมโทรศัพท์มือถือ', 'นักอัญมณีศาสตร์', 'ช่างทำเบาะ'],
+  job: ['ช่างทำแม่พิมพ์', 'นักอัญมณีศาสตร์', 'ช่างทำเบาะ'],
   verb: ['เย็บผ้าห่ม', 'ถักเปีย', 'คั้นน้ำอ้อย'],
   sport: ['กระโดดน้ำสปริงบอร์ด', 'เรือใบออปติมิสต์', 'สกีสลาลอม'],
   music: ['กลองเปิงมาง', 'กลองสองหน้า', 'โอโบเบส'],
@@ -596,4 +596,16 @@ test('AI-3 batch 21 has no source-level literal collisions in any other game mod
   }
   assert.ok(!AI3_ACTIVITY_TERMS.music.includes('ฟลูเกิลฮอร์น'), 'pre-existing flugelhorn reintroduced');
   assert.ok(!AI3_ACTIVITY_TERMS.music.includes('สะล้อ'), 'pre-existing salo reintroduced');
+});
+
+// AI-5 semantic QA: mobile-phone repair is the same occupation as existing phone repair.
+// Industrial mold making is a distinct skilled trade and must remain playable.
+test('AI-3 batch 21 does not duplicate the existing phone-repair occupation', () => {
+  assert.ok(WORD_BANK.job.includes('ช่างซ่อมโทรศัพท์'), 'baseline phone repair job missing');
+  assert.ok(!AI3_ACTIVITY_TERMS.job.includes('ช่างซ่อมโทรศัพท์มือถือ'), 'semantic phone repair duplicate reintroduced');
+  assert.ok(AI3_ACTIVITY_TERMS.job.includes('ช่างทำแม่พิมพ์'), 'mold-maker replacement missing');
+  const initial = wordInitialForCategory('ช่างทำแม่พิมพ์', 'job');
+  assert.equal(initial, 'ช');
+  assert.ok(eligibleCategories(initial).includes('job'), 'mold-maker job is not playable');
+  assert.equal(validAnswer('ช่างทำแม่พิมพ์', initial, 'job'), true);
 });
