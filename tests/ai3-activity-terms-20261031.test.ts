@@ -8,19 +8,19 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช'],
-  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล'],
-  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก'],
-  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก'],
-  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก'],
-  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ'],
-  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย', 'ส', 'ข', 'ก', 'ท', 'ต', 'ถ', 'ส', 'ส', 'ล'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช', 'น', 'น', 'ช'],
+  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล', 'ผ', 'ต', 'บ'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ'],
+  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก', 'อ', 'ก', 'ว'],
+  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก', 'ก', 'ห'],
+  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ', 'จ', 'ท', 'ท'],
+  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย', 'ส', 'ข', 'ก', 'ท', 'ต', 'ถ', 'ส', 'ส', 'ล', 'ส', 'ย', 'ก'],
 };
 
-test('AI-3 registers 255 reviewed activity terms without duplicate canonical identities', () => {
+test('AI-3 registers 275 reviewed activity terms without duplicate canonical identities', () => {
   assert.deepEqual(Object.keys(AI3_ACTIVITY_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI3_ACTIVITY_TERMS).flat();
-  assert.equal(all.length, 255);
+  assert.equal(all.length, 275);
   assert.equal(new Set(all).size, all.length);
   let playable = 0;
   for (const [category, words] of Object.entries(AI3_ACTIVITY_TERMS)) {
@@ -226,4 +226,78 @@ test('AI-3 does not reintroduce the existing air-conditioner mechanic occupation
   assert.ok(AI3_ACTIVITY_TERMS.job.includes('นักจดหมายเหตุ'), 'archivist replacement missing');
   assert.equal(wordInitialForCategory('นักจดหมายเหตุ', 'job'), 'น');
   assert.equal(validAnswer('นักจดหมายเหตุ', 'น', 'job'), true);
+});
+
+// Batch 14 (1 Nov 2026): reviewed activities, real instruments and classroom lab equipment.
+const BATCH_FOURTEEN: Readonly<Record<string, readonly string[]>> = {
+  "job": [
+    "นักภาษาศาสตร์",
+    "นักวิทยาศาสตร์อาหาร",
+    "ช่างทำนาฬิกา"
+  ],
+  "verb": [
+    "ผสมปูน",
+    "ตวงแป้ง",
+    "บดกาแฟ"
+  ],
+  "sport": [
+    "แซมโบ",
+    "เซิร์ฟสเกต",
+    "อัลติเมตจานร่อน"
+  ],
+  "music": [
+    "โอโบ ดาโมเร่",
+    "กลองเหล็ก",
+    "ไวโอลินไฟฟ้า"
+  ],
+  "toy": [
+    "กระดานเขาวงกตลูกเหล็ก",
+    "เหมียวระเบิด"
+  ],
+  "school": [
+    "จานเพาะเชื้อ",
+    "แท่งแก้วคนสาร",
+    "ที่วางหลอดทดลอง"
+  ],
+  "body": [
+    "เส้นเลือดฝอย",
+    "เยื่อหุ้มสมอง",
+    "กระดูกขมับ"
+  ]
+};
+
+test('AI-3 batch 14 contributes 20 distinct, clean, currently playable answers', () => {
+  const additions = Object.values(BATCH_FOURTEEN).flat();
+  assert.equal(additions.length, 20);
+  assert.equal(new Set(additions).size, additions.length);
+  const registered = Object.values(WORD_BANK).flat()
+    .map(word => word.normalize('NFC').toLocaleLowerCase('th'));
+  for (const [category, words] of Object.entries(BATCH_FOURTEEN)) {
+    for (const word of words) {
+      assert.ok(AI3_ACTIVITY_TERMS[category].includes(word), 'missing: ' + category + '/' + word);
+      assert.equal(word, word.trim().normalize('NFC'), 'unnormalized: ' + word);
+      assert.equal(isInappropriateLanguage(word), false, 'moderation: ' + word);
+      assert.equal(isBlockedStandaloneAnswer(word), false, 'blocked: ' + word);
+      assert.equal(registered.filter(entry => entry === word.toLocaleLowerCase('th')).length, 1,
+        'exact collision: ' + category + '/' + word);
+      const canonical = canonicalAnswer(word, category);
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonical).length, 1,
+        'canonical collision: ' + category + '/' + word);
+      const initial = wordInitialForCategory(word, category);
+      assert.ok(eligibleCategories(initial).includes(category), 'unavailable: ' + category + '/' + word);
+      assert.equal(validAnswer(word, initial, category), true, 'unplayable: ' + category + '/' + word);
+    }
+  }
+});
+
+// AI-5 lexical QA: use attested Thai product/instrument names, not invented translations.
+test('AI-3 batch 14 uses attested Thai names and rejects rejected spellings', () => {
+  assert.ok(AI3_ACTIVITY_TERMS.toy.includes('เหมียวระเบิด'));
+  assert.ok(!WORD_BANK.toy.includes('เกมระเบิดแมว'));
+  assert.ok(AI3_ACTIVITY_TERMS.music.includes('โอโบ ดาโมเร่'));
+  assert.ok(!WORD_BANK.music.includes('โอโบอามอร์'));
+  assert.equal(wordInitialForCategory('เหมียวระเบิด', 'toy'), 'ห');
+  assert.equal(validAnswer('เหมียวระเบิด', 'ห', 'toy'), true);
+  assert.equal(wordInitialForCategory('โอโบ ดาโมเร่', 'music'), 'อ');
+  assert.equal(validAnswer('โอโบ ดาโมเร่', 'อ', 'music'), true);
 });
