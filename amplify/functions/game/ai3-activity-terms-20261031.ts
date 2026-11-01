@@ -117,7 +117,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'สีข้าว',
     'สับฟืน',
     'ขึงผ้า',
-    'ฝึกซ้อม',
+    'ลับกรรไกร',
     'วัดไข้',
     'หยอดกาว',
   ],
