@@ -25,7 +25,7 @@ const EXPECTED = {
   ],
   "vegetable": [
     "ยอดมะรุม",
-    "ผักเคล",
+    "ยอดชะมวง",
     "ยอดผักติ้ว"
   ],
   "object": [
@@ -82,7 +82,7 @@ test('AI-2 batch R literals are new across all registered dictionary source modu
 test('AI-2 batch R retains category-local dessert and vegetable prefix handling', () => {
   assert.equal(wordInitialForCategory('ขนมลิ้นหมา','dessert'),'ล');
   assert.equal(wordInitialForCategory('ขนม','dessert'),'');
-  assert.equal(wordInitialForCategory('ผักเคล','vegetable'),'ค');
-  assert.equal(canonicalAnswer('ผักเคล','vegetable'),'เคล');
+  assert.equal(wordInitialForCategory('ผักยอดชะมวง','vegetable'),'ย');
+  assert.equal(canonicalAnswer('ผักยอดชะมวง','vegetable'),'ยอดชะมวง');
   assert.equal(canonicalAnswer('ผักยอดมะรุม','vegetable'),canonicalAnswer('ยอดมะรุม','vegetable'));
 });
