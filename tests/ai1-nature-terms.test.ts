@@ -811,7 +811,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 351);
+  assert.equal(proposed.length, 367);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
