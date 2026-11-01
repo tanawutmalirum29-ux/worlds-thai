@@ -198,7 +198,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'บัณเฑาะว์',
     'พิณไฟฟ้า',
     'แซกโซโฟนโซปราโน',
-    'ทรัมเป็ตพิคโคโล',
+    'เมลโลโฟน',
   ],
   toy: [
     'หุ่นนิ้ว',
