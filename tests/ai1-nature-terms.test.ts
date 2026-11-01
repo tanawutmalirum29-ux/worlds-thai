@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 528 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 544 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 528);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 544);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -223,10 +223,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 242 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 258 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 242);
+  assert.equal(additions.length, 258);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -811,7 +811,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 242);
+  assert.equal(proposed.length, 258);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
@@ -883,6 +883,41 @@ test('batch 31 adds 16 canonical-distinct, playable terms in the eight AI-1 cate
       const initial = wordInitialForCategory(word, category);
       assert.ok((LETTERS as readonly string[]).includes(initial), `${word} initial ${initial} is not playable`);
       assert.equal(validAnswer(word, initial, category), true, `${word} must be playable`);
+    }
+  }
+});
+
+
+// Batch 32 (1 Nov 2026): verified nature names, only the eight AI-1 categories.
+const BATCH32_TERMS: Readonly<Record<string, readonly string[]>> = {
+  animal: ['วอมแบต', 'สุนัขจิ้งจอกแดง'],
+  bird: ['นกตะกรุม', 'นกกระทาดงแข้งเขียว'],
+  fish: ['ปลาม้าลาย', 'ปลาซิวข้างขวาน'],
+  insect: ['ผีเสื้อหนอนมะนาว', 'ผีเสื้อหางติ่งปารีส'],
+  plant: ['หญ้าคาทะเล', 'ผักคราดหัวแหวน'],
+  tree: ['กระบาก', 'อินทนิลน้ำ'],
+  flower: ['กล้วยไม้แวนด้า', 'กุหลาบมอญ'],
+  nature: ['เมฆสเตรตัส', 'เมฆคิวมูลัส'],
+};
+
+test('batch 32 adds 16 playable canonical-distinct nature terms', () => {
+  assert.deepEqual(Object.keys(BATCH32_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH32_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = { bird:'นก', fish:'ปลา', insect:'แมลง', tree:'ต้น', flower:'ดอก' };
+  for (const [category, words] of Object.entries(BATCH32_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} missing in ${category}`);
+      const canonical = canonicalAnswer(word, category);
+      assert.ok(canonical, `${word} has no canonical identity`);
+      assert.equal(WORD_BANK[category].filter(existing => canonicalAnswer(existing, category) === canonical).length, 1, `${word} duplicate canonical identity`);
+      const prefix = prefixes[category];
+      if (prefix) {
+        const variant = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(variant, category), canonical, `${word} prefix normalization mismatch`);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} unplayable initial ${initial}`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} not accepted`);
     }
   }
 });
