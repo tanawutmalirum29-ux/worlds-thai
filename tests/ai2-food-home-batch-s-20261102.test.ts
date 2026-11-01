@@ -62,14 +62,16 @@ test('AI-2 batch S rejects previously registered semantic equivalents', () => {
     { category:'vegetable', alias:'ยอดผักมันปู', existing:'ยอดมันปู' },
     { category:'drink', alias:'ชาข้าวบาร์เลย์', existing:'น้ำข้าวบาร์เลย์' },
     { category:'drink', alias:'น้ำลิ้นจี่โซดา', existing:'ลิ้นจี่โซดา' },
-    { category:'food', alias:'ต้มขมิ้นไก่', existing:'ไก่ต้มขมิ้น' },
-    { category:'furniture', alias:'ตู้เก็บยา', existing:'ตู้ยา' }
+    { category:'food', alias:'ต้มขมิ้นไก่', existing:'ไก่ต้มขมิ้น' }
   ] as const;
   for (const {category,alias,existing} of rejected) {
     assert.ok(WORD_BANK[category].includes(existing), 'missing existing identity: '+category+'/'+existing);
     assert.equal(AI2_FOOD_HOME_BATCH_S[category].includes(alias),false,
       'semantic alias must not be added: '+category+'/'+alias);
   }
+  // ตู้ยา already exists as an object, so its furniture synonym is not semantic-new.
+  assert.ok(WORD_BANK.object.includes('ตู้ยา'));
+  assert.equal(AI2_FOOD_HOME_BATCH_S.furniture.includes('ตู้เก็บยา'),false);
 });
 
 test('AI-2 batch S preserves dessert and vegetable prefix semantics', () => {
