@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 592 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 608 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 592);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 608);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -1119,6 +1119,78 @@ test('batch 35 adds 16 distinct playable names without prefix or literal collisi
       for (const [otherCategory, bank] of Object.entries(WORD_BANK)) {
         assert.equal(bank.filter(existing => normalizeAnswer(existing).toLocaleLowerCase('th') === literal).length,
           otherCategory === category ? 1 : 0, `${word} literal collision in ${otherCategory}`);
+      }
+    }
+  }
+});
+
+
+// Batch 36 (1 Nov 2026): category-verified Thai names, checked against current main.
+const BATCH36_TERMS: Readonly<Record<string, readonly string[]>> = {
+  "animal": [
+    "อ้นใหญ่",
+    "แรดขาว"
+  ],
+  "bird": [
+    "นกจาบคาเคราน้ำเงิน",
+    "นกคัดคูมรกต"
+  ],
+  "fish": [
+    "ปลาทองริวกิ้น",
+    "ปลาการ์ตูนมะเขือเทศ"
+  ],
+  "insect": [
+    "ผีเสื้อหางติ่งชะอ้อนถิ่นใต้",
+    "ผีเสื้อหางคู่โคนปีกส้ม"
+  ],
+  "plant": [
+    "หญ้าหางหมาจิ้งจอก",
+    "ว่านแม่ยับ"
+  ],
+  "tree": [
+    "ขี้เหล็กเลือด",
+    "มะเกลือเลือด"
+  ],
+  "flower": [
+    "พวงหยก",
+    "พวงโกเมน"
+  ],
+  "nature": [
+    "พายุทอร์นาโด",
+    "แสงใต้"
+  ]
+};
+
+test('batch 36 adds 16 unique playable nature names with category-local prefix identities', () => {
+  assert.deepEqual(Object.keys(BATCH36_TERMS).sort(), [...NATURE_CATEGORIES].sort());
+  assert.equal(Object.values(BATCH36_TERMS).flat().length, 16);
+  const prefixes: Readonly<Record<string, string>> = {
+    bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก'
+  };
+  for (const [category, words] of Object.entries(BATCH36_TERMS)) {
+    for (const word of words) {
+      assert.ok(AI1_NATURE_TERMS[category].includes(word), `${word} missing from ${category}`);
+      const identity = canonicalAnswer(word, category);
+      assert.ok(identity, `${word} missing canonical identity`);
+      assert.equal(
+        WORD_BANK[category].filter(existing => canonicalAnswer(existing, category) === identity).length,
+        1, `${word} canonical collision in ${category}`
+      );
+      const prefix = prefixes[category];
+      if (prefix) {
+        const variant = word.startsWith(prefix) ? word.slice(prefix.length) : prefix + word;
+        assert.equal(canonicalAnswer(variant, category), identity, `${word} prefix normalization mismatch`);
+      }
+      const initial = wordInitialForCategory(word, category);
+      assert.ok((LETTERS as readonly string[]).includes(initial), `${word} unplayable initial ${initial}`);
+      assert.equal(validAnswer(word, initial, category), true, `${word} not playable`);
+      const literal = normalizeAnswer(word).toLocaleLowerCase('th');
+      for (const [otherCategory, bank] of Object.entries(WORD_BANK)) {
+        assert.equal(
+          bank.filter(existing => normalizeAnswer(existing).toLocaleLowerCase('th') === literal).length,
+          otherCategory === category ? 1 : 0,
+          `${word} literal collision in ${otherCategory}`
+        );
       }
     }
   }
