@@ -165,9 +165,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถยกตู้คอนเทนเนอร์',
     // AI-4 batch 17: distinct reviewed Thai terms; no cross-team changes.
     'รถบรรทุกปูนผง',
-    'รถขนส่งสัตว์',
+    'รถไฟรางแม่เหล็ก',
     'เรือเก็บคราบน้ำมัน',
-    'รถดูดโคลน'
+    'เรือใบสองเสา'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
