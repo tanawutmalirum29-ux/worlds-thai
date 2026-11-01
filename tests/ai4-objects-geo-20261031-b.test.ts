@@ -5,6 +5,7 @@ import ts from 'typescript';
 import { AI4_OBJECTS_GEO_TERMS } from '../amplify/functions/game/ai4-objects-geo-terms-20261031-b.ts';
 import { ADDITIONAL_VEHICLES_20261031 } from '../amplify/functions/game/additional-vehicles-20261031.ts';
 import { ADDITIONAL_CLOTHING_20261031 } from '../amplify/functions/game/additional-clothing-20261031.ts';
+import { EXPANDED_THAI_TERMS } from '../amplify/functions/game/expanded-thai-terms.ts';
 import { ROYAL_THAI_TERMS } from '../amplify/functions/game/royal-thai-terms.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { canonicalAnswer, eligibleCategories, LETTERS, validAnswer, wordInitialForCategory }
@@ -732,6 +733,14 @@ test('AI-4 batch 21 contributes 18 new, playable and cross-source-distinct terms
   assert.ok(!BATCH_21.vehicle.includes('รถปลูกข้าว'));
   assert.ok(!BATCH_21.vehicle.includes('เรือใบคาตามารัน'));
   assert.ok(!BATCH_21.vehicle.includes('ยานสำรวจดาวอังคาร'));
+  // AI-5 semantic QA: a juice extractor separates juice from pulp by pressing or
+  // centrifugal extraction; a blender chops and mixes the whole fruit, retaining
+  // the pulp. These are different appliances, not two names for one machine.
+  assert.ok(EXPANDED_THAI_TERMS.device.includes('เครื่องปั่นน้ำผลไม้'));
+  assert.ok(BATCH_21.device.includes('เครื่องสกัดน้ำผลไม้'));
+  assert.ok(!BATCH_21.device.includes('เครื่องปั่นน้ำผลไม้'));
+  assert.notEqual(canonicalAnswer('เครื่องสกัดน้ำผลไม้', 'device'),
+    canonicalAnswer('เครื่องปั่นน้ำผลไม้', 'device'));
   assert.ok(WORD_BANK.tool.includes('ที่ตัดกระจก'));
   assert.ok(!BATCH_21.tool.includes('มีดตัดกระจก'));
 
