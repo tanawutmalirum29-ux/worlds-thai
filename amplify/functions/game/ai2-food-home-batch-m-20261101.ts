@@ -11,7 +11,6 @@ export const AI2_FOOD_HOME_BATCH_M: Readonly<Record<'food' | 'dessert' | 'drink'
     'ผัดฉ่าปลากะพง'
   ],
   dessert: [
-    'ขนมหน้านวล',
     'ขนมข้าวตังหน้าตั้ง'
   ],
   drink: [
@@ -23,7 +22,7 @@ export const AI2_FOOD_HOME_BATCH_M: Readonly<Record<'food' | 'dessert' | 'drink'
   ],
   vegetable: [
     'ผักขะแยง',
-    'ผักชะคราม',
+    'ผักกาดหอมแดง',
     'ใบมะรุม'
   ],
   object: [
@@ -31,7 +30,8 @@ export const AI2_FOOD_HOME_BATCH_M: Readonly<Record<'food' | 'dessert' | 'drink'
     'ไซดักปลา',
     'หวดนึ่งข้าว',
     'กระด้ง',
-    'ขันโตก'
+    'ขันโตก',
+    'ตะแกรงตากปลา'
   ],
   furniture: [
     'แคร่ไม้ไผ่',
