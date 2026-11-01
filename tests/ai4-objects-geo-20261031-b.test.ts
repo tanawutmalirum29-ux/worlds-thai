@@ -579,7 +579,7 @@ test('AI-4 batch 18 adds 20 new playable canonical identities without cross-sour
 
 
 const BATCH_19: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ผ้าคาดศีรษะ', 'รองเท้าวิ่งเทรล', 'ชุดฟันดาบ', 'เสื้อช็อปช่าง'],
+  clothing: ['ผ้าคลุมไหล่', 'รองเท้าวิ่งเทรล', 'ชุดฟันดาบ', 'เสื้อช็อปช่าง'],
   vehicle: ['รถขนส่งเงินสด', 'รถบรรทุกไม้ซุง', 'เรือสำรวจอุทกศาสตร์', 'รถขนสัมภาระสนามบิน'],
   device: ['เครื่องทำความสะอาดไอน้ำ', 'เครื่องดูดเสมหะ', 'เครื่องบดเนื้อไฟฟ้า', 'เครื่องวัดระดับเสียง'],
   tool: ['คีมดัดลวด', 'ตะไบหางหนู', 'เกจวัดช่องว่าง', 'ประแจแหวนฟรี'],
@@ -594,6 +594,12 @@ test('AI-4 batch 19 adds 20 playable canonical-unique terms without cross-source
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('เครื่องบินพยาบาล'));
   assert.ok(!BATCH_19.vehicle.includes('เครื่องบินพยาบาล'));
   assert.ok(BATCH_19.vehicle.includes('เรือสำรวจอุทกศาสตร์'));
+  // AI-5 semantic QA: ผ้าคาดศีรษะ is the same headband as existing ผ้าคาดผม.
+  // A shoulder shawl is a distinct garment worn over the shoulders, not on the head.
+  assert.ok(ADDITIONAL_CLOTHING_20261031.includes('ผ้าคาดผม'));
+  assert.ok(!BATCH_19.clothing.includes('ผ้าคาดศีรษะ'));
+  assert.ok(BATCH_19.clothing.includes('ผ้าคลุมไหล่'));
+  assert.ok(!existing.get('clothing')?.has(canonicalAnswer('ผ้าคลุมไหล่', 'clothing')));
   for (const category of Object.keys(BATCH_19) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_19[category];
     assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words);
