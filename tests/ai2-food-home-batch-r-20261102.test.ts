@@ -8,7 +8,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 
 const EXPECTED = {
   "food": [
-    "หมูโสร่ง",
+    "ยากิโทริ",
     "ข้าวหน้าปลาไหล",
     "สตูว์เนื้อ"
   ],
@@ -16,17 +16,17 @@ const EXPECTED = {
     "ขนมลิ้นหมา"
   ],
   "drink": [
-    "ชามาซาล่า",
+    "ชาเจียวกู่หลาน",
     "ลาสซี่มะม่วง",
     "ชาเปปเปอร์มินต์"
   ],
   "fruit": [
-    "เนคทารีน"
+    "จาบูติกาบา"
   ],
   "vegetable": [
     "ยอดมะรุม",
     "ยอดชะมวง",
-    "ยอดผักติ้ว"
+    "ผักลิ้นห่าน"
   ],
   "object": [
     "หินลับมีด",
@@ -36,7 +36,7 @@ const EXPECTED = {
   "furniture": [
     "ชั้นวางเครื่องเสียง",
     "เตียงสนาม",
-    "โต๊ะคอนโซล"
+    "เก้าอี้อาบน้ำ"
   ]
 } as const;
 const OWNED = ['dessert','drink','food','fruit','furniture','object','vegetable'];
@@ -79,10 +79,29 @@ test('AI-2 batch R literals are new across all registered dictionary source modu
   }
 });
 
+
+test('AI-2 batch R excludes known semantic aliases even when their spelling differs', () => {
+  // Semantic duplicate screening is stricter than canonicalAnswer's current mappings.
+  // Keep the existing gameplay/canonicalization rules unchanged.
+  const rejected = [
+    { category: 'food', alias: 'หมูโสร่ง', existing: 'หมูสร่ง' },
+    { category: 'drink', alias: 'ชามาซาล่า', existing: 'ชามาซาลา' },
+    { category: 'fruit', alias: 'เนคทารีน', existing: 'เนกทารีน' },
+    { category: 'furniture', alias: 'โต๊ะคอนโซล', existing: 'คอนโซล' },
+    { category: 'vegetable', alias: 'ยอดผักติ้ว', existing: 'ผักติ้ว' }
+  ] as const;
+  for (const { category, alias, existing } of rejected) {
+    assert.ok(WORD_BANK[category].includes(existing), 'missing prior identity: '+category+'/'+existing);
+    assert.equal(AI2_FOOD_HOME_BATCH_R[category].includes(alias), false,
+      'semantic alias must not be proposed as new: '+category+'/'+alias);
+  }
+});
+
 test('AI-2 batch R retains category-local dessert and vegetable prefix handling', () => {
   assert.equal(wordInitialForCategory('ขนมลิ้นหมา','dessert'),'ล');
   assert.equal(wordInitialForCategory('ขนม','dessert'),'');
   assert.equal(wordInitialForCategory('ผักยอดชะมวง','vegetable'),'ย');
+  assert.equal(wordInitialForCategory('ผักลิ้นห่าน','vegetable'),'ล');
   assert.equal(canonicalAnswer('ผักยอดชะมวง','vegetable'),'ยอดชะมวง');
   assert.equal(canonicalAnswer('ผักยอดมะรุม','vegetable'),canonicalAnswer('ยอดมะรุม','vegetable'));
 });
