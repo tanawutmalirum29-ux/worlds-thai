@@ -74,7 +74,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'คาราคัล',
     'วัวมัสก์',
     'แมวน้ำฮาร์ป',
-    'กวางเรนเดียร์',
+    'กวางซิก้า',
     'เสือจากัวร์',
     'วอมแบต',
     'สุนัขจิ้งจอกแดง',
