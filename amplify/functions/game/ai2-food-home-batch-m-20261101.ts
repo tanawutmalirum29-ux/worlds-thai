@@ -18,7 +18,7 @@ export const AI2_FOOD_HOME_BATCH_M: Readonly<Record<'food' | 'dessert' | 'drink'
     'น้ำบ๊วยมะนาว'
   ],
   fruit: [
-    'ตะขบน้ำ'
+    'ตะขบป่า'
   ],
   vegetable: [
     'ผักขะแยง',
