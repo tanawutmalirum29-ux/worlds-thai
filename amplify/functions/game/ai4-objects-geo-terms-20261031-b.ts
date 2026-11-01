@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–15).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–16).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -76,7 +76,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'สนับเข่า',
     'รองเท้าฟุตซอล',
     'ชุดเวทสูท',
-    'ถุงมือกอล์ฟ'
+    'ถุงมือกอล์ฟ',
+    // AI-4 batch 16: established protective and athletic wear.
+    'ถุงมือชกมวย',
+    'รองเท้าตะปู',
+    'หมวกเชื่อมเหล็ก',
+    'ผ้ากันเปื้อนช่างเชื่อม'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -147,7 +152,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถขนส่งไปรษณีย์',
     'เรือเก็บผักตบชวา',
     'เรือวิจัยสมุทรศาสตร์',
-    'รถลากเรือ'
+    'รถลากเรือ',
+    // AI-4 batch 16: distinct specialist road and marine vehicles.
+    'รถสูบคอนกรีต',
+    'รถไถหิมะ',
+    'เรือวางท่อ',
+    'รถยกตู้คอนเทนเนอร์'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -218,7 +228,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องตรวจจับน้ำรั่ว',
     'เครื่องดูดไรฝุ่น',
     'เครื่องอบจาน',
-    'เครื่องวัดความชื้นดิน'
+    'เครื่องวัดความชื้นดิน',
+    // AI-4 batch 16: separate electrical and electronic device functions.
+    'เครื่องตรวจธนบัตรปลอม',
+    'เครื่องฟักไข่',
+    'เครื่องทดสอบแบตเตอรี่',
+    'เครื่องพับกระดาษอัตโนมัติ'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -289,7 +304,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ปืนอัดจาระบี',
     'เครื่องตัดโฟมลวดร้อน',
     'เครื่องลับดอกสว่าน',
-    'มีดแกะสลักไม้'
+    'มีดแกะสลักไม้',
+    // AI-4 batch 16: distinct practical workshop tools.
+    'เลื่อยญี่ปุ่น',
+    'ลูกกลิ้งทาสี',
+    'เกจวัดความลึก',
+    'คีมตัดกระเบื้อง'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -360,6 +380,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานผลิตสบู่',
     'โรงเก็บรถไฟ',
     'โรงงานผลิตยางรถยนต์',
-    'สถานีขนส่งสินค้า'
+    'สถานีขนส่งสินค้า',
+    // AI-4 batch 16: established real-world facility types.
+    'โรงหล่อโลหะ',
+    'ลานกางเต็นท์',
+    'สนามแข่งจักรยาน',
+    'โรงฝึกมวย'
   ]
 } as const;
