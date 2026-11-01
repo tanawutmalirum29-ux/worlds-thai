@@ -348,7 +348,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'สีโปสเตอร์',
     'ไมโครปิเปต',
     'ปากกาเขียนแผ่นใส',
-    'เครื่องชั่งดิจิทัล',
+    'ขวดวัดปริมาตร',
   ],
   body: [
     'กล่องเสียง',
