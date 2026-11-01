@@ -101,7 +101,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 437, 'AI-1 must contain 437 net new nature names after the 155-term baseline');
+  assert.equal(additions.length, 453, 'AI-1 must contain 453 net new nature names after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -223,10 +223,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 306 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 322 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 306);
+  assert.equal(additions.length, 322);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -811,7 +811,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 306);
+  assert.equal(proposed.length, 322);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
