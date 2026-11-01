@@ -388,7 +388,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 20: reviewed distinct equipment and real-world facility types.
     'ประแจหัวบาน',
     'เกจวัดรู',
-    'ที่ถอนลวดเย็บกระดาษ',
+    'คีมล็อก',
     'คีมปากแหลมงอ'
   ],
   place: [
@@ -485,6 +485,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานผลิตปูนซีเมนต์',
     'โรงงานผลิตกระเบื้อง',
     'โรงงานผลิตสี',
-    'โรงเพาะชำต้นไม้'
+    'โรงงานผลิตเฟอร์นิเจอร์'
   ]
 } as const;

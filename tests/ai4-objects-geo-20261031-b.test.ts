@@ -16,7 +16,7 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ถ', 'ป', 'ช', 'ช', 'ก', 'ร', 'ช', 'ส', 'ผ', 'ช', 'ถ', 'ช'],
   vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'น', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'ห', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
-  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค', 'ป', 'ก', 'ด', 'ค', 'ล', 'ป', 'ป', 'ก', 'ค', 'ต', 'ก', 'ป', 'ป', 'ก', 'ท', 'ค'],
+  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค', 'ป', 'ก', 'ด', 'ค', 'ล', 'ป', 'ป', 'ก', 'ค', 'ต', 'ก', 'ป', 'ป', 'ก', 'ค', 'ค'],
   place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ', 'ร', 'ส', 'อ', 'ห', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ส', 'ล', 'ร', 'ส', 'ร', 'ท', 'ร', 'ร', 'ร', 'ส', 'ร', 'ล', 'ส', 'ร', 'ร', 'ท', 'ร', 'ล', 'ส', 'อ', 'ร', 'ร', 'ร', 'ร', 'ส', 'ร', 'ร', 'ร', 'ร', 'ร'],
 };
 
@@ -636,20 +636,37 @@ const BATCH_20: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ผ้าโพกศีรษะ', 'ชุดสครับ', 'ถุงมือฉนวนไฟฟ้า', 'ชุดดรายสูท'],
   vehicle: ['รถบรรทุกปศุสัตว์', 'เรือใบไตรมารัน', 'เรือบรรทุกสารเคมี', 'รถไฟไฮโดรเจน'],
   device: ['เครื่องทำแซนด์วิช', 'เครื่องวัดความเร็วลม', 'เครื่องบันทึกคลื่นไฟฟ้าหัวใจ', 'เครื่องทดสอบสายแลน'],
-  tool: ['ประแจหัวบาน', 'เกจวัดรู', 'ที่ถอนลวดเย็บกระดาษ', 'คีมปากแหลมงอ'],
-  place: ['โรงงานผลิตปูนซีเมนต์', 'โรงงานผลิตกระเบื้อง', 'โรงงานผลิตสี', 'โรงเพาะชำต้นไม้'],
+  tool: ['ประแจหัวบาน', 'เกจวัดรู', 'คีมล็อก', 'คีมปากแหลมงอ'],
+  place: ['โรงงานผลิตปูนซีเมนต์', 'โรงงานผลิตกระเบื้อง', 'โรงงานผลิตสี', 'โรงงานผลิตเฟอร์นิเจอร์'],
 };
 
 test('AI-4 batch 20 adds 20 distinct playable canonical identities in owned categories', () => {
   assert.deepEqual(Object.keys(BATCH_20), Object.keys(AI4_OBJECTS_GEO_TERMS));
   assert.equal(Object.values(BATCH_20).flat().length, 20);
   const existing = canonicalIdentitiesFromOtherSources();
+  // AI-5 semantic QA: school already registers the physical staple remover.
+  // The same item must not be counted again as a tool.
+  assert.ok(WORD_BANK.school.includes('ที่ถอนลวดเย็บกระดาษ'));
+  assert.ok(!BATCH_20.tool.includes('ที่ถอนลวดเย็บกระดาษ'));
+  assert.ok(BATCH_20.tool.includes('คีมล็อก'));
+  // The nursery is already a registered place; adding ต้นไม้ does not
+  // describe a different kind of facility.
+  assert.ok(WORD_BANK.place.includes('โรงเพาะชำ'));
+  assert.ok(!BATCH_20.place.includes('โรงเพาะชำต้นไม้'));
+  assert.ok(BATCH_20.place.includes('โรงงานผลิตเฟอร์นิเจอร์'));
   for (const category of Object.keys(BATCH_20) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_20[category];
     assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(-4), words);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, 4);
     for (const word of words) {
       const canonical = canonicalAnswer(word, category);
+      // Literal duplicates across different categories still denote the
+      // same physical word, even when category-local canonicalization differs.
+      for (const [otherCategory, otherWords] of Object.entries(WORD_BANK)) {
+        if (otherCategory !== category)
+          assert.ok(!otherWords.includes(word),
+            'cross-category duplicate: ' + category + '/' + word + ' also ' + otherCategory);
+      }
       assert.equal(word, word.trim().normalize('NFC'));
       assert.ok(word.length > 1 && word.length <= 48);
       assert.ok(!existing.get(category)?.has(canonical), 'already registered in other source: ' + category + '/' + word);

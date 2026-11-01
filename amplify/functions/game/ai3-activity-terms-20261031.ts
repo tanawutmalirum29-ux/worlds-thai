@@ -64,6 +64,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นักอนุรักษ์สัตว์ป่า',
     'ช่างซ่อมจักรเย็บผ้า',
     'นักสื่อสารวิทยาศาสตร์',
+    'ช่างทำแม่พิมพ์',
+    'นักอัญมณีศาสตร์',
+    'ช่างทำเบาะ',
   ],
   verb: [
     'เคลือบเงา',
@@ -126,6 +129,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ซ่อมหลังคา',
     'คั้นกะทิ',
     'เย็บกระดุม',
+    'เย็บผ้าห่ม',
+    'ถักเปีย',
+    'คั้นน้ำอ้อย',
   ],
   sport: [
     'สปีดสเกต',
@@ -188,6 +194,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พาราเรือแคนู',
     'จักรยานไทรอัล',
     'ยิงปืนยาวอัดลม',
+    'กระโดดน้ำสปริงบอร์ด',
+    'เรือใบออปติมิสต์',
+    'สกีสลาลอม',
   ],
   music: [
     'ไวบราโฟน',
@@ -247,6 +256,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'คลาริเน็ตอัลโต',
     'อัลโตฮอร์น',
     'กีตาร์เรโซเนเตอร์',
+    'กลองเปิงมาง',
+    'กลองสองหน้า',
+    'โอโบเบส',
   ],
   toy: [
     'หุ่นนิ้ว',
@@ -288,6 +300,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'หุ่นยนต์บังคับวิทยุ',
     'เกมเจงก้า',
     'หุ่นเชิดเงา',
+    'รถแข่งรางไฟฟ้า',
+    'เกมดิกซ์อิท',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
@@ -349,6 +363,9 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ไมโครปิเปต',
     'ปากกาเขียนแผ่นใส',
     'ขวดวัดปริมาตร',
+    'เครื่องชั่งสปริง',
+    'แท่งแม่เหล็ก',
+    'กระดาษยูนิเวอร์ซัลอินดิเคเตอร์',
   ],
   body: [
     'กล่องเสียง',
@@ -411,5 +428,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เส้นประสาทเรเดียล',
     'กล้ามเนื้อไบเซปส์',
     'ต่อมน้ำลายใต้ขากรรไกร',
+    'กล้ามเนื้อไตรเซปส์',
+    'กระดูกน่อง',
+    'กล้ามเนื้อเดลทอยด์',
   ],
 };
