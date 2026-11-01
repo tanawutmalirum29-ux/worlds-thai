@@ -5,6 +5,7 @@ import ts from 'typescript';
 import { AI4_OBJECTS_GEO_TERMS } from '../amplify/functions/game/ai4-objects-geo-terms-20261031-b.ts';
 import { ADDITIONAL_VEHICLES_20261031 } from '../amplify/functions/game/additional-vehicles-20261031.ts';
 import { ADDITIONAL_CLOTHING_20261031 } from '../amplify/functions/game/additional-clothing-20261031.ts';
+import { ROYAL_THAI_TERMS } from '../amplify/functions/game/royal-thai-terms.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { canonicalAnswer, eligibleCategories, LETTERS, validAnswer, wordInitialForCategory }
   from '../amplify/functions/game/logic.ts';
@@ -13,7 +14,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ถ', 'ป', 'ช', 'ช'],
-  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ก', 'ร', 'ร'],
+  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
   device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'น', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'ห', 'ค', 'ค'],
   tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค', 'ป', 'ก', 'ด', 'ค', 'ล', 'ป', 'ป', 'ก'],
   place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ', 'ร', 'ส', 'อ', 'ห', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ส', 'ล', 'ร', 'ส', 'ร', 'ท', 'ร', 'ร', 'ร', 'ส', 'ร', 'ล', 'ส', 'ร', 'ร', 'ท', 'ร', 'ล', 'ห', 'อ', 'ร', 'ร'],
@@ -82,6 +83,13 @@ function canonicalIdentitiesFromOtherSources(): Map<string, Set<string>> {
   // Clothing also has a standalone array, not a category property.
   for (const garment of ADDITIONAL_CLOTHING_20261031)
     identities.get('clothing')!.add(canonicalAnswer(garment, 'clothing'));
+  // Royal vocabulary is generated from [word, meaning] tuples, not direct
+  // category string arrays. Include these derived live entries explicitly.
+  for (const [category, words] of Object.entries(ROYAL_THAI_TERMS)) {
+    if (!identities.has(category)) continue;
+    for (const word of words)
+      identities.get(category)!.add(canonicalAnswer(word, category));
+  }
   return identities;
 }
 
@@ -493,7 +501,7 @@ test('AI-4 batch 17 adds 20 new playable canonical identities without cross-sour
 
 const BATCH_18: Readonly<Record<string, readonly string[]>> = {
   clothing: ['ถุงเท้าแยกนิ้ว', 'ปลอกขากันโคลน', 'ชุดมาสคอต', 'ชุดเอี๊ยมกันน้ำ'],
-  vehicle: ['เรือตัดน้ำแข็ง', 'กระเช้าไฟฟ้า', 'เรือพระที่นั่ง', 'รถบรรทุกเครื่องจักร'],
+  vehicle: ['เรือตัดน้ำแข็ง', 'รถรางขึ้นเขา', 'เรือแอร์โบ๊ท', 'รถบรรทุกเครื่องจักร'],
   device: ['แปรงสีฟันไฟฟ้า', 'หูฟังไร้สาย', 'เครื่องชงกาแฟแคปซูล', 'เครื่องวัดอุณหภูมิอินฟราเรด'],
   tool: ['เลื่อยตัดกิ่ง', 'ปืนเป่าลมร้อน', 'ประแจขันหัวเทียน', 'เกรียงขัดมัน'],
   place: ['หอพักนักศึกษา', 'อู่ต่อเรือ', 'โรงงานผลิตรองเท้า', 'โรงงานผลิตอาหารสัตว์']
@@ -522,7 +530,16 @@ test('AI-4 batch 18 adds 20 new playable canonical identities without cross-sour
   // Further semantic audit: a foam fire engine is already in the base vehicle bank.
   assert.ok(ADDITIONAL_VEHICLES_20261031.includes('รถดับเพลิงโฟม'));
   assert.ok(!BATCH_18.vehicle.includes('รถฉีดโฟมดับเพลิง'));
-  assert.ok(BATCH_18.vehicle.includes('เรือพระที่นั่ง'));
+  // Royal glossary is computed from word/meaning tuples; literal AST scans miss it.
+  assert.ok(ROYAL_THAI_TERMS.vehicle.includes('เรือพระที่นั่ง'));
+  assert.ok(existing.get('vehicle')?.has(canonicalAnswer('เรือพระที่นั่ง', 'vehicle')));
+  assert.ok(!BATCH_18.vehicle.includes('เรือพระที่นั่ง'));
+  // A cable-suspended gondola and a rail-bound hillside funicular differ.
+  assert.ok(WORD_BANK.vehicle.includes('กระเช้าลอยฟ้า'));
+  assert.ok(!BATCH_18.vehicle.includes('กระเช้าไฟฟ้า'));
+  assert.ok(BATCH_18.vehicle.includes('รถรางขึ้นเขา'));
+  // Airboat propulsion is above water, unlike a normal propeller-driven boat.
+  assert.ok(BATCH_18.vehicle.includes('เรือแอร์โบ๊ท'));
   // A generic rust-scrubbing brush is not a distinct tool from the existing wire brush.
   assert.ok(AI4_OBJECTS_GEO_TERMS.tool.includes('แปรงลวด'));
   assert.ok(!BATCH_18.tool.includes('แปรงขัดสนิม'));
