@@ -434,7 +434,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 18: reviewed distinct practical vocabulary.
     'หอพักนักศึกษา',
     'อู่ต่อเรือ',
-    'ลานกางเต็นท์',
+    'โรงงานผลิตรองเท้า',
     'โรงงานผลิตอาหารสัตว์'
   ]
 } as const;
