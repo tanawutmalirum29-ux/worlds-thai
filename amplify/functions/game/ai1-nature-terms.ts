@@ -90,6 +90,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ลิงโบโนโบ',
     'มานาที',
     'อีแลนด์',
+    'หนูป่ามาเลย์',
+    'กระรอกปลายหางดำ',
   ],
   bird: [
     'นกกะรางหัวขวาน',
@@ -176,6 +178,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกแซงแซวปากกา',
     'นกกีวี',
     'นกเค้าแมวหิมะ',
+    'นกคัดคูสีทองแดง',
+    'นกบั้งรอกเล็กท้องแดง',
   ],
   fish: [
     'ปลาสิงโต',
@@ -255,6 +259,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลามังกรน้อยแถบขาว',
     'ปลากระเบนราหูยักษ์',
     'ปลากระเบนปีศาจหางหนาม',
+    'ปลากุเราปานดำ',
+    'ปลาบู่ทองแก้มลาย',
   ],
   insect: [
     'แมลงช้างปีกใส',
@@ -332,6 +338,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ด้วงหนวดยาวโคนลูกปัด',
     'เพลี้ยจักจั่นฝอยทุเรียน',
     'เพลี้ยไฟฝ้าย',
+    'ด้วงงวงข้าวโพด',
+    'เพลี้ยอ่อนฝ้าย',
   ],
   plant: [
     'แหนแดง',
@@ -416,6 +424,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'หญ้าหางนกยูงใหญ่',
     'ผักปราบใบกว้าง',
     'สาหร่ายวากาเมะ',
+    'กะเม็ง',
+    'หญ้างวงช้าง',
   ],
   tree: [
     'ประดู่ป่า',
@@ -499,6 +509,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เสลาขาว',
     'กางขี้มอด',
     'ก่อหรั่ง',
+    'ยางวาด',
+    'เสม็ดชุน',
   ],
   flower: [
     'บัวดิน',
@@ -576,6 +588,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'หางกระรอกแดง',
     'ประทัดดอย',
     'เยอบีร่า',
+    'บานชื่นหนู',
+    'บานเที่ยง',
   ],
   nature: [
     'น้ำขึ้นน้ำลง',
@@ -656,5 +670,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พายุสุริยะ',
     'เมฆรูปเลนส์',
     'เมฆแมมมาตัส',
+    'ฟ้าหลัวแห้ง',
+    'ลมกระโชก',
   ],
 };
