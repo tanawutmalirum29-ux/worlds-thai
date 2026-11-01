@@ -1798,7 +1798,7 @@ test('batch 48 adds 16 unique playable nature entries with category-prefix norma
 // Saxicola jerdoni; Phylloscopus coronatus; Dussumieria elopsoides;
 // Psammogobius biocellatus; Odontomutilla haematocephala;
 // Margaronia pulvernlentalis; Eusteralis quadrifolia; Leucas aspera;
-// Lithocarpus sootepensis; Lithocarpus aggregatus; Hibiscus mutabilis;
+// Lithocarpus sootepensis; Lithocarpus aggregatus; Camchaya eberhardtii;
 // Costus speciosus; TMD summer storms and tornado-like winds.
 const BATCH49_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['เต่าปูลู', 'ค้างคาวหน้ายักษ์จมูกปุ่ม'],
@@ -1807,7 +1807,7 @@ const BATCH49_TERMS: Readonly<Record<string, readonly string[]>> = {
   insect: ['มดขนปก', 'ผีเสื้อหนอนกินใบไทร'],
   plant: ['เนียมดง', 'หญ้านกเค้า'],
   tree: ['ก่อหัวหมู', 'ก่อพวง'],
-  flower: ['พุดตาน', 'เอื้องหมายนา'],
+  flower: ['พู่ม่วง', 'เอื้องหมายนา'],
   nature: ['ลมงวง', 'พายุฤดูร้อน'],
 };
 

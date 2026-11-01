@@ -727,7 +727,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'บัวกระด้ง',
     'กุหลาบขาว',
     'กุหลาบแดง',
-    'พุดตาน',
+    'พู่ม่วง',
     'เอื้องหมายนา',
   ],
   nature: [
