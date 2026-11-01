@@ -81,7 +81,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เสื้อกั๊กถ่วงน้ำหนัก',
     'รองเท้าตะปู',
     'หมวกเชื่อมเหล็ก',
-    'ผ้ากันเปื้อนช่างเชื่อม'
+    'ผ้ากันเปื้อนช่างเชื่อม',
+    // AI-4 batch 17: distinct reviewed Thai terms; no cross-team changes.
+    'ถุงมือปั่นจักรยาน',
+    'รองเท้าดำน้ำ',
+    'ชุดป้องกันผึ้ง',
+    'ผ้าปิดตานอน'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -157,7 +162,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถสูบคอนกรีต',
     'รถไถหิมะ',
     'เรือวางท่อ',
-    'รถยกตู้คอนเทนเนอร์'
+    'รถยกตู้คอนเทนเนอร์',
+    // AI-4 batch 17: distinct reviewed Thai terms; no cross-team changes.
+    'รถบรรทุกปูนผง',
+    'รถไฟรางแม่เหล็ก',
+    'เรือเก็บคราบน้ำมัน',
+    'เรือใบสองเสา'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -233,7 +243,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องตรวจธนบัตรปลอม',
     'เครื่องฟักไข่',
     'เครื่องทดสอบแบตเตอรี่',
-    'เครื่องพับกระดาษอัตโนมัติ'
+    'เครื่องพับกระดาษอัตโนมัติ',
+    // AI-4 batch 17: distinct reviewed Thai terms; no cross-team changes.
+    'เครื่องล้างอัลตราโซนิก',
+    'เครื่องบันทึกภาพกล้องวงจรปิด',
+    'เครื่องวัดแสง',
+    'เครื่องทำฟองนม'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -309,7 +324,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เลื่อยญี่ปุ่น',
     'ตะไบครึ่งวงกลม',
     'เกจวัดความลึก',
-    'คีมตัดกระเบื้อง'
+    'คีมตัดกระเบื้อง',
+    // AI-4 batch 17: distinct reviewed Thai terms; no cross-team changes.
+    'ประแจขันซี่ลวด',
+    'เกจวัดมุม',
+    'ดอกสว่านเจาะกระจก',
+    'ค้อนทุบกระจก'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -385,6 +405,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงหล่อโลหะ',
     'ลานฝึกขับรถ',
     'สนามแข่งจักรยาน',
-    'โรงฝึกมวย'
+    'โรงฝึกมวย',
+    // AI-4 batch 17: distinct reviewed Thai terms; no cross-team changes.
+    'โรงงานผลิตอิฐ',
+    'ท่าเรือเฟอร์รี',
+    'โรงเพาะเลี้ยงสัตว์น้ำ',
+    'ลานจอดรถบรรทุก'
   ]
 } as const;

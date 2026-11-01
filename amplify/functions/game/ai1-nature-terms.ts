@@ -88,6 +88,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'แรดขาว',
     'แรดดำ',
     'ลิงโบโนโบ',
+    'มานาที',
+    'อีแลนด์',
   ],
   bird: [
     'นกกะรางหัวขวาน',
@@ -158,7 +160,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกโพระดกหูเขียว',
     'นกขุนแผนหัวแดง',
     'นกขุนแผนอกส้ม',
-    'นกกระเต็นน้อยสามนิ้ว',
+    'นกกะเต็นน้อยสามนิ้ว',
     'นกปรอดหัวสีเขม่า',
     'นกติ๊ดสุลต่าน',
     'นกกระทาดงแข้งเขียว',
@@ -172,6 +174,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นกคัดคูมรกต',
     'นกแซงแซวเล็กเหลือบ',
     'นกแซงแซวปากกา',
+    'นกกีวี',
+    'นกเค้าแมวหิมะ',
   ],
   fish: [
     'ปลาสิงโต',
@@ -249,6 +253,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ปลาการ์ตูนมะเขือเทศ',
     'ปลาฉลามหูดำ',
     'ปลามังกรน้อยแถบขาว',
+    'ปลากระเบนราหูยักษ์',
+    'ปลาโรนิน',
   ],
   insect: [
     'แมลงช้างปีกใส',
@@ -324,6 +330,8 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ผีเสื้อหางคู่โคนปีกส้ม',
     'ผีเสื้อหางมังกรเขียว',
     'ด้วงหนวดยาวโคนลูกปัด',
+    'เพลี้ยจักจั่นฝอยทุเรียน',
+    'เพลี้ยไฟฝ้าย',
   ],
   plant: [
     'แหนแดง',
@@ -407,6 +415,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ว่านแม่ยับ',
     'หญ้าหางนกยูงใหญ่',
     'ผักปราบใบกว้าง',
+    'สาหร่ายวากาเมะ',
   ],
   tree: [
     'ประดู่ป่า',
@@ -450,7 +459,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กระพี้จั่น',
     'มะกอกเกลื้อน',
     'แคป่า',
-    'ตะขบป่า',
+    'กะทังใบใหญ่',
     'ตะแบกเลือด',
     'ประดู่แดง',
     'ประดู่บ้าน',
@@ -489,6 +498,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'มะเกลือเลือด',
     'เสลาขาว',
     'กางขี้มอด',
+    'ก่อหรั่ง',
   ],
   flower: [
     'บัวดิน',
@@ -565,6 +575,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พวงโกเมน',
     'หางกระรอกแดง',
     'ประทัดดอย',
+    'เยอบีร่า',
   ],
   nature: [
     'น้ำขึ้นน้ำลง',
@@ -643,5 +654,7 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'แสงใต้',
     'หิมะถล่ม',
     'พายุสุริยะ',
+    'เมฆรูปเลนส์',
+    'เมฆแมมมาตัส',
   ],
 };
