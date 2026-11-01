@@ -286,7 +286,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมโยนถุงทราย',
     'ว่าวกล่อง',
     'หุ่นยนต์บังคับวิทยุ',
-    'บล็อกไม้รูปทรง',
+    'เกมเจงก้า',
     'หุ่นเชิดเงา',
   ],
   school: [
