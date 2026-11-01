@@ -175,8 +175,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือใบสองเสา',
     // AI-4 batch 18: reviewed distinct practical vocabulary.
     'เรือตัดน้ำแข็ง',
-    'กระเช้าไฟฟ้า',
-    'เรือพระที่นั่ง',
+    'รถรางขึ้นเขา',
+    'เรือแอร์โบ๊ท',
     'รถบรรทุกเครื่องจักร'
   ],
   device: [
