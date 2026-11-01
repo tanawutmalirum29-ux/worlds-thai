@@ -892,7 +892,7 @@ test('batch 31 adds 16 canonical-distinct, playable terms in the eight AI-1 cate
 const BATCH32_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['ออริกซ์เขาดาบ', 'สุนัขจิ้งจอกแดง'],
   bird: ['นกติ๊ดสุลต่าน', 'นกกระทาดงแข้งเขียว'],
-  fish: ['ปลาม้าลาย', 'ปลาซิวข้างขวาน'],
+  fish: ['ปลาแป้นกระโดงจุด', 'ปลาหมูสีแก้มแดง'],
   insect: ['เพลี้ยกระโดดหลังขาว', 'แมลงปอเข็มท้องเข็มดำ'],
   plant: ['หญ้าคาทะเล', 'หญ้าใบพาย'],
   tree: ['ไผ่ซางหม่น', 'ไผ่หก'],
@@ -935,4 +935,12 @@ test('batch 32 excludes main-source aliases and literal collisions found in CI',
   assert.ok(!AI1_NATURE_TERMS.bird.includes('นกตะกรุม'));
   assert.ok(!AI1_NATURE_TERMS.plant.includes('ผักคราดหัวแหวน'));
   assert.ok(!AI1_NATURE_TERMS.nature.includes('เมฆคิวมูลัส'));
+});
+
+
+test('batch 32 does not re-add existing fish after ปลา prefix normalization', () => {
+  assert.ok(WORD_BANK.fish.includes('ซิวข้างขวาน'));
+  assert.ok(WORD_BANK.fish.includes('ม้าลาย'));
+  assert.ok(!AI1_NATURE_TERMS.fish.includes('ปลาซิวข้างขวาน'));
+  assert.ok(!AI1_NATURE_TERMS.fish.includes('ปลาม้าลาย'));
 });
