@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import ts from 'typescript';
 import { AI4_OBJECTS_GEO_TERMS } from '../amplify/functions/game/ai4-objects-geo-terms-20261031-b.ts';
 import { ADDITIONAL_VEHICLES_20261031 } from '../amplify/functions/game/additional-vehicles-20261031.ts';
+import { ADDITIONAL_CLOTHING_20261031 } from '../amplify/functions/game/additional-clothing-20261031.ts';
 import { WORD_BANK } from '../amplify/functions/game/dictionary.ts';
 import { canonicalAnswer, eligibleCategories, LETTERS, validAnswer, wordInitialForCategory }
   from '../amplify/functions/game/logic.ts';
@@ -78,6 +79,9 @@ function canonicalIdentitiesFromOtherSources(): Map<string, Set<string>> {
   // `vehicle: [...]` property for the AST scanner above to discover.
   for (const vehicle of ADDITIONAL_VEHICLES_20261031)
     identities.get('vehicle')!.add(canonicalAnswer(vehicle, 'vehicle'));
+  // Clothing also has a standalone array, not a category property.
+  for (const garment of ADDITIONAL_CLOTHING_20261031)
+    identities.get('clothing')!.add(canonicalAnswer(garment, 'clothing'));
   return identities;
 }
 
