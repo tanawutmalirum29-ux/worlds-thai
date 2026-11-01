@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–18).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–20).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -96,7 +96,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'กางเกงมวยไทย',
     'รองเท้าวิ่งเทรล',
     'ชุดฟันดาบ',
-    'เสื้อช็อปช่าง'
+    'เสื้อช็อปช่าง',
+    // AI-4 batch 20: reviewed distinct equipment and real-world facility types.
+    'ผ้าโพกศีรษะ',
+    'ชุดสครับ',
+    'ถุงมือฉนวนไฟฟ้า',
+    'ชุดดรายสูท'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -187,7 +192,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถขนส่งเงินสด',
     'รถสุขาเคลื่อนที่',
     'เรือวางสายเคเบิล',
-    'รถขนสัมภาระสนามบิน'
+    'รถขนสัมภาระสนามบิน',
+    // AI-4 batch 20: reviewed distinct equipment and real-world facility types.
+    'รถบรรทุกปศุสัตว์',
+    'เรือใบไตรมารัน',
+    'เรือบรรทุกสารเคมี',
+    'รถไฟไฮโดรเจน'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -278,7 +288,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องทำความสะอาดไอน้ำ',
     'เครื่องดูดเสมหะ',
     'เครื่องบดเนื้อไฟฟ้า',
-    'เครื่องวัดระดับเสียง'
+    'เครื่องวัดระดับเสียง',
+    // AI-4 batch 20: reviewed distinct equipment and real-world facility types.
+    'เครื่องทำแซนด์วิช',
+    'เครื่องวัดความเร็วลม',
+    'เครื่องบันทึกคลื่นไฟฟ้าหัวใจ',
+    'เครื่องทดสอบสายแลน'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -369,7 +384,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'คีมดัดลวด',
     'ตะไบหางหนู',
     'เกจวัดช่องว่าง',
-    'ประแจแหวนฟรี'
+    'ประแจแหวนฟรี',
+    // AI-4 batch 20: reviewed distinct equipment and real-world facility types.
+    'ประแจหัวบาน',
+    'เกจวัดรู',
+    'ที่ถอนลวดเย็บกระดาษ',
+    'คีมปากแหลมงอ'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -460,6 +480,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงคัดแยกพัสดุ',
     'โรงงานผลิตยา',
     'สถานรับบริจาคโลหิต',
-    'โรงเรียนการบิน'
+    'โรงเรียนการบิน',
+    // AI-4 batch 20: reviewed distinct equipment and real-world facility types.
+    'โรงงานผลิตปูนซีเมนต์',
+    'โรงงานผลิตกระเบื้อง',
+    'โรงงานผลิตสี',
+    'โรงเพาะชำต้นไม้'
   ]
 } as const;
