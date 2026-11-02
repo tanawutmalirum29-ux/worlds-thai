@@ -51,7 +51,7 @@ test('AI-2 batch V has one source literal per answer across dictionary modules',
   }
 });
 
-test('AI-2 batch V respects existing dessert and vegetable prefixes', () => {
+test('AI-2 batch V respects existing vegetable prefix behavior', () => {
   assert.equal(wordInitialForCategory('ผักเห็ดแครง','vegetable'),'ห');
   assert.equal(canonicalAnswer('ผักเห็ดแครง','vegetable'),'เห็ดแครง');
   assert.equal(validAnswer('ผักเห็ดแครง','ห','vegetable'),true);
