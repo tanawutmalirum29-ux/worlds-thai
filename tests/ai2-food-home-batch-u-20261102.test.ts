@@ -9,9 +9,9 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 const EXPECTED = {
   food: ['ซุปบอร์ช', 'สลัดนิซัวส์', 'ฟาลาเฟล'],
   dessert: ['หยกมณี', 'ทาร์ตทาทิน', 'จาเลบี'],
-  drink: ['น้ำรากบัว', 'น้ำมะม่วงหาวมะนาวโห่'],
+  drink: ['น้ำมะม่วงหาวมะนาวโห่'],
   fruit: ['แบล็กเคอร์แรนต์', 'เรดเคอร์แรนต์'],
-  vegetable: ['ผักแว่น'],
+  vegetable: ['เห็ดเยื่อไผ่', 'เห็ดมันปู'],
   object: ['ซองกันชื้น', 'ฟองน้ำเมลามีน', 'แปรงขัดหลอด', 'เครื่องตีไข่มือหมุน'],
   furniture: ['โต๊ะทำงานปรับระดับ', 'เก้าอี้อานม้า', 'โต๊ะกาแฟยกหน้า']
 } as const;
@@ -60,9 +60,14 @@ test('AI-2 batch U retains existing semantic identities and prefix handling', ()
   assert.ok(!AI2_FOOD_HOME_BATCH_U.drink.includes('น้ำลูกยอ'));
   assert.ok(WORD_BANK.vegetable.includes('ชะคราม'));
   assert.ok(!AI2_FOOD_HOME_BATCH_U.vegetable.includes('ผักชะคราม'));
-  assert.equal(wordInitialForCategory('ผักแว่น','vegetable'),'ว');
-  assert.equal(canonicalAnswer('ผักแว่น','vegetable'),'แว่น');
-  assert.equal(canonicalAnswer('ผักผักแว่น','vegetable'),'');
+  assert.ok(WORD_BANK.plant.includes('ผักแว่น'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_U.vegetable.includes('ผักแว่น'));
+  assert.ok(WORD_BANK.drink.includes('น้ำรากบัว'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_U.drink.includes('น้ำรากบัว'));
+  assert.equal(wordInitialForCategory('เห็ดเยื่อไผ่','vegetable'),'ห');
+  assert.equal(canonicalAnswer('ผักเห็ดเยื่อไผ่','vegetable'),'เห็ดเยื่อไผ่');
+  assert.equal(canonicalAnswer('ผักผักเห็ดเยื่อไผ่','vegetable'),'');
+  assert.equal(wordInitialForCategory('เห็ดมันปู','vegetable'),'ห');
   assert.equal(wordInitialForCategory('ขนมหยกมณี','dessert'),'ห');
   assert.equal(canonicalAnswer('ขนมหยกมณี','dessert'),'หยกมณี');
 });
