@@ -292,8 +292,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ซูร์นา',
     'ดอมรา',
     'รีคอร์เดอร์เบส',
-    'ฟลูตเบส',
-    'ฟลูตอัลโต',
+    'เชเคเร',
+    'บันซูรี',
     'กู่ฉิน',
   ],
   toy: [
