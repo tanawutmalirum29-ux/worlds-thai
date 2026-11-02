@@ -138,7 +138,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รองเท้ากันไฟฟ้าสถิต',
     // AI-4 batch 30: distinct everyday objects and established facilities.
     'เสื้อกั๊กสูท',
-    'กางเกงเลกกิ้ง',
     'กางเกงจ็อกเกอร์',
   ],
   vehicle: [
@@ -676,6 +675,5 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 30: distinct everyday objects and established facilities.
     'สถานีวิจัยทะเล',
     'โรงเรียนสอนภาษา',
-    'ลานกีฬาอเนกประสงค์',
   ]
 } as const;
