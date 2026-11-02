@@ -241,7 +241,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'สกีครอส',
     'วิงฟอยล์',
     'บอสซาบอล',
-    'ฮอร์สบอล',
+    'เปโลตาบาสก์',
   ],
   music: [
     'ไวบราโฟน',
