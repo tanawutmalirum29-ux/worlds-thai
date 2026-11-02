@@ -14,21 +14,21 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ถ', 'ป', 'ช', 'ช', 'ก', 'ร', 'ช', 'ส', 'ผ', 'ช', 'ถ', 'ช', 'ช', 'ช', 'ร', 'ส', 'ช', 'ช', 'ก', 'ช', 'ช', 'ส', 'ช', 'ร', 'ร', 'ร', 'ช', 'ช', 'ร', 'ส', 'ช', 'ถ', 'ส', 'ช', 'ช'],
-  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
-  device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'น', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'ห', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ต', 'ป', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
-  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค', 'ป', 'ก', 'ด', 'ค', 'ล', 'ป', 'ป', 'ก', 'ค', 'ต', 'ก', 'ป', 'ป', 'ก', 'ด', 'ค', 'ก', 'ล', 'ก', 'บ', 'ก', 'ด', 'ท', 'ป', 'ท', 'ค', 'ม', 'ค', 'ข', 'บ', 'ข', 'ค', 'ห', 'ก', 'ท', 'ป', 'ต', 'ท', 'ก'],
-  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ', 'ร', 'ส', 'อ', 'ห', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ส', 'ล', 'ร', 'ส', 'ร', 'ท', 'ร', 'ร', 'ร', 'ส', 'ร', 'ล', 'ส', 'ร', 'ร', 'ท', 'ร', 'ล', 'ส', 'อ', 'ร', 'ร', 'ร', 'ร', 'ส', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ส', 'ห', 'ร', 'ล', 'ร', 'ส', 'ส', 'ส', 'ร', 'ร', 'ร', 'ร', 'ส', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ร', 'ส', 'พ', 'ส', 'ท', 'ล', 'ส', 'ร', 'ส', 'พ'],
+  clothing: ['ก', 'ส', 'ส', 'ส', 'ส', 'ก', 'ช', 'ช', 'ห', 'ส', 'ช', 'ช', 'ส', 'ร', 'ช', 'ก', 'ร', 'ส', 'ร', 'ส', 'ร', 'ถ', 'ส', 'ก', 'ช', 'ก', 'ร', 'ถ', 'ช', 'ถ', 'ช', 'ร', 'ห', 'ร', 'ห', 'ส', 'ส', 'ห', 'ส', 'ผ', 'ถ', 'ส', 'ร', 'ส', 'ช', 'ร', 'ผ', 'ช', 'ส', 'ร', 'ถ', 'ถ', 'ส', 'ร', 'ช', 'ถ', 'ส', 'ร', 'ห', 'ผ', 'ถ', 'ร', 'ช', 'ผ', 'ถ', 'ป', 'ช', 'ช', 'ก', 'ร', 'ช', 'ส', 'ผ', 'ช', 'ถ', 'ช', 'ช', 'ช', 'ร', 'ส', 'ช', 'ช', 'ก', 'ช', 'ช', 'ส', 'ช', 'ร', 'ร', 'ร', 'ช', 'ช', 'ร', 'ส', 'ช', 'ถ', 'ส', 'ช', 'ช', 'ส', 'ร'],
+  vehicle: ['ร', 'ร', 'ร', 'จ', 'ค', 'จ', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'จ', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ค', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร'],
+  device: ['ค', 'ค', 'ค', 'ต', 'ต', 'ต', 'ค', 'ค', 'ต', 'ค', 'ค', 'ค', 'ค', 'ก', 'ค', 'ต', 'ค', 'ต', 'ค', 'ค', 'ห', 'ค', 'พ', 'น', 'ต', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'น', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ป', 'ห', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ต', 'ป', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค', 'ค'],
+  tool: ['ค', 'ด', 'ป', 'ป', 'ห', 'ค', 'ค', 'ห', 'ข', 'ค', 'ฉ', 'ค', 'บ', 'ล', 'ท', 'ป', 'บ', 'ค', 'ต', 'ค', 'ป', 'ป', 'ว', 'ค', 'ห', 'ป', 'ป', 'ก', 'ป', 'ป', 'ท', 'ค', 'ท', 'ก', 'ห', 'ต', 'ป', 'ห', 'ล', 'ป', 'ค', 'ป', 'ค', 'ต', 'ก', 'ม', 'ม', 'ค', 'ก', 'ค', 'ป', 'ต', 'ป', 'ค', 'ค', 'ม', 'ล', 'ต', 'ก', 'ค', 'ป', 'ก', 'ด', 'ค', 'ล', 'ป', 'ป', 'ก', 'ค', 'ต', 'ก', 'ป', 'ป', 'ก', 'ด', 'ค', 'ก', 'ล', 'ก', 'บ', 'ก', 'ด', 'ท', 'ป', 'ท', 'ค', 'ม', 'ค', 'ข', 'บ', 'ข', 'ค', 'ห', 'ก', 'ท', 'ป', 'ต', 'ท', 'ก', 'ก', 'ด'],
+  place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ', 'ร', 'ส', 'อ', 'ห', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ส', 'ล', 'ร', 'ส', 'ร', 'ท', 'ร', 'ร', 'ร', 'ส', 'ร', 'ล', 'ส', 'ร', 'ร', 'ท', 'ร', 'ล', 'ส', 'อ', 'ร', 'ร', 'ร', 'ร', 'ส', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ส', 'ห', 'ร', 'ล', 'ร', 'ส', 'ส', 'ส', 'ร', 'ร', 'ร', 'ร', 'ส', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ร', 'ส', 'พ', 'ส', 'ท', 'ล', 'ส', 'ร', 'ส', 'พ', 'พ', 'ส', 'ร', 'ร', 'ร'],
 };
 
-test('AI-4 batches 2–28 register exactly 497 clean and canonically unique terms', () => {
+test('AI-4 batches 2–29 register exactly 509 clean and canonically unique terms', () => {
   assert.deepEqual(Object.keys(AI4_OBJECTS_GEO_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI4_OBJECTS_GEO_TERMS).flat();
-  assert.equal(all.length, 497);
-  assert.equal(new Set(all).size, 497, 'duplicate literal within AI-4 batches');
+  assert.equal(all.length, 509);
+  assert.equal(new Set(all).size, 509, 'duplicate literal within AI-4 batches');
 
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
-    assert.equal(words.length, ({ clothing: 99, vehicle: 84, device: 109, tool: 99, place: 106 } as Record<string, number>)[category], 'unexpected count: ' + category);
+    assert.equal(words.length, ({ clothing: 101, vehicle: 85, device: 111, tool: 101, place: 111 } as Record<string, number>)[category], 'unexpected count: ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'duplicate canonical identity within AI-4 category: ' + category);
     for (const [index, word] of words.entries()) {
@@ -1137,4 +1137,54 @@ test('AI-4 batch 28 does not reintroduce known cross-source semantic aliases', (
     ['device', 'เครื่องวัดความเป็นกรดด่าง']
   ] as const)
     assert.ok(!AI4_OBJECTS_GEO_TERMS[category].includes(word), 'semantic alias reintroduced: ' + category + '/' + word);
+});
+
+const BATCH_29: Readonly<Record<keyof typeof AI4_OBJECTS_GEO_TERMS, readonly string[]>> = {
+  clothing: ['เสื้อเกราะกันแทง', 'รองเท้ากันไฟฟ้าสถิต'],
+  vehicle: ['เรือพายมังกร'],
+  device: ['เครื่องวัดอัตราการไหล', 'เครื่องอ่านบัตรแม่เหล็ก'],
+  tool: ['เกจวัดความสูง', 'ดอกสว่านคว้านรู'],
+  place: ['พิพิธภัณฑ์หุ่นขี้ผึ้ง', 'สถานีวิจัยขั้วโลก', 'โรงงานผลิตเซรามิก', 'โรงงานผลิตเส้นใยสังเคราะห์', 'โรงงานผลิตถุงมือยาง']
+};
+
+test('AI-4 batch 29 adds 12 canonical-unique playable entries with no source collisions', () => {
+  assert.deepEqual(Object.keys(BATCH_29), Object.keys(AI4_OBJECTS_GEO_TERMS));
+  assert.equal(Object.values(BATCH_29).flat().length, 12);
+  const existing = canonicalIdentitiesFromOtherSources();
+  const offsets: Record<string, number> = { clothing: 99, vehicle: 84, device: 109, tool: 99, place: 106 };
+  const allWords = Object.values(BATCH_29).flat();
+  assert.equal(new Set(allWords).size, 12, 'duplicate batch 29 literal');
+  for (const category of Object.keys(BATCH_29) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
+    const words = BATCH_29[category];
+    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(offsets[category], offsets[category] + words.length),
+      words, 'batch 29 source mismatch: ' + category);
+    assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, words.length,
+      'batch 29 canonical collision: ' + category);
+    for (const word of words) {
+      const canonical = canonicalAnswer(word, category);
+      assert.equal(word, word.trim().normalize('NFC'), 'normalization: ' + word);
+      assert.ok(word.length > 1 && word.length <= 48, 'length: ' + word);
+      assert.equal(isInappropriateLanguage(word), false, 'moderation: ' + word);
+      assert.equal(isBlockedStandaloneAnswer(word), false, 'blocked: ' + word);
+      assert.ok(!existing.get(category)?.has(canonical), 'duplicate in other source: ' + category + '/' + word);
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonical).length,
+        1, 'live-bank missing/duplicate: ' + category + '/' + word);
+      for (const [otherCategory, otherWords] of Object.entries(WORD_BANK))
+        if (otherCategory !== category)
+          assert.ok(!otherWords.includes(word), 'cross-category literal collision: ' + word);
+      const initial = wordInitialForCategory(word, category);
+      assert.ok(LETTERS.includes(initial), 'unplayable initial: ' + category + '/' + word);
+      assert.ok(eligibleCategories(initial).includes(category), 'unavailable letter/category: ' + category + '/' + word);
+      assert.equal(validAnswer(word, initial, category), true, 'not accepted in live game: ' + category + '/' + word);
+    }
+  }
+});
+
+test('AI-4 batch 29 rejects known synonymous device and tool names', () => {
+  assert.ok(WORD_BANK.device.includes('เครื่องวัดแสง'));
+  assert.ok(WORD_BANK.tool.includes('ที่ตัดท่อ'));
+  assert.ok(!BATCH_29.device.includes('เครื่องวัดความเข้มแสง'),
+    'light-intensity meter is already represented by the light meter');
+  assert.ok(!BATCH_29.tool.includes('คีมตัดท่อ'),
+    'pipe cutter is already represented by the existing pipe cutter');
 });
