@@ -732,7 +732,6 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'รสสุคนธ์',
     'รสสุคนธ์แดง',
     'ดอกหรีดกอ',
-    'ชำมะนาด',
     'เอื้องหงอนไก่',
     'ประทัดทอง',
     'บานบุรีม่วง',

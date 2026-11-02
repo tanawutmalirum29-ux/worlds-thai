@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 828 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 827 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 828);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 827);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -43,6 +43,13 @@ test('AI-1 adds 828 real nature names only within its eight assigned categories'
         assert.equal(validAnswer(word, initial, category), true, `${word} should be accepted where playable`);
     }
   }
+});
+
+// Botanical synonym review: ชมนาด and ชำมะนาด are names for Vallaris glabra.
+// Keep one accepted species name without changing the game's global canonicalization.
+test('AI-1 does not double-count Vallaris glabra under its Thai flower synonyms', () => {
+  assert.ok(AI1_NATURE_TERMS.flower.includes('ชมนาด'));
+  assert.ok(!AI1_NATURE_TERMS.flower.includes('ชำมะนาด'));
 });
 
 test('nature nouns keep existing bird, fish, insect, tree, and flower prefix identities', () => {
@@ -223,10 +230,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 542 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 541 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 542);
+  assert.equal(additions.length, 541);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -811,7 +818,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 542);
+  assert.equal(proposed.length, 541);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
