@@ -339,7 +339,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องอ่านหนังสืออิเล็กทรอนิกส์',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'เครื่องทำขนมปัง',
-    'เครื่องสแกนบาร์โค้ด',
+    'เครื่องทำเส้นพาสต้าไฟฟ้า',
     'เครื่องนับจำนวนคน',
     'เครื่องฉายดาว'
   ],
