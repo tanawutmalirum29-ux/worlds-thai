@@ -885,7 +885,7 @@ test('AI-4 batch 24 adds 12 distinct playable terms in owned categories', () => 
   for (const category of Object.keys(BATCH_24) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
     const words = BATCH_24[category];
     const offset = ({"clothing":87,"vehicle":80,"device":88,"tool":87,"place":87} as Record<string, number>)[category];
-    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(offset), words,
+    assert.deepEqual(AI4_OBJECTS_GEO_TERMS[category].slice(offset, offset + words.length), words,
       'unexpected batch 24 terms: ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, words.length);
     for (const word of words) {
