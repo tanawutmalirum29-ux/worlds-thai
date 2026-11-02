@@ -28,18 +28,16 @@ const EXPECTED = {
   "fruit": [],
   "vegetable": [],
   "object": [
-    "ผ้าขาวบาง",
-    "หวดนึ่งข้าวเหนียว",
-    "กระติบข้าวเหนียว"
+    "ผ้าขาวบาง"
   ],
   "furniture": []
 } as const;
 
-test('AI-2 batch Z registers 16 screened, canonical-unique words in owned categories only', () => {
+test('AI-2 batch Z registers 14 screened, canonical-unique words in owned categories only', () => {
   assert.deepEqual(AI2_FOOD_HOME_BATCH_Z, EXPECTED);
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_Z).sort(),
     ['dessert','drink','food','fruit','furniture','object','vegetable']);
-  assert.equal(Object.values(EXPECTED).flat().length, 16);
+  assert.equal(Object.values(EXPECTED).flat().length, 14);
   for (const [category, words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size, words.length, 'literal duplicates: '+category);
     assert.equal(new Set(words.map(w=>canonicalAnswer(w,category))).size, words.length,
@@ -81,4 +79,14 @@ test('AI-2 batch Z preserves dessert and vegetable prefix behavior', () => {
   assert.equal(wordInitialForCategory('ผักเชียงดา','vegetable'),'ช');
   assert.equal(canonicalAnswer('ผักเชียงดา','vegetable'),'เชียงดา');
   assert.equal(wordInitialForCategory('ผ้าขาวบาง','object'),'ผ');
+});
+
+test('AI-2 batch Z excludes reviewed semantic aliases already represented in main', () => {
+  // Same sticky-rice steamer; the longer descriptive name must not count twice.
+  assert.ok(WORD_BANK.object.includes('หวดนึ่งข้าว'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_Z.object.includes('หวดนึ่งข้าวเหนียว'));
+  // Ambiguous naming of the sticky-rice container: avoid a second answer
+  // until an independent semantic distinction is established.
+  assert.ok(WORD_BANK.object.includes('กระติกข้าวเหนียว'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_Z.object.includes('กระติบข้าวเหนียว'));
 });
