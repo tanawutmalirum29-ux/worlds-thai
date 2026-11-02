@@ -23,6 +23,7 @@ import { AI2_FOOD_HOME_BATCH_U } from './ai2-food-home-batch-u-20261102.ts';
 import { AI2_FOOD_HOME_BATCH_V } from './ai2-food-home-batch-v-20261102.ts';
 import { AI2_FOOD_HOME_BATCH_W } from './ai2-food-home-batch-w-20261102.ts';
 import { AI2_FOOD_HOME_BATCH_X } from './ai2-food-home-batch-x-20261102.ts';
+import { AI2_FOOD_HOME_BATCH_Y } from './ai2-food-home-batch-y-20261103.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
@@ -2446,5 +2447,12 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_W)) {
 for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_X)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-2 batch X category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// AI-2 batch Y: reviewed food/home entries only; preserve game rules.
+for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_Y)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown AI-2 batch Y category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
