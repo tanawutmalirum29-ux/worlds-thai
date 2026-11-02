@@ -569,6 +569,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'ลานกางเต็นท์',
     'โรงงานผลิตเครื่องสำอาง',
-    'ศูนย์ควบคุมการจราจรทางอากาศ'
+    'สถานีวิทยุชุมชน'
   ]
 } as const;
