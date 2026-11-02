@@ -229,8 +229,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'รถบรรทุกก๊าซ',
     // AI-4 batch 25: distinct industrial and agricultural vehicles.
-    'รถบรรทุกไม้ซุง',
-    'รถเก็บเกี่ยวอ้อย',
+    'รถพ่วงบรรทุกอ้อย',
+    'รถขนส่งคอนกรีตสำเร็จรูป',
     'รถตีเส้นจราจร'
   ],
   device: [
