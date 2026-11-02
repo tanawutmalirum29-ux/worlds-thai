@@ -78,6 +78,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นักฟิสิกส์การแพทย์',
     'ช่างเชื่อมใต้น้ำ',
     'นักอาชญาวิทยา',
+    'ช่างทำเครื่องเงิน',
+    'นักธรณีเคมี',
   ],
   verb: [
     'เคลือบเงา',
@@ -154,6 +156,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ย้อมคราม',
     'หั่นเต๋า',
     'ปั่นด้าย',
+    'กรอด้าย',
+    'ร่อนทราย',
   ],
   sport: [
     'สปีดสเกต',
@@ -230,6 +234,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'พาราว่ายน้ำ',
     'พาราพาวเวอร์ลิฟติ้ง',
     'โบว์ลิ่งเก้าพิน',
+    'เทคบอล',
+    'ฟลอร์บอล',
   ],
   music: [
     'ไวบราโฟน',
@@ -303,6 +309,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กู่ฉิน',
     'เทอร์มิน',
     'อัลเพนฮอร์น',
+    'ชาคุฮาจิ',
+    'ตับลา',
   ],
   toy: [
     'หุ่นนิ้ว',
@@ -354,6 +362,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมการ์กาซอน',
     'เกมแพนเดมิก',
     'เกมสเปลนเดอร์',
+    'เกมคิงโดมิโน',
+    'เกมทิคเก็ตทูไรด์',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
@@ -429,6 +439,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ชุดทดลองลูกตุ้ม',
     'ปิเปตปาสเตอร์',
     'โกร่งบดสาร',
+    'บิวเรต',
+    'ตะเกียงแอลกอฮอล์',
   ],
   body: [
     'กล่องเสียง',
@@ -505,5 +517,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'หลอดเลือดแดงแขน',
     'หลอดเลือดดำซาฟีนัส',
     'กระดูกทาลัส',
+    'กล้ามเนื้อซาร์โทเรียส',
+    'หลอดเลือดดำใต้ไหปลาร้า',
   ],
 };
