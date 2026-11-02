@@ -1614,13 +1614,13 @@ const BATCH45_TERMS: Readonly<Record<string, readonly string[]>> = {
   insect: ['ด้วงหนวดยาวก่อ', 'ผีเสื้อเณรจิ๋ว'],
   plant: ['หญ้าโจน', 'สังกรณีดง'],
   tree: ['ก่อสร้อย', 'ส้านหิ่ง'],
-  flower: ['ดอกหรีดกอ', 'ชำมะนาด'],
+  flower: ['ดอกหรีดกอ'],
   nature: ['เมฆทาง', 'เมฆแท่ง'],
 };
 
-test('batch 45 registers 16 unique playable names without prefix or literal collisions', () => {
+test('batch 45 retains 15 unique playable names after semantic alias cleanup', () => {
   assert.deepEqual(Object.keys(BATCH45_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(BATCH45_TERMS).flat().length, 16);
+  assert.equal(Object.values(BATCH45_TERMS).flat().length, 15);
   const prefixes: Readonly<Record<string, string>> = {
     bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
   };
