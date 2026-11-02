@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 827 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 824 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 827);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 824);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -42,6 +42,14 @@ test('AI-1 adds 827 real nature names only within its eight assigned categories'
       if (eligibleCategories(initial).includes(category))
         assert.equal(validAnswer(word, initial, category), true, `${word} should be accepted where playable`);
     }
+  }
+});
+
+// Conservative semantic QA: these three descriptions could not be matched to
+// an authoritative Thai cloud name. Do not count them as reviewed vocabulary.
+test('AI-1 excludes unverified cloud descriptions pending a reliable Thai reference', () => {
+  for (const word of ['เมฆสุกใส', 'เมฆทาง', 'เมฆแท่ง']) {
+    assert.ok(!AI1_NATURE_TERMS.nature.includes(word), word + ' must remain excluded');
   }
 });
 
@@ -108,7 +116,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 672, 'AI-1 must contain 672 source entries after the 155-term baseline');
+  assert.equal(additions.length, 669, 'AI-1 must contain 669 source entries after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -230,10 +238,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 541 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 538 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 541);
+  assert.equal(additions.length, 538);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -818,7 +826,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 541);
+  assert.equal(proposed.length, 538);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
@@ -1483,12 +1491,12 @@ const BATCH42_TERMS: Readonly<Record<string, readonly string[]>> = {
   plant: ['หญ้าพองลม', 'สาหร่ายข้าวเหนียวใบเล็ก'],
   tree: ['ก่วมขาว', 'ยางโอน'],
   flower: ['บานไม่รู้โรยป่า', 'เทียนดอย'],
-  nature: ['เมฆสุกใส', 'เมฆอาร์คัส'],
+  nature: ['เมฆอาร์คัส'],
 };
 
-test('batch 42 adds 16 canonical-distinct playable names without cross-bank collisions', () => {
+test('batch 42 retains 15 canonical-distinct playable names without cross-bank collisions', () => {
   assert.deepEqual(Object.keys(BATCH42_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(BATCH42_TERMS).flat().length, 16);
+  assert.equal(Object.values(BATCH42_TERMS).flat().length, 15);
   const prefixes: Readonly<Record<string,string>> = {
     bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
   };
@@ -1605,8 +1613,8 @@ test('batch 44 adds 16 distinct playable names in only the eight AI-1 nature cat
   }
 });
 
-// Batch 45: independently named Thai species from ONEP TH-BIF and cloud forms
-// from the Thai Meteorological Department. No game-logic changes.
+// Batch 45: retained independently reviewed Thai species from ONEP TH-BIF.
+// Three unverified cloud descriptions were removed from the proposed vocabulary.
 const BATCH45_TERMS: Readonly<Record<string, readonly string[]>> = {
   animal: ['กระรอกดินแก้มแดง', 'หนูหริ่งไม้หางพู่'],
   bird: ['นกไต่ไม้ท้องสีเม็ดมะขาม', 'นกจาบปีกอ่อนอกเหลือง'],
@@ -1615,12 +1623,12 @@ const BATCH45_TERMS: Readonly<Record<string, readonly string[]>> = {
   plant: ['หญ้าโจน', 'สังกรณีดง'],
   tree: ['ก่อสร้อย', 'ส้านหิ่ง'],
   flower: ['ดอกหรีดกอ'],
-  nature: ['เมฆทาง', 'เมฆแท่ง'],
+  nature: [],
 };
 
-test('batch 45 retains 15 unique playable names after semantic alias cleanup', () => {
+test('batch 45 retains 13 unique playable names after semantic QA cleanup', () => {
   assert.deepEqual(Object.keys(BATCH45_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(BATCH45_TERMS).flat().length, 15);
+  assert.equal(Object.values(BATCH45_TERMS).flat().length, 13);
   const prefixes: Readonly<Record<string, string>> = {
     bird: 'นก', fish: 'ปลา', insect: 'แมลง', tree: 'ต้น', flower: 'ดอก',
   };
