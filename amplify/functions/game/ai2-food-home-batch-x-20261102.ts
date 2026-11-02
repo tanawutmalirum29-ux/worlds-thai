@@ -12,12 +12,10 @@ export const AI2_FOOD_HOME_BATCH_X: Readonly<Record<'food' | 'dessert' | 'drink'
   "dessert": [
     "คุกกี้สิงคโปร์",
     "เค้กมะตูม",
-    "พุดดิ้งข้าว",
-    "พายมะพร้าวอ่อน"
+    "พุดดิ้งข้าว"
   ],
   "drink": [
-    "น้ำตะลิงปลิง",
-    "ชาหญ้าหวาน"
+    "น้ำตะลิงปลิง"
   ],
   "fruit": [],
   "vegetable": [],

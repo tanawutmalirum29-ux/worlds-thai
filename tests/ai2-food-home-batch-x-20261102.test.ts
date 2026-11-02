@@ -15,12 +15,10 @@ const EXPECTED = {
   "dessert": [
     "คุกกี้สิงคโปร์",
     "เค้กมะตูม",
-    "พุดดิ้งข้าว",
-    "พายมะพร้าวอ่อน"
+    "พุดดิ้งข้าว"
   ],
   "drink": [
-    "น้ำตะลิงปลิง",
-    "ชาหญ้าหวาน"
+    "น้ำตะลิงปลิง"
   ],
   "fruit": [],
   "vegetable": [],
@@ -38,10 +36,10 @@ const EXPECTED = {
   ]
 } as const;
 
-test('AI-2 batch X adds 17 canonical-unique words only in seven owned categories', () => {
+test('AI-2 batch X adds 15 canonical-unique words only in seven owned categories', () => {
   assert.deepEqual(AI2_FOOD_HOME_BATCH_X, EXPECTED);
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_X).sort(), ['dessert','drink','food','fruit','furniture','object','vegetable']);
-  assert.equal(Object.values(EXPECTED).flat().length, 17);
+  assert.equal(Object.values(EXPECTED).flat().length, 15);
   for (const [category,words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size,words.length,'literal duplicate: '+category);
     assert.equal(new Set(words.map(w=>canonicalAnswer(w,category))).size,words.length,'canonical duplicate: '+category);
@@ -76,4 +74,12 @@ test('AI-2 batch X respects dessert prefix without changing canonicalization', (
   assert.equal(wordInitialForCategory('ขนมคุกกี้สิงคโปร์','dessert'),'ค');
   assert.equal(canonicalAnswer('ขนมคุกกี้สิงคโปร์','dessert'),'คุกกี้สิงคโปร์');
   assert.equal(validAnswer('ขนมคุกกี้สิงคโปร์','ค','dessert'),true);
+});
+
+// QA-5 semantic uniqueness: these existing names already cover the same preparations.
+test('AI-2 batch X excludes established semantic aliases of coconut pie and stevia infusion', () => {
+  assert.ok(WORD_BANK.dessert.includes('พายมะพร้าว'));
+  assert.ok(WORD_BANK.drink.includes('น้ำหญ้าหวาน'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_X.dessert.includes('พายมะพร้าวอ่อน'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_X.drink.includes('ชาหญ้าหวาน'));
 });
