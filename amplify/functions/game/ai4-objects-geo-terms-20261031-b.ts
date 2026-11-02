@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–24).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–25).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -119,6 +119,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'รองเท้าแมรี่เจน',
     'รองเท้าโลฟเฟอร์',
+    // AI-4 batch 25: distinct established apparel and uniforms.
+    'หมวกบีนนี่',
+    'ชุดกะลาสี',
+    'ชุดมวยปล้ำ',
+    'รองเท้าอ็อกซ์ฟอร์ด',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -222,7 +227,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถดูดสิ่งปฏิกูล',
     'เรือบรรทุกก๊าซธรรมชาติเหลว',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
-    'รถบรรทุกก๊าซ'
+    'รถบรรทุกก๊าซ',
+    // AI-4 batch 25: distinct industrial and agricultural vehicles.
+    'รถบรรทุกไม้ซุง',
+    'รถเก็บเกี่ยวอ้อย',
+    'รถตีเส้นจราจร'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -338,7 +347,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องทำขนมปัง',
     'เครื่องทำเส้นพาสต้าไฟฟ้า',
     'เครื่องนับจำนวนคน',
-    'เครื่องฉายดาว'
+    'เครื่องฉายดาว',
+    // AI-4 batch 25: independently functioning electrical measuring and warming devices.
+    'เครื่องวัดออกซิเจนละลายน้ำ',
+    'เครื่องวัดแรงสั่นสะเทือน',
+    'เครื่องอุ่นผ้าขนหนู',
+    'เครื่องวัดความต้านทานฉนวน'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -451,7 +465,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'มีดตัดอะคริลิก',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'คีมย้ำสายโคแอกเชียล',
-    'ไขควงกระแทก'
+    'ไขควงกระแทก',
+    // AI-4 batch 25: specialized automotive and electronics hand tools.
+    'บล็อกถอดไส้กรองน้ำมันเครื่อง',
+    'ไขควงหัวสามแฉก',
+    'คีมถอดสายยาง'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -565,6 +583,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'โรงงานผลิตแก้ว',
     'โรงงานผลิตเครื่องสำอาง',
-    'สถานีวิทยุชุมชน'
+    'สถานีวิทยุชุมชน',
+    // AI-4 batch 25: real facilities distinct from existing generic locations.
+    'โรงคัดแยกผลไม้',
+    'โรงงานผลิตแผงโซลาร์เซลล์',
+    'ศูนย์วิจัยข้าว',
+    'สถานีตรวจวัดคุณภาพอากาศ'
   ]
 } as const;
