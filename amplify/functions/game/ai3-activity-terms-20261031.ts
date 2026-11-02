@@ -84,7 +84,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นักออกแบบท่าเต้น',
     'นักอนุกรมวิธาน',
     'วิศวกรธรณีเทคนิค',
-    'ผู้ฝึกสอนสุนัข',
+    'นักชีวสถิติ',
     'ช่างสัก',
   ],
   verb: [
