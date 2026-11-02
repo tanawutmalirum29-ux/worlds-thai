@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct–2 Nov 2026, batches 2–30).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct–3 Nov 2026, batches 2–31).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -139,6 +139,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 30: distinct everyday objects and established facilities.
     'เสื้อกั๊กสูท',
     'กางเกงจ็อกเกอร์',
+    // AI-4 batch 31: established formalwear, footwear and hat styles.
+    'ชุดทักซิโด้',
+    'รองเท้าส้นเตารีด',
+    'หมวกโบว์เลอร์',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -254,6 +258,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถสามล้อไฟฟ้า',
     'เรือยางท้องแข็ง',
     'รถไฟสองชั้น',
+    // AI-4 batch 31: distinct mobile catering and passenger/sailing vessels.
+    'รถฟู้ดทรัค',
+    'เรือโดยสารสองชั้น',
+    'เรือใบเลเซอร์',
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -398,6 +406,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดความเร็วกระแสน้ำ',
     'เครื่องวัดความเข้มสนามไฟฟ้า',
     'เครื่องตรวจจับเปลวไฟ',
+    // AI-4 batch 31: separate film, translation and carbonation devices.
+    'เครื่องสแกนฟิล์ม',
+    'เครื่องแปลภาษาอิเล็กทรอนิกส์',
+    'เครื่องทำโซดา',
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -532,6 +544,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ประแจหกเหลี่ยมหัวบอล',
     'คีมปากแบน',
     'เกจวัดความกลม',
+    // AI-4 batch 31: specialized chain-sharpening and electrical/welding tools.
+    'ตะไบลับโซ่',
+    'คีมถอดฟิวส์',
+    'คีมจับลวดเชื่อม',
   ],
   place: [
     'โรงไฟฟ้า',
@@ -675,5 +691,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 30: distinct everyday objects and established facilities.
     'สถานีวิจัยทะเล',
     'โรงเรียนสอนภาษา',
+    // AI-4 batch 31: verified real-world international landmarks.
+    'หอไอเฟล',
+    'ทัชมาฮาล',
+    'พิพิธภัณฑ์ลูฟวร์',
+    'พระราชวังแวร์ซาย',
   ]
 } as const;
