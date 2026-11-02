@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct–2 Nov 2026, batches 2–29).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct–2 Nov 2026, batches 2–30).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -136,6 +136,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 29: protective workwear with separate established functions.
     'เสื้อเกราะกันแทง',
     'รองเท้ากันไฟฟ้าสถิต',
+    // AI-4 batch 30: distinct everyday objects and established facilities.
+    'เสื้อกั๊กสูท',
+    'กางเกงเลกกิ้ง',
+    'กางเกงจ็อกเกอร์',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -247,6 +251,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือโดยสารไฟฟ้า',
     // AI-4 batch 29: small single-hull sailing dinghy.
     'เรือใบดิงกี้',
+    // AI-4 batch 30: distinct everyday objects and established facilities.
+    'รถสามล้อไฟฟ้า',
+    'เรือยางท้องแข็ง',
+    'รถไฟสองชั้น',
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -387,6 +395,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 29: distinct flow and magnetic-card instruments.
     'เครื่องวัดอัตราการไหล',
     'เครื่องอ่านบัตรแม่เหล็ก',
+    // AI-4 batch 30: distinct everyday objects and established facilities.
+    'เครื่องวัดความเร็วกระแสน้ำ',
+    'เครื่องวัดความเข้มสนามไฟฟ้า',
+    'เครื่องตรวจจับเปลวไฟ',
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -517,6 +529,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 29: dedicated measurement and hole-finishing tools.
     'เกจวัดความสูง',
     'คีมย้ำรีเวทนัท',
+    // AI-4 batch 30: distinct everyday objects and established facilities.
+    'ประแจหกเหลี่ยมหัวบอล',
+    'คีมปากแบน',
+    'เกจวัดความกลม',
   ],
   place: [
     'โรงไฟฟ้า',
@@ -657,5 +673,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานผลิตเซรามิก',
     'โรงงานผลิตเส้นใยสังเคราะห์',
     'โรงงานผลิตถุงมือยาง',
+    // AI-4 batch 30: distinct everyday objects and established facilities.
+    'สถานีวิจัยทะเล',
+    'โรงเรียนสอนภาษา',
+    'ลานกีฬาอเนกประสงค์',
   ]
 } as const;
