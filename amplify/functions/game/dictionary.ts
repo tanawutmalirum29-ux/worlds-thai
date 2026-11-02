@@ -2426,7 +2426,7 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_U)) {
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
-// AI-2 batch V: reviewed food/home vocabulary in seven owned categories only.
+// AI-2 batch V: reviewed vocabulary data in seven owned categories only.
 for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_V)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-2 batch V category: ' + category);

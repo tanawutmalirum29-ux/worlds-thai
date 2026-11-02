@@ -5,10 +5,10 @@
  */
 export const AI2_FOOD_HOME_BATCH_V: Readonly<Record<'food' | 'dessert' | 'drink' | 'fruit' | 'vegetable' | 'object' | 'furniture', readonly string[]>> = {
   food: ['ซุปมิโซะ', 'ขนมจีนน้ำยาป่า', 'แกงป่าไก่', 'ข้าวซอยเนื้อ'],
-  dessert: ['บัคลาวา', 'พาฟโลวา', 'บานอฟฟี่'],
+  dessert: [],
   drink: ['ชาโรสฮิป'],
   fruit: ['สตรอว์เบอร์รีขาว'],
   vegetable: ['เห็ดขอนขาว', 'เห็ดแครง'],
-  object: ['ถุงกรองชา', 'แหนบถอนขน', 'ผ้ารองรีด', 'ถุงมือกันร้อน'],
+  object: ['ถุงกรองชา', 'แหนบถอนขน', 'ผ้ารองรีด'],
   furniture: ['ชั้นวางทีวีติดผนัง', 'ตู้เก็บไวน์', 'เตียงพับติดผนัง']
 } as const;

@@ -8,18 +8,18 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 
 const EXPECTED = {
   food: ['ซุปมิโซะ', 'ขนมจีนน้ำยาป่า', 'แกงป่าไก่', 'ข้าวซอยเนื้อ'],
-  dessert: ['บัคลาวา', 'พาฟโลวา', 'บานอฟฟี่'],
+  dessert: [],
   drink: ['ชาโรสฮิป'],
   fruit: ['สตรอว์เบอร์รีขาว'],
   vegetable: ['เห็ดขอนขาว', 'เห็ดแครง'],
-  object: ['ถุงกรองชา', 'แหนบถอนขน', 'ผ้ารองรีด', 'ถุงมือกันร้อน'],
+  object: ['ถุงกรองชา', 'แหนบถอนขน', 'ผ้ารองรีด'],
   furniture: ['ชั้นวางทีวีติดผนัง', 'ตู้เก็บไวน์', 'เตียงพับติดผนัง']
 } as const;
 
-test('AI-2 batch V registers exactly 18 canonical-unique playable words in seven owned categories', () => {
+test('AI-2 batch V registers exactly 14 canonical-unique playable words in seven owned categories', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_V).sort(),Object.keys(EXPECTED).sort());
   assert.deepEqual(AI2_FOOD_HOME_BATCH_V,EXPECTED);
-  assert.equal(Object.values(EXPECTED).flat().length,18);
+  assert.equal(Object.values(EXPECTED).flat().length,14);
   for (const [category,words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size,words.length,'literal duplicate: '+category);
     assert.equal(new Set(words.map(word=>canonicalAnswer(word,category))).size,words.length,'canonical batch duplicate: '+category);
@@ -52,10 +52,18 @@ test('AI-2 batch V has one source literal per answer across dictionary modules',
 });
 
 test('AI-2 batch V respects existing dessert and vegetable prefixes', () => {
-  assert.equal(wordInitialForCategory('ขนมบัคลาวา','dessert'),'บ');
-  assert.equal(canonicalAnswer('ขนมบัคลาวา','dessert'),'บัคลาวา');
-  assert.equal(validAnswer('ขนมบัคลาวา','บ','dessert'),true);
   assert.equal(wordInitialForCategory('ผักเห็ดแครง','vegetable'),'ห');
   assert.equal(canonicalAnswer('ผักเห็ดแครง','vegetable'),'เห็ดแครง');
   assert.equal(validAnswer('ผักเห็ดแครง','ห','vegetable'),true);
+});
+
+// These variants denote entries already in main, including an object/clothing synonym.
+test('AI-2 batch V excludes semantic aliases rejected by independent QA', () => {
+  const excluded = ['บัคลาวา', 'พาฟโลวา', 'บานอฟฟี่', 'ถุงมือกันร้อน'];
+  const proposed = Object.values(AI2_FOOD_HOME_BATCH_V).flat();
+  for (const word of excluded) assert.ok(!proposed.includes(word), 'semantic alias reintroduced: '+word);
+  assert.ok(WORD_BANK.dessert.includes('บาคลาวา'));
+  assert.ok(WORD_BANK.dessert.includes('ปัฟโลวา'));
+  assert.ok(WORD_BANK.dessert.includes('บานอฟฟี'));
+  assert.ok(WORD_BANK.clothing.includes('ถุงมือกันความร้อน'));
 });
