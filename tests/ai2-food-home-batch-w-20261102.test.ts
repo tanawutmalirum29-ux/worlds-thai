@@ -10,16 +10,16 @@ const EXPECTED = {
   food: ['ข้าวผัดปลาสลิด', 'แกงอ่อมเห็ด'],
   dessert: ['แคนโนลี', 'เซมิเฟรดโด'],
   drink: ['ชาลาเวนเดอร์'],
-  fruit: ['ส้มสีเลือด', 'อะเซโรลาเชอร์รี'],
+  fruit: ['ส้มสีเลือด'],
   vegetable: ['ดอกแคนา', 'เห็ดหัวลิง'],
   object: ['ที่หนีบถุงขนม', 'ไม้แขวนกางเกง', 'ที่ตีฟองนม', 'ที่กรองน้ำมัน'],
   furniture: ['โต๊ะกลมพับได้', 'ชั้นวางของเข้ามุม', 'เตียงมีลิ้นชัก']
 } as const;
 
-test('AI-2 batch W adds exactly 16 canonical-distinct, playable terms in owned categories', () => {
+test('AI-2 batch W adds exactly 15 canonical-distinct, playable terms in owned categories', () => {
   assert.deepEqual(AI2_FOOD_HOME_BATCH_W, EXPECTED);
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_W).sort(), ['dessert','drink','food','fruit','furniture','object','vegetable']);
-  assert.equal(Object.values(EXPECTED).flat().length, 16);
+  assert.equal(Object.values(EXPECTED).flat().length, 15);
   for (const [category, words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size, words.length, 'duplicate literal: '+category);
     assert.equal(new Set(words.map(w => canonicalAnswer(w,category))).size, words.length, 'canonical duplicate: '+category);
@@ -63,6 +63,8 @@ test('AI-2 batch W preserves prefix and known semantic identities', () => {
   assert.ok(!AI2_FOOD_HOME_BATCH_W.food.includes('หมูต้มชะมวง'));
   assert.ok(WORD_BANK.vegetable.includes('ยอดฟักแม้ว'));
   assert.ok(!AI2_FOOD_HOME_BATCH_W.vegetable.includes('ยอดมะระหวาน'));
+  assert.ok(WORD_BANK.fruit.includes('อะเซโรลา'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_W.fruit.includes('อะเซโรลาเชอร์รี'), 'acerola cherry is an existing acerola synonym');
   assert.ok(WORD_BANK.drink.includes('น้ำลูกเดือย'));
   assert.ok(!AI2_FOOD_HOME_BATCH_W.drink.includes('นมลูกเดือย'));
 });

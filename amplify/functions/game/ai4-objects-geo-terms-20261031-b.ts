@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–25).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–26).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -124,6 +124,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดกะลาสี',
     'ชุดมวยปล้ำ',
     'รองเท้าอ็อกซ์ฟอร์ด',
+    // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
+    'เสื้อชั้นในกีฬา',
+    'ชุดไตรกีฬา',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -351,7 +354,14 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดออกซิเจนละลายน้ำ',
     'เครื่องวัดแรงสั่นสะเทือน',
     'เครื่องอุ่นผ้าขนหนู',
-    'เครื่องวัดความต้านทานฉนวน'
+    'เครื่องวัดความต้านทานฉนวน',
+    // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
+    'เครื่องวัดความชื้นอากาศ',
+    'เครื่องปั่นไฟ',
+    'เครื่องวัดความเร็วรอบ',
+    'เครื่องวัดความถี่ไฟฟ้า',
+    'เครื่องวัดการนำไฟฟ้า',
+    'เครื่องวัดความหนาสี',
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -468,7 +478,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 25: specialized automotive and electronics hand tools.
     'บล็อกถอดไส้กรองน้ำมันเครื่อง',
     'ไขควงหัวสามแฉก',
-    'คีมถอดแคลมป์รัดท่อ'
+    'คีมถอดแคลมป์รัดท่อ',
+    // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
+    'เหล็กตอกตัวเลข',
   ],
   place: [
     'โรงไฟฟ้า',
@@ -587,6 +599,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงคัดแยกผลไม้',
     'โรงงานผลิตแผงโซลาร์เซลล์',
     'โรงงานผลิตสายไฟฟ้า',
-    'สถานีตรวจวัดคุณภาพอากาศ'
+    'สถานีตรวจวัดคุณภาพอากาศ',
+    // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
+    'สนามแข่งโกคาร์ต',
+    'โรงงานแปรรูปยางพารา',
+    'โรงงานผลิตชิ้นส่วนรถยนต์',
+    'สนามฝึกดับเพลิง',
   ]
 } as const;
