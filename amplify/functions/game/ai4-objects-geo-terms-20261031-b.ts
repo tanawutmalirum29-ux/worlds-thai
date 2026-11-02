@@ -367,7 +367,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดความหนาสี',
     // AI-4 batch 27: screened distinct garments, equipment, workshop tools and places.
     'เครื่องนับก้าว',
-    'เครื่องตรวจจับก๊าซรั่ว',
     'เครื่องฉายภาพข้ามศีรษะ',
     'เครื่องวัดความชื้นในไม้',
   ],
