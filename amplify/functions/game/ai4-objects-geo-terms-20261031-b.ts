@@ -118,7 +118,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดฮากามะ',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'เสื้อคาร์ดิแกน',
-    'หมวกเบเรต์',
+    'รองเท้าแมรี่เจน',
     'รองเท้าโลฟเฟอร์',
     'ชุดทักซิโด้'
   ],
@@ -567,7 +567,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงบ่มไวน์',
     'โรงซ่อมเครื่องบิน',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
-    'ลานกางเต็นท์',
+    'โรงงานผลิตแก้ว',
     'โรงงานผลิตเครื่องสำอาง',
     'สถานีวิทยุชุมชน'
   ]
