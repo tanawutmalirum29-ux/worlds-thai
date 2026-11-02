@@ -11,17 +11,17 @@ const EXPECTED = {
   dessert: ['ขนมพริกไทย', 'ขนมนวลแห้ว'],
   drink: ['ชานมฮ่องกง', 'น้ำทับทิมโซดา', 'ชาข้าวโพด'],
   fruit: ['มะมุด'],
-  vegetable: ['หน่อกะลา', 'ผักเซียงดา'],
+  vegetable: ['หน่อกะลา'],
   object: ['อุปกรณ์ตัดเปลือกไข่', 'ขวดโหลสุญญากาศ', 'แผ่นซิลิโคนรองอบ', 'ตะแกรงพักขนม', 'พิมพ์กดคุกกี้'],
   furniture: ['ชั้นวางไวน์', 'โต๊ะพับติดผนัง']
 } as const;
 
 const OWNED = ['dessert', 'drink', 'food', 'fruit', 'furniture', 'object', 'vegetable'];
 
-test('AI-2 batch S registers 19 distinct, moderated, playable terms only in owned categories', () => {
+test('AI-2 batch S registers 18 distinct, moderated, playable terms only in owned categories', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_S).sort(), OWNED);
   assert.deepEqual(AI2_FOOD_HOME_BATCH_S, EXPECTED);
-  assert.equal(Object.values(EXPECTED).flat().length, 19);
+  assert.equal(Object.values(EXPECTED).flat().length, 18);
   for (const [category, words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size, words.length, 'literal duplicate: '+category);
     assert.equal(new Set(words.map(word=>canonicalAnswer(word,category))).size, words.length,
@@ -72,6 +72,9 @@ test('AI-2 batch S rejects previously registered semantic equivalents', () => {
   // ขนมคันหลาว is a regional alias for the already registered ขนมไข่ปลา.
   assert.ok(WORD_BANK.dessert.includes('ขนมไข่ปลา'));
   assert.equal(AI2_FOOD_HOME_BATCH_S.dessert.includes('ขนมคันหลาว'),false);
+  // ผักเซียงดา is a regional alias of the registered ผักเชียงดา (same Gymnema inodorum).
+  assert.ok(WORD_BANK.vegetable.includes('ผักเชียงดา'));
+  assert.equal(AI2_FOOD_HOME_BATCH_S.vegetable.includes('ผักเซียงดา'),false);
   // ผ้ากรองชา is only a usage-qualified form of the existing ผ้ากรอง.
   assert.ok(WORD_BANK.object.includes('ผ้ากรอง'));
   assert.equal(AI2_FOOD_HOME_BATCH_S.object.includes('ผ้ากรองชา'),false);
@@ -89,6 +92,6 @@ test('AI-2 batch S preserves dessert and vegetable prefix semantics', () => {
   assert.equal(wordInitialForCategory('ขนม','dessert'),'');
   assert.equal(wordInitialForCategory('หน่อกะลา','vegetable'),'ห');
   assert.equal(wordInitialForCategory('ผักหน่อกะลา','vegetable'),'ห');
-  assert.equal(wordInitialForCategory('ผักเซียงดา','vegetable'),'ซ');
+  assert.equal(wordInitialForCategory('ผักเชียงดา','vegetable'),'ช');
   assert.equal(canonicalAnswer('ผักหน่อกะลา','vegetable'),'หน่อกะลา');
 });
