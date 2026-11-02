@@ -12,7 +12,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'ช', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'ช', 'ผ', 'ช', 'ช', 'น', 'น', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'น'],
   verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล', 'ผ', 'ต', 'บ', 'ก', 'ด', 'ห', 'ข', 'ท', 'ค', 'ห', 'ฟ', 'ว', 'ส', 'ส', 'ข', 'ล', 'ว', 'ห', 'ซ', 'ค', 'ย', 'ย', 'ถ', 'ค', 'ล', 'ห', 'ผ', 'ล', 'พ', 'ช', 'ส', 'ล', 'ย', 'ห', 'ป', 'ก', 'ร', 'ห', 'ส'],
-  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ร', 'ต', 'ว', 'พ', 'จ', 'ย', 'ก', 'ร', 'ส', 'ส', 'ส', 'ย', 'ย', 'ส', 'ส', 'ซ', 'ว', 'พ', 'พ', 'บ', 'ส', 'ว', 'ค', 'ร'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ร', 'ต', 'ว', 'พ', 'จ', 'ย', 'ก', 'ร', 'ส', 'ส', 'ส', 'ย', 'ย', 'ส', 'ส', 'ซ', 'ว', 'พ', 'พ', 'บ', 'ส', 'ว', 'บ', 'ฮ'],
   music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก', 'อ', 'ก', 'ว', 'พ', 'ค', 'บ', 'พ', 'ซ', 'ม', 'ก', 'ก', 'ฉ', 'ก', 'ท', 'อ', 'ป', 'ห', 'ต', 'ค', 'อ', 'ก', 'ก', 'ก', 'อ', 'ก', 'ค', 'ซ', 'ซ', 'ด', 'ร', 'ช', 'บ', 'ก', 'ท', 'อ', 'ช', 'ต', 'อ', 'ซ'],
   toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก', 'ก', 'ห', 'ช', 'ก', 'ช', 'ก', 'ต', 'ต', 'ล', 'ก', 'ว', 'ห', 'ก', 'ห', 'ร', 'ก', 'ก', 'ห', 'ก', 'ก', 'ก', 'ก', 'ก', 'ก', 'ก', 'ก', 'ก', 'ก'],
   school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ', 'จ', 'ท', 'ท', 'ก', 'ผ', 'ก', 'ต', 'ผ', 'ข', 'บ', 'ข', 'ก', 'ก', 'ข', 'ห', 'พ', 'ก', 'ส', 'ม', 'ป', 'ข', 'ค', 'ท', 'ก', 'ป', 'ห', 'ก', 'ก', 'ค', 'ท', 'ช', 'ค', 'ช', 'ป', 'ก', 'บ', 'ต', 'ล', 'ห'],
@@ -1009,7 +1009,7 @@ test('AI-3 batch 26 excludes BMX racing synonym and uses distinct ski cross', ()
 const BATCH_TWENTY_SEVEN: Readonly<Record<string, readonly string[]>> = {
   job: ['นักภูมิสารสนเทศ', 'นักออกแบบท่าเต้น'],
   verb: ['หลอมโลหะ', 'สอบเทียบ'],
-  sport: ['แคนูสปรินต์', 'โรลเลอร์ดาร์บี้'],
+  sport: ['บอสซาบอล', 'ฮอร์สบอล'],
   music: ['ออโตฮาร์ป', 'ซานเซียน'],
   toy: ['เกมวิงสแปน', 'เกมอาร์คโนวา'],
   school: ['ลวดนิโครม', 'หลอดแคปิลลารี'],
@@ -1037,5 +1037,24 @@ test('AI-3 batch 27 adds 14 moderated, canonical-unique and playable terms', () 
       assert.equal(validAnswer(word, initial, category), true, 'not playable: ' + word);
       assert.deepEqual(otherSources.filter(source => source.content.includes("'" + word + "'") || source.content.includes('"' + word + '"')).map(source => source.name), [], 'duplicate module: ' + word);
     }
+  }
+});
+
+// AI-5 independent semantic QA: different Thai spellings can name the same sport.
+// The canoe-sprint and roller-derby identities are already in the shared sport bank.
+test('AI-3 batch 27 excludes existing canoe sprint and roller derby identities', () => {
+  for (const [existing, rejected] of [
+    ['เรือแคนูสปรินต์', 'แคนูสปรินต์'],
+    ['โรลเลอร์ดาร์บี', 'โรลเลอร์ดาร์บี้'],
+  ] as const) {
+    assert.ok(WORD_BANK.sport.includes(existing), 'existing sport missing: ' + existing);
+    assert.ok(!AI3_ACTIVITY_TERMS.sport.includes(rejected), 'semantic duplicate in AI-3: ' + rejected);
+  }
+  for (const [replacement, initial] of [['บอสซาบอล', 'บ'], ['ฮอร์สบอล', 'ฮ']] as const) {
+    assert.ok(AI3_ACTIVITY_TERMS.sport.includes(replacement), 'replacement missing: ' + replacement);
+    assert.equal(wordInitialForCategory(replacement, 'sport'), initial);
+    assert.ok(eligibleCategories(initial).includes('sport'), 'sport unavailable: ' + replacement);
+    assert.equal(validAnswer(replacement, initial, 'sport'), true);
+    assert.equal(WORD_BANK.sport.filter(word => canonicalAnswer(word, 'sport') === canonicalAnswer(replacement, 'sport')).length, 1);
   }
 });
