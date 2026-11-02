@@ -45,9 +45,13 @@ test('AI-1 adds 823 real nature names only within its eight assigned categories'
   }
 });
 
-// Conservative semantic QA: these three descriptions could not be matched to
-// an authoritative Thai cloud name. Do not count them as reviewed vocabulary.
-test('AI-1 excludes unverified cloud descriptions pending a reliable Thai reference', () => {
+// AI-5 HOLD: keep all three cloud terms excluded until semantic QA explicitly
+// approves them. Evidence correction (2026-11-02): TMD's cloud glossary
+// https://tmd.go.th/info/เมฆ explicitly defines เมฆทาง (Cloud street)
+// and เมฆแท่ง (Cloud bar); they are NOT unverified or fabricated names.
+// เมฆสุกใส still lacks an identified authoritative source.
+// This regression is a HOLD assertion, not a claim that all three are invalid.
+test('AI-1 keeps cloud terms excluded during AI-5 HOLD pending review', () => {
   for (const word of ['เมฆสุกใส', 'เมฆทาง', 'เมฆแท่ง']) {
     assert.ok(!AI1_NATURE_TERMS.nature.includes(word), word + ' must remain excluded');
   }
