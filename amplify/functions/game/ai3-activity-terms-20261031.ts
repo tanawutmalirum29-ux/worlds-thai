@@ -343,7 +343,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมโค้ดเนมส์',
     'เกมอาซูล',
     'เกมฮานาบิ',
-    'เกมโดบเบิล',
+    'เกมการ์กาซอน',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',

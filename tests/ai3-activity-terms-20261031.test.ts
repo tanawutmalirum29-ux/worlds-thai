@@ -774,7 +774,7 @@ const BATCH_TWENTY_FOUR: Readonly<Record<string, readonly string[]>> = {
   ],
   toy: [
     'เกมฮานาบิ',
-    'เกมโดบเบิล'
+    'เกมการ์กาซอน'
   ],
   school: [
     'ชุดทดลองวงจรไฟฟ้า',
@@ -830,4 +830,17 @@ test('AI-3 batch 24 replaces Euphonium synonym with distinct guqin', () => {
   assert.equal(initial, 'ก');
   assert.ok(eligibleCategories(initial).includes('music'), 'guqin unavailable in music rounds');
   assert.equal(validAnswer('กู่ฉิน', initial, 'music'), true);
+});
+
+// AI-5 semantic QA: Dobble is already registered as ไพ่โดบเบิล, not a second game.
+test('AI-3 batch 24 avoids Dobble alias and uses the distinct Carcassonne board game', () => {
+  assert.ok(WORD_BANK.toy.includes('ไพ่โดบเบิล'), 'existing Dobble identity missing');
+  assert.ok(!AI3_ACTIVITY_TERMS.toy.includes('เกมโดบเบิล'), 'Dobble synonym reintroduced');
+  assert.ok(!WORD_BANK.toy.includes('เกมโดบเบิล'), 'duplicate Dobble registered');
+  assert.ok(AI3_ACTIVITY_TERMS.toy.includes('เกมการ์กาซอน'), 'Carcassonne replacement missing');
+  assert.notEqual(canonicalAnswer('เกมการ์กาซอน', 'toy'), canonicalAnswer('เกมคาตัน', 'toy'));
+  const initial = wordInitialForCategory('เกมการ์กาซอน', 'toy');
+  assert.equal(initial, 'ก');
+  assert.ok(eligibleCategories(initial).includes('toy'), 'Carcassonne unavailable in toy rounds');
+  assert.equal(validAnswer('เกมการ์กาซอน', initial, 'toy'), true);
 });
