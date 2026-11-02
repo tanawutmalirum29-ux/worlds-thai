@@ -587,7 +587,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 25: real facilities distinct from existing generic locations.
     'โรงคัดแยกผลไม้',
     'โรงงานผลิตแผงโซลาร์เซลล์',
-    'ศูนย์วิจัยข้าว',
+    'โรงงานผลิตสายไฟฟ้า',
     'สถานีตรวจวัดคุณภาพอากาศ'
   ]
 } as const;
