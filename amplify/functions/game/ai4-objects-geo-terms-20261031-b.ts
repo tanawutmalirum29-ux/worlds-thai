@@ -481,7 +481,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'คีมถอดแคลมป์รัดท่อ',
     // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
     'เหล็กตอกตัวเลข',
-    'ประแจถอดหัวเทียน',
   ],
   place: [
     'โรงไฟฟ้า',

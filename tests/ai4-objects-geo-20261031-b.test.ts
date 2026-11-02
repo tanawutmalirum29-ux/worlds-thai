@@ -983,13 +983,13 @@ const BATCH_26: Readonly<Record<keyof typeof AI4_OBJECTS_GEO_TERMS, readonly str
   clothing: ['เสื้อชั้นในกีฬา', 'ชุดไตรกีฬา'],
   vehicle: [],
   device: ['เครื่องวัดความชื้นอากาศ', 'เครื่องปั่นไฟ', 'เครื่องวัดความเร็วรอบ', 'เครื่องวัดความถี่ไฟฟ้า', 'เครื่องวัดการนำไฟฟ้า', 'เครื่องวัดความหนาสี'],
-  tool: ['เหล็กตอกตัวเลข', 'ประแจถอดหัวเทียน'],
+  tool: ['เหล็กตอกตัวเลข'],
   place: ['สนามแข่งโกคาร์ต', 'โรงงานแปรรูปยางพารา', 'โรงงานผลิตชิ้นส่วนรถยนต์', 'สนามฝึกดับเพลิง']
 };
 
-test('AI-4 batch 26 adds 14 canonically unique playable entries with no source collisions', () => {
+test('AI-4 batch 26 adds 13 canonically unique playable entries with no source collisions', () => {
   assert.deepEqual(Object.keys(BATCH_26), Object.keys(AI4_OBJECTS_GEO_TERMS));
-  assert.equal(Object.values(BATCH_26).flat().length, 14);
+  assert.equal(Object.values(BATCH_26).flat().length, 13);
   const existing = canonicalIdentitiesFromOtherSources();
   const offsets: Record<string, number> = { clothing: 93, vehicle: 83, device: 96, tool: 92, place: 94 };
   for (const category of Object.keys(BATCH_26) as Array<keyof typeof AI4_OBJECTS_GEO_TERMS>) {
@@ -1015,4 +1015,11 @@ test('AI-4 batch 26 adds 14 canonically unique playable entries with no source c
       assert.equal(validAnswer(word, initial, category), true, 'invalid live answer: ' + word);
     }
   }
+});
+
+
+test('AI-4 batch 26 rejects spark-plug wrench semantic alias', () => {
+  assert.ok(WORD_BANK.tool.includes('ประแจขันหัวเทียน'), 'existing spark-plug wrench missing');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('ประแจถอดหัวเทียน'), 'spark-plug wrench alias reintroduced');
+  assert.ok(!BATCH_26.tool.includes('ประแจถอดหัวเทียน'), 'semantic duplicate counted as new');
 });
