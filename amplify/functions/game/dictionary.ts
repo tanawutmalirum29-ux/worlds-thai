@@ -2450,7 +2450,6 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_X)) {
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
 
-
 // AI-2 batch Y: reviewed food/home entries only; preserve game rules.
 for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_Y)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
