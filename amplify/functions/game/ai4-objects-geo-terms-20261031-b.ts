@@ -140,7 +140,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เสื้อกั๊กสูท',
     'กางเกงจ็อกเกอร์',
     // AI-4 batch 31: established formalwear, footwear and hat styles.
-    'ชุดทักซิโด้',
+    'เสื้อบอมเบอร์',
     'รองเท้าส้นเตารีด',
     'หมวกโบว์เลอร์',
   ],
