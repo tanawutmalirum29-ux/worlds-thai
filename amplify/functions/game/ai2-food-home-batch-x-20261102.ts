@@ -5,7 +5,6 @@
  */
 export const AI2_FOOD_HOME_BATCH_X: Readonly<Record<'food' | 'dessert' | 'drink' | 'fruit' | 'vegetable' | 'object' | 'furniture', readonly string[]>> = {
   "food": [
-    "ต้มขมิ้นไก่",
     "แกงอ่อมไข่มดแดง",
     "ปลาทูต้มมะดัน"
   ],
@@ -20,7 +19,6 @@ export const AI2_FOOD_HOME_BATCH_X: Readonly<Record<'food' | 'dessert' | 'drink'
   "fruit": [],
   "vegetable": [],
   "object": [
-    "แปรงล้างหลอด",
     "ที่ตัดแป้ง",
     "ตะแกรงนึ่ง",
     "ที่วางช้อน",
@@ -28,7 +26,6 @@ export const AI2_FOOD_HOME_BATCH_X: Readonly<Record<'food' | 'dessert' | 'drink'
   ],
   "furniture": [
     "ตู้บานเฟี้ยม",
-    "โต๊ะทำงานเข้ามุม",
-    "ชั้นวางหนังสือแบบหมุน"
+    "โต๊ะทำงานเข้ามุม"
   ]
 } as const;
