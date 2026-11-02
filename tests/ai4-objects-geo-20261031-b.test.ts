@@ -28,7 +28,7 @@ test('AI-4 batches 2–27 register exactly 484 clean and canonically unique term
   assert.equal(new Set(all).size, 484, 'duplicate literal within AI-4 batches');
 
   for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
-    assert.equal(words.length, ({ clothing: 97, vehicle: 83, device: 106, tool: 97, place: 102 } as Record<string, number>)[category], 'unexpected count: ' + category);
+    assert.equal(words.length, ({ clothing: 97, vehicle: 83, device: 105, tool: 97, place: 102 } as Record<string, number>)[category], 'unexpected count: ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'duplicate canonical identity within AI-4 category: ' + category);
     for (const [index, word] of words.entries()) {
