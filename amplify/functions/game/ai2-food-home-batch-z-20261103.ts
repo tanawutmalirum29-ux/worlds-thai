@@ -1,6 +1,6 @@
 /**
  * AI-2 batch Z (2026-11-03): real regional Thai and familiar Asian dishes,
- * one traditional sweet and three distinct household/kitchen objects.
+ * one traditional sweet and one independently distinct household item.
  * Data only; no scoring, category or canonicalization rule changes.
  */
 export const AI2_FOOD_HOME_BATCH_Z: Readonly<Record<
@@ -28,9 +28,7 @@ export const AI2_FOOD_HOME_BATCH_Z: Readonly<Record<
   "fruit": [],
   "vegetable": [],
   "object": [
-    "ผ้าขาวบาง",
-    "หวดนึ่งข้าวเหนียว",
-    "กระติบข้าวเหนียว"
+    "ผ้าขาวบาง"
   ],
   "furniture": []
 } as const;
