@@ -117,10 +117,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เสื้อปอนโช',
     'ชุดฮากามะ',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
-    'เสื้อคาร์ดิแกน',
     'รองเท้าแมรี่เจน',
     'รองเท้าโลฟเฟอร์',
-    'ชุดทักซิโด้'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -224,7 +222,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถดูดสิ่งปฏิกูล',
     'เรือบรรทุกก๊าซธรรมชาติเหลว',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
-    'รถไฟดีเซลราง',
     'รถบรรทุกก๊าซ'
   ],
   device: [
@@ -454,7 +451,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'มีดตัดอะคริลิก',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'คีมย้ำสายโคแอกเชียล',
-    'ที่ลับดอกสว่าน',
     'ไขควงกระแทก'
   ],
   place: [
