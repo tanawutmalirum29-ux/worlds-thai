@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–27).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–28).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -130,6 +130,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 27: screened distinct garments, equipment, workshop tools and places.
     'ถุงมือกันไฟฟ้าสถิต',
     'เสื้อตะกั่ว',
+    // AI-4 batch 28: distinct sportswear and professional safety clothing.
+    'ชุดว่ายน้ำวันพีซ',
+    'ชุดนักแข่งรถ',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -236,7 +239,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถบรรทุกก๊าซ',
     // AI-4 batch 25: distinct industrial and agricultural vehicles.
     'รถพ่วงบรรทุกอ้อย',
-    'รถตีเส้นจราจร'
+    'รถตีเส้นจราจร',
+    // AI-4 batch 28: electric-powered passenger vessel.
+    'เรือโดยสารไฟฟ้า',
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -369,6 +374,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องนับก้าว',
     'เครื่องฉายภาพข้ามศีรษะ',
     'เครื่องวัดความชื้นในไม้',
+    // AI-4 batch 28: distinct electronic diagnostic and measuring devices.
+    'เครื่องตรวจคลื่นไฟฟ้าสมอง',
+    'เครื่องสแกนม่านตา',
+    'เครื่องวัดก๊าซคาร์บอนไดออกไซด์',
+    'เครื่องวัดสนามแม่เหล็ก',
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -493,6 +503,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ที่ถอดสายนาฬิกา',
     'แปรงขัดร่องยาแนว',
     'ตะไบสี่เหลี่ยม',
+    // AI-4 batch 28: dedicated automotive, measurement and electrical tools.
+    'ที่ถอดลูกหมาก',
+    'เกจวัดแรงดึง',
   ],
   place: [
     'โรงไฟฟ้า',
@@ -622,5 +635,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'สถานีตำรวจน้ำ',
     'ท่าเรือสำราญ',
     'ลานตากข้าว',
+    // AI-4 batch 28: established shelters, teaching and monitoring facilities.
+    'สถานพักพิงสัตว์',
+    'โรงเรียนสอนดำน้ำ',
+    'สถานีตรวจวัดระดับน้ำ',
+    'พิพิธภัณฑ์ธนบัตร',
   ]
 } as const;
