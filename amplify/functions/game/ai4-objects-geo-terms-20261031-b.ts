@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–23).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–24).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -115,7 +115,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
     'ชุดอาบายะห์',
     'เสื้อปอนโช',
-    'ชุดฮากามะ'
+    'ชุดฮากามะ',
+    // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
+    'รองเท้าแมรี่เจน',
+    'รองเท้าโลฟเฟอร์',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -217,7 +220,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือวางทุ่น',
     // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
     'รถดูดสิ่งปฏิกูล',
-    'เรือบรรทุกก๊าซธรรมชาติเหลว'
+    'เรือบรรทุกก๊าซธรรมชาติเหลว',
+    // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
+    'รถบรรทุกก๊าซ'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -328,7 +333,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดความเค็ม',
     'เครื่องบันทึกอุณหภูมิ',
     'เครื่องวัดรังสี',
-    'เครื่องอ่านหนังสืออิเล็กทรอนิกส์'
+    'เครื่องอ่านหนังสืออิเล็กทรอนิกส์',
+    // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
+    'เครื่องทำขนมปัง',
+    'เครื่องทำเส้นพาสต้าไฟฟ้า',
+    'เครื่องนับจำนวนคน',
+    'เครื่องฉายดาว'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -438,7 +448,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
     'ที่ตัดโซ่จักรยาน',
     'คีมปากกลม',
-    'มีดตัดอะคริลิก'
+    'มีดตัดอะคริลิก',
+    // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
+    'คีมย้ำสายโคแอกเชียล',
+    'ไขควงกระแทก'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -548,6 +561,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
     'สถานีรับสัญญาณดาวเทียม',
     'โรงบ่มไวน์',
-    'โรงซ่อมเครื่องบิน'
+    'โรงซ่อมเครื่องบิน',
+    // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
+    'โรงงานผลิตแก้ว',
+    'โรงงานผลิตเครื่องสำอาง',
+    'สถานีวิทยุชุมชน'
   ]
 } as const;
