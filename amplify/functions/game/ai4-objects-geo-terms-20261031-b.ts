@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–26).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–27).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -127,6 +127,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
     'เสื้อชั้นในกีฬา',
     'ชุดไตรกีฬา',
+    // AI-4 batch 27: screened distinct garments, equipment, workshop tools and places.
+    'ถุงมือกันไฟฟ้าสถิต',
+    'เสื้อตะกั่ว',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -362,6 +365,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดความถี่ไฟฟ้า',
     'เครื่องวัดการนำไฟฟ้า',
     'เครื่องวัดความหนาสี',
+    // AI-4 batch 27: screened distinct garments, equipment, workshop tools and places.
+    'เครื่องนับก้าว',
+    'เครื่องฉายภาพข้ามศีรษะ',
+    'เครื่องวัดความชื้นในไม้',
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -481,6 +488,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'คีมถอดแคลมป์รัดท่อ',
     // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
     'เหล็กตอกตัวเลข',
+    // AI-4 batch 27: screened distinct garments, equipment, workshop tools and places.
+    'เกจวัดความตึงสายพาน',
+    'ที่ถอดสายนาฬิกา',
+    'แปรงขัดร่องยาแนว',
+    'ตะไบสี่เหลี่ยม',
   ],
   place: [
     'โรงไฟฟ้า',
@@ -605,5 +617,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานแปรรูปยางพารา',
     'โรงงานผลิตชิ้นส่วนรถยนต์',
     'สนามฝึกดับเพลิง',
+    // AI-4 batch 27: screened distinct garments, equipment, workshop tools and places.
+    'พิพิธภัณฑ์รถไฟ',
+    'สถานีตำรวจน้ำ',
+    'ท่าเรือสำราญ',
+    'ลานตากข้าว',
   ]
 } as const;
