@@ -8,7 +8,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 
 const EXPECTED = {
   food: ['แกงหยวกกล้วย', 'ปลาทูซาเตี๊ยะ', 'หมูผัดกะปิ', 'ไก่คั่วเกลือ'],
-  dessert: ['ขนมคันหลาว', 'ขนมพริกไทย', 'ขนมนวลแห้ว'],
+  dessert: ['ขนมพริกไทย', 'ขนมนวลแห้ว'],
   drink: ['ชานมฮ่องกง', 'น้ำทับทิมโซดา', 'ชาข้าวโพด'],
   fruit: ['มะมุด'],
   vegetable: ['หน่อกะลา', 'ผักเซียงดา'],
@@ -18,10 +18,10 @@ const EXPECTED = {
 
 const OWNED = ['dessert', 'drink', 'food', 'fruit', 'furniture', 'object', 'vegetable'];
 
-test('AI-2 batch S registers 20 distinct, moderated, playable terms only in owned categories', () => {
+test('AI-2 batch S registers 19 distinct, moderated, playable terms only in owned categories', () => {
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_S).sort(), OWNED);
   assert.deepEqual(AI2_FOOD_HOME_BATCH_S, EXPECTED);
-  assert.equal(Object.values(EXPECTED).flat().length, 20);
+  assert.equal(Object.values(EXPECTED).flat().length, 19);
   for (const [category, words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size, words.length, 'literal duplicate: '+category);
     assert.equal(new Set(words.map(word=>canonicalAnswer(word,category))).size, words.length,
@@ -69,6 +69,9 @@ test('AI-2 batch S rejects previously registered semantic equivalents', () => {
     assert.equal(AI2_FOOD_HOME_BATCH_S[category].includes(alias),false,
       'semantic alias must not be added: '+category+'/'+alias);
   }
+  // ขนมคันหลาว is a regional alias for the already registered ขนมไข่ปลา.
+  assert.ok(WORD_BANK.dessert.includes('ขนมไข่ปลา'));
+  assert.equal(AI2_FOOD_HOME_BATCH_S.dessert.includes('ขนมคันหลาว'),false);
   // ผ้ากรองชา is only a usage-qualified form of the existing ผ้ากรอง.
   assert.ok(WORD_BANK.object.includes('ผ้ากรอง'));
   assert.equal(AI2_FOOD_HOME_BATCH_S.object.includes('ผ้ากรองชา'),false);
@@ -81,7 +84,6 @@ test('AI-2 batch S rejects previously registered semantic equivalents', () => {
 });
 
 test('AI-2 batch S preserves dessert and vegetable prefix semantics', () => {
-  assert.equal(wordInitialForCategory('ขนมคันหลาว','dessert'),'ค');
   assert.equal(wordInitialForCategory('ขนมพริกไทย','dessert'),'พ');
   assert.equal(wordInitialForCategory('ขนมนวลแห้ว','dessert'),'น');
   assert.equal(wordInitialForCategory('ขนม','dessert'),'');
