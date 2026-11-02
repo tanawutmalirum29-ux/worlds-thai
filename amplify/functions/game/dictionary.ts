@@ -20,6 +20,7 @@ import { AI2_FOOD_HOME_BATCH_R } from './ai2-food-home-batch-r-20261102.ts';
 import { AI2_FOOD_HOME_BATCH_S } from './ai2-food-home-batch-s-20261102.ts';
 import { AI2_FOOD_HOME_BATCH_T } from './ai2-food-home-batch-t-20261102.ts';
 import { AI2_FOOD_HOME_BATCH_U } from './ai2-food-home-batch-u-20261102.ts';
+import { AI2_FOOD_HOME_BATCH_V } from './ai2-food-home-batch-v-20261102.ts';
 import { FO_FAN_TERMS } from './fo-fan-terms.ts';
 import { ADDITIONAL_TOYS } from './additional-toys.ts';
 import { ADDITIONAL_FISH } from './additional-fish.ts';
@@ -2422,5 +2423,12 @@ for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_T)) {
 for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_U)) {
   if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
     throw new Error('Unknown AI-2 batch U category: ' + category);
+  WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
+}
+
+// AI-2 batch V: reviewed food/home vocabulary in seven owned categories only.
+for (const [category, words] of Object.entries(AI2_FOOD_HOME_BATCH_V)) {
+  if (!Object.prototype.hasOwnProperty.call(WORD_BANK, category))
+    throw new Error('Unknown AI-2 batch V category: ' + category);
   WORD_BANK[category] = [...new Set([...WORD_BANK[category], ...words])];
 }
