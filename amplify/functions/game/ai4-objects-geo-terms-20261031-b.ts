@@ -139,10 +139,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 30: distinct everyday objects and established facilities.
     'เสื้อกั๊กสูท',
     'กางเกงจ็อกเกอร์',
-    // AI-4 batch 31: established formalwear, footwear and hat styles.
+    // AI-4 batch 31: distinct jacket and footwear styles.
     'เสื้อบอมเบอร์',
     'รองเท้าส้นเตารีด',
-    'หมวกโบว์เลอร์',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
