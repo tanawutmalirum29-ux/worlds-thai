@@ -1,0 +1,37 @@
+/**
+ * AI-2 batch X (2026-11-02): screened regional foods, established sweets,
+ * drinks, kitchen utensils and furniture. Fruit/vegetable: no verified
+ * distinct new entries this batch. Vocabulary data only; no logic changes.
+ */
+export const AI2_FOOD_HOME_BATCH_X: Readonly<Record<'food' | 'dessert' | 'drink' | 'fruit' | 'vegetable' | 'object' | 'furniture', readonly string[]>> = {
+  "food": [
+    "ต้มขมิ้นไก่",
+    "แกงอ่อมไข่มดแดง",
+    "ปลาทูต้มมะดัน"
+  ],
+  "dessert": [
+    "คุกกี้สิงคโปร์",
+    "เค้กมะตูม",
+    "พุดดิ้งข้าว",
+    "พายมะพร้าวอ่อน",
+    "ขนมไข่ปลา"
+  ],
+  "drink": [
+    "น้ำตะลิงปลิง",
+    "ชาหญ้าหวาน"
+  ],
+  "fruit": [],
+  "vegetable": [],
+  "object": [
+    "แปรงล้างหลอด",
+    "ที่ตัดแป้ง",
+    "ตะแกรงนึ่ง",
+    "ที่วางช้อน",
+    "แผ่นรองหม้อ"
+  ],
+  "furniture": [
+    "ตู้บานเฟี้ยม",
+    "โต๊ะทำงานเข้ามุม",
+    "ชั้นวางหนังสือแบบหมุน"
+  ]
+} as const;
