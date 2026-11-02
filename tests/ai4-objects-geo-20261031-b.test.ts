@@ -1141,7 +1141,7 @@ test('AI-4 batch 28 does not reintroduce known cross-source semantic aliases', (
 
 const BATCH_29: Readonly<Record<keyof typeof AI4_OBJECTS_GEO_TERMS, readonly string[]>> = {
   clothing: ['เสื้อเกราะกันแทง', 'รองเท้ากันไฟฟ้าสถิต'],
-  vehicle: ['เรือพายมังกร'],
+  vehicle: ['เรือใบดิงกี้'],
   device: ['เครื่องวัดอัตราการไหล', 'เครื่องอ่านบัตรแม่เหล็ก'],
   tool: ['เกจวัดความสูง', 'คีมย้ำรีเวทนัท'],
   place: ['พิพิธภัณฑ์หุ่นขี้ผึ้ง', 'สถานีวิจัยขั้วโลก', 'โรงงานผลิตเซรามิก', 'โรงงานผลิตเส้นใยสังเคราะห์', 'โรงงานผลิตถุงมือยาง']
@@ -1180,7 +1180,10 @@ test('AI-4 batch 29 adds 12 canonical-unique playable entries with no source col
   }
 });
 
-test('AI-4 batch 29 rejects known synonymous device and tool names', () => {
+test('AI-4 batch 29 rejects known synonymous device, tool and vehicle names', () => {
+  assert.ok(WORD_BANK.vehicle.includes('เรือมังกร'));
+  assert.ok(!BATCH_29.vehicle.includes('เรือพายมังกร'),
+    'dragon boat is already represented by เรือมังกร');
   assert.ok(WORD_BANK.device.includes('เครื่องวัดแสง'));
   assert.ok(WORD_BANK.tool.includes('ที่ตัดท่อ'));
   assert.ok(!BATCH_29.device.includes('เครื่องวัดความเข้มแสง'),
