@@ -120,7 +120,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รองเท้าแมรี่เจน',
     'รองเท้าโลฟเฟอร์',
     // AI-4 batch 25: distinct established apparel and uniforms.
-    'หมวกบีนนี่',
+    'รองเท้าดาร์บี้',
     'ชุดกะลาสี',
     'ชุดมวยปล้ำ',
     'รองเท้าอ็อกซ์ฟอร์ด',
@@ -469,7 +469,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 25: specialized automotive and electronics hand tools.
     'บล็อกถอดไส้กรองน้ำมันเครื่อง',
     'ไขควงหัวสามแฉก',
-    'คีมถอดสายยาง'
+    'คีมถอดแคลมป์รัดท่อ'
   ],
   place: [
     'โรงไฟฟ้า',
