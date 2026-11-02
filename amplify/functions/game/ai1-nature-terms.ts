@@ -472,7 +472,6 @@ export const AI1_NATURE_TERMS: Readonly<Record<string, readonly string[]>> = {
     'หญ้าโขย่ง',
     'บอนกระดาด',
     'เฟินกนกนารี',
-    'หญ้าข้าวนก',
     'กระแตไต่ไม้',
     'หญ้าขัดมอน',
     'หญ้ากินนี',

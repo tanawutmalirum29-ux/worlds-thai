@@ -21,9 +21,9 @@ const BATCH19_PLAYABLE = new Set([
 ]);
 const GAME_CONSONANTS = new Set([...'กขคงจฉชซดตถทนบปผพฟภมยรลวสหอ']);
 
-test('AI-1 adds 824 real nature names only within its eight assigned categories', () => {
+test('AI-1 adds 823 real nature names only within its eight assigned categories', () => {
   assert.deepEqual(Object.keys(AI1_NATURE_TERMS).sort(), [...NATURE_CATEGORIES].sort());
-  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 824);
+  assert.equal(Object.values(AI1_NATURE_TERMS).reduce((total, words) => total + words.length, 0), 823);
 
   for (const [category, words] of Object.entries(AI1_NATURE_TERMS)) {
     const canonicalSeen = new Set<string>();
@@ -51,6 +51,14 @@ test('AI-1 excludes unverified cloud descriptions pending a reliable Thai refere
   for (const word of ['เมฆสุกใส', 'เมฆทาง', 'เมฆแท่ง']) {
     assert.ok(!AI1_NATURE_TERMS.nature.includes(word), word + ' must remain excluded');
   }
+});
+
+// ONEP TH-BIF maps both names to Echinochloa colona; the broader name
+// หญ้าข้าวนก is also recorded locally for E. crus-galli. Keep the
+// more specific registered Thai name to avoid duplicate species scoring.
+test('AI-1 does not double-count Echinochloa colona as two plant names', () => {
+  assert.ok(AI1_NATURE_TERMS.plant.includes('หญ้านกสีชมพู'));
+  assert.ok(!AI1_NATURE_TERMS.plant.includes('หญ้าข้าวนก'));
 });
 
 // Botanical synonym review: ชมนาด and ชำมะนาด are names for Vallaris glabra.
@@ -116,7 +124,7 @@ test('AI-1 additions since the 155-term baseline have unique literal spelling ac
   };
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, terms]) =>
     terms.slice(baseline[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 669, 'AI-1 must contain 669 source entries after the 155-term baseline');
+  assert.equal(additions.length, 668, 'AI-1 must contain 668 source entries after the 155-term baseline');
 
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
@@ -238,10 +246,10 @@ test('AI-1 batch 21 adds 15 real distinct words in the assigned categories', () 
   }
 });
 
-test('all 538 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
+test('all 537 terms introduced by PR #92 are currently playable, not just the latest batch', () => {
   const additions = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(additions.length, 538);
+  assert.equal(additions.length, 537);
   for (const { category, word } of additions) {
     const initial = wordInitialForCategory(word, category);
     assert.ok((LETTERS as readonly string[]).includes(initial), `${word} has unplayable initial ${initial}`);
@@ -826,7 +834,7 @@ test('all PR #92 additions are absent from every other imported vocabulary sourc
   }
   const proposed = Object.entries(AI1_NATURE_TERMS).flatMap(([category, words]) =>
     words.slice(PR92_START_COUNTS[category]).map(word => ({ category, word })));
-  assert.equal(proposed.length, 538);
+  assert.equal(proposed.length, 537);
   for (const { category, word } of proposed) {
     const literal = normalize(word);
     const variants = [literal];
