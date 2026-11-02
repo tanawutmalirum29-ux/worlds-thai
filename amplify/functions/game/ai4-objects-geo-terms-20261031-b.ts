@@ -545,7 +545,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'คีมปากแบน',
     'เกจวัดความกลม',
     // AI-4 batch 31: specialized chain-sharpening and electrical/welding tools.
-    'ตะไบลับโซ่',
+    'แท่นตั้งศูนย์ล้อจักรยาน',
     'คีมถอดฟิวส์',
     'คีมจับลวดเชื่อม',
   ],
