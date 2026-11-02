@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–28).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct–2 Nov 2026, batches 2–29).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -133,6 +133,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 28: distinct sportswear and professional safety clothing.
     'ชุดว่ายน้ำวันพีซ',
     'ชุดนักแข่งรถ',
+    // AI-4 batch 29: protective workwear with separate established functions.
+    'เสื้อเกราะกันแทง',
+    'รองเท้ากันไฟฟ้าสถิต',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -242,6 +245,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถตีเส้นจราจร',
     // AI-4 batch 28: electric-powered passenger vessel.
     'เรือโดยสารไฟฟ้า',
+    // AI-4 batch 29: purpose-built team rowing vessel.
+    'เรือพายมังกร',
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -379,6 +384,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องสแกนม่านตา',
     'เครื่องวัดก๊าซคาร์บอนไดออกไซด์',
     'เครื่องวัดสนามแม่เหล็ก',
+    // AI-4 batch 29: distinct flow and magnetic-card instruments.
+    'เครื่องวัดอัตราการไหล',
+    'เครื่องอ่านบัตรแม่เหล็ก',
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -506,6 +514,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 28: dedicated automotive, measurement and electrical tools.
     'ที่ถอดลูกหมาก',
     'เกจวัดแรงดึง',
+    // AI-4 batch 29: dedicated measurement and hole-finishing tools.
+    'เกจวัดความสูง',
+    'ดอกสว่านคว้านรู',
   ],
   place: [
     'โรงไฟฟ้า',
@@ -640,5 +651,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงเรียนสอนดำน้ำ',
     'สถานีตรวจวัดระดับน้ำ',
     'พิพิธภัณฑ์ธนบัตร',
+    // AI-4 batch 29: real museums, polar research and manufacturing facilities.
+    'พิพิธภัณฑ์หุ่นขี้ผึ้ง',
+    'สถานีวิจัยขั้วโลก',
+    'โรงงานผลิตเซรามิก',
+    'โรงงานผลิตเส้นใยสังเคราะห์',
+    'โรงงานผลิตถุงมือยาง',
   ]
 } as const;
