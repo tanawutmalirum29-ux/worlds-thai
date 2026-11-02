@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–22).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–23).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -111,7 +111,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดกระโปรงเอี๊ยม',
     'ชุดซาฟารี',
     'กระโปรงกางเกง',
-    'ชุดขี่ม้า'
+    'ชุดขี่ม้า',
+    // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
+    'ชุดอาบายะห์',
+    'เสื้อปอนโช',
+    'ชุดฮากามะ'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -210,7 +214,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถไฟไฮโดรเจน',
     // AI-4 batch 21: reviewed distinct equipment, apparel and facilities.
     'รถเกี่ยวข้าวโพด',
-    'เรือวางทุ่น'
+    'เรือวางทุ่น',
+    // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
+    'รถดูดสิ่งปฏิกูล',
+    'เรือบรรทุกก๊าซธรรมชาติเหลว'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -316,7 +323,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องตรวจจับการเคลื่อนไหว',
     'เครื่องวัดความขุ่นของน้ำ',
     'เครื่องทำไอศกรีม',
-    'เครื่องแยกเหรียญ'
+    'เครื่องแยกเหรียญ',
+    // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
+    'เครื่องวัดความเค็ม',
+    'เครื่องบันทึกอุณหภูมิ',
+    'เครื่องวัดรังสี',
+    'เครื่องอ่านหนังสืออิเล็กทรอนิกส์'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -422,7 +434,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เกจวัดความหนา',
     'ดอกต๊าปเกลียว',
     'ที่ขูดยาแนว',
-    'ประแจตีนกา'
+    'ประแจตีนกา',
+    // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
+    'ที่ตัดโซ่จักรยาน',
+    'คีมปากกลม',
+    'มีดตัดอะคริลิก'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -528,6 +544,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ลานพักตู้คอนเทนเนอร์',
     'โรงงานผลิตน้ำดื่ม',
     'สถานีตรวจวัดแผ่นดินไหว',
-    'สถานีเพาะเลี้ยงสัตว์ป่า'
+    'สถานีเพาะเลี้ยงสัตว์ป่า',
+    // AI-4 batch 23: distinct established apparel, vehicles, equipment and facilities.
+    'สถานีรับสัญญาณดาวเทียม',
+    'โรงบ่มไวน์',
+    'โรงซ่อมเครื่องบิน'
   ]
 } as const;
