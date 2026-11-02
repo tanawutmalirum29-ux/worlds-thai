@@ -354,7 +354,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องวัดออกซิเจนละลายน้ำ',
     'เครื่องวัดแรงสั่นสะเทือน',
     'เครื่องอุ่นผ้าขนหนู',
-    'เครื่องวัดความต้านทานฉนวน'
+    'เครื่องวัดความต้านทานฉนวน',
     // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
     'เครื่องวัดความชื้นอากาศ',
     'เครื่องปั่นไฟ',
@@ -478,7 +478,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 25: specialized automotive and electronics hand tools.
     'บล็อกถอดไส้กรองน้ำมันเครื่อง',
     'ไขควงหัวสามแฉก',
-    'คีมถอดแคลมป์รัดท่อ'
+    'คีมถอดแคลมป์รัดท่อ',
     // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
     'เหล็กตอกตัวเลข',
     'ประแจถอดหัวเทียน',
@@ -600,7 +600,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงคัดแยกผลไม้',
     'โรงงานผลิตแผงโซลาร์เซลล์',
     'โรงงานผลิตสายไฟฟ้า',
-    'สถานีตรวจวัดคุณภาพอากาศ'
+    'สถานีตรวจวัดคุณภาพอากาศ',
     // AI-4 batch 26: distinct real apparel, measuring equipment, tools and facilities.
     'สนามแข่งโกคาร์ต',
     'โรงงานแปรรูปยางพารา',
