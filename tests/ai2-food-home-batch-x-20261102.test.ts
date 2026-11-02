@@ -8,7 +8,6 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage } from '../amplify/f
 
 const EXPECTED = {
   "food": [
-    "ต้มขมิ้นไก่",
     "แกงอ่อมไข่มดแดง",
     "ปลาทูต้มมะดัน"
   ],
@@ -23,7 +22,6 @@ const EXPECTED = {
   "fruit": [],
   "vegetable": [],
   "object": [
-    "แปรงล้างหลอด",
     "ที่ตัดแป้ง",
     "ตะแกรงนึ่ง",
     "ที่วางช้อน",
@@ -31,15 +29,14 @@ const EXPECTED = {
   ],
   "furniture": [
     "ตู้บานเฟี้ยม",
-    "โต๊ะทำงานเข้ามุม",
-    "ชั้นวางหนังสือแบบหมุน"
+    "โต๊ะทำงานเข้ามุม"
   ]
 } as const;
 
-test('AI-2 batch X adds 15 canonical-unique words only in seven owned categories', () => {
+test('AI-2 batch X adds 12 canonical-unique words only in seven owned categories', () => {
   assert.deepEqual(AI2_FOOD_HOME_BATCH_X, EXPECTED);
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_X).sort(), ['dessert','drink','food','fruit','furniture','object','vegetable']);
-  assert.equal(Object.values(EXPECTED).flat().length, 15);
+  assert.equal(Object.values(EXPECTED).flat().length, 12);
   for (const [category,words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size,words.length,'literal duplicate: '+category);
     assert.equal(new Set(words.map(w=>canonicalAnswer(w,category))).size,words.length,'canonical duplicate: '+category);
@@ -82,4 +79,14 @@ test('AI-2 batch X excludes established semantic aliases of coconut pie and stev
   assert.ok(WORD_BANK.drink.includes('น้ำหญ้าหวาน'));
   assert.ok(!AI2_FOOD_HOME_BATCH_X.dessert.includes('พายมะพร้าวอ่อน'));
   assert.ok(!AI2_FOOD_HOME_BATCH_X.drink.includes('ชาหญ้าหวาน'));
+});
+
+// AI-5 semantic QA: exclude reordered names or near-synonyms for already-listed items.
+test('AI-2 batch X excludes semantic duplicates of existing food, utensil and furniture', () => {
+  assert.ok(WORD_BANK.food.includes('ไก่ต้มขมิ้น'));
+  assert.ok(WORD_BANK.object.includes('แปรงขัดหลอด'));
+  assert.ok(WORD_BANK.furniture.includes('ชั้นหนังสือหมุน'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_X.food.includes('ต้มขมิ้นไก่'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_X.object.includes('แปรงล้างหลอด'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_X.furniture.includes('ชั้นวางหนังสือแบบหมุน'));
 });
