@@ -10,7 +10,7 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'ช', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'ช', 'ผ', 'ช', 'ช', 'น', 'น', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'น', 'น', 'ว', 'ผ', 'ช'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'ช', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'ช', 'ผ', 'ช', 'ช', 'น', 'น', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'น', 'น', 'ว', 'น', 'ช'],
   verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล', 'ผ', 'ต', 'บ', 'ก', 'ด', 'ห', 'ข', 'ท', 'ค', 'ห', 'ฟ', 'ว', 'ส', 'ส', 'ข', 'ล', 'ว', 'ห', 'ซ', 'ค', 'ย', 'ย', 'ถ', 'ค', 'ล', 'ห', 'ผ', 'ล', 'พ', 'ช', 'ส', 'ล', 'ย', 'ห', 'ป', 'ก', 'ร', 'ห', 'ส', 'ต', 'ด', 'ห', 'ล'],
   sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ร', 'ต', 'ว', 'พ', 'จ', 'ย', 'ก', 'ร', 'ส', 'ส', 'ส', 'ย', 'ย', 'ส', 'ส', 'ซ', 'ว', 'พ', 'พ', 'บ', 'ส', 'ว', 'บ', 'ป', 'ช', 'ส', 'ป', 'ซ'],
   music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก', 'อ', 'ก', 'ว', 'พ', 'ค', 'บ', 'พ', 'ซ', 'ม', 'ก', 'ก', 'ฉ', 'ก', 'ท', 'อ', 'ป', 'ห', 'ต', 'ค', 'อ', 'ก', 'ก', 'ก', 'อ', 'ก', 'ค', 'ซ', 'ซ', 'ด', 'ร', 'ช', 'บ', 'ก', 'ท', 'อ', 'ช', 'ต', 'อ', 'ซ', 'บ', 'ก', 'ก', 'ช'],
@@ -1101,7 +1101,7 @@ test('AI-3 batch 28 contributes 14 clean, unique, playable entries in seven owne
 // sports, instruments, board games and anatomy. Only data and regression tests changed.
 const BATCH_TWENTY_NINE: Readonly<Record<string, readonly string[]>> = {
   job: [
-    'ผู้ฝึกสอนสุนัข',
+    'นักชีวสถิติ',
     'ช่างสัก'
   ],
   verb: [
@@ -1168,4 +1168,23 @@ test('AI-3 batch 29 uses documented Thai sport and instrument names', () => {
     assert.ok(eligibleCategories(initial).includes(category));
     assert.equal(validAnswer(chosen, initial, category), true);
   }
+});
+
+
+// AI-5 semantic QA: ผู้ฝึกสอนสุนัข is the same profession as the
+// already-registered ครูฝึกสุนัข. Keep only the existing trainer identity;
+// biostatistician is a separate established occupation (นักชีวสถิติ).
+test('AI-3 batch 29 excludes dog-trainer synonym and accepts distinct biostatistician', () => {
+  assert.ok(WORD_BANK.job.includes('ครูฝึกสุนัข'), 'existing trainer occupation missing');
+  assert.ok(!AI3_ACTIVITY_TERMS.job.includes('ผู้ฝึกสอนสุนัข'), 'trainer synonym reintroduced');
+  assert.ok(!WORD_BANK.job.includes('ผู้ฝึกสอนสุนัข'), 'duplicate trainer occupation registered');
+  assert.ok(BATCH_TWENTY_NINE.job.includes('นักชีวสถิติ'), 'replacement missing from batch fixture');
+  assert.ok(AI3_ACTIVITY_TERMS.job.includes('นักชีวสถิติ'), 'replacement missing from source');
+  assert.equal(wordInitialForCategory('นักชีวสถิติ', 'job'), 'น');
+  assert.ok(eligibleCategories('น').includes('job'), 'job not playable for น');
+  assert.equal(validAnswer('นักชีวสถิติ', 'น', 'job'), true);
+  assert.equal(
+    WORD_BANK.job.filter(word => canonicalAnswer(word, 'job') === canonicalAnswer('นักชีวสถิติ', 'job')).length,
+    1, 'replacement canonical collision'
+  );
 });
