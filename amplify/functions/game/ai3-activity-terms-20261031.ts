@@ -252,7 +252,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เปโลตาบาสก์',
     'ชุคบอล',
     'สตรีทลูจ',
-    'โพลครอส',
+    'โปโลครอส',
     'ซาวาเต้',
   ],
   music: [
@@ -333,7 +333,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ซานเซียน',
     'บูซูกิ',
     'กลองเจมเบ้',
-    'ทูบาแวกเนอร์',
+    'กีตาร์เจ็ดสาย',
     'เชลโลไฟฟ้า',
   ],
   toy: [
