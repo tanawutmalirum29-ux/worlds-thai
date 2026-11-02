@@ -225,7 +225,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือบรรทุกก๊าซธรรมชาติเหลว',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
     'รถไฟดีเซลราง',
-    'เรือโฮเวอร์คราฟต์'
+    'รถบรรทุกก๊าซ'
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -453,9 +453,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'คีมปากกลม',
     'มีดตัดอะคริลิก',
     // AI-4 batch 24: reviewed distinct vocabulary; no game logic changes.
-    'คีมย้ำหางปลา',
+    'คีมย้ำสายโคแอกเชียล',
     'ที่ลับดอกสว่าน',
-    'เลื่อยฉลุ'
+    'ไขควงกระแทก'
   ],
   place: [
     'โรงไฟฟ้า',
