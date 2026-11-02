@@ -16,8 +16,7 @@ const EXPECTED = {
     "คุกกี้สิงคโปร์",
     "เค้กมะตูม",
     "พุดดิ้งข้าว",
-    "พายมะพร้าวอ่อน",
-    "ขนมไข่ปลา"
+    "พายมะพร้าวอ่อน"
   ],
   "drink": [
     "น้ำตะลิงปลิง",
@@ -39,10 +38,10 @@ const EXPECTED = {
   ]
 } as const;
 
-test('AI-2 batch X adds 18 canonical-unique words only in seven owned categories', () => {
+test('AI-2 batch X adds 17 canonical-unique words only in seven owned categories', () => {
   assert.deepEqual(AI2_FOOD_HOME_BATCH_X, EXPECTED);
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_X).sort(), ['dessert','drink','food','fruit','furniture','object','vegetable']);
-  assert.equal(Object.values(EXPECTED).flat().length, 18);
+  assert.equal(Object.values(EXPECTED).flat().length, 17);
   for (const [category,words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size,words.length,'literal duplicate: '+category);
     assert.equal(new Set(words.map(w=>canonicalAnswer(w,category))).size,words.length,'canonical duplicate: '+category);
@@ -74,7 +73,6 @@ test('AI-2 batch X source words occur exactly once across game dictionary module
 });
 
 test('AI-2 batch X respects dessert prefix without changing canonicalization', () => {
-  assert.equal(wordInitialForCategory('ขนมไข่ปลา','dessert'),'ข');
   assert.equal(wordInitialForCategory('ขนมคุกกี้สิงคโปร์','dessert'),'ค');
   assert.equal(canonicalAnswer('ขนมคุกกี้สิงคโปร์','dessert'),'คุกกี้สิงคโปร์');
   assert.equal(validAnswer('ขนมคุกกี้สิงคโปร์','ค','dessert'),true);
