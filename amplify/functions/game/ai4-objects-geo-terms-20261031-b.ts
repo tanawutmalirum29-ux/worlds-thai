@@ -516,7 +516,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เกจวัดแรงดึง',
     // AI-4 batch 29: dedicated measurement and hole-finishing tools.
     'เกจวัดความสูง',
-    'ดอกสว่านคว้านรู',
+    'คีมย้ำรีเวทนัท',
   ],
   place: [
     'โรงไฟฟ้า',
