@@ -892,7 +892,7 @@ const BATCH_TWENTY_FIVE: Readonly<Record<string, readonly string[]>> = {
     'ปั่นด้าย'
   ],
   'sport': [
-    'พารายกน้ำหนัก',
+    'พาราพาวเวอร์ลิฟติ้ง',
     'โบว์ลิ่งเก้าพิน'
   ],
   'music': [
@@ -937,4 +937,14 @@ test('AI-3 batch 25 adds 14 clean, canonical-unique and playable answers', () =>
       assert.deepEqual(otherSources.filter(source => source.content.includes("'" + word + "'") || source.content.includes('"' + word + '"')).map(source => source.name), [], 'other source duplicate: ' + word);
     }
   }
+});
+
+// AI-5 semantic HOLD regression: prefer attested discipline name over vague para weightlifting.
+test('AI-3 batch 25 uses attested para powerlifting terminology without duplicate aliases', () => {
+  assert.ok(AI3_ACTIVITY_TERMS.sport.includes('พาราพาวเวอร์ลิฟติ้ง'));
+  assert.ok(!WORD_BANK.sport.includes('พารายกน้ำหนัก'));
+  assert.equal(WORD_BANK.sport.filter(word => canonicalAnswer(word, 'sport') === canonicalAnswer('พาราพาวเวอร์ลิฟติ้ง', 'sport')).length, 1);
+  assert.equal(wordInitialForCategory('พาราพาวเวอร์ลิฟติ้ง', 'sport'), 'พ');
+  assert.ok(eligibleCategories('พ').includes('sport'));
+  assert.equal(validAnswer('พาราพาวเวอร์ลิฟติ้ง', 'พ', 'sport'), true);
 });

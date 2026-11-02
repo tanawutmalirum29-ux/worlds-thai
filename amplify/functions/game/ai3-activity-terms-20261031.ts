@@ -228,7 +228,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ไซเคิลบอล',
     'วอลเลย์บอลหิมะ',
     'พาราว่ายน้ำ',
-    'พารายกน้ำหนัก',
+    'พาราพาวเวอร์ลิฟติ้ง',
     'โบว์ลิ่งเก้าพิน',
   ],
   music: [
