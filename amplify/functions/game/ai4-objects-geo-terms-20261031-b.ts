@@ -111,7 +111,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดกระโปรงเอี๊ยม',
     'ชุดซาฟารี',
     'กระโปรงกางเกง',
-    'ปลอกแขนกันแดด'
+    'ชุดขี่ม้า'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -314,7 +314,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ป้ายไฟทางออกฉุกเฉิน',
     // AI-4 batch 22: distinct electrical and electronic appliances.
     'เครื่องตรวจจับการเคลื่อนไหว',
-    'เครื่องวัดค่าพีเอช',
+    'เครื่องวัดความขุ่นของน้ำ',
     'เครื่องทำไอศกรีม',
     'เครื่องแยกเหรียญ'
   ],
