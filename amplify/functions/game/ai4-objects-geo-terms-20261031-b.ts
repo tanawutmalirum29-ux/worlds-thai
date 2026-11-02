@@ -506,7 +506,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 28: dedicated automotive, measurement and electrical tools.
     'ที่ถอดลูกหมาก',
     'เกจวัดแรงดึง',
-    'คีมย้ำหางปลา',
   ],
   place: [
     'โรงไฟฟ้า',
