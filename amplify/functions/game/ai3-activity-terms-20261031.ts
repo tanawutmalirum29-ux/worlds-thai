@@ -294,7 +294,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'รีคอร์เดอร์เบส',
     'ฟลูตเบส',
     'ฟลูตอัลโต',
-    'แตรยูโฟเนียม',
+    'กู่ฉิน',
   ],
   toy: [
     'หุ่นนิ้ว',
