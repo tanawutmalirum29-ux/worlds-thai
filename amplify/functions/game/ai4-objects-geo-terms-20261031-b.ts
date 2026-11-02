@@ -1,5 +1,5 @@
 /**
- * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–21).
+ * AI-4 Objects & Geography — reviewed Thai vocabulary (31 Oct 2026, batches 2–22).
  * Only AI-4-owned categories; no changes to canonicalization or game rules.
  * All terms denote established distinct items or real-world place types.
  */
@@ -106,7 +106,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ชุดเทควันโด',
     'ชุดยูโด',
     'รองเท้าโบว์ลิ่ง',
-    'เสื้อบาติก'
+    'เสื้อบาติก',
+    // AI-4 batch 22: distinct everyday apparel.
+    'ชุดกระโปรงเอี๊ยม',
+    'ชุดซาฟารี',
+    'กระโปรงกางเกง',
+    'ชุดขี่ม้า'
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -306,7 +311,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องปั๊มนมไฟฟ้า',
     'เครื่องสกัดน้ำผลไม้',
     'ตู้บ่มเพาะเชื้อ',
-    'ป้ายไฟทางออกฉุกเฉิน'
+    'ป้ายไฟทางออกฉุกเฉิน',
+    // AI-4 batch 22: distinct electrical and electronic appliances.
+    'เครื่องตรวจจับการเคลื่อนไหว',
+    'เครื่องวัดความขุ่นของน้ำ',
+    'เครื่องทำไอศกรีม',
+    'เครื่องแยกเหรียญ'
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -407,7 +417,12 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เกจวัดรอยเชื่อม',
     'เลื่อยตัดกระเบื้อง',
     'เกจวัดแรงดันน้ำ',
-    'บล็อกถอดล้อ'
+    'บล็อกถอดล้อ',
+    // AI-4 batch 22: workshop tools with different functions.
+    'เกจวัดความหนา',
+    'ดอกต๊าปเกลียว',
+    'ที่ขูดยาแนว',
+    'ประแจตีนกา'
   ],
   place: [
     'โรงไฟฟ้า',
@@ -508,6 +523,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'โรงงานผลิตแบตเตอรี่',
     'สนามฝึกสุนัข',
     'หอจดหมายเหตุ',
-    'โรงเรียนสอนว่ายน้ำ'
+    'โรงเรียนสอนว่ายน้ำ',
+    // AI-4 batch 22: established industrial, logistics and monitoring sites.
+    'ลานพักตู้คอนเทนเนอร์',
+    'โรงงานผลิตน้ำดื่ม',
+    'สถานีตรวจวัดแผ่นดินไหว',
+    'สถานีเพาะเลี้ยงสัตว์ป่า'
   ]
 } as const;
