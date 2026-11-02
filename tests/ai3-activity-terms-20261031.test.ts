@@ -10,19 +10,19 @@ import { isBlockedStandaloneAnswer, isInappropriateLanguage }
   from '../amplify/functions/game/moderation.ts';
 
 const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
-  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'ช', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'ช', 'ผ', 'ช', 'ช', 'น', 'น', 'น', 'น', 'น'],
-  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล', 'ผ', 'ต', 'บ', 'ก', 'ด', 'ห', 'ข', 'ท', 'ค', 'ห', 'ฟ', 'ว', 'ส', 'ส', 'ข', 'ล', 'ว', 'ห', 'ซ', 'ค', 'ย', 'ย', 'ถ', 'ค', 'ล', 'ห', 'ผ', 'ล', 'พ', 'ช', 'ส', 'ล', 'ย'],
-  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ร', 'ต', 'ว', 'พ', 'จ', 'ย', 'ก', 'ร', 'ส', 'ส', 'ส', 'ย', 'ย', 'ส', 'ส', 'ซ', 'ว', 'พ'],
-  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก', 'อ', 'ก', 'ว', 'พ', 'ค', 'บ', 'พ', 'ซ', 'ม', 'ก', 'ก', 'ฉ', 'ก', 'ท', 'อ', 'ป', 'ห', 'ต', 'ค', 'อ', 'ก', 'ก', 'ก', 'อ', 'ก', 'ค', 'ซ', 'ซ', 'ด', 'ร', 'ช', 'บ', 'ก'],
-  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก', 'ก', 'ห', 'ช', 'ก', 'ช', 'ก', 'ต', 'ต', 'ล', 'ก', 'ว', 'ห', 'ก', 'ห', 'ร', 'ก', 'ก', 'ห', 'ก', 'ก', 'ก', 'ก'],
-  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ', 'จ', 'ท', 'ท', 'ก', 'ผ', 'ก', 'ต', 'ผ', 'ข', 'บ', 'ข', 'ก', 'ก', 'ข', 'ห', 'พ', 'ก', 'ส', 'ม', 'ป', 'ข', 'ค', 'ท', 'ก', 'ป', 'ห', 'ก', 'ก', 'ค', 'ท', 'ช', 'ค', 'ช'],
-  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย', 'ส', 'ข', 'ก', 'ท', 'ต', 'ถ', 'ส', 'ส', 'ล', 'ส', 'ย', 'ก', 'ก', 'ส', 'ย', 'ส', 'ก', 'ก', 'ก', 'ส', 'ล', 'ก', 'ห', 'ส', 'ก', 'ห', 'ส', 'ส', 'ก', 'ต', 'ก', 'ก', 'ก', 'ห', 'ก', 'ย', 'ก', 'ก', 'ห', 'ก', 'ห', 'ห'],
+  job: ['น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ผ', 'น', 'ช', 'น', 'น', 'ช', 'ว', 'ช', 'น', 'ผ', 'ช', 'น', 'ช', 'ว', 'ผ', 'น', 'ผ', 'จ', 'ช', 'ช', 'ผ', 'น', 'ช', 'ช', 'น', 'น', 'ช', 'น', 'น', 'ช', 'น', 'ช', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'น', 'น', 'ช', 'ช', 'น', 'น', 'น', 'ช', 'น', 'ช', 'น', 'ช', 'ช', 'ผ', 'ช', 'ช', 'น', 'น', 'น', 'น', 'น', 'ช', 'น'],
+  verb: ['ค', 'พ', 'ล', 'ป', 'ถ', 'ถ', 'ก', 'ย', 'ข', 'ต', 'ค', 'ก', 'ข', 'จ', 'ด', 'ส', 'ร', 'ด', 'ฟ', 'ย', 'ข', 'ฝ', 'ล', 'ข', 'ร', 'ห', 'ถ', 'ส', 'ฟ', 'ห', 'บ', 'ร', 'ต', 'พ', 'ห', 'ป', 'ค', 'ก', 'ล', 'ผ', 'ต', 'บ', 'ก', 'ด', 'ห', 'ข', 'ท', 'ค', 'ห', 'ฟ', 'ว', 'ส', 'ส', 'ข', 'ล', 'ว', 'ห', 'ซ', 'ค', 'ย', 'ย', 'ถ', 'ค', 'ล', 'ห', 'ผ', 'ล', 'พ', 'ช', 'ส', 'ล', 'ย', 'ห', 'ป'],
+  sport: ['ส', 'พ', 'ฟ', 'ท', 'ร', 'บ', 'พ', 'ท', 'ร', 'ว', 'ค', 'ป', 'พ', 'ส', 'ต', 'ย', 'อ', 'ส', 'บ', 'พ', 'ย', 'ข', 'ว', 'ต', 'ย', 'ส', 'ว', 'ค', 'ร', 'ค', 'ค', 'ค', 'ซ', 'ย', 'ร', 'ส', 'ฟ', 'ฟ', 'ก', 'ซ', 'ซ', 'อ', 'ค', 'พ', 'ส', 'ส', 'ร', 'ส', 'จ', 'ค', 'ร', 'ส', 'พ', 'ว', 'ร', 'ต', 'ว', 'พ', 'จ', 'ย', 'ก', 'ร', 'ส', 'ส', 'ส', 'ย', 'ย', 'ส', 'ส', 'ซ', 'ว', 'พ', 'พ', 'บ'],
+  music: ['ว', 'ก', 'ค', 'ท', 'ค', 'อ', 'ก', 'ค', 'ค', 'ป', 'ข', 'ก', 'ป', 'ป', 'ก', 'ก', 'ว', 'ป', 'ก', 'พ', 'ร', 'ซ', 'ห', 'ก', 'ค', 'ป', 'ต', 'บ', 'ช', 'ด', 'ค', 'ก', 'ด', 'ซ', 'อ', 'ก', 'อ', 'ก', 'ว', 'พ', 'ค', 'บ', 'พ', 'ซ', 'ม', 'ก', 'ก', 'ฉ', 'ก', 'ท', 'อ', 'ป', 'ห', 'ต', 'ค', 'อ', 'ก', 'ก', 'ก', 'อ', 'ก', 'ค', 'ซ', 'ซ', 'ด', 'ร', 'ช', 'บ', 'ก', 'ท', 'อ'],
+  toy: ['ห', 'ห', 'ก', 'ค', 'ช', 'ก', 'บ', 'ร', 'ล', 'ก', 'ก', 'บ', 'ก', 'ล', 'ต', 'ก', 'ร', 'ก', 'ก', 'ก', 'ก', 'ก', 'ช', 'ก', 'ก', 'ก', 'ห', 'ช', 'ก', 'ช', 'ก', 'ต', 'ต', 'ล', 'ก', 'ว', 'ห', 'ก', 'ห', 'ร', 'ก', 'ก', 'ห', 'ก', 'ก', 'ก', 'ก', 'ก', 'ก'],
+  school: ['ก', 'ป', 'ต', 'ฟ', 'ค', 'ส', 'ก', 'บ', 'ก', 'ม', 'ท', 'ฟ', 'ซ', 'ก', 'ค', 'ฟ', 'ท', 'ว', 'ผ', 'ค', 'ก', 'บ', 'ย', 'ฟ', 'ส', 'ท', 'ส', 'ป', 'ก', 'ก', 'ส', 'ส', 'ก', 'บ', 'ก', 'ห', 'ต', 'ผ', 'จ', 'ท', 'ท', 'ก', 'ผ', 'ก', 'ต', 'ผ', 'ข', 'บ', 'ข', 'ก', 'ก', 'ข', 'ห', 'พ', 'ก', 'ส', 'ม', 'ป', 'ข', 'ค', 'ท', 'ก', 'ป', 'ห', 'ก', 'ก', 'ค', 'ท', 'ช', 'ค', 'ช', 'ป', 'ก'],
+  body: ['ก', 'ก', 'ข', 'ย', 'ย', 'ต', 'ส', 'ก', 'ต', 'ก', 'ส', 'ย', 'ต', 'อ', 'ก', 'ส', 'ล', 'ห', 'ล', 'ต', 'ห', 'ก', 'ต', 'ส', 'ส', 'ก', 'ส', 'ต', 'ท', 'ย', 'ส', 'ข', 'ก', 'ท', 'ต', 'ถ', 'ส', 'ส', 'ล', 'ส', 'ย', 'ก', 'ก', 'ส', 'ย', 'ส', 'ก', 'ก', 'ก', 'ส', 'ล', 'ก', 'ห', 'ส', 'ก', 'ห', 'ส', 'ส', 'ก', 'ต', 'ก', 'ก', 'ก', 'ห', 'ก', 'ย', 'ก', 'ก', 'ห', 'ก', 'ห', 'ห', 'ห', 'ก'],
 };
 
-test('AI-3 registers 475 reviewed activity terms without duplicate canonical identities', () => {
+test('AI-3 registers 489 reviewed activity terms without duplicate canonical identities', () => {
   assert.deepEqual(Object.keys(AI3_ACTIVITY_TERMS), Object.keys(EXPECTED_INITIALS));
   const all = Object.values(AI3_ACTIVITY_TERMS).flat();
-  assert.equal(all.length, 475);
+  assert.equal(all.length, 489);
   assert.equal(new Set(all).size, all.length);
   let playable = 0;
   for (const [category, words] of Object.entries(AI3_ACTIVITY_TERMS)) {
@@ -878,5 +878,63 @@ test('AI-3 batch 24 excludes existing beach tennis and overlapping ski touring',
     assert.ok(eligibleCategories(initial).includes('sport'), 'new sport unavailable: ' + replacement);
     assert.equal(validAnswer(replacement, initial, 'sport'), true);
     assert.equal(WORD_BANK.sport.filter(word => canonicalAnswer(word, 'sport') === canonicalAnswer(replacement, 'sport')).length, 1);
+  }
+});
+
+// Batch 25: only real, category-specific additions, without gameplay rule changes.
+const BATCH_TWENTY_FIVE: Readonly<Record<string, readonly string[]>> = {
+  'job': [
+    'ช่างเชื่อมใต้น้ำ',
+    'นักอาชญาวิทยา'
+  ],
+  'verb': [
+    'หั่นเต๋า',
+    'ปั่นด้าย'
+  ],
+  'sport': [
+    'พารายกน้ำหนัก',
+    'โบว์ลิ่งเก้าพิน'
+  ],
+  'music': [
+    'เทอร์มิน',
+    'อัลเพนฮอร์น'
+  ],
+  'toy': [
+    'เกมแพนเดมิก',
+    'เกมสเปลนเดอร์'
+  ],
+  'school': [
+    'ปิเปตปาสเตอร์',
+    'โกร่งบดสาร'
+  ],
+  'body': [
+    'หลอดเลือดดำซาฟีนัส',
+    'กระดูกทาลัส'
+  ]
+};
+
+test('AI-3 batch 25 adds 14 clean, canonical-unique and playable answers', () => {
+  const words = Object.values(BATCH_TWENTY_FIVE).flat();
+  assert.equal(words.length, 14);
+  assert.equal(new Set(words).size, 14);
+  const gameDirectory = fileURLToPath(new URL('../amplify/functions/game/', import.meta.url));
+  const otherSources = readdirSync(gameDirectory)
+    .filter(name => name.endsWith('.ts') && name !== 'ai3-activity-terms-20261031.ts')
+    .map(name => ({name, content: readFileSync(new URL('../amplify/functions/game/' + name, import.meta.url), 'utf8')}));
+  const registered = Object.values(WORD_BANK).flat().map(word => word.normalize('NFC').toLocaleLowerCase('th'));
+  for (const [category, terms] of Object.entries(BATCH_TWENTY_FIVE)) {
+    for (const word of terms) {
+      assert.ok(AI3_ACTIVITY_TERMS[category].includes(word), 'missing: ' + category + '/' + word);
+      assert.equal(word, word.trim().normalize('NFC'));
+      assert.equal(isInappropriateLanguage(word), false, 'moderation: ' + word);
+      assert.equal(isBlockedStandaloneAnswer(word), false, 'blocked: ' + word);
+      assert.equal(registered.filter(entry => entry === word.toLocaleLowerCase('th')).length, 1, 'literal duplicate: ' + word);
+      const canonical = canonicalAnswer(word, category);
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonical).length, 1, 'canonical duplicate: ' + word);
+      const initial = wordInitialForCategory(word, category);
+      assert.ok(eligibleCategories(initial).includes(category), 'not offered in rounds: ' + category + '/' + word);
+      assert.equal(validAnswer(word, initial, category), true, 'not accepted: ' + word);
+      assert.deepEqual(otherSources.filter(source => source.content.includes("'" + word + "'") || source.content.includes('"' + word + '"')).map(source => source.name), [], 'other source duplicate: ' + word);
+    }
   }
 });
