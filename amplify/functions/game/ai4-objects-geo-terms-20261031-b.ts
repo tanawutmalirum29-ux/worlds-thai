@@ -230,7 +230,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถบรรทุกก๊าซ',
     // AI-4 batch 25: distinct industrial and agricultural vehicles.
     'รถพ่วงบรรทุกอ้อย',
-    'รถขนส่งคอนกรีตสำเร็จรูป',
     'รถตีเส้นจราจร'
   ],
   device: [
