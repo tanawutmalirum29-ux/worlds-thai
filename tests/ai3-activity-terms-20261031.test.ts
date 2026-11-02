@@ -763,8 +763,8 @@ const BATCH_TWENTY_FOUR: Readonly<Record<string, readonly string[]>> = {
     'ย้อมคราม'
   ],
   sport: [
-    'สกีปีนเขา',
-    'บีชเทนนิส',
+    'ไซเคิลบอล',
+    'วอลเลย์บอลหิมะ',
     'พาราว่ายน้ำ'
   ],
   music: [
@@ -861,5 +861,22 @@ test('AI-3 batch 24 does not duplicate existing alto and bass flutes', () => {
     assert.ok(eligibleCategories(initial).includes('music'), 'instrument unavailable: ' + replacement);
     assert.equal(validAnswer(replacement, initial, 'music'), true);
     assert.equal(WORD_BANK.music.filter(word => canonicalAnswer(word, 'music') === canonicalAnswer(replacement, 'music')).length, 1);
+  }
+});
+
+// Independent semantic QA: beach tennis is already present under its Thai name.
+// Competitive ski mountaineering overlaps the source's ski-touring identity;
+// replace both with independently governed, different disciplines.
+test('AI-3 batch 24 excludes existing beach tennis and overlapping ski touring', () => {
+  assert.ok(AI3_ACTIVITY_TERMS.sport.includes('เทนนิสชายหาด'), 'baseline beach tennis missing');
+  assert.ok(AI3_ACTIVITY_TERMS.sport.includes('สกีทัวริ่ง'), 'baseline ski touring missing');
+  assert.ok(!AI3_ACTIVITY_TERMS.sport.includes('บีชเทนนิส'), 'beach tennis synonym reintroduced');
+  assert.ok(!AI3_ACTIVITY_TERMS.sport.includes('สกีปีนเขา'), 'overlapping ski mountaineering reintroduced');
+  for (const [replacement, initial] of [['ไซเคิลบอล', 'ซ'], ['วอลเลย์บอลหิมะ', 'ว']] as const) {
+    assert.ok(AI3_ACTIVITY_TERMS.sport.includes(replacement), 'new sport missing: ' + replacement);
+    assert.equal(wordInitialForCategory(replacement, 'sport'), initial);
+    assert.ok(eligibleCategories(initial).includes('sport'), 'new sport unavailable: ' + replacement);
+    assert.equal(validAnswer(replacement, initial, 'sport'), true);
+    assert.equal(WORD_BANK.sport.filter(word => canonicalAnswer(word, 'sport') === canonicalAnswer(replacement, 'sport')).length, 1);
   }
 });
