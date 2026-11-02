@@ -245,8 +245,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถตีเส้นจราจร',
     // AI-4 batch 28: electric-powered passenger vessel.
     'เรือโดยสารไฟฟ้า',
-    // AI-4 batch 29: purpose-built team rowing vessel.
-    'เรือพายมังกร',
+    // AI-4 batch 29: small single-hull sailing dinghy.
+    'เรือใบดิงกี้',
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
