@@ -412,7 +412,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมแพตช์เวิร์ก',
     'เกมพาวเวอร์กริด',
     
-    'เกมอูโน',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
