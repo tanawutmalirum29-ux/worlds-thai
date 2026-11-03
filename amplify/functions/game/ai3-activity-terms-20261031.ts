@@ -499,7 +499,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'กระจกนาฬิกา',
     'ตู้ดูดควัน',
     
-    'แผ่นโปร่งใส',
   ],
   body: [
     'กล่องเสียง',
