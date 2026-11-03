@@ -258,8 +258,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'สตรีทลูจ',
     'โปโลครอส',
     'ซาวาเต้',
-    'วูซู',
-    'สกีปีนเขา',
+    'วีลแชร์เรซซิ่ง',
+    'โกรอดกี',
   ],
   music: [
     'ไวบราโฟน',
