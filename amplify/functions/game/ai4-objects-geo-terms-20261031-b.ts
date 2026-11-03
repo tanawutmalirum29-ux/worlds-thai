@@ -149,7 +149,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
   vehicle: [
     // AI-4 batch 32: independently named common objects and landmarks.
     'รถตุ๊กตุ๊กไฟฟ้า',
-    'รถบัสไฟฟ้า',
     'รถบรรทุกน้ำ',
     'รถตักดิน',
     'รถกระเช้า',
