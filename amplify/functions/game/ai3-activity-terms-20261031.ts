@@ -88,7 +88,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ช่างสัก',
     'นักวิเคราะห์นโยบายและแผน',
     'นักวิจัยตลาด',
-    'นักวิเคราะห์ข้อมูล',
     
   ],
   verb: [
