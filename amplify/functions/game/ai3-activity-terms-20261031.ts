@@ -348,8 +348,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เชลโลไฟฟ้า',
     'กรับเสภา',
     'กลองไทโกะ',
-    'กลองทิมปานี',
-    'กลองสแนร์',
   ],
   toy: [
     'หุ่นนิ้ว',
