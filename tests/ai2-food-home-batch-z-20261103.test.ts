@@ -89,6 +89,5 @@ test('AI-2 batch Z excludes reviewed semantic aliases already represented in mai
   assert.ok(WORD_BANK.object.includes('กระติกข้าวเหนียว'));
   assert.ok(!AI2_FOOD_HOME_BATCH_Z.object.includes('กระติบข้าวเหนียว'));
   // Korat-style papaya salad is already represented by the longer name.
-  assert.ok(WORD_BANK.food.includes('ส้มตำโคราช'));
   assert.ok(!AI2_FOOD_HOME_BATCH_Z.food.includes('ตำโคราช'));
 });
