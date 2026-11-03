@@ -88,6 +88,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ช่างสัก',
     'นักวิเคราะห์นโยบายและแผน',
     'นักวิจัยตลาด',
+    'นักวิเคราะห์ข้อมูล',
+    'ช่างซ่อมเครื่องปรับอากาศ',
   ],
   verb: [
     'เคลือบเงา',
@@ -174,6 +176,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ลวกเส้น',
     'หว่านเมล็ด',
     'ขัดรองเท้า',
+    'รีดผ้า',
+    'แกะสลักสบู่',
   ],
   sport: [
     'สปีดสเกต',
@@ -260,6 +264,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ซาวาเต้',
     'วีลแชร์เรซซิ่ง',
     'โกรอดกี',
+    'บาสเกตบอลสามคน',
+    'แฮนด์บอลชายหาด',
   ],
   music: [
     'ไวบราโฟน',
@@ -343,6 +349,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เชลโลไฟฟ้า',
     'กรับเสภา',
     'กลองไทโกะ',
+    'กลองทิมปานี',
+    'กลองสแนร์',
   ],
   toy: [
     'หุ่นนิ้ว',
@@ -404,6 +412,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมเดอะมายด์',
     'เกมแพตช์เวิร์ก',
     'เกมพาวเวอร์กริด',
+    'เกมโดบเบิล',
+    'เกมอูโน',
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
@@ -489,6 +499,8 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เข็มเขี่ยเชื้อ',
     'กระจกนาฬิกา',
     'ตู้ดูดควัน',
+    'เครื่องฉายภาพข้ามศีรษะ',
+    'แผ่นโปร่งใส',
   ],
   body: [
     'กล่องเสียง',
@@ -575,5 +587,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เส้นประสาทเฟรนิก',
     'กล้ามเนื้อแมสซีเตอร์',
     'กระดูกเอทมอยด์',
+    'กระดูกไหปลาร้า',
+    'กระดูกเชิงกราน',
   ],
 };
