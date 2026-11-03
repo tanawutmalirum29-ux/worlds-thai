@@ -8,8 +8,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
   readonly string[]
 >> = {
   clothing: [
-    // AI-4 batch 32: independently named common objects and landmarks.
-    'หมวกเบเรต์',
     'กางเกงคาร์โก้',
     'เสื้อวอร์ม',
     'เสื้อชูชีพ',
@@ -144,10 +142,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 31: distinct jacket and footwear styles.
     'เสื้อบอมเบอร์',
     'รองเท้าส้นเตารีด',
+    // AI-4 batch 32: appended after historical batches.
+    'หมวกเบเรต์',
   ],
   vehicle: [
-    // AI-4 batch 32: independently named common objects and landmarks.
-    'รถตุ๊กตุ๊กไฟฟ้า',
     'รถบรรทุกน้ำ',
     'รถตักดิน',
     'รถกระเช้า',
@@ -265,11 +263,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถฟู้ดทรัค',
     'เรือโดยสารสองชั้น',
     'เรือใบเลเซอร์',
+    // AI-4 batch 32: appended after historical batches.
+    'รถตุ๊กตุ๊กไฟฟ้า',
   ],
   device: [
-    // AI-4 batch 32: independently named common objects and landmarks.
-    'เครื่องฟอกอากาศในรถยนต์',
-    'เครื่องชั่งน้ำหนักทารก',
     'เครื่องทำวาฟเฟิล',
     'เครื่องนึ่งไฟฟ้า',
     'เครื่องบดกาแฟ',
@@ -416,11 +413,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องสแกนฟิล์ม',
     'เครื่องแปลภาษาอิเล็กทรอนิกส์',
     'เครื่องทำโซดา',
+    // AI-4 batch 32: appended after historical batches.
+    'เครื่องฟอกอากาศในรถยนต์',
+    'เครื่องชั่งน้ำหนักทารก',
   ],
   tool: [
-    // AI-4 batch 32: independently named common objects and landmarks.
-    'คีมล็อก',
-    'เลื่อยฉลุ',
     'คีมปอกสายไฟ',
     'ดอกสกัดปูน',
     'ปืนยิงซิลิโคน',
@@ -557,12 +554,11 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'แท่นตั้งศูนย์ล้อจักรยาน',
     'คีมถอดฟิวส์',
     'คีมจับลวดเชื่อม',
+    // AI-4 batch 32: appended after historical batches.
+    'คีมล็อก',
+    'เลื่อยฉลุ',
   ],
   place: [
-    // AI-4 batch 32: independently named common objects and landmarks.
-    'โคลอสเซียม',
-    'นครวัด',
-    'เทพีเสรีภาพ',
     'โรงไฟฟ้า',
     'พิพิธภัณฑ์สัตว์น้ำ',
     'สนามแข่งรถ',
@@ -709,5 +705,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ทัชมาฮาล',
     'พิพิธภัณฑ์ลูฟวร์',
     'พระราชวังแวร์ซาย',
+    // AI-4 batch 32: appended after historical batches.
+    'โคลอสเซียม',
+    'นครวัด',
+    'เทพีเสรีภาพ',
   ]
 } as const;
