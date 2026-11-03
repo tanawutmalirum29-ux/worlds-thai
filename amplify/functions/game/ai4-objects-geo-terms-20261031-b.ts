@@ -9,7 +9,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
 >> = {
   clothing: [
     // AI-4 batch 32: independently named common objects and landmarks.
-    'เสื้อคาร์ดิแกน',
     'หมวกเบเรต์',
     'กางเกงคาร์โก้',
     'เสื้อวอร์ม',
