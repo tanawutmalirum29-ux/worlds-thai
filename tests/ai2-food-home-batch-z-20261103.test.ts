@@ -11,7 +11,6 @@ const EXPECTED = {
     "แกงผักเฮือด",
     "น้ำพริกน้ำปู๋",
     "หมกไข่มดแดง",
-    "ตำโคราช",
     "ตำหอยดอง",
     "ผัดหมี่กระเฉด",
     "บุ๋นจ๋า",
@@ -33,11 +32,11 @@ const EXPECTED = {
   "furniture": []
 } as const;
 
-test('AI-2 batch Z registers 14 screened, canonical-unique words in owned categories only', () => {
+test('AI-2 batch Z registers 13 screened, canonical-unique words in owned categories only', () => {
   assert.deepEqual(AI2_FOOD_HOME_BATCH_Z, EXPECTED);
   assert.deepEqual(Object.keys(AI2_FOOD_HOME_BATCH_Z).sort(),
     ['dessert','drink','food','fruit','furniture','object','vegetable']);
-  assert.equal(Object.values(EXPECTED).flat().length, 14);
+  assert.equal(Object.values(EXPECTED).flat().length, 13);
   for (const [category, words] of Object.entries(EXPECTED)) {
     assert.equal(new Set(words).size, words.length, 'literal duplicates: '+category);
     assert.equal(new Set(words.map(w=>canonicalAnswer(w,category))).size, words.length,
@@ -89,4 +88,7 @@ test('AI-2 batch Z excludes reviewed semantic aliases already represented in mai
   // until an independent semantic distinction is established.
   assert.ok(WORD_BANK.object.includes('กระติกข้าวเหนียว'));
   assert.ok(!AI2_FOOD_HOME_BATCH_Z.object.includes('กระติบข้าวเหนียว'));
+  // Korat-style papaya salad is already represented by the longer name.
+  assert.ok(WORD_BANK.food.includes('ส้มตำโคราช'));
+  assert.ok(!AI2_FOOD_HOME_BATCH_Z.food.includes('ตำโคราช'));
 });
