@@ -89,7 +89,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'นักวิเคราะห์นโยบายและแผน',
     'นักวิจัยตลาด',
     'นักวิเคราะห์ข้อมูล',
-    'ช่างซ่อมเครื่องปรับอากาศ',
+    
   ],
   verb: [
     'เคลือบเงา',
@@ -412,7 +412,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมเดอะมายด์',
     'เกมแพตช์เวิร์ก',
     'เกมพาวเวอร์กริด',
-    'เกมโดบเบิล',
+    
     'เกมอูโน',
   ],
   school: [
@@ -499,7 +499,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เข็มเขี่ยเชื้อ',
     'กระจกนาฬิกา',
     'ตู้ดูดควัน',
-    'เครื่องฉายภาพข้ามศีรษะ',
+    
     'แผ่นโปร่งใส',
   ],
   body: [
