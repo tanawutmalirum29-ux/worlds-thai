@@ -8,6 +8,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
   readonly string[]
 >> = {
   clothing: [
+    // AI-4 batch 32: independently named common objects and landmarks.
+    'เสื้อคาร์ดิแกน',
+    'หมวกเบเรต์',
     'กางเกงคาร์โก้',
     'เสื้อวอร์ม',
     'เสื้อชูชีพ',
@@ -144,6 +147,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รองเท้าส้นเตารีด',
   ],
   vehicle: [
+    // AI-4 batch 32: independently named common objects and landmarks.
+    'รถตุ๊กตุ๊กไฟฟ้า',
+    'รถบัสไฟฟ้า',
     'รถบรรทุกน้ำ',
     'รถตักดิน',
     'รถกระเช้า',
@@ -263,6 +269,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เรือใบเลเซอร์',
   ],
   device: [
+    // AI-4 batch 32: independently named common objects and landmarks.
+    'เครื่องฟอกอากาศในรถยนต์',
+    'เครื่องชั่งน้ำหนักทารก',
     'เครื่องทำวาฟเฟิล',
     'เครื่องนึ่งไฟฟ้า',
     'เครื่องบดกาแฟ',
@@ -411,6 +420,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องทำโซดา',
   ],
   tool: [
+    // AI-4 batch 32: independently named common objects and landmarks.
+    'คีมล็อก',
+    'เลื่อยฉลุ',
     'คีมปอกสายไฟ',
     'ดอกสกัดปูน',
     'ปืนยิงซิลิโคน',
@@ -549,6 +561,10 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'คีมจับลวดเชื่อม',
   ],
   place: [
+    // AI-4 batch 32: independently named common objects and landmarks.
+    'โคลอสเซียม',
+    'นครวัด',
+    'เทพีเสรีภาพ',
     'โรงไฟฟ้า',
     'พิพิธภัณฑ์สัตว์น้ำ',
     'สนามแข่งรถ',
