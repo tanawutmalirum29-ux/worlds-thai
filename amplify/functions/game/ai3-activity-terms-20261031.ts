@@ -88,7 +88,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ช่างสัก',
     'นักวิเคราะห์นโยบายและแผน',
     'นักวิจัยตลาด',
-    
   ],
   verb: [
     'เคลือบเงา',
@@ -408,7 +407,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เกมเดอะมายด์',
     'เกมแพตช์เวิร์ก',
     'เกมพาวเวอร์กริด',
-    
   ],
   school: [
     'กระดาษฟลิปชาร์ต',
@@ -494,7 +492,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เข็มเขี่ยเชื้อ',
     'กระจกนาฬิกา',
     'ตู้ดูดควัน',
-    
   ],
   body: [
     'กล่องเสียง',
@@ -581,7 +578,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เส้นประสาทเฟรนิก',
     'กล้ามเนื้อแมสซีเตอร์',
     'กระดูกเอทมอยด์',
-    'กระดูกไหปลาร้า',
     'กระดูกเชิงกราน',
   ],
 };
