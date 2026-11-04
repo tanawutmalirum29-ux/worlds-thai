@@ -68,6 +68,9 @@ test('AI-4 batch 32 adds nine distinct, playable terms without changing historic
     for (const word of expected) {
       const initial = wordInitialForCategory(word, category);
       assert.ok(initial.length > 0, 'missing initial: ' + word);
+      assert.ok(LETTERS.includes(initial), 'unsupported initial: ' + category + '/' + word);
+      assert.ok(eligibleCategories(initial).includes(category), 'category not eligible for initial: ' + category + '/' + word);
+      assert.equal(validAnswer(word, initial, category), true, 'word not playable: ' + category + '/' + word);
       assert.equal(isInappropriateLanguage(word), false);
       assert.equal(isBlockedStandaloneAnswer(word), false);
       assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonicalAnswer(word, category)).length, 1);
