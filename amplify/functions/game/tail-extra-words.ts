@@ -47,3 +47,35 @@ export const TAIL_EXTRA_WORDS: readonly string[] = [
   'การพัฒนา',
   'กระบวนทัศน์',
 ] as const;
+
+
+/**
+ * Explicit syllable-onset corrections for Thai forms whose last syllable
+ * cannot be identified from written vowel signs alone (or has a silent
+ * consonant). Keep these alongside the tail-only dictionary so future
+ * reviewers can update both vocabulary and ending rules without touching
+ * classic category game logic.
+ */
+export const TAIL_END_OVERRIDES:Readonly<Record<string,string>>={
+  'การกระทำ':'ท',
+  'ส้มตำ':'ต',
+  'ขนมครก':'ค',
+  'ดอกไม้':'ม',
+  'รถไฟ':'ฟ',
+  'ความรัก':'ร',
+  'แกะสลักสบู่':'บ',
+  'ดอก':'ด',
+  'หอย':'ห',
+  'กล้วย':'ก',
+  'มะม่วง':'ม',
+  'หมี':'ห',
+  'หนู':'ห',
+  'บ้าน':'บ',
+  'น้อย':'น',
+  'ภาษา':'ส',
+  'กว้าง':'ก',
+  'หวาน':'ห',
+  'สอน':'ส',
+  'บอล':'บ',
+  'หอม':'ห'
+} as const;
