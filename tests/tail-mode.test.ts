@@ -44,6 +44,11 @@ test('Thai ending uses the last spoken syllable, not the final written consonant
   assert.equal(tailNextConsonant('ดอกไม้'),'ม');
   assert.equal(tailNextConsonant('ขนมครก'),'ค');
   assert.equal(tailNextConsonant('ความรัก'),'ร');
+  assert.equal(tailNextConsonant('ดอก'),'ด');
+  assert.equal(tailNextConsonant('หอย'),'ห');
+  assert.equal(tailNextConsonant('กล้วย'),'ก');
+  assert.equal(tailNextConsonant('มะม่วง'),'ม');
+  assert.equal(tailNextConsonant('ภาษา'),'ส');
   assert.equal(canonicalTailWord('  การกระทำ  '),'การกระทำ');
   assert.equal(tailWordStatus('การกระทำ','ก'),'ok');
   assert.equal(tailWordStatus('คำที่ไม่มีจริงในพจนานุกรม','ค'),'unknown');
