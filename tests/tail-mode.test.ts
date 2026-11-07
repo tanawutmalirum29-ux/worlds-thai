@@ -124,10 +124,11 @@ test('leaving an active chain loses the turn and preserves winner standings',()=
 
 test('replay preserves seats and settings but clears all used answers and eliminations',()=>{
   const m=match(2);
-  advance(m,m.deadline);
+  const cutoff=m.deadline;
+  advance(m,cutoff);
   assert.equal(m.phase,'final');
-  applyAction(m,'rematch','host',m.deadline+1000);
-  applyAction(m,'rematch','guest1',m.deadline+1001);
+  applyAction(m,'rematch','host',cutoff+1000);
+  applyAction(m,'rematch','guest1',cutoff+1001);
   assert.equal(m.phase,'lobby');
   assert.equal(m.tail,undefined);
   assert.equal(m.settings.mode,'tail');
