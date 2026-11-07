@@ -174,7 +174,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ลวกเส้น',
     'หว่านเมล็ด',
     'ขัดรองเท้า',
-    'รีดผ้า',
     'แกะสลักสบู่',
   ],
   sport: [
@@ -262,7 +261,6 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ซาวาเต้',
     'วีลแชร์เรซซิ่ง',
     'โกรอดกี',
-    'บาสเกตบอลสามคน',
   ],
   music: [
     'ไวบราโฟน',
@@ -578,6 +576,5 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'เส้นประสาทเฟรนิก',
     'กล้ามเนื้อแมสซีเตอร์',
     'กระดูกเอทมอยด์',
-    'กระดูกเชิงกราน',
   ],
 };
