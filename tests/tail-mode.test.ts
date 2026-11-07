@@ -139,7 +139,7 @@ test('replay preserves seats and settings but clears all used answers and elimin
   assert.equal(m.settings.mode,'tail');
   applyAction(m,'start','host',NOW+30000);
   assert.equal(m.phase,'playing');
-  assert.deepEqual(m.tail?.usedWords,[]);
+  assert.deepEqual(snapshot(m).tail?.usedWords,[]);
 });
 
 test('a valid word cannot trigger classic draft scoring in tail mode',()=>{
