@@ -52,12 +52,12 @@ test('AI-4 batches 2–31 retain 537 historical clean and canonically unique ter
 });
 
 
-test('AI-4 batch 32 adds nine distinct, playable terms without changing historical batches', () => {
+test('AI-4 batch 32 adds seven new, playable terms without changing historical batches', () => {
   const batch32: Record<string, string[]> = {
     clothing: ['หมวกเบเรต์'],
     vehicle: ['รถตุ๊กตุ๊กไฟฟ้า'],
     device: ['เครื่องฟอกอากาศในรถยนต์', 'เครื่องชั่งน้ำหนักทารก'],
-    tool: ['คีมล็อก', 'เลื่อยฉลุ'],
+    tool: [],
     place: ['โคลอสเซียม', 'นครวัด', 'เทพีเสรีภาพ'],
   };
   const historicalCounts: Record<string, number> = { clothing: 105, vehicle: 91, device: 117, tool: 107, place: 117 };
@@ -76,9 +76,13 @@ test('AI-4 batch 32 adds nine distinct, playable terms without changing historic
       assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonicalAnswer(word, category)).length, 1);
     }
   }
-  assert.equal(Object.values(AI4_OBJECTS_GEO_TERMS).flat().length, 546);
+  assert.equal(Object.values(AI4_OBJECTS_GEO_TERMS).flat().length, 544);
   assert.ok(!AI4_OBJECTS_GEO_TERMS.clothing.includes('เสื้อคาร์ดิแกน'), 'semantic duplicate cardigan must remain excluded');
   assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถบัสไฟฟ้า'), 'duplicate electric bus must remain excluded');
+  assert.ok(EXPANDED_THAI_TERMS.tool.includes('คีมล็อก'));
+  assert.ok(EXPANDED_THAI_TERMS.tool.includes('เลื่อยฉลุ'));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('คีมล็อก'), 'existing locking pliers must not be counted twice');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('เลื่อยฉลุ'), 'existing fret saw must not be counted twice');
 });
 
 /** The live WORD_BANK uses Set deduplication, so checking it alone can hide
