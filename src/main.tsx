@@ -4,7 +4,7 @@ import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
 import { GameAudio, readAudioMuted, writeAudioMuted, type AudioScene } from './audio.ts';
-import { validRoundAnswer,normalizeAnswer } from '../amplify/functions/game/logic.ts';
+import { validRoundAnswer,normalizeAnswer,tailWordStatus } from '../amplify/functions/game/logic.ts';
 import {checkAnswerFeedback,type AnswerFeedback} from './answer-feedback.ts';
 import {nicknameValidationMessage} from '../amplify/functions/game/moderation.ts';
 import { letterCaption } from './letters.ts';
@@ -42,8 +42,9 @@ const SYMBOLS: Record<string,string> = {
   festival:'🎏', toy:'✦', fish:'🐟', insect:'🐝', bird:'🕊', dessert:'🍩', nature:'☘',
   furniture:'▤', material:'⬡', health:'✚', tool:'⚒', fiction:'📖', transport:'➤'
 };
-type GameSettings = {rounds:number;categories:number;seconds:number;mode?:'letter'|'category'};
+type GameSettings = {rounds:number;categories:number;seconds:number;mode?:'letter'|'category'|'tail'};
 const DEFAULT_SETTINGS:GameSettings={rounds:3,categories:5,seconds:40};
+function modeLabel(mode?:GameSettings['mode']){return mode==='tail'?'คำท้าย':mode==='category'?'หมวดใหญ่':'พยัญชนะ';}
 const TIME_OPTIONS=[20,30,40,50,60,75,90,120];
 type SettingKey=keyof GameSettings;
 const SETTINGS_CHOICES:{field:SettingKey;label:string;unit:string;options:number[]}[]=[
@@ -55,12 +56,13 @@ type PublicRoom = {roomId:string;hostName:string;playerCount:number;createdAt:nu
 type Player = { id:string; name:string; score:number };
 type Entry = { id:string; name:string; answers:Record<string,string>; points:number; perCategory:Record<string,number>; rarityBonus?:Record<string,number> };
 type Round = {round:number; letter:string; categories:string[]; topicCategory?:string; entries:Entry[]};
+type TailState = {order:{id:string;name:string}[];currentId:string;usedWords:string[];eliminated:Record<string,{place:number;reason:'timeout'|'repeat'|'left';word?:string}>;moves:{playerId:string;name:string;turn:number;letter:string;word?:string;nextLetter?:string;reason?:'timeout'|'repeat'|'left'}[];lastWord:string};
 type Game = {roomId:string; phase:'lobby'|'playing'|'review'|'final'; round:number; letter:string; topicCategory?:string;
   categories:string[]; deadline:number; countdown:number; players:Player[]; submitted:string[];
   maskedAnswers?:Record<string,Record<string,string>>;
   history:Round[]; revision:number; ownerId:string; settings:GameSettings; you?:string;
   skipVotes?:string[]; rematchVotes?:string[];
-  timeRush?:{start:number;ends:number;from:number}; serverNow?:number;
+  timeRush?:{start:number;ends:number;from:number}; serverNow?:number; tail?:TailState;
 };
 type Api = any;
 function unpack(value:unknown):any {
@@ -119,6 +121,11 @@ function App(){
   const leavingRef=useRef(false);
   const [me,setMe] = useState('');
   const [answers,setAnswers] = useState<Record<string,string>>({});
+  const [tailTyped,setTailTyped]=useState('');
+  const [tailFeedback,setTailFeedback]=useState('');
+  const [tailSending,setTailSending]=useState(false);
+  const tailSendRef=useRef(false);
+  const tailTurnKeyRef=useRef('');
   const [draftStatus,setDraftStatus] = useState<'idle'|'saving'|'saved'|'error'>('idle');
   const [working,setWorking] = useState(false);
   const [now,setNow] = useState(Date.now());
@@ -420,6 +427,12 @@ function App(){
           document.documentElement.style.overflowAnchor=priorOverflowAnchor;
         }
       };
+    }
+    const tailKey=next.settings?.mode==='tail'&&next.phase==='playing'
+      ? next.roomId+':'+next.round+':'+(next.tail?.currentId||'') : '';
+    if(tailKey!==tailTurnKeyRef.current){
+      tailTurnKeyRef.current=tailKey;
+      setTailTyped('');setTailFeedback('');
     }
     if(next.round !== roundRef.current){
       if(draftTimerRef.current)clearTimeout(draftTimerRef.current);
@@ -734,6 +747,22 @@ function App(){
       draftTimerRef.current=setTimeout(()=>void flushDraft(),0);
     }
   },[game?.round,game?.phase,now]);
+  async function submitTailWord(){
+    const state=current.current,word=tailTyped.trim();
+    if(!state||state.settings.mode!=='tail'||state.phase!=='playing'||
+      state.tail?.currentId!==meRef.current||!word||tailSendRef.current||
+      Date.now()+serverClockOffsetRef.current>=state.deadline)return;
+    tailSendRef.current=true;setTailSending(true);setTailFeedback('');
+    try{
+      const result=await call('tail-submit',state.roomId,undefined,{word});
+      accept(result.snapshot);
+    }catch(e){
+      setTailFeedback(e instanceof Error?e.message:'ส่งคำไม่สำเร็จ');
+      refreshGameRef.current();
+    }finally{
+      tailSendRef.current=false;setTailSending(false);
+    }
+  }
   async function vote(action:'skip'|'rematch') {
     if(!roomRef.current||workingRef.current||!current.current)return;
     const state=current.current;
@@ -788,7 +817,7 @@ function App(){
     return states;
   },[answers,game?.phase,game?.round,game?.letter,game?.topicCategory,game?.categories]);
   const activeChoice=SETTINGS_CHOICES.find(choice=>choice.field===choicePopup);
-  const activeChoiceLabel=activeChoice?.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':activeChoice?.label;
+  const activeChoiceLabel=activeChoice?.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':activeChoice?.field==='seconds'&&draftSettings.mode==='tail'?'เวลาต่อคน':activeChoice?.label;
   const settingsControls=<>
     <div className="game-mode-picker" role="group" aria-label="เลือกโหมดเกม">
       <button type="button" className={draftSettings.mode!=='category'?'game-mode-option active':'game-mode-option'}
@@ -797,14 +826,18 @@ function App(){
       <button type="button" className={draftSettings.mode==='category'?'game-mode-option active':'game-mode-option'}
         aria-pressed={draftSettings.mode==='category'}
         onClick={()=>updateRoomSetting('mode','category')}><strong>โหมดหมวดใหญ่</strong><small>หมวดเดียว หลายอักษร</small></button>
+      <button type="button" className={draftSettings.mode==='tail'?'game-mode-option active':'game-mode-option'}
+        aria-pressed={draftSettings.mode==='tail'}
+        onClick={()=>updateRoomSetting('mode','tail')}><strong>โหมดคำท้าย</strong><small>ส่งคำต่อเป็นวง · คนสุดท้ายชนะ</small></button>
     </div>
-    <div className="settings-grid">{SETTINGS_CHOICES.map(choice=><div className="settings-choice-field" key={choice.field}>
-      <span className="settings-choice-label">{choice.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':choice.label}</span>
+    <div className="settings-grid">{SETTINGS_CHOICES.filter(choice=>draftSettings.mode!=='tail'||choice.field==='seconds').map(choice=><div className="settings-choice-field" key={choice.field}>
+      <span className="settings-choice-label">{choice.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':choice.field==='seconds'&&draftSettings.mode==='tail'?'เวลาต่อคน':choice.label}</span>
       <button type="button" className="settings-choice-trigger" aria-label={`เลือก${choice.field==='categories'&&draftSettings.mode==='category'?'จำนวนคำต่อรอบ':choice.label} ค่าปัจจุบัน ${draftSettings[choice.field]} ${choice.field==='categories'&&draftSettings.mode==='category'?'คำ':choice.unit}`} aria-haspopup="dialog" aria-expanded={choicePopup===choice.field}
         onClick={e=>openSetting(choice.field,e.currentTarget)}><span>{draftSettings[choice.field]} {choice.field==='categories'&&draftSettings.mode==='category'?'คำ':choice.unit}</span><span className="settings-chevron" aria-hidden="true">⌄</span></button>
     </div>)}</div>
   </>;
   const playing=game?.phase==='playing';
+  const isTail=game?.settings.mode==='tail';
   const isOwner=Boolean(game && me===game.ownerId);
   const remaining=game&&game.deadline?secondsUntil(game.deadline,now):0;
   const awaitingRound=Boolean(game && (game.phase==='playing'||game.phase==='review') && remaining===0);
@@ -851,9 +884,24 @@ function App(){
     if(!next)audioRef.current?.cue('tap');
   }
   const invalidNicknameMessage=nicknameValidationMessage(name.trim().slice(0,18));
-  const ordered=(game?.players||[]).slice().sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'th'));
+  const ordered:Player[]=isTail&&game?.tail
+    ?game.tail.order.map(person=>({
+      ...person,score:game.players.find(p=>p.id===person.id)?.score||0
+    })).sort((a,b)=>
+      (game.tail!.eliminated[a.id]?.place??1)-(game.tail!.eliminated[b.id]?.place??1)||
+      b.score-a.score)
+    :(game?.players||[]).slice().sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'th'));
   const latest=game?.history.at(-1);
-  const leaders=ordered.filter(p=>p.score===ordered[0]?.score);
+  const leaders=isTail?ordered.slice(0,1):ordered.filter(p=>p.score===ordered[0]?.score);
+  const tailHint=isTail&&game?.phase==='playing'&&tailTyped.trim()
+    ?tailWordStatus(tailTyped,game.letter,game.tail?.usedWords||[]):'empty';
+  const tailHintText:Record<string,string>={
+    'ok':'คำนี้อยู่ในพจนานุกรม · พร้อมส่ง',
+    'empty':'','wrong-letter':'คำต้องขึ้นต้นด้วยพยัญชนะที่กำหนด',
+    'unknown':'คำนี้ยังไม่มีในพจนานุกรมเกม',
+    'dead-end':'คำนี้ไม่มีคำให้ผู้เล่นถัดไปต่อได้',
+    'repeated':'คำนี้เคยใช้แล้ว · หากส่งจะถูกคัดออกทันที'
+  };
   return <div className="app-shell">
     <div className="ambient ambient-left"/><div className="ambient ambient-right"/>
     <header className={playing?'topbar container topbar-playing':'topbar container'}>
@@ -871,7 +919,7 @@ function App(){
         <section className="welcome-copy">
           <div className="eyebrow"><span className="eyebrow-line"/> เกมคำศัพท์ปาร์ตี้ออนไลน์</div>
           <h1>คิดให้ไว <span>ตอบให้ทัน</span><br/>แล้วมาวัดกัน!</h1>
-          <p className="lead">เลือกเล่นได้สองโหมด สุ่มพยัญชนะหรือสุ่มหมวดใหญ่ แข่งตอบคำให้ตรงโจทย์กับเพื่อนแบบออนไลน์!</p>
+          <p className="lead">เลือกเล่นได้สามโหมด: พยัญชนะ หมวดใหญ่ และคำท้าย แข่งตอบคำกับเพื่อนแบบออนไลน์!</p>
           <div className="floating-letters" aria-hidden="true"><div className="float-card first">ก<span>ไก่</span></div><div className="float-card second">ส<span>เสือ</span></div><div className="float-card third">ม<span>ม้า</span></div></div>
         </section>
         <section className="join-card">
@@ -881,7 +929,7 @@ function App(){
             <button type="button" className={mode==='create'?'room-mode active':'room-mode'} aria-pressed={mode==='create'} onClick={()=>{setMode('create');setError('');}}>สร้างห้อง</button>
             <button type="button" className={mode==='join'?'room-mode active':'room-mode'} aria-pressed={mode==='join'} onClick={()=>{setMode('join');setError('');}}>เข้าร่วมห้อง</button>
           </div>
-          <div className="room-intro"><h2>{mode==='join'?'ห้องที่กำลังรอผู้เล่น':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'ห้องที่เพื่อนสร้างจะปรากฏอัตโนมัติ กดเข้าร่วมได้ทันที':'ตั้งค่าจำนวนรอบ หมวด และเวลา จากนั้นรอเพื่อนเข้ามา'}</p></div>
+          <div className="room-intro"><h2>{mode==='join'?'ห้องที่กำลังรอผู้เล่น':'สร้างห้องใหม่'}</h2><p className="muted">{mode==='join'?'ห้องที่เพื่อนสร้างจะปรากฏอัตโนมัติ กดเข้าร่วมได้ทันที':'เลือกโหมดและเวลาตอบ จากนั้นรอเพื่อนเข้ามา'}</p></div>
           <label htmlFor="nickname">ชื่อเล่นของคุณ</label>
           <input id="nickname" maxLength={18} autoComplete="nickname" aria-invalid={Boolean(invalidNicknameMessage)} aria-describedby="nickname-validation" value={name} onChange={e=>{setName(e.target.value);setError('');}} onKeyDown={e=>{if(e.key==='Enter'&&mode==='create')void join();}} placeholder="เช่น เจ้าแม่คำศัพท์" />
           <p id="nickname-validation" className="nickname-validation-slot" role={invalidNicknameMessage?'alert':undefined}>{invalidNicknameMessage}</p>
@@ -892,7 +940,7 @@ function App(){
             {roomsLoading?<p className="notice">กำลังค้นหาห้องออนไลน์...</p>:
             rooms.length===0?<div className="empty-rooms"><strong>ยังไม่มีห้องที่รอผู้เล่น</strong><p>ให้เพื่อนคนหนึ่งกดสร้างห้องก่อน ห้องจะปรากฏที่นี่อัตโนมัติ</p><button type="button" className="secondary-btn" onClick={()=>setMode('create')}>สร้างห้องใหม่</button></div>:
             <div className="public-room-list">{rooms.map(room=><div className="public-room-card" key={room.roomId}>
-              <div className="public-room-description"><strong>ห้องของ {room.hostName}</strong><span>● {room.playerCount}/8 คน · {room.settings.rounds} รอบ · {room.settings.mode==='category'?'หมวดใหญ่':'พยัญชนะ'} · {room.settings.categories} {room.settings.mode==='category'?'คำ':'หมวด'} · {room.settings.seconds} วินาที</span></div>
+              <div className="public-room-description"><strong>ห้องของ {room.hostName}</strong><span>● {room.playerCount}/8 คน · {room.settings.mode==='tail'?'คัดออกจนเหลือคนสุดท้าย':room.settings.rounds+' รอบ'} · {modeLabel(room.settings.mode)} · {room.settings.mode==='tail'?'ผลัดกันตอบ':room.settings.categories+(room.settings.mode==='category'?' คำ':' หมวด')} · {room.settings.seconds} วินาที</span></div>
               <button type="button" className="public-room-join" disabled={working||status!=='ready'||Boolean(invalidNicknameMessage)} onClick={()=>void join(room.roomId)}>{working?'กำลังเข้า...':'เข้าร่วม'}</button>
             </div>)}</div>}
           </div>:<div className="settings-panel welcome-settings"><h3>ตั้งค่าเกมของคุณ</h3>
@@ -907,7 +955,7 @@ function App(){
         <section className="game-main">
           <div className="game-status-row"><div><span className="eyebrow tiny">LIVE MATCH <span className="gold-dot">●</span></span><h1 className="game-heading">{game.phase==='lobby'?'รอเพื่อนมาร่วมสนุก':game.phase==='playing'?'ได้เวลาประลองคำ!':game.phase==='review'?'เฉลยคำตอบรอบนี้':'จบเกมแล้ว!'}</h1></div><button type="button" className="exit-btn" onClick={e=>{openerRef.current=e.currentTarget;setExitConfirm(true);}}>ออกจากเกม ×</button></div>
           {error?<p className="error-message" role="alert">{error}</p>:null}
-          <div className="game-meta"><span className="round-marker">{game.round?`รอบ ${game.round} / ${game.settings.rounds}`:isOwner?'ห้องของเรา':'ห้องของเพื่อน'}</span><span className="people-marker">◉ {game.players.length} / 8 คน</span></div>
+          <div className="game-meta"><span className="round-marker">{isTail?(game.round?`ตาที่ ${game.round}`:isOwner?'ห้องของเรา':'ห้องของเพื่อน'):(game.round?`รอบ ${game.round} / ${game.settings.rounds}`:isOwner?'ห้องของเรา':'ห้องของเพื่อน')}</span><span className="people-marker">◉ {game.players.length} / 8 คน</span></div>
           {game.phase==='lobby'?<div className="lobby-view">
             <div className="lobby-visual"><div className="lobby-ring one"/><div className="lobby-ring two"/><span className="lobby-letter">{isOwner?'จ':'ร'}<span>◈</span></span></div>
             <h2>{isOwner?'เจ้าของห้อง':'รอเจ้าของห้องเริ่มเกม'}</h2>
@@ -922,7 +970,7 @@ function App(){
                  'เลือกค่าได้เลย ระบบจะบันทึกให้อัตโนมัติ'}
               </div>
               
-            </div>:<div className="waiting-settings">การตั้งค่าห้อง: {game.settings.rounds} รอบ · {game.settings.mode==='category'?'โหมดหมวดใหญ่':'โหมดพยัญชนะ'} · {game.settings.categories} {game.settings.mode==='category'?'คำ':'หมวด'} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
+            </div>:<div className="waiting-settings">การตั้งค่าห้อง: {isTail?'คัดออกจนเหลือคนสุดท้าย':game.settings.rounds+' รอบ'} · โหมด{modeLabel(game.settings.mode)} · {isTail?'ผลัดกันพิมพ์คนละคำ':game.settings.categories+(game.settings.mode==='category'?' คำ':' หมวด')} · {game.settings.seconds} วินาที<br/>เจ้าของห้อง: {game.players.find(p=>p.id===game.ownerId)?.name||'กำลังรอเจ้าของห้อง'}</div>}
             {isOwner?<div className="lobby-start-dock"><button type="button" className="primary-btn lobby-start-btn" disabled={working||game.players.length<2} onClick={()=>void ownerAction('start')}>เริ่มเกม {game.players.length} คน <span aria-hidden="true">→</span></button></div>:null}
           </div>:null}
           {playing?<><div className="challenge-banner" ref={challengeBannerRef}><div><div className="banner-label">{game.topicCategory?'หมวดใหญ่ประจำรอบ':'พยัญชนะประจำรอบ'}</div><div className={game.topicCategory?'letter-display category-display':'letter-display'}>{game.topicCategory?LABELS[game.topicCategory]||game.topicCategory:game.letter}</div><div className="letter-caption">{game.topicCategory?'แต่ละคำจะได้พยัญชนะต่างกัน':letterCaption(game.letter)}</div></div><div className="time-box"><span className={rushing||displayedRemaining<=5?'countdown-alert':''}>{rushing?'เร่งเวลา!':awaitingRound?(navigator.onLine?(slowConnection?'เครือข่ายช้า · กำลังตามรอบ':'กำลังซิงค์รอบถัดไป'):'ออฟไลน์ · รอเชื่อมต่อ'):displayedRemaining>0&&displayedRemaining<=5?'รีบตอบ!':'เวลาที่เหลือ'}</span><strong key={rushing?'rush':displayedRemaining} className={rushing?'rush-time':displayedRemaining<=5?'countdown-pulse':displayedRemaining<=15?'urgent':''} aria-label={`เหลือ ${displayedRemaining} วินาที`}>{displayedRemaining<=5?displayedRemaining:timeLabel(displayedRemaining)}</strong><div className={rushing||displayedRemaining<=5?'time-track critical-track':'time-track'}><div style={{width:`${Math.min(100,displayedRemaining/game.settings.seconds*100)}%`}}/></div></div></div>
