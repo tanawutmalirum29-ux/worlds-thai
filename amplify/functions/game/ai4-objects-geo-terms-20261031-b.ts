@@ -555,8 +555,6 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'คีมถอดฟิวส์',
     'คีมจับลวดเชื่อม',
     // AI-4 batch 32: appended after historical batches.
-    'คีมล็อก',
-    'เลื่อยฉลุ',
   ],
   place: [
     'โรงไฟฟ้า',
