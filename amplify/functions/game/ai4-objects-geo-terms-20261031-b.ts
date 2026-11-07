@@ -142,6 +142,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     // AI-4 batch 31: distinct jacket and footwear styles.
     'เสื้อบอมเบอร์',
     'รองเท้าส้นเตารีด',
+    // AI-4 batch 32: appended after historical batches.
+    'หมวกเบเรต์',
   ],
   vehicle: [
     'รถบรรทุกน้ำ',
@@ -261,6 +263,8 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'รถฟู้ดทรัค',
     'เรือโดยสารสองชั้น',
     'เรือใบเลเซอร์',
+    // AI-4 batch 32: appended after historical batches.
+    'รถตุ๊กตุ๊กไฟฟ้า',
   ],
   device: [
     'เครื่องทำวาฟเฟิล',
@@ -409,6 +413,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'เครื่องสแกนฟิล์ม',
     'เครื่องแปลภาษาอิเล็กทรอนิกส์',
     'เครื่องทำโซดา',
+    // AI-4 batch 32: appended after historical batches.
+    'เครื่องฟอกอากาศในรถยนต์',
+    'เครื่องชั่งน้ำหนักทารก',
   ],
   tool: [
     'คีมปอกสายไฟ',
@@ -547,6 +554,7 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'แท่นตั้งศูนย์ล้อจักรยาน',
     'คีมถอดฟิวส์',
     'คีมจับลวดเชื่อม',
+    // AI-4 batch 32: appended after historical batches.
   ],
   place: [
     'โรงไฟฟ้า',
@@ -695,5 +703,9 @@ export const AI4_OBJECTS_GEO_TERMS: Readonly<Record<
     'ทัชมาฮาล',
     'พิพิธภัณฑ์ลูฟวร์',
     'พระราชวังแวร์ซาย',
+    // AI-4 batch 32: appended after historical batches.
+    'โคลอสเซียม',
+    'นครวัด',
+    'เทพีเสรีภาพ',
   ]
 } as const;

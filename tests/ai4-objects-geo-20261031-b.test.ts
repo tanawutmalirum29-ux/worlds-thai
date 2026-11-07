@@ -21,14 +21,16 @@ const EXPECTED_INITIALS: Readonly<Record<string, readonly string[]>> = {
   place: ['ร', 'พ', 'ส', 'ต', 'ท', 'ร', 'ห', 'ร', 'อ', 'ร', 'ร', 'ส', 'ศ', 'ท', 'ศ', 'ศ', 'ร', 'ส', 'ศ', 'บ', 'ส', 'ท', 'ห', 'ส', 'ร', 'ศ', 'ส', 'ร', 'ร', 'ส', 'ห', 'ร', 'ส', 'ร', 'ล', 'อ', 'ร', 'ส', 'อ', 'ห', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ส', 'ล', 'ร', 'ส', 'ร', 'ท', 'ร', 'ร', 'ร', 'ส', 'ร', 'ล', 'ส', 'ร', 'ร', 'ท', 'ร', 'ล', 'ส', 'อ', 'ร', 'ร', 'ร', 'ร', 'ส', 'ร', 'ร', 'ร', 'ร', 'ร', 'ร', 'ส', 'ห', 'ร', 'ล', 'ร', 'ส', 'ส', 'ส', 'ร', 'ร', 'ร', 'ร', 'ส', 'ร', 'ร', 'ร', 'ส', 'ส', 'ร', 'ร', 'ส', 'พ', 'ส', 'ท', 'ล', 'ส', 'ร', 'ส', 'พ', 'พ', 'ส', 'ร', 'ร', 'ร', 'ส', 'ร', 'ห', 'ท', 'พ', 'พ'],
 };
 
-test('AI-4 batches 2–31 register exactly 537 clean and canonically unique terms', () => {
+test('AI-4 batches 2–31 retain 537 historical clean and canonically unique terms', () => {
   assert.deepEqual(Object.keys(AI4_OBJECTS_GEO_TERMS), Object.keys(EXPECTED_INITIALS));
-  const all = Object.values(AI4_OBJECTS_GEO_TERMS).flat();
+  const historicalCounts = { clothing: 105, vehicle: 91, device: 117, tool: 107, place: 117 } as const;
+  const all = Object.entries(AI4_OBJECTS_GEO_TERMS).flatMap(([category, words]) => words.slice(0, historicalCounts[category as keyof typeof historicalCounts]));
   assert.equal(all.length, 537);
   assert.equal(new Set(all).size, 537, 'duplicate literal within AI-4 batches');
 
-  for (const [category, words] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
-    assert.equal(words.length, ({ clothing: 105, vehicle: 91, device: 117, tool: 107, place: 117 } as Record<string, number>)[category], 'unexpected count: ' + category);
+  for (const [category, allWords] of Object.entries(AI4_OBJECTS_GEO_TERMS)) {
+    const words = allWords.slice(0, historicalCounts[category as keyof typeof historicalCounts]);
+    assert.equal(words.length, historicalCounts[category as keyof typeof historicalCounts], 'unexpected historical count: ' + category);
     assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size,
       words.length, 'duplicate canonical identity within AI-4 category: ' + category);
     for (const [index, word] of words.entries()) {
@@ -49,6 +51,39 @@ test('AI-4 batches 2–31 register exactly 537 clean and canonically unique term
   }
 });
 
+
+test('AI-4 batch 32 adds seven new, playable terms without changing historical batches', () => {
+  const batch32: Record<string, string[]> = {
+    clothing: ['หมวกเบเรต์'],
+    vehicle: ['รถตุ๊กตุ๊กไฟฟ้า'],
+    device: ['เครื่องฟอกอากาศในรถยนต์', 'เครื่องชั่งน้ำหนักทารก'],
+    tool: [],
+    place: ['โคลอสเซียม', 'นครวัด', 'เทพีเสรีภาพ'],
+  };
+  const historicalCounts: Record<string, number> = { clothing: 105, vehicle: 91, device: 117, tool: 107, place: 117 };
+  for (const [category, expected] of Object.entries(batch32)) {
+    const words = AI4_OBJECTS_GEO_TERMS[category as keyof typeof AI4_OBJECTS_GEO_TERMS];
+    assert.deepEqual(words.slice(historicalCounts[category]), expected);
+    assert.equal(new Set(words.map(word => canonicalAnswer(word, category))).size, words.length);
+    for (const word of expected) {
+      const initial = wordInitialForCategory(word, category);
+      assert.ok(initial.length > 0, 'missing initial: ' + word);
+      assert.ok(LETTERS.includes(initial), 'unsupported initial: ' + category + '/' + word);
+      assert.ok(eligibleCategories(initial).includes(category), 'category not eligible for initial: ' + category + '/' + word);
+      assert.equal(validAnswer(word, initial, category), true, 'word not playable: ' + category + '/' + word);
+      assert.equal(isInappropriateLanguage(word), false);
+      assert.equal(isBlockedStandaloneAnswer(word), false);
+      assert.equal(WORD_BANK[category].filter(entry => canonicalAnswer(entry, category) === canonicalAnswer(word, category)).length, 1);
+    }
+  }
+  assert.equal(Object.values(AI4_OBJECTS_GEO_TERMS).flat().length, 544);
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.clothing.includes('เสื้อคาร์ดิแกน'), 'semantic duplicate cardigan must remain excluded');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.vehicle.includes('รถบัสไฟฟ้า'), 'duplicate electric bus must remain excluded');
+  assert.ok(EXPANDED_THAI_TERMS.tool.includes('คีมล็อก'));
+  assert.ok(EXPANDED_THAI_TERMS.tool.includes('เลื่อยฉลุ'));
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('คีมล็อก'), 'existing locking pliers must not be counted twice');
+  assert.ok(!AI4_OBJECTS_GEO_TERMS.tool.includes('เลื่อยฉลุ'), 'existing fret saw must not be counted twice');
+});
 
 /** The live WORD_BANK uses Set deduplication, so checking it alone can hide
  * an AI-4 word already present in another source module. Scan the actual
