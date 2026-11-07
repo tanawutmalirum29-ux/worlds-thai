@@ -1,7 +1,7 @@
 import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary.ts';
 import { NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 import { JOB_CANONICAL_ALIASES } from './additional-jobs.ts';
-import { TAIL_EXTRA_WORDS } from './tail-extra-words.ts';
+import { TAIL_EXTRA_WORDS, TAIL_END_OVERRIDES } from './tail-extra-words.ts';
 import { isInappropriateLanguage, isBlockedStandaloneAnswer, nicknameValidationMessage } from './moderation.ts';
 
 const CATEGORY_LABELS = [
@@ -177,10 +177,6 @@ export const TAIL_START_LETTERS = ALL_LETTERS.filter(letter=>
  * rather than ม. Thai spelling sometimes omits vowel signs; the fallback
  * handles final consonant clusters without accepting unlisted words.
  */
-const TAIL_END_OVERRIDES:Readonly<Record<string,string>>={
-  'การกระทำ':'ท', 'ส้มตำ':'ต', 'ขนมครก':'ค',
-  'ดอกไม้':'ม', 'รถไฟ':'ฟ', 'ความรัก':'ร', 'แกะสลักสบู่':'บ'
-};
 export function tailNextConsonant(value:unknown):string {
   const word=canonicalTailWord(value);
   if(!word)return '';
