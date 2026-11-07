@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import './style.css';
+import './tail-mode.css';
 import { GameAudio, readAudioMuted, writeAudioMuted, type AudioScene } from './audio.ts';
 import { validRoundAnswer,normalizeAnswer,tailWordStatus } from '../amplify/functions/game/logic.ts';
 import {checkAnswerFeedback,type AnswerFeedback} from './answer-feedback.ts';
