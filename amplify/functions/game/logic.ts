@@ -1,6 +1,7 @@
 import { WORD_BANK, EXCLUDED_LETTERS, MIN_WORDS_PER_PAIR, MIN_CATEGORIES_PER_LETTER } from './dictionary.ts';
 import { NEIGHBOR_PROVINCE_ALIASES } from './neighbor-provinces.ts';
 import { JOB_CANONICAL_ALIASES } from './additional-jobs.ts';
+import { TAIL_EXTRA_WORDS, TAIL_END_OVERRIDES } from './tail-extra-words.ts';
 import { isInappropriateLanguage, isBlockedStandaloneAnswer, nicknameValidationMessage } from './moderation.ts';
 
 const CATEGORY_LABELS = [
@@ -140,15 +141,151 @@ const acceptedWords = new Map<string,Set<string>>(
 );
 export const MAX_PLAYERS = 8;
 export const DEFAULT_SETTINGS = { rounds: 3, categories: 5, seconds: 40 } as const;
-export type GameMode = 'letter' | 'category';
+export type GameMode = 'letter' | 'category' | 'tail';
 export type GameSettings = { rounds: number; categories: number; seconds: number; mode?: GameMode };
-export function gameMode(settings: GameSettings): GameMode { return settings.mode === 'category' ? 'category' : 'letter'; }
+export function gameMode(settings: GameSettings): GameMode { return settings.mode === 'category' || settings.mode === 'tail' ? settings.mode : 'letter'; }
 /** Category mode stores a different consonant as each answer slot; classic mode stores categories. */
 export function roundCategory(slot:string,topicCategory?:string):string {return topicCategory || slot;}
 export function roundLetter(letter:string,slot:string,topicCategory?:string):string {return topicCategory ? slot : letter;}
 export function validRoundAnswer(value:string,letter:string,slot:string,topicCategory?:string):boolean {
   return validAnswer(value,roundLetter(letter,slot,topicCategory),roundCategory(slot,topicCategory));
 }
+
+/** Exact, server-reviewed word pool: existing words plus a separate uncategorized
+ * list. Do not apply category-prefix stripping in this no-category mode. */
+export function canonicalTailWord(value:unknown):string {
+  return normalizeAnswer(value).toLocaleLowerCase('th');
+}
+const TAIL_DICTIONARY = new Set(
+  [...Object.values(WORD_BANK).flat(), ...TAIL_EXTRA_WORDS]
+    .map(canonicalTailWord).filter(Boolean)
+);
+const TAIL_STARTS = new Map<string,string[]>();
+for (const word of TAIL_DICTIONARY) {
+  const initial=initialConsonant(word);
+  if(!(ALL_LETTERS as readonly string[]).includes(initial))continue;
+  const list=TAIL_STARTS.get(initial)||[];
+  list.push(word);
+  TAIL_STARTS.set(initial,list);
+}
+export const TAIL_START_LETTERS = ALL_LETTERS.filter(letter=>
+  (TAIL_STARTS.get(letter)?.length||0)>=2
+);
+/**
+ * Word-chain "ท้าย" means the initial consonant of the last spoken syllable,
+ * NOT the final written consonant. In particular การกระทำ -> ท (from ทำ),
+ * rather than ม. Thai spelling sometimes omits vowel signs; the fallback
+ * handles final consonant clusters without accepting unlisted words.
+ */
+export function tailNextConsonant(value:unknown):string {
+  const word=canonicalTailWord(value);
+  if(!word)return '';
+  if(TAIL_END_OVERRIDES[word])return TAIL_END_OVERRIDES[word];
+  const section=word.split(/[\s\-–]+/).at(-1)||'';
+  // A consonant with an explicit dependent vowel is the syllable's onset.
+  const candidates:{index:number;end:number;initial:string}[]=[];
+  for(const hit of section.matchAll(/([ก-ฮ])([รลว])?[ัะาำิีึืุู]/gu)){
+    candidates.push({index:hit.index??0,end:(hit.index??0)+hit[0].length,initial:hit[1]});
+  }
+  // Thai leading vowels are written before their consonant.
+  for(const hit of section.matchAll(/[เแโใไ]([ก-ฮ])/gu)){
+    candidates.push({index:hit.index??0,end:(hit.index??0)+hit[0].length,initial:hit[1]});
+  }
+  candidates.sort((a,b)=>b.index-a.index);
+  if(candidates.length){
+    const last=candidates[0];
+    const trailing=[...section.slice(last.end).matchAll(/[ก-ฮ]/gu)].map(x=>x[0]);
+    if(trailing.length>=2){
+      const segment=trailing.slice(-3).join('');
+      const onset=trailing.at(-2)!;
+      if(trailing.length>=3 && /^(กร|กล|กว|ขร|ขล|ขว|คร|คล|คว|ตร|ปร|ปล|พร|พล|ฟร|ฟล)/u.test(segment.slice(0,2)))
+        return trailing.at(-3)!;
+      return onset;
+    }
+    return last.initial;
+  }
+  const consonants=[...section.matchAll(/[ก-ฮ]/gu)].map(x=>x[0]);
+  if(consonants.length===0)return '';
+  if(consonants.length===1)return consonants[0];
+  const beforeFinal=consonants.slice(-3).join('');
+  if(consonants.length>=3 && /^(กร|กล|กว|ขร|ขล|ขว|คร|คล|คว|ตร|ปร|ปล|พร|พล|ฟร|ฟล)/u.test(beforeFinal.slice(0,2)))
+    return consonants.at(-3)!;
+  return consonants.at(-2)!;
+}
+export type TailWordStatus = 'ok' | 'empty' | 'wrong-letter' | 'unknown' | 'dead-end' | 'repeated';
+export function tailWordStatus(value:unknown,letter:string,usedWords:readonly string[]=[]):TailWordStatus {
+  const word=canonicalTailWord(value);
+  if(!word)return 'empty';
+  if(usedWords.includes(word))return 'repeated';
+  if(initialConsonant(word)!==letter)return 'wrong-letter';
+  if(isInappropriateLanguage(word)||isBlockedStandaloneAnswer(word)||!TAIL_DICTIONARY.has(word))return 'unknown';
+  const next=tailNextConsonant(word);
+  if(!(TAIL_START_LETTERS as readonly string[]).includes(next))return 'dead-end';
+  // Never hand the next person a consonant with no unused dictionary words.
+  const seen=new Set([...usedWords,word]);
+  if(!(TAIL_STARTS.get(next)||[]).some(candidate=>!seen.has(candidate)&&
+    !isInappropriateLanguage(candidate)&&!isBlockedStandaloneAnswer(candidate)))return 'dead-end';
+  return 'ok';
+}
+export function chooseTailStartLetter(random=Math.random):string {
+  const letters=TAIL_START_LETTERS;
+  if(!letters.length)throw new Error('NO_TAIL_DICTIONARY');
+  return letters[Math.min(letters.length-1,Math.max(0,Math.floor(random()*letters.length)))];
+}
+function tailSurvivors(match:Match):TailMatch['order'] {
+  const tail=match.tail;
+  if(!tail)return [];
+  const present=new Set(match.players.map(p=>p.id));
+  return tail.order.filter(p=>present.has(p.id)&&!tail.eliminated[p.id]);
+}
+function tailFinishIfNeeded(match:Match):boolean {
+  if(!match.tail)return false;
+  if(tailSurvivors(match).length>1)return false;
+  match.phase='final';match.deadline=0;match.rematchVotes={};
+  match.tail.currentId=tailSurvivors(match)[0]?.id||'';
+  return true;
+}
+function tailNextSeat(match:Match,previousId:string,now:number):void {
+  if(!match.tail||tailFinishIfNeeded(match))return;
+  const order=match.tail.order, at=order.findIndex(p=>p.id===previousId);
+  const alive=new Set(tailSurvivors(match).map(p=>p.id));
+  for(let step=1;step<=order.length;step++){
+    const next=order[(at+step+order.length)%order.length];
+    if(next&&alive.has(next.id)){
+      match.tail.currentId=next.id;
+      match.round++;
+      match.deadline=now+match.settings.seconds*1000;
+      return;
+    }
+  }
+  tailFinishIfNeeded(match);
+}
+function tailEliminate(match:Match,userId:string,now:number,reason:TailEliminationReason,word?:string):void {
+  const tail=match.tail;
+  if(!tail||tail.eliminated[userId])return;
+  const person=tail.order.find(p=>p.id===userId);
+  if(!person)return;
+  const place=tail.order.filter(p=>!tail.eliminated[p.id]).length;
+  tail.eliminated[userId]={place,reason,...(word?{word}:{})};
+  tail.moves.push({playerId:userId,name:person.name,turn:match.round,letter:match.letter,reason,...(word?{word}:{})});
+  if(tail.moves.length>100)tail.moves.shift();
+  if(userId===tail.currentId)tailNextSeat(match,userId,now);
+  else tailFinishIfNeeded(match);
+}
+function tailAdvance(match:Match,now:number):void {
+  if(match.phase!=='playing'||!match.tail)return;
+  const current=match.tail.currentId;
+  for(const person of match.tail.order){
+    if(!match.players.some(p=>p.id===person.id)&&!match.tail.eliminated[person.id])
+      tailEliminate(match,person.id,now,'left');
+  }
+  if(match.phase!=='playing'||!match.tail)return;
+  if(!tailSurvivors(match).some(p=>p.id===match.tail!.currentId))
+    tailNextSeat(match,current,now);
+  if(match.phase==='playing'&&now>=match.deadline)
+    tailEliminate(match,match.tail.currentId,now,'timeout');
+}
+
 export const REVIEW_SECONDS = 10;
 export const RUSH_ANIMATION_MS = 1800;
 // Give slow connections time to recover without losing their player slot.
@@ -159,12 +296,24 @@ export type Phase = 'lobby' | 'playing' | 'review' | 'final';
 export type Player = { id: string; name: string; score: number; lastSeen: number };
 export type RoundEntry = { id: string; name: string; answers: Record<string,string>; points: number; perCategory: Record<string,number>; rarityBonus?: Record<string,number> };
 export type History = { round: number; letter: string; categories: string[]; entries: RoundEntry[]; topicCategory?:string };
+export type TailEliminationReason = 'timeout' | 'repeat' | 'left';
+export type TailMove = {
+  playerId:string; name:string; turn:number; letter:string; word?:string;
+  nextLetter?:string; reason?:TailEliminationReason;
+};
+export type TailMatch = {
+  order:{id:string;name:string}[]; currentId:string; usedWords:string[];
+  eliminated:Record<string,{place:number;reason:TailEliminationReason;word?:string}>;
+  moves:TailMove[]; lastWord:string;
+};
 export type Match = {
   id: string; version: number; phase: Phase; players: Player[]; round: number;
   ownerId: string; settings: GameSettings; createdAt?: number;
   letter: string; categories: string[]; topicCategory?:string; deadline: number; countdown: number;
   submissions: Record<string, Record<string,string>>; history: History[];
   previousLetters: string[]; previousCategories: string[]; ttl: number;
+  /** Word-chain elimination lives outside classic rounds and category scoring. */
+  tail?:TailMatch;
   /** Current round's SERVER-ONLY daily rarity snapshot; never returned during play. */
   rarityBonuses?: Record<string, Record<string, number>>;
   /** Votes are keyed by server-issued Cognito guest identity, never tab-specific identifiers. */
@@ -190,7 +339,7 @@ export function validateSettings(raw: unknown): GameSettings {
     || (rounds as number) < 1 || (rounds as number) > 10
     || (categories as number) < 3 || (categories as number) > 8
     || (seconds as number) < 20 || (seconds as number) > 120
-    || (mode !== undefined && mode !== 'letter' && mode !== 'category')) {
+    || (mode !== undefined && mode !== 'letter' && mode !== 'category' && mode !== 'tail')) {
     throw new Error('ตั้งค่าไม่ถูกต้อง: รอบ 1–10 หมวด 3–8 เวลา 20–120 วินาที');
   }
   return { rounds: rounds as number, categories: categories as number, seconds: seconds as number,
@@ -326,7 +475,7 @@ function resetToLobby(match:Match) {
   // Keep room, connected players, owner and last settings; only the run resets.
   match.phase='lobby';match.round=0;match.letter='';match.categories=[];match.topicCategory=undefined;match.deadline=0;
   match.submissions={};match.history=[];match.previousLetters=[];match.previousCategories=[];
-  match.rarityBonuses={};match.skipVotes={};match.rematchVotes={};match.timeRush=undefined;
+  match.rarityBonuses={};match.skipVotes={};match.rematchVotes={};match.timeRush=undefined;match.tail=undefined;
   for(const p of match.players)p.score=0;
 }
 function pruneVotes(match:Match) {
@@ -364,6 +513,11 @@ export function advance(match: Match, now: number, random = Math.random): Match 
   if (!match.players.some(player => player.id === match.ownerId)) {
     match.ownerId = match.players[0]?.id || '';
   }
+  if(gameMode(match.settings)==='tail'){
+    tailAdvance(match,now);
+    match.ttl=Math.floor(now/1000)+86400;
+    return match;
+  }
   if (match.phase === 'playing' && now >= match.deadline) {
     const entries = scoreRound(match);
     for (const entry of entries) {
@@ -398,6 +552,7 @@ export function snapshot(match: Match) {
     roomId:match.id, phase:match.phase, round:match.round, letter:match.letter, topicCategory:match.topicCategory,
     categories:match.categories, deadline:match.deadline, countdown:match.countdown,
     ownerId:match.ownerId, settings:match.settings,
+    tail:match.tail ? {...match.tail,moves:match.tail.moves.slice(-30)} : undefined,
     players:match.players.map(({id,name,score})=>({id,name,score})),
     submitted:match.phase==='playing' ? Object.keys(match.submissions) : [],
     // The server never exposes raw in-progress guesses, even to room members.
@@ -464,10 +619,20 @@ export function applyAction(
       match.round=1;
       match.history=[];match.submissions={};match.previousLetters=[];match.previousCategories=[];
       match.skipVotes={};match.rematchVotes={};match.timeRush=undefined;
-      const round=chooseRound(match);
-      match.letter=round.letter;match.categories=round.categories;match.topicCategory=round.topicCategory;
-      match.previousLetters.push(...(round.topicCategory?round.categories:[round.letter]));
-      match.previousCategories.push(...(round.topicCategory?[round.topicCategory]:round.categories));
+      if(gameMode(match.settings)==='tail'){
+        match.letter=chooseTailStartLetter();
+        match.categories=[];match.topicCategory=undefined;
+        match.tail={
+          order:match.players.map(p=>({id:p.id,name:p.name})),
+          currentId:match.players[0].id,usedWords:[],eliminated:{},moves:[],lastWord:''
+        };
+      }else{
+        match.tail=undefined;
+        const round=chooseRound(match);
+        match.letter=round.letter;match.categories=round.categories;match.topicCategory=round.topicCategory;
+        match.previousLetters.push(...(round.topicCategory?round.categories:[round.letter]));
+        match.previousCategories.push(...(round.topicCategory?[round.topicCategory]:round.categories));
+      }
       match.phase='playing'; match.rarityBonuses={};
       match.deadline=now+match.settings.seconds*1000;
     } else if (action==='rematch') {
@@ -475,6 +640,7 @@ export function applyAction(
       match.rematchVotes??={};
       match.rematchVotes[userId]=true;
     } else if (action==='skip') {
+      if(gameMode(match.settings)==='tail')throw new Error('โหมดคำท้ายไม่มีระบบข้ามเวลา');
       if(match.phase!=='playing')throw new Error('ข้ามเวลาได้ระหว่างตอบคำเท่านั้น');
       if(match.timeRush||match.deadline-now<=5000)throw new Error('เหลือเวลาไม่เกิน 5 วินาทีแล้ว');
       match.skipVotes??={};
@@ -485,7 +651,43 @@ export function applyAction(
       if (match.phase!=='final') throw new Error('เกมยังไม่จบ');
       match.rematchVotes??={};
       match.rematchVotes[userId]=true;
+    } else if(action==='tail-submit'){
+      if(gameMode(match.settings)!=='tail'||match.phase!=='playing'||!match.tail)
+        throw new Error('ไม่อยู่ในโหมดคำท้าย');
+      if(match.tail.currentId!==userId)throw new Error('ยังไม่ถึงตาของคุณ');
+      if(now>=match.deadline)throw new Error('หมดเวลาของตานี้แล้ว');
+      const data=answers && typeof answers==='object' && !Array.isArray(answers)
+        ? answers as Record<string,unknown> : {};
+      const word=normalizeAnswer(data.word);
+      const canonical=canonicalTailWord(word);
+      // Repeating ANY previous played word loses immediately, even if another
+      // category originally contained it. Two simultaneous submits are CAS-safe.
+      if(canonical && match.tail.usedWords.includes(canonical)){
+        tailEliminate(match,userId,now,'repeat',word);
+      }else{
+        const checked=tailWordStatus(word,match.letter,match.tail.usedWords);
+        if(checked!=='ok'){
+          const reasons:Record<TailWordStatus,string>={
+            'ok':'','empty':'กรุณาพิมพ์คำก่อนส่ง',
+            'wrong-letter':'คำต้องขึ้นต้นด้วย '+match.letter,
+            'unknown':'คำนี้ยังไม่มีในพจนานุกรมคำท้าย',
+            'dead-end':'คำนี้ส่งต่อไม่ได้ เพราะไม่มีคำที่เล่นต่อได้',
+            'repeated':'คำซ้ำ ถูกคัดออก'
+          };
+          throw new Error(reasons[checked]);
+        }
+        const next=tailNextConsonant(word);
+        match.tail.usedWords.push(canonical);
+        match.tail.lastWord=word;
+        match.tail.moves.push({playerId:userId,name:player.name,turn:match.round,
+          letter:match.letter,word,nextLetter:next});
+        if(match.tail.moves.length>100)match.tail.moves.shift();
+        player.score+=1;
+        match.letter=next;
+        tailNextSeat(match,userId,now);
+      }
     } else if (action==='draft' || action==='submit') {
+      if(gameMode(match.settings)==='tail')throw new Error('ใช้ปุ่มส่งคำในโหมดคำท้าย');
       // The most recent server-saved input is scored at the deadline.
       // A previous draft is fully replaced so clearing text also removes it.
       if (match.phase!=='playing' || now>=match.deadline) throw new Error('หมดเวลาบันทึกคำตอบแล้ว');

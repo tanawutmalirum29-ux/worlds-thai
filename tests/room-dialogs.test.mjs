@@ -21,7 +21,8 @@ test('exit only leaves the game after custom confirmation',()=>{
 test('both room screens use the same CSS selection popup, not OS select',()=>{
   assert.equal((source.match(/\{settingsControls\}/g)||[]).length,2);
   assert.doesNotMatch(source,/<select\b/);
-  assert.match(source,/SETTINGS_CHOICES\.map/);
+  assert.match(source,/SETTINGS_CHOICES\.filter/);
+  assert.match(source,/draftSettings\.mode!=='tail'\|\|choice\.field==='seconds'/);
   assert.match(source,/activeChoice\.options\.map/);
   assert.match(source,/aria-pressed=\{value===draftSettings\[activeChoice.field\]\}/);
   assert.match(source,/updateRoomSetting\(activeChoice.field,value\)/);
