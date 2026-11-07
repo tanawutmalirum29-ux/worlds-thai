@@ -174,6 +174,7 @@ export const AI3_ACTIVITY_TERMS: Readonly<Record<string, readonly string[]>> = {
     'ลวกเส้น',
     'หว่านเมล็ด',
     'ขัดรองเท้า',
+    'แกะสลักสบู่',
   ],
   sport: [
     'สปีดสเกต',
